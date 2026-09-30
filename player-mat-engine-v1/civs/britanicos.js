@@ -49,12 +49,13 @@ window.PLAYER_MAT_CIVS.britanicos = {
   nodes: [
     {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:1,range:0,move:1}, cost:{food:50}},
     {age:"dark", building:"mill", type:"unit", title:"Aldeano (Molino)", stats:{force:1,range:0,move:1}, cost:{food:75,stone:25}},
-    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{food:60,wood:20}, text:"Produce 1 Comida."},
+    {age:"feudal", building:"mill", type:"building", title:"Granja", cost:{food:60,wood:20}, text:"Produce 1 Comida."},
     {age:"dark", building:"port", type:"unit", title:"Pesquero", stats:{force:2,range:0,move:0}, cost:{food:60,stone:20,gold:20}},
     {age:"dark", building:"port", type:"unit", title:"Barco de Transporte", stats:{force:3,range:0,move:2}, cost:{food:100,stone:50}},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", stats:{force:2,range:0,move:1}, cost:{food:60}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:2,range:1,move:1}, cost:{food:60,gold:30}},
-    {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:80,wood:40}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
+    {age:"feudal", building:"tower", type:"building", title:"Torre", cost:{food:80,wood:40}},
+    {age:"feudal", building:"tower", type:"tech", title:"Guarnición", cost:{food:80,wood:40}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
     {age:"feudal", building:"tc", type:"tech", title:"Carretilla", cost:{food:50,gold:0}, text:"Los aldeanos pueden transportar +1 recurso."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:75,wood:50}, text:"La comida de ANIMALES puede utilizarse desde cualquier hexágono."},
