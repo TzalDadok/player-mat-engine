@@ -35,7 +35,7 @@
     });
     c.ages.forEach((a,ai)=>{
       const ac=document.createElement('div'); ac.className='cell age-cell'; ac.style.gridColumn='1'; ac.style.gridRow=String(ai+2);
-      ac.innerHTML=`<div class="age-name"><span class="roman">${a.roman}</span><span class="text">${esc(a.name)}</span></div>`; tree.appendChild(ac);
+      ac.innerHTML=`${a.image?`<img src="${esc(a.image)}" alt="">`:``}<div class="age-name"><span class="roman">${a.roman}</span><span class="text">${esc(a.name)}</span></div>`; tree.appendChild(ac);
       c.buildings.forEach((b,bi)=>{
         const slot=document.createElement('div'); slot.className='cell slot'; slot.dataset.age=a.id; slot.dataset.building=b.id; slot.style.gridColumn=String(bi+2); slot.style.gridRow=String(ai+2);
         const nodes=c.nodes.filter(n=>n.age===a.id&&n.building===b.id); slot.innerHTML=nodes.length?nodes.map(nodeHTML).join(''):'<div class="empty"></div>';
