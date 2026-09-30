@@ -41,3 +41,11 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .slot[data-age="dark"][data-building="mill"] .stats{gap:2px;font-size:8px}
 .slot[data-age="dark"][data-building="mill"] .costline{gap:2px;font-size:8px;flex-wrap:wrap}
 .slot[data-age="dark"][data-building="mill"] .cost-item .ri{font-size:9px}
+
+/* Ajuste de Carreta Mercante dentro de la casilla Imperial del Molino */
+.slot[data-age="imperial"][data-building="mill"]{padding:3px}
+.slot[data-age="imperial"][data-building="mill"]>.node{min-height:0;padding:3px;font-size:8px;line-height:1.02}
+.slot[data-age="imperial"][data-building="mill"] .node-title{font-size:10px}
+.slot[data-age="imperial"][data-building="mill"] .node-text{font-size:7.5px;line-height:1.05}
+.slot[data-age="imperial"][data-building="mill"] .costline{font-size:8px;gap:3px}
+.slot[data-age="imperial"][data-building="mill"] .cost-item .ri{font-size:9px}
