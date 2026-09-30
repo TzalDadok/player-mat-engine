@@ -42,7 +42,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   ],
   ages: [
     {id:"dark", roman:"I", name:"ALTA EDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
-    {id:"feudal", roman:"II", name:"EDAD FEUDAL", cost:{food:4,wood:4,stone:2,gold:2}},
+    {id:"feudal", roman:"II", name:"EDAD FEUDAL", image:"assets/ages/feudal-centro-urbano.jpg", cost:{food:4,wood:4,stone:2,gold:2}},
     {id:"castles", roman:"III", name:"EDAD DE LOS CASTILLOS", cost:{food:5,wood:6,stone:4,gold:3}},
     {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", cost:{food:8,wood:8,stone:6,gold:6}}
   ],
