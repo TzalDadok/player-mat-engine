@@ -41,7 +41,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"monastery", name:"Monasterio", image:"assets/buildings/monasterio.jpg", unlock:"castles"}
   ],
   ages: [
-    {id:"dark", roman:"I", name:"ALTA\nEDAD MEDIA", image:"assets/ages/alta-centro-urbano.svg"},
+    {id:"dark", roman:"I", name:"ALTA\nEDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
     {id:"feudal", roman:"II", name:"EDAD\nFEUDAL"},
     {id:"castles", roman:"III", name:"EDAD DE LOS\nCASTILLOS"},
     {id:"imperial", roman:"IV", name:"EDAD\nIMPERIAL"}
