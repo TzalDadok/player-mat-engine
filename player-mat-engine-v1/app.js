@@ -55,6 +55,8 @@
 
   function render(id){
     const c=civs[id]; if(!c) return;
+    hero.classList.toggle('use-art', !!c.headerImage);
+    hero.style.backgroundImage = c.headerImage ? `url('${c.headerImage}')` : '';
     hero.innerHTML=`<div class="flag">${c.flag}</div><div class="hero-title">${esc(c.name)}</div><div class="hero-subtitle">${esc(c.subtitle)}</div><div class="hero-motto">${esc(c.motto)}</div>`;
     renderSidebar(c); renderTree(c);
   }
