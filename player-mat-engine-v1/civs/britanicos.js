@@ -74,7 +74,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"monastery", type:"unit", title:"Monje", stats:{force:1,range:1,move:1}, cost:{food:100,stone:50}},
 
     {age:"imperial", building:"tc", type:"tech", title:"Administración Real", cost:{food:300,wood:200}, text:"Tus aldeanos producen +1 recurso del tipo del edificio donde trabajan."},
-    {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{food:200,wood:100}, text:"Mueve hasta 6 recursos instantáneamente a cualquier hexágono con edificio.", tag:"Mercado"},
+    {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{food:200,wood:100}, text:"Mové hasta 6 recursos a cualquier edificio de forma instantánea.", tag:"Mercado"},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas de Arqueros", cost:{food:200,wood:150}, text:"Al ENTRENAR, podés entrenar hasta 2 unidades de arquería en lugar de 1."},
     {age:"imperial", building:"castle", type:"tech", title:"Élite", cost:{food:150,wood:150}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
     {age:"imperial", building:"monastery", type:"tech", title:"Herejía", cost:{food:200,wood:200}, text:"Las unidades convertidas por tus monjes mueren en lugar de pasarse de bando."}
