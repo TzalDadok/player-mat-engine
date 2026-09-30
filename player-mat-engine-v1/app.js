@@ -16,11 +16,11 @@
 
   function renderSidebar(c){
     const action = (num, cls, title, rows) => `<section class="action ${cls}"><div class="action-head"><span class="action-num">${num}</span><span>${title}</span><small>Elegí 1 acción</small></div><div class="action-body">${rows.map(([a,b])=>`<div class="action-row"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}</div></section>`;
-    sidebar.innerHTML = `<div class="sidebar-title"><b>TU TURNO</b><small>Realizá 1 acción de cada tipo (en orden).</small></div>
+    sidebar.innerHTML = `<div class="sidebar-title"><b>TU TURNO</b><small>Realizá 1 acción de cada tipo, en orden.</small></div>
       ${action(1,'econ','ECONOMÍA',c.turn.economy)}
       ${action(2,'tech','TECNOLOGÍA',c.turn.technology)}
       ${action(3,'mil','MILITAR',c.turn.military)}
-      <div class="legend"><h3>RECURSOS E ICONOS</h3><div class="res-grid">${c.resources.map(r=>`<div><span class="ico">${r.icon}</span>${esc(r.label)}</div>`).join('')}</div>
+      <div class="legend"><h3>RECURSOS E ICONOS</h3><div class="res-grid">${c.resources.map(r=>`<div class="res-item"><span class="ico">${r.icon}</span><span class="res-label">${esc(r.label)}</span></div>`).join('')}</div>
       <div class="stats-legend"><div><b>⚔ Fuerza</b>Daño en combate.</div><div><b>◎ Alcance</b>Hexágonos de apoyo.</div><div><b>👢 Movilidad</b>Hexágonos por mover.</div></div></div>`;
   }
 
