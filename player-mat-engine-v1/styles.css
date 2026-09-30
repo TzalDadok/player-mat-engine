@@ -49,3 +49,13 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 /* Puerto / Castillos: Red de Pesca y Navegación Avanzada lado a lado */
 .slot[data-age="castles"][data-building="port"]{flex-direction:row;gap:3px}
 .slot[data-age="castles"][data-building="port"]>.node{flex:1 1 0;min-width:0}
+
+/* Tarjetas: título a la izquierda y costo a la derecha */
+.node-head{display:flex;align-items:flex-start;justify-content:space-between;gap:3px;width:100%}
+.node-head .node-title{text-align:left;flex:1;min-width:0}
+.node-head .costline{margin-top:0;flex:0 0 auto;gap:2px}
+.node-head .cost-item .ri{font-size:10px}
+.node.building .node-head{position:relative;z-index:2;margin-top:-20px;margin-bottom:8px;align-items:center}
+.node.building .node-head .node-title{color:#fff;margin:0}
+.node.building .node-head .costline{color:#fff}
+.node.building .node-title{margin-top:0;margin-bottom:0}
