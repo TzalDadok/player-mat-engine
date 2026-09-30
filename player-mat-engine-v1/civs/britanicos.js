@@ -41,10 +41,10 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"monastery", name:"Monasterio", image:"assets/buildings/monasterio.jpg", unlock:"castles"}
   ],
   ages: [
-    {id:"dark", roman:"I", name:"ALTA\nEDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
-    {id:"feudal", roman:"II", name:"EDAD\nFEUDAL"},
-    {id:"castles", roman:"III", name:"EDAD DE LOS\nCASTILLOS"},
-    {id:"imperial", roman:"IV", name:"EDAD\nIMPERIAL"}
+    {id:"dark", roman:"I", name:"ALTA EDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
+    {id:"feudal", roman:"II", name:"EDAD FEUDAL", cost:{food:4,wood:4,stone:2,gold:2}},
+    {id:"castles", roman:"III", name:"EDAD DE LOS CASTILLOS", cost:{food:5,wood:6,stone:4,gold:3}},
+    {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", cost:{food:8,wood:8,stone:6,gold:6}}
   ],
   nodes: [
     {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:1,range:0,move:1}, cost:{food:50}},
