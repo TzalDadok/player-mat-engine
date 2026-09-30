@@ -46,8 +46,8 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", cost:{food:8,wood:8,stone:6,gold:6}}
   ],
   nodes: [
-    {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:50}},
-    {age:"dark", building:"mill", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:75,stone:25}},
+    {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:1}},
+    {age:"dark", building:"mill", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:2}},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{food:60,wood:20}, text:"Produce 1 Comida."},
     {age:"dark", building:"port", type:"unit", title:"Pesquero", stats:{force:2,range:0,move:0}, cost:{food:60,stone:20,gold:20}},
     {age:"dark", building:"port", type:"unit", title:"Barco de Transporte", stats:{force:3,range:0,move:2}, cost:{food:100,stone:50}},
