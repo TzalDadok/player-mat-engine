@@ -33,3 +33,11 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 @media print{body{background:#fff}.no-print{display:none!important}.mat{margin:0;box-shadow:none}@page{margin:0}}
 @media(max-width:900px){.toolbar .hint{display:none}body{overflow-x:auto}.mat{margin-left:8px;margin-right:8px;transform-origin:top left}}
 .age-cell:has(>img):after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,#0002 0%,#0000 42%,#0008 100%);pointer-events:none}
+
+/* Molino: Aldeano + Granja comparten la primera casilla */
+.slot[data-age="dark"][data-building="mill"]{flex-direction:row;gap:3px}
+.slot[data-age="dark"][data-building="mill"]>.node{flex:1 1 0;min-width:0;padding-left:2px;padding-right:2px}
+.slot[data-age="dark"][data-building="mill"] .node-title{font-size:9px}
+.slot[data-age="dark"][data-building="mill"] .stats{gap:2px;font-size:8px}
+.slot[data-age="dark"][data-building="mill"] .costline{gap:2px;font-size:8px;flex-wrap:wrap}
+.slot[data-age="dark"][data-building="mill"] .cost-item .ri{font-size:9px}
