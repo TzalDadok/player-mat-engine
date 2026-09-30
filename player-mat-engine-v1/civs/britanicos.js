@@ -25,7 +25,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
       ["Avanzar de Edad","Pagá los requisitos y desbloqueá la siguiente línea del árbol."]
     ],
     military: [
-      ["Mover","Mové unidades militares. Entrar donde haya enemigos inicia combate."],
+      ["Mover","Mové unidades. Si entrás donde hay enemigos, combatís."],
       ["Entrenar","Entrená una unidad militar disponible (cuadro azul)."],
       ["Instruir","Obtené +1 Poder de pelea."]
     ]
