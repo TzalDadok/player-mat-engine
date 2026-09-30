@@ -54,7 +54,7 @@
   function render(id){
     const c=civs[id]; if(!c) return;
     // Physical player-mat size: fixed 14 cm height; width grows with the tech tree.
-    const sidebarCm = 5.0;
+    const sidebarCm = 6.2;
     const ageCm = 3.2;
     const buildingCm = 3.3;
     mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm)}cm`;
