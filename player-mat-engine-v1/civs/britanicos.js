@@ -33,7 +33,6 @@ window.PLAYER_MAT_CIVS.britanicos = {
   buildings: [
     {id:"tc", name:"Centro Urbano", image:"assets/buildings/centro-urbano.jpg"},
     {id:"mill", name:"Molino", image:"assets/buildings/molino.jpg"},
-    {id:"farm", name:"Granja"},
     {id:"port", name:"Puerto", image:"assets/buildings/puerto.jpg"},
     {id:"camp", name:"Campamento de Recursos", image:"assets/buildings/campamento-recursos.jpg"},
     {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.jpg"},
@@ -50,7 +49,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   nodes: [
     {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:1,range:0,move:1}, cost:{food:50}},
     {age:"dark", building:"mill", type:"unit", title:"Aldeano (Molino)", stats:{force:1,range:0,move:1}, cost:{food:75,stone:25}},
-    {age:"dark", building:"farm", type:"building", title:"Granja", cost:{food:60,wood:20}, text:"Produce 1 Comida."},
+    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{food:60,wood:20}, text:"Produce 1 Comida."},
     {age:"dark", building:"port", type:"unit", title:"Pesquero", stats:{force:2,range:0,move:0}, cost:{food:60,stone:20,gold:20}},
     {age:"dark", building:"port", type:"unit", title:"Barco de Transporte", stats:{force:3,range:0,move:2}, cost:{food:100,stone:50}},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", stats:{force:2,range:0,move:1}, cost:{food:60}},
