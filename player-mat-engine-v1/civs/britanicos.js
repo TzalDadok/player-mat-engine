@@ -4,6 +4,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   name: "BRITÁNICOS",
   subtitle: "MAESTROS DEL ARCO",
   motto: "Disciplina, alcance\ny control del territorio.",
+  headerImage: "assets/reference-master.png",
   flag: "🏴",
   resources: [
     {id:"food", label:"Comida", icon:"🥩"},
