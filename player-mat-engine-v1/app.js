@@ -23,7 +23,7 @@
   }
 
   function nodeHTML(n){
-    return `<div class="node ${n.type}">${n.tag?`<div class="node-tag">${esc(n.tag)}</div>`:''}<div class="node-title">${esc(n.title)}</div>${statsHTML(n.stats)}${costHTML(n.cost)}${n.text?`<div class="node-text">${esc(n.text)}</div>`:''}</div>`;
+    return `<div class="node ${n.type}">${n.tag?`<div class="node-tag">${esc(n.tag)}</div>`:''}<div class="node-head"><div class="node-title">${esc(n.title)}</div>${costHTML(n.cost)}</div>${statsHTML(n.stats)}${n.text?`<div class="node-text">${esc(n.text)}</div>`:''}</div>`;
   }
 
   function renderTree(c){
