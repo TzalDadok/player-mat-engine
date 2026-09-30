@@ -55,6 +55,14 @@
 
   function render(id){
     const c=civs[id]; if(!c) return;
+    // Physical player-mat size: fixed 12 cm height; width grows with the tech tree.
+    const sidebarCm = 5.0;
+    const ageCm = 3.2;
+    const buildingCm = 3.3;
+    mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm)}cm`;
+    mat.style.height = '12cm';
+    mat.style.setProperty('--sidebar-w', `${sidebarCm}cm`);
+    tree.style.gridTemplateColumns = `${ageCm}cm repeat(${c.buildings.length}, ${buildingCm}cm)`;
     hero.classList.toggle('use-art', !!c.headerImage);
     hero.style.backgroundImage = c.headerImage ? `url('${c.headerImage}')` : '';
     hero.innerHTML=`<div class="flag">${c.flag}</div><div class="hero-title">${esc(c.name)}</div><div class="hero-subtitle">${esc(c.subtitle)}</div><div class="hero-motto">${esc(c.motto)}</div>`;
