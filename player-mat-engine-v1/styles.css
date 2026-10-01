@@ -555,3 +555,35 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .embedded-head .costline{margin-top:0;flex:0 0 auto;gap:2px}
 .embedded-head .cost-item .ri{font-size:10px}
 .embedded-unit .stats{justify-content:flex-start;margin:2px 0 0}
+
+
+/* Unidades: una sola línea, nombre a la izquierda y costo a la derecha */
+.node.unit,.node.civil{
+  min-height:0;
+  height:auto !important;
+  padding:4px 5px;
+  display:block;
+}
+.node.unit .node-head,.node.civil .node-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:4px;
+  width:100%;
+  white-space:nowrap;
+}
+.node.unit .node-title,.node.civil .node-title{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px;
+  line-height:1;
+}
+.node.unit .node-head .costline,.node.civil .node-head .costline{
+  margin:0;
+  flex:0 0 auto;
+}
+.node.unit .stats,.node.civil .stats,
+.node.unit .node-text,.node.civil .node-text{
+  display:none;
+}
