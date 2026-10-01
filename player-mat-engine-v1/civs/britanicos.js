@@ -49,7 +49,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:1}, text:"Unidad necesaria para construir."},
     {age:"dark", building:"mill", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:2}, text:"Unidad necesaria para construir."},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura."},
-    {age:"dark", building:"port", type:"unit", title:"Pesquero", stats:{force:2,range:0,move:0}, cost:{wood:2}},
+    {age:"dark", building:"port", type:"unit", title:"Pesquero", stats:{force:2,range:0,move:0}, cost:{wood:2}, text:"Unidad necesaria para producir."},
     {age:"dark", building:"port", type:"unit", title:"Barco de Transporte", stats:{force:3,range:0,move:2}, cost:{wood:3}},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", stats:{force:2,range:0,move:1}, cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:2,range:1,move:1}, cost:{wood:1,gold:1}},
