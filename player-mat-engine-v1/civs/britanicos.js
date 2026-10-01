@@ -73,7 +73,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Escaramuzador", cost:{food:1,wood:1}},
     {age:"feudal", building:"barracks", type:"tech", title:"Marcha Disciplin.", cost:{food:2,gold:1}, text:"Unidades de arquería entrenadas pueden salir en hexágono adyacente."},
-    {age:"feudal", building:"tower", type:"tech", title:"Zona de Control", text:"Las unidades enemigas que entren en un hexágono adyacente a tu Torre deben finalizar allí su movimiento."},
+    {age:"feudal", building:"tower", type:"tech", title:"Zona de Control", cost:{wood:2,stone:1}, text:"Las unidades enemigas que entren en un hexágono adyacente a tu Torre deben finalizar allí su movimiento."},
 
     {age:"castles", building:"tc", type:"tech", title:"Desarrollo", text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
     {age:"castles", building:"port", type:"tech", title:"Naveg. Avanzada", cost:{wood:2,gold:1}, text:"Pesqueros y barcos de transporte pueden llevar +2 recursos."},
