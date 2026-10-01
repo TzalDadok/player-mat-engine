@@ -45,8 +45,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"port", name:"Puerto", image:"assets/buildings/puerto.jpg"},
     {id:"camp", name:"Campamento de Recursos", image:"assets/buildings/campamento-recursos.jpg"},
     {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.jpg"},
-    {id:"tower", name:"Torre", image:"assets/buildings/torre.jpg"},
-    {id:"monastery", name:"Monasterio", image:"assets/buildings/monasterio.jpg", unlock:"castles"}
+    {id:"tower", name:"Torre", image:"assets/buildings/torre.jpg"}
   ],
   ages: [
     {id:"dark", roman:"I", name:"ALTA EDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
@@ -78,14 +77,15 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"camp", type:"tech", title:"Explotación Aurífera", cost:{food:2,wood:1}, text:"Los mineros producen +1 Oro."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", stats:{force:2,range:0,move:2}, cost:{food:2,gold:1}},
     {age:"castles", building:"barracks", type:"tech", title:"Yeomen", cost:{food:2,gold:2}, text:"Todas las unidades de arquería obtienen +1 Fuerza."},
-    {age:"castles", building:"tower", type:"building", title:"Castillo", cost:{stone:5,gold:2}},
+    {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:5,gold:2}},
     {age:"castles", building:"tower", type:"unit", title:"Arquero de Tiro Largo", stats:{force:3,range:2,move:1}, cost:{wood:2,gold:1}},
-    {age:"castles", building:"monastery", type:"unit", title:"Monje", stats:{force:1,range:1,move:1}, cost:{gold:3}},
+    {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}},
+    {age:"castles", building:"tc", type:"unit", title:"Monje", stats:{force:1,range:1,move:1}, cost:{gold:3}},
 
     {age:"imperial", building:"tc", type:"tech", title:"Administración", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción."},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas de Arqueros", cost:{food:3,gold:3}, text:"Al ENTRENAR, podés entrenar hasta 2 unidades de arquería en lugar de 1."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
-    {age:"imperial", building:"monastery", type:"tech", title:"Herejía", cost:{gold:5}, text:"Las unidades convertidas por tus monjes mueren en lugar de pasarse de bando."}
+    {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Las unidades convertidas por tus monjes mueren en lugar de pasarse de bando."}
   ]
 };
