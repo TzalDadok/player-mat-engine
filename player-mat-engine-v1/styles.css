@@ -713,3 +713,26 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .tree .slot[data-age="dark"][data-building="barracks"] > .node.unit .node-head{
   width:100% !important;
 }
+
+
+/* Alta Edad Media: compactar la primera tarjeta para subir Carretilla, Granja y Barco de Transporte */
+.slot[data-age="dark"][data-building="tc"],
+.slot[data-age="dark"][data-building="mill"],
+.slot[data-age="dark"][data-building="port"]{
+  display:grid !important;
+  grid-template-rows:22px auto !important;
+  align-content:start !important;
+  gap:4px !important;
+}
+.slot[data-age="dark"][data-building="tc"]>.node:first-child,
+.slot[data-age="dark"][data-building="mill"]>.node:first-child,
+.slot[data-age="dark"][data-building="port"]>.node:first-child{
+  height:22px !important;
+  min-height:22px !important;
+}
+.slot[data-age="dark"][data-building="tc"]>.node:nth-child(2),
+.slot[data-age="dark"][data-building="mill"]>.node:nth-child(2),
+.slot[data-age="dark"][data-building="port"]>.node:nth-child(2){
+  height:auto !important;
+  min-height:0 !important;
+}
