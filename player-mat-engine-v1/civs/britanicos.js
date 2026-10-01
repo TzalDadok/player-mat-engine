@@ -17,7 +17,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
       ["Producir","Todos tus aldeanos y edificios productivos elegibles producen."],
       ["Mover","Mové aldeanos y los recursos que transportan."],
       ["Construir","Construí un edificio o mejora de terreno disponible."],
-      ["Entrenar","Entrená un aldeano en el Centro Urbano o Molino."],
+      ["Entrenar","Entrená una unidad economica disponible."],
       ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
     ],
     technology: [
@@ -35,7 +35,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     ],
     military: [
       ["Mover","Mové unidades. Al entrar con enemigos, decidís si combatir."],
-      ["Entrenar","Entrená una unidad militar disponible (cuadro azul)."],
+      ["Entrenar","Entrená una unidad militar disponible."],
       ["Instruir","Obtené +1 Poder de pelea."]
     ]
   },
