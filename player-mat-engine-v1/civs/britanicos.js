@@ -71,10 +71,10 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Pesqueros pueden transportar 4 recursos."},
     {age:"feudal", building:"camp", type:"tech", title:"Hacha de Doble Filo", cost:{food:1,wood:1}, text:"Los leñadores producen +1 Madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Escaramuzador", cost:{food:1,wood:1}},
-    {age:"feudal", building:"barracks", type:"tech", title:"Marcha Disciplinada", cost:{food:2,gold:1}, text:"Las unidades de arquería recién entrenadas pueden mover 1 hexágono."},
+    {age:"feudal", building:"barracks", type:"tech", title:"Marcha Disciplin.", cost:{food:2,gold:1}, text:"Las unidades de arquería recién entrenadas pueden mover 1 hexágono."},
 
     {age:"castles", building:"tc", type:"tech", title:"Desarrollo", text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
-    {age:"castles", building:"port", type:"tech", title:"Navegación Avanzada", cost:{wood:2,gold:1}, text:"Pesqueros y barcos de transporte pueden llevar +2 recursos."},
+    {age:"castles", building:"port", type:"tech", title:"Naveg. Avanzada", cost:{wood:2,gold:1}, text:"Pesqueros y barcos de transporte pueden llevar +2 recursos."},
     {age:"castles", building:"port", type:"unit", title:"Galera", cost:{wood:2,gold:1}},
     {age:"castles", building:"camp", type:"tech", title:"Explotación Aurífera", cost:{food:2,wood:1}, text:"Los mineros producen +1 Oro."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:1}},
