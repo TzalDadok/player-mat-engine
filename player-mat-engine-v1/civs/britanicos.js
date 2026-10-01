@@ -88,6 +88,6 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"imperial", building:"camp", type:"military-building", title:"Maq. de Asedio", text:"Contruye máquinaria que da bonus contra edificios. Unidad disponible: Ariete y Trebuchet."},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas de Arqueros", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de rango por turno."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
-    {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Las unidades convertidas por tus monjes mueren en lugar de pasarse de bando."}
+    {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Unidades convertidas por monjes enemigos mueren en lugar de cambiar de bando."}
   ]
 };
