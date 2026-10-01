@@ -177,3 +177,83 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .slot[data-age="dark"][data-building="port"] .cost-item .ri{
   font-size:10px;
 }
+
+/* Columna de acciones: redistribución para que Tecnología entre limpia sin superposiciones */
+.sidebar{
+  grid-template-rows:.95cm 4.35fr 4.05fr 2.60fr;
+}
+
+.action-body{
+  padding:2px 6px 3px;
+}
+
+.action-row{
+  grid-template-columns:76px minmax(0,1fr);
+  column-gap:7px;
+  padding:2px 0;
+  font-size:8.4px;
+  line-height:1.10;
+}
+
+.action-row b{
+  font-size:8.8px;
+  padding-left:21px;
+  padding-right:2px;
+}
+
+.action-row b:before{
+  width:17px;
+  font-size:15px;
+  line-height:17px;
+}
+
+/* Tecnología tiene 3 acciones; la tercera necesita más aire */
+.action.tech .action-body{
+  display:grid;
+  grid-template-rows:.75fr .75fr 2.5fr;
+}
+
+.action.tech .action-row{
+  min-height:0;
+}
+
+.action.tech .action-row:nth-child(3){
+  display:grid;
+  grid-template-columns:1fr;
+  grid-template-rows:auto 1fr;
+  align-items:start;
+  row-gap:2px;
+  padding-top:3px;
+}
+
+.action.tech .action-row:nth-child(3) b{
+  padding-left:21px;
+  font-size:8.8px;
+}
+
+.action.tech .action-row:nth-child(3) span{
+  font-size:7.9px;
+  line-height:1.12;
+}
+
+/* Encabezados apenas más compactos para ganar altura útil */
+.action-head{
+  height:.72cm;
+  padding:2px 6px;
+  gap:7px;
+}
+
+.action-head>span:nth-child(2){
+  font-size:12px;
+}
+
+.action-head small{
+  font-size:8px;
+}
+
+.action-num{
+  flex-basis:24px;
+  width:24px;
+  height:24px;
+  font-size:15px;
+}
