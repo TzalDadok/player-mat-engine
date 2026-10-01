@@ -64,7 +64,7 @@
     const ageCm = 3.6;
     const buildingCm = 4.2;
     mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm)}cm`;
-    mat.style.height = '13.6cm';
+    mat.style.height = '15.6cm';
     mat.style.setProperty('--sidebar-w', `${sidebarCm}cm`);
     tree.style.gridTemplateColumns = `${ageCm}cm repeat(${c.buildings.length}, ${buildingCm}cm)`;
     renderSidebar(c); renderTree(c);
