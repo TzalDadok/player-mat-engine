@@ -65,6 +65,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
     {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
+    {age:"feudal", building:"tc", type:"tech", title:"Telar", text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"La comida de ANIMALES puede utilizarse desde cualquier hexágono."},
     {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
     {age:"feudal", building:"port", type:"tech", title:"Trampa para peces", cost:{wood:2}, text:"Los pesqueros producen +1 Comida."},
