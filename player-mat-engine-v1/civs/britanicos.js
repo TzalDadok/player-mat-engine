@@ -44,7 +44,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"tc", name:"Centro Urbano", image:"assets/buildings/centro-urbano.jpg"},
     {id:"mill", name:"Molino", image:"assets/buildings/molino.jpg"},
     {id:"port", name:"Puerto", image:"assets/buildings/puerto.jpg"},
-    {id:"camp", name:"Campamento de Recursos", image:"assets/buildings/campamento-recursos.png"},
+    {id:"camp", name:"Camp. de Recursos", image:"assets/buildings/campamento-recursos.png"},
     {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.png"},
     {id:"tower", name:"Torre", image:"assets/buildings/torre.png"}
   ],
