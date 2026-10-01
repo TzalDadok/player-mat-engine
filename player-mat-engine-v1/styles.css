@@ -35,7 +35,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .age-cell:has(>img):after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,#0002 0%,#0000 42%,#0008 100%);pointer-events:none}
 
 /* Molino: Aldeano + Granja comparten la primera casilla */
-.slot[data-age="dark"][data-building="mill"]{flex-direction:row;gap:3px}
+.slot[data-age="dark"][data-building="mill"]{flex-direction:column;gap:4px}
 .slot[data-age="dark"][data-building="mill"]>.node{flex:1 1 0;min-width:0;padding-left:2px;padding-right:2px}
 .slot[data-age="dark"][data-building="mill"] .node-title{font-size:9px}
 .slot[data-age="dark"][data-building="mill"] .stats{gap:2px;font-size:8px}
@@ -59,3 +59,8 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .node.building .node-head .node-title{color:#fff;margin:0}
 .node.building .node-head .costline{color:#fff}
 .node.building .node-title{margin-top:0;margin-bottom:0}
+
+/* Molino / Alta Edad Media: Aldeano arriba, Granja abajo; atributos del Aldeano al pie */
+.slot[data-age="dark"][data-building="mill"]>.node{flex:1 1 0;min-height:0}
+.slot[data-age="dark"][data-building="mill"]>.node.unit{display:flex;flex-direction:column}
+.slot[data-age="dark"][data-building="mill"]>.node.unit .stats{order:10;margin-top:auto}
