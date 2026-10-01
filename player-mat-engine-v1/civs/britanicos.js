@@ -55,11 +55,11 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", image:"assets/ages/imperial.png", cost:{food:8,wood:6,stone:4,gold:5}}
   ],
   nodes: [
-    {age:"dark", building:"tc", type:"unit", title:"Aldeano", cost:{food:1}, text:"Unidad necesaria para producir y construir."},
-    {age:"dark", building:"mill", type:"unit", title:"Aldeano", cost:{food:2}, text:"Unidad necesaria para producir y construir."},
+    {age:"dark", building:"tc", type:"civil", title:"Aldeano", cost:{food:1}, text:"Unidad necesaria para producir y construir."},
+    {age:"dark", building:"mill", type:"civil", title:"Aldeano", cost:{food:2}, text:"Unidad necesaria para producir y construir."},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura."},
-    {age:"dark", building:"port", type:"unit", title:"Pesquero", cost:{wood:2}, text:"Unidad necesaria para producir."},
-    {age:"dark", building:"port", type:"unit", title:"Barco de Transporte", cost:{wood:3}},
+    {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}, text:"Unidad necesaria para producir."},
+    {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar unidades y recursos sin límite de capacidad."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", stats:{force:2,range:0,move:1}, cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:2,range:1,move:1}, cost:{wood:1,gold:1}},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
