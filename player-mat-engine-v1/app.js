@@ -1,7 +1,6 @@
 (() => {
   const civs = window.PLAYER_MAT_CIVS || {};
   const mat = document.getElementById('mat');
-  const hero = document.getElementById('hero');
   const sidebar = document.getElementById('sidebar');
   const tree = document.getElementById('tree');
   const select = document.getElementById('civSelect');
@@ -71,12 +70,9 @@
     const ageCm = 3.6;
     const buildingCm = 4.2;
     mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm)}cm`;
-    mat.style.height = '16cm';
+    mat.style.height = '13.6cm';
     mat.style.setProperty('--sidebar-w', `${sidebarCm}cm`);
     tree.style.gridTemplateColumns = `${ageCm}cm repeat(${c.buildings.length}, ${buildingCm}cm)`;
-    hero.classList.toggle('use-art', !!c.headerImage);
-    hero.style.backgroundImage = c.headerImage ? `url('${c.headerImage}')` : '';
-    hero.innerHTML=`<div class="flag">${c.flag}</div><div class="hero-title">${esc(c.name)}</div><div class="hero-subtitle">${esc(c.subtitle)}</div><div class="hero-motto">${esc(c.motto)}</div>`;
     renderSidebar(c); renderTree(c);
   }
 
