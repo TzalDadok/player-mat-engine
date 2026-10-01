@@ -91,3 +91,13 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   height:100%;
   min-height:0;
 }
+
+/* Todas las unidades: atributos siempre al pie */
+.node.unit{
+  display:flex;
+  flex-direction:column;
+}
+.node.unit .stats{
+  order:10;
+  margin-top:auto;
+}
