@@ -11,7 +11,7 @@
     if (!cost) return '';
     return `<div class="costline">${Object.entries(cost).filter(([,v])=>v!==undefined).map(([k,v])=>`<span class="cost-item"><span class="ri">${R[k]||k}</span>${esc(v)}</span>`).join('')}</div>`;
   };
-  const statsHTML = s => s ? `<div class="stats"><span class="force">${s.force}</span><span class="range">${s.range}</span><span class="move">${s.move}</span></div>` : '';
+  const statsHTML = s => s ? `<div class="stats">${s.force!==undefined?`<span class="force">${s.force}</span>`:''}${s.range!==undefined?`<span class="range">${s.range}</span>`:''}${s.move!==undefined?`<span class="move">${s.move}</span>`:''}</div>` : '';
 
   function renderInlineCost(cost){
     if (!cost) return '';
