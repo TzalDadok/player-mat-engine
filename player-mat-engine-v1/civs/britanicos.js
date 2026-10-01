@@ -42,11 +42,11 @@ window.PLAYER_MAT_CIVS.britanicos = {
   },
   buildings: [
     {id:"tc", name:"Centro Urbano", image:"assets/buildings/centro-urbano.jpg"},
-    {id:"mill", name:"Molino", image:"assets/buildings/molino.jpg"},
-    {id:"port", name:"Puerto", image:"assets/buildings/puerto.jpg"},
-    {id:"camp", name:"Camp. de Recursos", image:"assets/buildings/campamento-recursos.png"},
-    {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.png"},
-    {id:"tower", name:"Torre", image:"assets/buildings/torre.png"}
+    {id:"mill", name:"Molino", image:"assets/buildings/molino.jpg", cost:{wood:3}},
+    {id:"port", name:"Puerto", image:"assets/buildings/puerto.jpg", cost:{wood:4,stone:2}},
+    {id:"camp", name:"Camp. de Recursos", image:"assets/buildings/campamento-recursos.png", cost:{wood:2}},
+    {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.png", cost:{wood:1,stone:3,gold:1}},
+    {id:"tower", name:"Torre", image:"assets/buildings/torre.png", cost:{stone:3,wood:2}}
   ],
   ages: [
     {id:"dark", roman:"I", name:"ALTA EDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
