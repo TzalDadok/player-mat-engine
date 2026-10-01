@@ -618,3 +618,28 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   font-size:9px;
   line-height:1.08;
 }
+
+
+/* Tipografía uniforme para todas las tarjetas coloridas */
+.node .node-title,
+.slot[data-age="dark"] .node-title,
+.slot[data-age="feudal"] .node-title,
+.slot[data-age="dark"][data-building="mill"] .node-title,
+.slot[data-age="dark"][data-building="port"] .node-title,
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))) .node-title,
+.node.unit .node-title,
+.node.civil .node-title{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.05;
+}
+
+.node .node-text,
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))) .node-text,
+.node.civil:has(.node-text) .node-text{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:8.5px;
+  font-weight:400;
+  line-height:1.10;
+}
