@@ -55,8 +55,8 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", image:"assets/ages/imperial.png", cost:{food:8,wood:6,stone:4,gold:5}}
   ],
   nodes: [
-    {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:1}, text:"Unidad necesaria para producir y construir."},
-    {age:"dark", building:"mill", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:2}, text:"Unidad necesaria para producir y construir."},
+    {age:"dark", building:"tc", type:"unit", title:"Aldeano", cost:{food:1}, text:"Unidad necesaria para producir y construir."},
+    {age:"dark", building:"mill", type:"unit", title:"Aldeano", cost:{food:2}, text:"Unidad necesaria para producir y construir."},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"dark", building:"port", type:"unit", title:"Pesquero", stats:{force:2,range:0,move:0}, cost:{wood:2}, text:"Unidad necesaria para producir."},
     {age:"dark", building:"port", type:"unit", title:"Barco de Transporte", stats:{force:3,range:0,move:2}, cost:{wood:3}},
@@ -64,7 +64,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:2,range:1,move:1}, cost:{wood:1,gold:1}},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
-    {age:"feudal", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
+    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"La comida de ANIMALES puede utilizarse desde cualquier hexágono."},
     {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
     {age:"feudal", building:"port", type:"tech", title:"Trampa para peces", cost:{wood:2}, text:"Los pesqueros producen +1 Comida."},
