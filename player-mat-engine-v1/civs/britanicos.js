@@ -68,7 +68,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
     {age:"feudal", building:"tc", type:"tech", title:"Telar", cost:{food:1,wood:1}, text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"La comida de ANIMALES puede utilizarse desde cualquier hexágono."},
-    {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},\n    {age:"castles", building:"mill", type:"tech", title:"Acuñación", text:"Elimina el pago de impuestos al comerciar con otros jugadores."},
+    {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},\n    {age:"castles", building:"mill", type:"tech", title:"Acuñación", cost:{gold:3}, text:"Elimina el pago de impuestos al comerciar con otros jugadores."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Pesqueros pueden transportar 4 recursos."},
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Escaramuzador", cost:{food:1,wood:1}},
