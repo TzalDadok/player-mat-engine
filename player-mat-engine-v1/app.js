@@ -34,9 +34,14 @@
       ${action(3,'mil','MILITAR',c.turn.military)}`;
   }
 
+  function nodeTextHTML(text){
+    const safe = esc(text).replace(/\\n/g,'<br>');
+    return safe.replace(/(Unidad disponible:[^.<]*(?:\.)?)/gi,'<strong>$1</strong>');
+  }
+
   function nodeHTML(n){
     const embedded = n.embeddedUnit ? `<div class="embedded-unit"><div class="embedded-head"><span><b>Unidad:</b> ${esc(n.embeddedUnit.title)}</span>${costHTML(n.embeddedUnit.cost)}</div>${statsHTML(n.embeddedUnit.stats)}</div>` : '';
-    return `<div class="node ${n.type}">${n.tag?`<div class="node-tag">${esc(n.tag)}</div>`:''}<div class="node-head"><div class="node-title">${esc(n.title)}</div>${costHTML(n.cost)}</div>${statsHTML(n.stats)}${n.text?`<div class="node-text">${esc(n.text).replace(/\\n/g,'<br>')}</div>`:''}${embedded}</div>`;
+    return `<div class="node ${n.type}">${n.tag?`<div class="node-tag">${esc(n.tag)}</div>`:''}<div class="node-head"><div class="node-title">${esc(n.title)}</div>${costHTML(n.cost)}</div>${statsHTML(n.stats)}${n.text?`<div class="node-text">${nodeTextHTML(n.text)}</div>`:''}${embedded}</div>`;
   }
 
   function renderTree(c){
