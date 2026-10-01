@@ -688,3 +688,28 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 
 /* Cuartel / Alta Edad Media: las tres tarjetas ocupan todo el ancho */
 .slot[data-age="dark"][data-building="barracks"]>.node{width:100% !important;max-width:none !important;min-width:0 !important;margin-left:0 !important;margin-right:0 !important;justify-self:stretch !important;}
+
+
+/* Cuartel / Alta Edad Media: anular cualquier reparto en columnas para 3 tarjetas */
+.tree .slot[data-age="dark"][data-building="barracks"]{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+}
+.tree .slot[data-age="dark"][data-building="barracks"] > .node{
+  display:block;
+  flex:0 0 auto !important;
+  align-self:stretch !important;
+  box-sizing:border-box !important;
+  width:auto !important;
+  max-width:none !important;
+  min-width:100% !important;
+}
+.tree .slot[data-age="dark"][data-building="barracks"] > .node.unit{
+  height:22px !important;
+  min-height:22px !important;
+}
+.tree .slot[data-age="dark"][data-building="barracks"] > .node.unit .node-head{
+  width:100% !important;
+}
