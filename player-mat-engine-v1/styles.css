@@ -257,3 +257,114 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   height:24px;
   font-size:15px;
 }
+
+/* Modificar Terreno: integración visual con la columna de acciones */
+.sidebar{
+  grid-template-rows:.95cm 4.2fr 4.4fr 2.4fr;
+}
+.action-head{
+  height:.76cm;
+  padding:3px 7px;
+  gap:8px;
+}
+.action-head>span:nth-child(2){font-size:13px}
+.action-head small{font-size:8px}
+.action-num{
+  flex:0 0 27px;
+  width:27px;
+  height:27px;
+  font-size:17px;
+}
+.action-body{
+  padding:3px 7px 4px;
+}
+.action-row{
+  grid-template-columns:82px minmax(0,1fr);
+  column-gap:9px;
+  padding:3px 0;
+  font-size:8.6px;
+  line-height:1.12;
+}
+.action-row b{
+  font-size:9px;
+  padding-left:23px;
+  padding-right:3px;
+}
+.action-row b:before{
+  width:18px;
+  font-size:16px;
+  line-height:18px;
+}
+
+/* Icono propio para Modificar Terreno */
+.action.tech .action-row:nth-child(3) b:before{
+  content:"⛏";
+  font-size:15px;
+  letter-spacing:0;
+  left:1px;
+}
+
+/* Tecnología: espacio proporcional para la acción compuesta */
+.action.tech .action-body{
+  display:grid;
+  grid-template-rows:.72fr .72fr 2.56fr;
+}
+.action.tech .action-row:nth-child(3){
+  display:grid;
+  grid-template-columns:82px minmax(0,1fr);
+  grid-template-rows:1fr;
+  align-items:start;
+  column-gap:9px;
+  padding-top:3px;
+}
+.action.tech .action-row:nth-child(3) b{
+  padding-left:23px;
+  font-size:9px;
+}
+
+/* Mini tarjetas de modificación de terreno */
+.terrain-list{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+}
+.terrain-item{
+  background:linear-gradient(#edf9dd,#d5efbd);
+  border:1px solid var(--tech-border);
+  border-radius:4px;
+  padding:3px 5px;
+  min-width:0;
+}
+.terrain-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:5px;
+  min-width:0;
+}
+.terrain-name{
+  font-weight:700;
+  font-size:8.8px;
+  line-height:1;
+  white-space:nowrap;
+}
+.terrain-text{
+  margin-top:2px;
+  font-size:7.8px;
+  line-height:1.12;
+}
+.inline-cost{
+  display:flex;
+  justify-content:flex-end;
+  gap:3px;
+  font-size:8px;
+  line-height:1;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+.inline-cost .cost-item{white-space:nowrap}
+.inline-cost .ri{
+  font-size:10px;
+  margin-right:1px;
+}
