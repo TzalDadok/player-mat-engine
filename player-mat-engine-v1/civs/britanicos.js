@@ -55,10 +55,10 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", image:"assets/ages/imperial.png", cost:{food:8,wood:6,stone:4,gold:5}}
   ],
   nodes: [
-    {age:"dark", building:"tc", type:"civil", title:"Aldeano", cost:{food:1}, text:"Unidad necesaria para producir y construir."},
-    {age:"dark", building:"mill", type:"civil", title:"Aldeano", cost:{food:2}, text:"Unidad necesaria para producir y construir."},
+    {age:"dark", building:"tc", type:"civil", title:"Aldeano", cost:{food:1}},
+    {age:"dark", building:"mill", type:"civil", title:"Aldeano", cost:{food:2}},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura."},
-    {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}, text:"Unidad necesaria para producir."},
+    {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}},
     {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar 6 unidades y 6 recursos."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", cost:{wood:1,gold:1}},
