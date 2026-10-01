@@ -80,7 +80,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", stats:{force:2,range:0,move:2}, cost:{food:2,gold:1}},
     {age:"castles", building:"barracks", type:"tech", title:"Yeomen", cost:{food:2,gold:2}, text:"Todas las unidades de arquería obtienen +1 Fuerza."},
     {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:5,gold:2}, embeddedUnit:{title:"Arquero de Tiro Largo", cost:{wood:2,gold:1}, stats:{force:2,range:2,move:1}}},
-    {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias.", embeddedUnit:{title:"Monje", cost:{gold:3}}},
+    {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Misionero."},
 
     {age:"imperial", building:"tc", type:"tech", title:"Administración", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción."},
