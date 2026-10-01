@@ -67,3 +67,15 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 
 /* Molino / Alta Edad Media: Aldeano y Granja ocupan exactamente la mitad */
 .slot[data-age="dark"][data-building="mill"]>.node{flex:1 1 0;height:0}
+
+/* Molino / Alta Edad Media: dos tarjetas con altura idéntica */
+.slot[data-age="dark"][data-building="mill"]{
+  display:grid;
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+  gap:4px;
+}
+.slot[data-age="dark"][data-building="mill"]>.node{
+  width:100%;
+  height:100%;
+  min-height:0;
+}
