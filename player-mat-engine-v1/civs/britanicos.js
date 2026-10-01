@@ -81,7 +81,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"tower", type:"unit", title:"Arquero de Tiro Largo", stats:{force:3,range:2,move:1}, cost:{wood:2,gold:1}},
     {age:"castles", building:"monastery", type:"unit", title:"Monje", stats:{force:1,range:1,move:1}, cost:{gold:3}},
 
-    {age:"imperial", building:"tc", type:"tech", title:"Administración Real", cost:{food:4,gold:3}, text:"Tus aldeanos producen +1 recurso del tipo del edificio donde trabajan."},
+    {age:"imperial", building:"tc", type:"tech", title:"Administración", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción."},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas de Arqueros", cost:{food:3,gold:3}, text:"Al ENTRENAR, podés entrenar hasta 2 unidades de arquería en lugar de 1."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
