@@ -101,3 +101,79 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   order:10;
   margin-top:auto;
 }
+
+/* Regla general: cuando una casilla contiene 2 tarjetas, se reparten el espacio por igual
+   y usan la misma jerarquía visual en todo el árbol. */
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))){
+  display:grid;
+  grid-template-columns:1fr;
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+  gap:4px;
+}
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3)))>.node{
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  margin:0;
+  padding-left:4px;
+  padding-right:4px;
+  overflow:hidden;
+}
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))) .node-title{
+  font-size:10px;
+  line-height:1.02;
+}
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))) .node-text{
+  font-size:8.5px;
+  line-height:1.08;
+}
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))) .stats{
+  gap:4px;
+  font-size:9px;
+  line-height:1;
+}
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))) .costline{
+  gap:3px;
+  font-size:9px;
+  line-height:1;
+  flex-wrap:nowrap;
+}
+.slot:has(>.node:nth-child(2)):not(:has(>.node:nth-child(3))) .cost-item .ri{
+  font-size:10px;
+}
+
+/* Anula ajustes antiguos específicos: Molino y Puerto siguen la misma regla general. */
+.slot[data-age="dark"][data-building="mill"],
+.slot[data-age="dark"][data-building="port"]{
+  grid-template-columns:1fr;
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+  gap:4px;
+}
+.slot[data-age="dark"][data-building="mill"]>.node,
+.slot[data-age="dark"][data-building="port"]>.node{
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding-left:4px;
+  padding-right:4px;
+}
+.slot[data-age="dark"][data-building="mill"] .node-title,
+.slot[data-age="dark"][data-building="port"] .node-title{
+  font-size:10px;
+}
+.slot[data-age="dark"][data-building="mill"] .stats,
+.slot[data-age="dark"][data-building="port"] .stats{
+  gap:4px;
+  font-size:9px;
+}
+.slot[data-age="dark"][data-building="mill"] .costline,
+.slot[data-age="dark"][data-building="port"] .costline{
+  gap:3px;
+  font-size:9px;
+  flex-wrap:nowrap;
+}
+.slot[data-age="dark"][data-building="mill"] .cost-item .ri,
+.slot[data-age="dark"][data-building="port"] .cost-item .ri{
+  font-size:10px;
+}
