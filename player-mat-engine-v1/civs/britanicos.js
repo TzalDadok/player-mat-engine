@@ -73,7 +73,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"feudal", building:"barracks", type:"tech", title:"Marcha Disciplinada", cost:{food:2,gold:1}, text:"Las unidades de arquería recién entrenadas pueden mover 1 hexágono."},
 
     {age:"castles", building:"tc", type:"tech", title:"Desarrollo", text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
-    {age:"castles", building:"port", type:"tech", title:"Navegación Avanzada", cost:{wood:2,gold:1}, text:"Pesqueros y transportes pueden llevar 8 recursos."},
+    {age:"castles", building:"port", type:"tech", title:"Navegación Avanzada", cost:{wood:2,gold:1}, text:"Pesqueros y barcos de transporte pueden llevar +2 recursos."},
     {age:"castles", building:"camp", type:"tech", title:"Explotación Aurífera", cost:{food:2,wood:1}, text:"Los mineros producen +1 Oro."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", stats:{force:2,range:0,move:2}, cost:{food:2,gold:1}},
     {age:"castles", building:"barracks", type:"tech", title:"Yeomen", cost:{food:2,gold:2}, text:"Todas las unidades de arquería obtienen +1 Fuerza."},
