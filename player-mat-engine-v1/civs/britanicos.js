@@ -45,8 +45,8 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"mill", name:"Molino", image:"assets/buildings/molino.jpg"},
     {id:"port", name:"Puerto", image:"assets/buildings/puerto.jpg"},
     {id:"camp", name:"Campamento de Recursos", image:"assets/buildings/campamento-recursos.jpg"},
-    {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.jpg"},
-    {id:"tower", name:"Torre", image:"assets/buildings/torre.jpg"}
+    {id:"barracks", name:"Cuartel"},
+    {id:"tower", name:"Torre"}
   ],
   ages: [
     {id:"dark", roman:"I", name:"ALTA EDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
