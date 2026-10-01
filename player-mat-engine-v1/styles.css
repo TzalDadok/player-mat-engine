@@ -16,7 +16,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .action{border:2px solid #d5a12f;border-left:0;background:#f8e8bd;min-height:0;display:flex;flex-direction:column}.action-head{height:.82cm;display:flex;align-items:center;gap:8px;color:#fff;padding:3px 7px;font-weight:bold}.action.econ .action-head{background:linear-gradient(90deg,#d6251f,#f28c18)}.action.tech .action-head{background:linear-gradient(90deg,#09a44a,#075f31)}.action.mil .action-head{background:linear-gradient(90deg,#197bd1,#7b3fb2)}
 .action-head>span:nth-child(2){font-size:13px}.action-head small{margin-left:auto;font-size:8.5px;font-weight:normal}.action-num{flex:0 0 27px;width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;background:#fff;color:#222;font-family:Arial,sans-serif;font-size:17px;font-weight:700;line-height:1;border:2px solid currentColor}
 .action-body{padding:3px 7px 4px;flex:1;min-height:0;display:flex;flex-direction:column}.action-row{display:grid;grid-template-columns:82px minmax(0,1fr);align-items:center;column-gap:9px;flex:1;min-height:0;padding:3px 0;border-bottom:1px solid #c4a66e;font-size:8.8px;line-height:1.12}.action-row:last-child{border:0}.action-row b{font-size:9px;padding-left:23px;padding-right:3px;position:relative}.action-row b:before{position:absolute;left:1px;top:-2px;width:18px;text-align:center;font-size:16px;line-height:18px;filter:grayscale(1) brightness(.25)}
-.action.econ .action-row:nth-child(1) b:before{content:"⚙"}.action.econ .action-row:nth-child(2) b:before{content:"👢"}.action.econ .action-row:nth-child(3) b:before{content:"🔨"}.action.econ .action-row:nth-child(4) b:before{content:"♟"}.action.econ .action-row:nth-child(5) b:before{content:"●";font-size:17px}.action.tech .action-row:nth-child(1) b:before{content:"▮▮";font-size:9px;letter-spacing:-2px;left:0}.action.tech .action-row:nth-child(2) b:before{content:"⬆"}.action.mil .action-row:nth-child(1) b:before{content:"👢"}.action.mil .action-row:nth-child(2) b:before{content:"⚔"}.action.mil .action-row:nth-child(3) b:before{content:"✚"}
+.action.econ .action-row:nth-child(1) b:before{content:"⚙"}.action.econ .action-row:nth-child(2) b:before{content:"👢"}.action.econ .action-row:nth-child(3) b:before{content:"🔨"}.action.econ .action-row:nth-child(4) b:before{content:"♟"}.action.econ .action-row:nth-child(5) b:before{content:"●";font-size:17px}.action.tech .action-row:nth-child(1) b:before{content:"▮▮";font-size:9px;letter-spacing:-2px;left:0}.action.tech .action-row:nth-child(2) b:before{content:"⬆"}.action.mil .action-row:nth-child(1) b:before{content:"👢"}.action.mil .action-row:nth-child(2) b:before{content:"⚔"}.action.mil .action-row:nth-child(3) b:before{content:"🔨"}.action.mil .action-row:nth-child(4) b:before{content:"✚"}
 .legend{padding:0 6px 4px}.legend h3{margin:0 -6px 4px;background:linear-gradient(#0b477a,#062d59);color:#fff;padding:3px 8px;font-size:11px}.res-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 5px;font-size:8.5px}.res-item{display:flex;align-items:center;gap:4px;min-width:0;background:#f3dfaa;border:1px solid #c9a968;border-radius:3px;padding:2px 4px}.res-grid .ico{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;width:22px;height:22px;font-size:18px;line-height:22px}.res-label{font-weight:700;white-space:nowrap}.stats-legend{border-top:1px solid #b9955e;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:3px;padding-top:3px;text-align:center;font-size:7px;line-height:1.05}.stats-legend b{display:block;font-size:8px;margin-bottom:1px}
 .tree{position:absolute;left:var(--sidebar-w,6.2cm);right:0;top:0;bottom:0;display:grid;grid-template-rows:repeat(5,20%);background:linear-gradient(90deg,#f7e9c2,#f3dfaa)}
 .cell{position:relative;border-right:1px solid #d1b87c;border-bottom:3px solid var(--grid);min-width:0;overflow:visible}.grid-guides .cell{outline:1px dashed #a02d2d88;outline-offset:-2px}
@@ -390,11 +390,11 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 /* Militar: tres acciones con más altura y respiración */
 .action.mil .action-body{
   display:grid;
-  grid-template-rows:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(4,minmax(0,1fr));
 }
 .action.mil .action-row{
   align-items:center;
-  padding:4px 0;
+  padding:2px 0;
 }
 
 /* Modificar Terreno: sin fondo; sólo borde, integrado al pergamino del panel */
@@ -506,10 +506,10 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 /* Militar: compactar verticalmente sin cambiar tipografías */
 .action.mil .action-body{
   display:grid;
-  grid-template-rows:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(4,minmax(0,1fr));
 }
 .action.mil .action-row{
-  padding:2px 0;
+  padding:1px 0;
 }
 
 /* Modificar Terreno: título e icono centrados verticalmente en todo el bloque */
