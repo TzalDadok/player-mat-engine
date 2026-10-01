@@ -736,3 +736,24 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   height:auto !important;
   min-height:0 !important;
 }
+
+
+/* Encabezados de edificios: nombre superpuesto sobre el gráfico */
+.building-head .name{
+  display:block;
+  position:absolute;
+  z-index:3;
+  left:5px;
+  right:5px;
+  bottom:4px;
+  padding:3px 5px;
+  border-radius:4px;
+  background:linear-gradient(90deg,#06192ae8,#082e58e8);
+  border:1px solid #d3ad58;
+  color:#fff;
+  text-align:center;
+  font-size:9px;
+  font-weight:700;
+  line-height:1.05;
+  text-shadow:0 1px 2px #000;
+}
