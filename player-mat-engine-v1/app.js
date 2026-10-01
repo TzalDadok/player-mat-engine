@@ -55,13 +55,6 @@
         tree.appendChild(slot);
       });
     });
-    // visual flow arrows for columns with content across ages
-    [...tree.querySelectorAll('.slot')].forEach(slot=>{
-      const ageIndex=c.ages.findIndex(a=>a.id===slot.dataset.age);
-      if(ageIndex<c.ages.length-1 && c.nodes.some(n=>n.building===slot.dataset.building && c.ages.findIndex(a=>a.id===n.age)>ageIndex)){
-        const f=document.createElement('i'); f.className='flow'; slot.appendChild(f);
-      }
-    });
   }
 
   function render(id){
