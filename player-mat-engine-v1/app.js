@@ -35,7 +35,8 @@
   }
 
   function nodeHTML(n){
-    return `<div class="node ${n.type}">${n.tag?`<div class="node-tag">${esc(n.tag)}</div>`:''}<div class="node-head"><div class="node-title">${esc(n.title)}</div>${costHTML(n.cost)}</div>${statsHTML(n.stats)}${n.text?`<div class="node-text">${esc(n.text)}</div>`:''}</div>`;
+    const embedded = n.embeddedUnit ? `<div class="embedded-unit"><div class="embedded-head"><span><b>Unidad:</b> ${esc(n.embeddedUnit.title)}</span>${costHTML(n.embeddedUnit.cost)}</div>${statsHTML(n.embeddedUnit.stats)}</div>` : '';
+    return `<div class="node ${n.type}">${n.tag?`<div class="node-tag">${esc(n.tag)}</div>`:''}<div class="node-head"><div class="node-title">${esc(n.title)}</div>${costHTML(n.cost)}</div>${statsHTML(n.stats)}${n.text?`<div class="node-text">${esc(n.text)}</div>`:''}${embedded}</div>`;
   }
 
   function renderTree(c){
