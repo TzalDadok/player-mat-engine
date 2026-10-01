@@ -41,9 +41,9 @@ window.PLAYER_MAT_CIVS.britanicos = {
   ],
   ages: [
     {id:"dark", roman:"I", name:"ALTA EDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
-    {id:"feudal", roman:"II", name:"EDAD FEUDAL", image:"assets/ages/feudal-centro-urbano.jpg", cost:{food:4}},
-    {id:"castles", roman:"III", name:"EDAD DE LOS CASTILLOS", cost:{food:6,gold:2}},
-    {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", cost:{food:8,gold:5}}
+    {id:"feudal", roman:"II", name:"EDAD FEUDAL", image:"assets/ages/feudal-centro-urbano.jpg", cost:{food:4,wood:2,stone:1,gold:1}},
+    {id:"castles", roman:"III", name:"EDAD DE LOS CASTILLOS", cost:{food:6,wood:4,stone:2,gold:2}},
+    {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", cost:{food:8,wood:6,stone:4,gold:5}}
   ],
   nodes: [
     {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:1}, text:"Unidad necesaria para construir."},
@@ -55,7 +55,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:2,range:1,move:1}, cost:{wood:1,gold:1}},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
-    {age:"feudal", building:"tc", type:"tech", title:"Carretilla", cost:{food:2}, text:"Los aldeanos pueden transportar +1 recurso."},
+    {age:"feudal", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"La comida de ANIMALES puede utilizarse desde cualquier hexágono."},
     {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
     {age:"feudal", building:"port", type:"tech", title:"Trampa para peces", cost:{wood:2}, text:"Los pesqueros producen +1 Comida."},
