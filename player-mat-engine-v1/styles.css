@@ -656,3 +656,25 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   min-height:52px;
   height:52px;
 }
+
+
+/* Marcha Disciplinada: override final para que el grid de 2 tarjetas no fuerce mitad y mitad */
+.slot[data-age="feudal"][data-building="barracks"]{
+  display:grid !important;
+  grid-template-rows:22px 58px !important;
+  align-content:start !important;
+  gap:4px !important;
+}
+.slot[data-age="feudal"][data-building="barracks"]>.node.unit{
+  height:22px !important;
+  min-height:22px !important;
+}
+.slot[data-age="feudal"][data-building="barracks"]>.node.tech{
+  height:58px !important;
+  min-height:58px !important;
+  transform:none !important;
+}
+.slot[data-age="feudal"][data-building="barracks"]>.node.tech .node-text{
+  display:block !important;
+  overflow:visible !important;
+}
