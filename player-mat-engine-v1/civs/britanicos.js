@@ -79,7 +79,6 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"port", type:"unit", title:"Galera", cost:{wood:2,gold:1}},
     {age:"castles", building:"camp", type:"tech", title:"Explotación Aurífera", cost:{food:2,wood:1}, text:"Los mineros producen +1 Oro."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:1}},
-    {age:"castles", building:"barracks", type:"tech", title:"Yeomen", cost:{food:2,gold:2}, text:"Todas las unidades de arquería obtienen +1 Fuerza."},
     {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:5,gold:2}, text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia.\nUnidad disponible: Arquero de Tiro Largo."},
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Misionero."},
 
