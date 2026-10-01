@@ -62,6 +62,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar 6 unidades y 6 recursos."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", cost:{wood:1,gold:1}},
+    {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
     {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
@@ -84,6 +85,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
 
     {age:"imperial", building:"tc", type:"tech", title:"Admin. Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción. Gasta tu acción económica."},
+    {age:"imperial", building:"camp", type:"military-building", title:"Maq. de Asedio", text:"Unidad Disponible: Ariete."},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas de Arqueros", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de rango por turno."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
     {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Las unidades convertidas por tus monjes mueren en lugar de pasarse de bando."}
