@@ -587,3 +587,9 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .node.unit .node-text,.node.civil .node-text{
   display:none;
 }
+
+
+/* Balance vertical final: Tecnología cede espacio a Militar */
+.sidebar{
+  grid-template-rows:.95cm 3.75fr 4.05fr 3.20fr;
+}
