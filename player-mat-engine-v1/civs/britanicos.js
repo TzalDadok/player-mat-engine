@@ -60,7 +60,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}, text:"Unidad necesaria para producir."},
     {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar 6 unidades y 6 recursos."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", stats:{force:2,range:0,move:1}, cost:{food:1,gold:1}},
-    {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:2,range:1,move:1}, cost:{wood:1,gold:1}},
+    {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:1,range:1,move:1}, cost:{wood:1,gold:1}},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
     {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
@@ -74,10 +74,11 @@ window.PLAYER_MAT_CIVS.britanicos = {
 
     {age:"castles", building:"tc", type:"tech", title:"Desarrollo", text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
     {age:"castles", building:"port", type:"tech", title:"Navegación Avanzada", cost:{wood:2,gold:1}, text:"Pesqueros y barcos de transporte pueden llevar +2 recursos."},
+    {age:"castles", building:"port", type:"unit", title:"Galera", stats:{force:2,range:1,move:1}},
     {age:"castles", building:"camp", type:"tech", title:"Explotación Aurífera", cost:{food:2,wood:1}, text:"Los mineros producen +1 Oro."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", stats:{force:2,range:0,move:2}, cost:{food:2,gold:1}},
     {age:"castles", building:"barracks", type:"tech", title:"Yeomen", cost:{food:2,gold:2}, text:"Todas las unidades de arquería obtienen +1 Fuerza."},
-    {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:5,gold:2}, embeddedUnit:{title:"Arquero de Tiro Largo", cost:{wood:2,gold:1}, stats:{force:3,range:2,move:1}}},
+    {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:5,gold:2}, embeddedUnit:{title:"Arquero de Tiro Largo", cost:{wood:2,gold:1}, stats:{force:2,range:2,move:1}}},
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias.", embeddedUnit:{title:"Monje", cost:{gold:3}}},
 
     {age:"imperial", building:"tc", type:"tech", title:"Administración", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
