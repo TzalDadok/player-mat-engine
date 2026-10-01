@@ -43,7 +43,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {id:"dark", roman:"I", name:"ALTA EDAD MEDIA", image:"assets/ages/alta-centro-urbano.jpg"},
     {id:"feudal", roman:"II", name:"EDAD FEUDAL", image:"assets/ages/feudal-centro-urbano.jpg", cost:{food:4,wood:2,stone:1,gold:1}},
     {id:"castles", roman:"III", name:"EDAD DE LOS CASTILLOS", image:"assets/ages/castillos-web.jpg", cost:{food:6,wood:4,stone:2,gold:2}},
-    {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", cost:{food:8,wood:6,stone:4,gold:5}}
+    {id:"imperial", roman:"IV", name:"EDAD IMPERIAL", image:"assets/ages/imperial.png", cost:{food:8,wood:6,stone:4,gold:5}}
   ],
   nodes: [
     {age:"dark", building:"tc", type:"unit", title:"Aldeano", stats:{force:0,range:0,move:1}, cost:{food:1}, text:"Unidad necesaria para construir."},
