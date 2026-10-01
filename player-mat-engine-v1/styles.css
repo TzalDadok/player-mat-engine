@@ -64,3 +64,6 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .slot[data-age="dark"][data-building="mill"]>.node{flex:1 1 0;min-height:0}
 .slot[data-age="dark"][data-building="mill"]>.node.unit{display:flex;flex-direction:column}
 .slot[data-age="dark"][data-building="mill"]>.node.unit .stats{order:10;margin-top:auto}
+
+/* Molino / Alta Edad Media: Aldeano y Granja ocupan exactamente la mitad */
+.slot[data-age="dark"][data-building="mill"]>.node{flex:1 1 0;height:0}
