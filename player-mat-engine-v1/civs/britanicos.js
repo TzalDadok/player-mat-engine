@@ -22,7 +22,8 @@ window.PLAYER_MAT_CIVS.britanicos = {
     ],
     technology: [
       ["Investigar","Adquirí una tecnología disponible (cuadro verde)."],
-      ["Avanzar de Edad","Pagá los requisitos y desbloqueá la siguiente línea del árbol."]
+      ["Avanzar de Edad","Pagá los requisitos y desbloqueá la siguiente línea del árbol."],
+      ["Modificar Terreno","Irrigar (3 madera, 3 comida, 3 piedra): Convierte un hexágono de Desierto en Llanura. Drenar (5 madera, 5 comida, 5 piedra): Convierte un hexágono de Agua en Desierto. Fortificar (3 madera): Agrega empalizada a un lado de un hexágono."]
     ],
     military: [
       ["Mover","Mové unidades. Al entrar con enemigos, decidís si combatir."],
