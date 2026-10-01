@@ -41,7 +41,7 @@
 
   function renderTree(c){
     tree.innerHTML = '';
-    const corner = document.createElement('div'); corner.className='cell corner'; corner.innerHTML='<div class="label">EDIFICIOS</div>'; tree.appendChild(corner);
+    const corner = document.createElement('div'); corner.className='cell corner britones-corner'; tree.appendChild(corner);
     c.buildings.forEach((b,i)=>{
       const d=document.createElement('div'); d.className='cell building-head'+(b.unlock?' locked':''); d.style.gridColumn=String(i+2); d.style.gridRow='1';
       d.innerHTML=`<div class="name">${esc(b.name)}</div><img src="${esc(b.image)}" alt="">`; tree.appendChild(d);
