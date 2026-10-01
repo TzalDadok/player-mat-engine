@@ -16,7 +16,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     economy: [
       ["Producir","Todos tus aldeanos y edificios productivos elegibles producen."],
       ["Mover","Mové aldeanos y los recursos que transportan."],
-      ["Construir","Construí un edificio o mejora de terreno disponible."],
+      ["Construir","Realizar una construcción económica disponible."],
       ["Entrenar","Entrená una unidad economica disponible."],
       ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
     ],
@@ -36,6 +36,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     military: [
       ["Mover","Mové unidades. Al entrar con enemigos, decidís si combatir."],
       ["Entrenar","Entrená una unidad militar disponible."],
+      ["Construir","Realizar una construcción militar disponible."],
       ["Instruir","Obtené +1 Poder de pelea."]
     ]
   },
