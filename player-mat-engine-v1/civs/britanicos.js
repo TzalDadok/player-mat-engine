@@ -59,7 +59,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"mill", type:"civil", title:"Aldeano", cost:{food:2}, text:"Unidad necesaria para producir y construir."},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}, text:"Unidad necesaria para producir."},
-    {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar unidades y recursos sin límite de capacidad."},
+    {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar 6 unidades y 6 recursos."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", stats:{force:2,range:0,move:1}, cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", stats:{force:2,range:1,move:1}, cost:{wood:1,gold:1}},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
