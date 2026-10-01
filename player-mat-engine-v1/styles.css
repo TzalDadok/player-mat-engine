@@ -678,3 +678,9 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   display:block !important;
   overflow:visible !important;
 }
+
+
+/* Cuartel Alta Edad Media: tres tarjetas compactas */
+.slot[data-age="dark"][data-building="barracks"]{display:grid !important;grid-template-rows:22px 22px minmax(40px,1fr) !important;align-content:start !important;gap:4px !important;}
+.slot[data-age="dark"][data-building="barracks"]>.node.unit{height:22px !important;min-height:22px !important;}
+.slot[data-age="dark"][data-building="barracks"]>.node.tech{align-self:start;}
