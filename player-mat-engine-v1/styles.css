@@ -500,3 +500,29 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .inline-cost .ri{
   font-size:9px;
 }
+
+/* Balance final de alturas: más espacio para Tecnología, Militar más compacto */
+.sidebar{
+  grid-template-rows:.95cm 3.75fr 4.50fr 2.75fr;
+}
+
+/* Militar: compactar verticalmente sin cambiar tipografías */
+.action.mil .action-body{
+  display:grid;
+  grid-template-rows:repeat(3,minmax(0,1fr));
+}
+.action.mil .action-row{
+  padding:2px 0;
+}
+
+/* Modificar Terreno: título e icono centrados verticalmente en todo el bloque */
+.action.tech .action-row:nth-child(3) b{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:100%;
+}
+.action.tech .action-row:nth-child(3) b:before{
+  top:50%;
+  transform:translateY(-50%);
+}
