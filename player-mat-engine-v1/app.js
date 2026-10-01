@@ -14,8 +14,21 @@
   };
   const statsHTML = s => s ? `<div class="stats"><span class="force">${s.force}</span><span class="range">${s.range}</span><span class="move">${s.move}</span></div>` : '';
 
+  function renderInlineCost(cost){
+    if (!cost) return '';
+    return `<span class="inline-cost">${Object.entries(cost).filter(([,v])=>v!==undefined).map(([k,v])=>`<span class="cost-item"><span class="ri">${R[k]||k}</span>${esc(v)}</span>`).join('')}</span>`;
+  }
+
+  function renderActionRow(row){
+    if (row && row.kind === 'terrain') {
+      return `<div class="action-row terrain-row"><b>${esc(row.label)}</b><div class="terrain-list">${row.items.map(item=>`<div class="terrain-item"><div class="terrain-top"><span class="terrain-name">${esc(item.name)}</span>${renderInlineCost(item.cost)}</div><div class="terrain-text">${esc(item.text)}</div></div>`).join('')}</div></div>`;
+    }
+    const [a,b] = row;
+    return `<div class="action-row"><b>${esc(a)}</b><span>${esc(b)}</span></div>`;
+  }
+
   function renderSidebar(c){
-    const action = (num, cls, title, rows) => `<section class="action ${cls}"><div class="action-head"><span class="action-num">${num}</span><span>${title}</span><small>Elegí 1 acción</small></div><div class="action-body">${rows.map(([a,b])=>`<div class="action-row"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}</div></section>`;
+    const action = (num, cls, title, rows) => `<section class="action ${cls}"><div class="action-head"><span class="action-num">${num}</span><span>${title}</span><small>Elegí 1 acción</small></div><div class="action-body">${rows.map(renderActionRow).join('')}</div></section>`;
     sidebar.innerHTML = `<div class="sidebar-title"><b>TU TURNO</b><small>Realizá 1 acción de cada tipo, en orden.</small></div>
       ${action(1,'econ','ECONOMÍA',c.turn.economy)}
       ${action(2,'tech','TECNOLOGÍA',c.turn.technology)}
