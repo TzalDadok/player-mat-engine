@@ -59,11 +59,3 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .node.building .node-head .node-title{color:#fff;margin:0}
 .node.building .node-head .costline{color:#fff}
 .node.building .node-title{margin-top:0;margin-bottom:0}
-
-/* Casillas con dos tarjetas: costo abajo y centrado */
-.slot:has(> .node:nth-of-type(2)) > .node .node-head{display:contents}
-.slot:has(> .node:nth-of-type(2)) > .node{display:flex;flex-direction:column}
-.slot:has(> .node:nth-of-type(2)) > .node .node-title{order:1;text-align:center}
-.slot:has(> .node:nth-of-type(2)) > .node .stats{order:2}
-.slot:has(> .node:nth-of-type(2)) > .node .node-text{order:3}
-.slot:has(> .node:nth-of-type(2)) > .node .costline{order:4;margin-top:auto;justify-content:center;width:100%}
