@@ -643,3 +643,9 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   font-weight:400;
   line-height:1.10;
 }
+
+
+/* Cuartel / Feudal: subir Marcha Disciplinada una línea aprovechando el espacio libre */
+.slot[data-age="feudal"][data-building="barracks"] .node.tech{
+  transform:translateY(-12px);
+}
