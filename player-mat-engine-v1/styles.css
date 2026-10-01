@@ -546,3 +546,12 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .node.military-building .node-head{position:relative;z-index:2;margin-top:-20px;margin-bottom:8px;align-items:center}
 .node.military-building .node-head .node-title{color:#fff;margin:0}
 .node.military-building .node-head .costline{color:#fff}
+
+
+/* Unidad asociada dentro de un edificio militar */
+.embedded-unit{margin-top:3px;padding-top:3px;border-top:1px solid #a678c4;text-align:left}
+.embedded-head{display:flex;align-items:flex-start;justify-content:space-between;gap:3px}
+.embedded-head>span{font-size:9px;line-height:1.08}
+.embedded-head .costline{margin-top:0;flex:0 0 auto;gap:2px}
+.embedded-head .cost-item .ri{font-size:10px}
+.embedded-unit .stats{justify-content:flex-start;margin:2px 0 0}
