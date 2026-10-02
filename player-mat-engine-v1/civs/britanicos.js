@@ -59,6 +59,9 @@ window.PLAYER_MAT_CIVS.britanicos = {
     abilities: [
       {name:"Arquero — Guarnición", text:"Requiere Guarnición. Puede guarecerse en una Torre. Continúa aportando su Fuerza a las batallas. Si la Torre cae, permanece en el hexágono."},
       {name:"Misionero — Conversión", text:"Si vencés una batalla en la que participaron Misioneros, elegí 1 unidad enemiga derrotada por cada Misionero participante. Las unidades elegidas pasan a tu control."}
+    ],
+    bonuses: [
+      {from:"Escaramuzador", to:"Arquero"}
     ]
   },
   buildings: [
