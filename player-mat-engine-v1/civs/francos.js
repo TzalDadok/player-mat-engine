@@ -45,7 +45,7 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Aldeano", force:0, range:0, move:1},
       {name:"Milicia", force:2, range:0, move:1, forceUpgrade:1},
       {name:"Arquero", force:1, range:1, move:1},
-      {name:"Lancero", force:1, range:0, move:1},
+      {name:"Piquero", force:1, range:0, move:1},
       {name:"Jinete", force:2, range:0, move:2},
       {name:"Galera", force:2, range:0, move:1},
       {name:"Caballero", force:3, range:0, move:2, forceUpgrade:1},
@@ -62,7 +62,8 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Monje — Conversión", text:"Si vencés una batalla en la que participaron Monjes, elegí 1 unidad enemiga derrotada por cada Monje participante. Las unidades elegidas pasan a tu control."}
     ],
     bonuses: [
-      {from:"Lancero", to:"Caballería"},
+      {from:"Piquero", to:"Caballería"},
+      {from:"Piquero", to:"Milicia", green:true},
       {from:"Escorpión", to:"Infantería a pie"}
     ]
   },
@@ -98,8 +99,8 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"feudal", building:"mill", type:"tech", title:"Campos Abiertos", cost:{food:3,wood:2}, text:"Se pueden construir Granjas en Desiertos."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Pesqueros pueden transportar 2 recursos."},
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
-    {age:"feudal", building:"barracks", type:"unit", title:"Lancero", cost:{food:2,wood:1}},
-    {age:"feudal", building:"barracks", type:"tech", title:"Piquero", cost:{food:2,wood:2}, text:"Los Lanceros obtienen +1 Fuerza contra Caballería."},
+    {age:"feudal", building:"barracks", type:"unit", title:"Piquero", cost:{food:2,wood:1}},
+    {age:"feudal", building:"barracks", type:"tech", title:"Hoplomachus", cost:{food:2,gold:1}, text:"El Piquero obtiene bonus contra Milicia."},
     {age:"feudal", building:"tower", type:"tech", title:"Muralla", cost:{wood:2,stone:2}, text:"Fortificar puede pagarse con 2 piedra en lugar de madera."},
     {age:"castles", building:"port", type:"unit", title:"Galera", cost:{wood:3,gold:1}},
     {age:"castles", building:"port", type:"tech", title:"Astillero", cost:{wood:3,gold:2}, text:"Barcos entrenados pueden salir en un hexágono de Agua adyacente al Puerto."},
