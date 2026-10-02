@@ -64,7 +64,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     ],
     bonuses: [
       {from:"Escaramuzador", to:"Arquero"},
-      {from:"Galera", to:"Barcos (◎ 0)"},
+      {from:"Galera", to:"Barcos (◎ 0)", green:true},
       {from:"Ariete", to:"Edificios"},
       {from:"Trebuchet", to:"Edificios (+2)"}
     ]
