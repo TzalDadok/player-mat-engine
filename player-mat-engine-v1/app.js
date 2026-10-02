@@ -94,7 +94,6 @@
 
   Object.values(civs).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.appendChild(o)});
   select.addEventListener('change',()=>render(select.value));
-  document.getElementById('toggleReference').onclick=()=>mat.classList.toggle('show-reference');
   document.getElementById('toggleGrid').onclick=()=>mat.classList.toggle('grid-guides');
   document.getElementById('printBtn').onclick=()=>window.print();
   render(select.value || Object.keys(civs)[0]);
