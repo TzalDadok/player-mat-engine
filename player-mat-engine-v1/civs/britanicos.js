@@ -45,10 +45,10 @@ window.PLAYER_MAT_CIVS.britanicos = {
       {name:"Aldeano", force:0, range:0, move:1, forceUpgrade:1},
       {name:"Milicia", force:2, range:0, move:1, forceUpgrade:1},
       {name:"Arquero", force:1, range:1, move:1},
-      {name:"Escaramuzador", force:1, range:1, move:1},
+      {name:"Escaramuz.", force:1, range:1, move:1},
       {name:"Jinete", force:2, range:0, move:2},
       {name:"Galera", force:2, range:0, move:1},
-      {name:"Arquero de Tiro Largo", force:2, range:2, move:1, forceUpgrade:1},
+      {name:"Arq. Tiro Largo", force:2, range:2, move:1, forceUpgrade:1},
       {name:"Misionero", force:0, range:1, move:2}
     ],
     upgrades: [
