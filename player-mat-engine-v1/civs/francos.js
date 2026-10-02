@@ -115,7 +115,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"castles", building:"tc", type:"tech", title:"Nobleza", cost:{food:3,gold:4}, text:"Al entrenar un Caballero, podés moverlo 1 hexágono inmediatamente."},
     {age:"imperial", building:"barracks", type:"tech", title:"Caballería Pesada", cost:{food:4,gold:4}, text:"Los Caballeros obtienen +1 Fuerza."},
     {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Sin gastar turno, podés cambiar 1 Comida por 1 Oro."},
-    {age:"imperial", building:"camp", type:"military-building", title:"Maq. de Asedio", cost:{wood:4,stone:2,gold:2}, text:"Unidad disponible: Escorpión y Trebuchet."},
+    {age:"imperial", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Unidad disponible: Escorpión y Trebuchet."},
     {age:"imperial", building:"camp", type:"tech", title:"Ingeniería", cost:{wood:3,gold:3}, text:"Escorpiones entrenados pueden salir en un hexágono adyacente."},
     {age:"imperial", building:"barracks", type:"tech", title:"Movilización", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de caballería por turno."},
     {age:"imperial", building:"tower", type:"tech", title:"Saqueo", cost:{food:2,gold:3}, text:"Al ganar una batalla en un hexágono enemigo, podés mover 2 recursos de ese hexágono con tu ejército."},
