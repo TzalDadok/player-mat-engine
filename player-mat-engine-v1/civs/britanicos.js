@@ -40,6 +40,27 @@ window.PLAYER_MAT_CIVS.britanicos = {
       ["Instruir","Obtené +1 Poder de pelea."]
     ]
   },
+  unitReference: {
+    units: [
+      {name:"Aldeano", force:0, range:0, move:1, forceUpgrade:1},
+      {name:"Milicia", force:2, range:0, move:1, forceUpgrade:1},
+      {name:"Arquero", force:1, range:1, move:1},
+      {name:"Escaramuzador", force:1, range:1, move:1},
+      {name:"Jinete", force:2, range:0, move:2},
+      {name:"Galera", force:2, range:0, move:1},
+      {name:"Arquero de Tiro Largo", force:2, range:2, move:1, forceUpgrade:1},
+      {name:"Misionero", force:0, range:1, move:2}
+    ],
+    upgrades: [
+      {name:"Telar", text:"Aldeano +1 Fuerza."},
+      {name:"Hombre de Armas", text:"Milicia +1 Fuerza."},
+      {name:"Élite", text:"Arquero de Tiro Largo +1 Fuerza."}
+    ],
+    abilities: [
+      {name:"Arquero — Guarnición", text:"Requiere Guarnición. Puede guarecerse en una Torre. Continúa aportando su Fuerza a las batallas. Si la Torre cae, permanece en el hexágono."},
+      {name:"Misionero — Conversión", text:"Si vencés una batalla en la que participaron Misioneros, elegí 1 unidad enemiga derrotada por cada Misionero participante. Las unidades elegidas pasan a tu control."}
+    ]
+  },
   buildings: [
     {id:"tc", name:"Centro Urbano", image:"assets/buildings/centro-urbano.png"},
     {id:"mill", name:"Molino", image:"assets/buildings/molino.png", cost:{wood:3}},
