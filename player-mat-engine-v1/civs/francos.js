@@ -49,6 +49,8 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Jinete", force:2, range:0, move:2},
       {name:"Galera", force:2, range:0, move:1},
       {name:"Caballero", force:3, range:0, move:2, forceUpgrade:1},
+      {name:"Escorpión", force:1, range:1, move:0},
+      {name:"Trebuchet", force:1, range:3, move:0},
       {name:"Monje", force:0, range:1, move:1}
     ],
     upgrades: [
@@ -115,7 +117,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"castles", building:"tc", type:"tech", title:"Nobleza", cost:{food:3,gold:4}, text:"Al entrenar un Caballero, podés moverlo 1 hexágono inmediatamente."},
     {age:"imperial", building:"barracks", type:"tech", title:"Caballería Pesada", cost:{food:4,gold:4}, text:"Los Caballeros obtienen +1 Fuerza."},
     {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Sin gastar turno, podés cambiar 1 Comida por 1 Oro."},
-    {age:"imperial", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Unidad disponible: Escorpión y Trebuchet."},
+    {age:"imperial", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
     {age:"imperial", building:"camp", type:"tech", title:"Ingeniería", cost:{wood:3,gold:3}, text:"Escorpiones entrenados pueden salir en un hexágono adyacente."},
     {age:"imperial", building:"barracks", type:"tech", title:"Movilización", cost:{food:3,gold:3}, text:"Al entrenar una unidad de caballería, podés colocarla en cualquier construcción militar propia."},
     {age:"imperial", building:"tower", type:"tech", title:"Saqueo", cost:{food:2,gold:3}, text:"Al ganar una batalla en un hexágono enemigo, podés mover 2 recursos de ese hexágono con tu ejército."},
