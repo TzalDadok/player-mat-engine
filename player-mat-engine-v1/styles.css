@@ -906,3 +906,22 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   height:auto !important;
   min-height:44px !important;
 }
+
+
+/* Francos / Imperial / Campamento: priorizar espacio para el texto de Asedio */
+.slot[data-age="imperial"][data-building="camp"] .node.military-building{
+  flex:1 1 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+}
+.slot[data-age="imperial"][data-building="camp"] .node.tech{
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  padding-top:2px !important;
+  padding-bottom:2px !important;
+}
+.slot[data-age="imperial"][data-building="camp"] .node.tech .desc{
+  font-size:7.4px !important;
+  line-height:1.05 !important;
+}
