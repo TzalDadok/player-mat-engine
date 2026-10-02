@@ -899,3 +899,10 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   font-size:11px;
   font-weight:700;
 }
+
+
+/* Franco: Granja en Alta Edad Media — dar espacio correcto al texto */
+.slot[data-age="dark"][data-building="mill"] .node.building{
+  height:auto !important;
+  min-height:44px !important;
+}
