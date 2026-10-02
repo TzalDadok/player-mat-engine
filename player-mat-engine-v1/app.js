@@ -68,10 +68,10 @@
     if (!c.unitReference) return;
     unitPanel=document.createElement('aside');
     unitPanel.className='unit-reference';
-    const rows=c.unitReference.units.map(u=>`<div class="unit-ref-row"><b>${esc(u.name)}</b><span>⚔ ${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>◎ ${esc(u.range)}</span><span>👣 ${esc(u.move)}</span></div>`).join('');
+    const rows=c.unitReference.units.map(u=>`<div class="unit-ref-row"><b>${esc(u.name)}</b><span>${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div>`).join('');
     const upgrades=c.unitReference.upgrades.map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
     const abilities=c.unitReference.abilities.map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
-    unitPanel.innerHTML=`<div class="unit-ref-title">UNIDADES</div><div class="unit-ref-head"><span>UNIDAD</span><span>F</span><span>A</span><span>M</span></div>${rows}<div class="unit-ref-section">MEJORAS</div>${upgrades}<div class="unit-ref-section">HABILIDADES</div>${abilities}`;
+    unitPanel.innerHTML=`<div class="unit-ref-title">UNIDADES</div><div class="unit-ref-head"><span>UNIDAD</span><span>⚔</span><span>◎</span><span>👣</span></div>${rows}<div class="unit-ref-section">MEJORAS</div>${upgrades}<div class="unit-ref-section">HABILIDADES</div>${abilities}`;
     mat.appendChild(unitPanel);
   }
 
