@@ -9,7 +9,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .toolbar{position:sticky;top:0;z-index:200;display:flex;gap:12px;align-items:center;padding:8px 14px;background:#111;color:#eee;font:14px Arial,sans-serif}
 .toolbar button,.toolbar select{padding:6px 9px}.toolbar .hint{opacity:.72;margin-left:auto}.toolbar code{color:#ffd36b}
 .mat{position:relative;width:35.8cm;height:15.6cm;margin:12px auto;background:#f5e5b7;overflow:hidden;border:2px solid #d19a27;box-shadow:0 12px 36px #0009}
-.reference-layer{position:absolute;inset:0;background:url('assets/reference-master.png') left top/auto 100% no-repeat;opacity:0;pointer-events:none;z-index:150}.mat.show-reference .reference-layer{opacity:.50}
+.print-1v1-sheet{display:none}\n.reference-layer{position:absolute;inset:0;background:url('assets/reference-master.png') left top/auto 100% no-repeat;opacity:0;pointer-events:none;z-index:150}.mat.show-reference .reference-layer{opacity:.50}
 .sidebar{position:absolute;left:0;top:0;bottom:0;width:var(--sidebar-w,6.2cm);background:linear-gradient(90deg,#f8e8bd,#f5e1ae);border-right:3px solid #c7952b;display:grid;grid-template-rows:.95cm 5fr 2.45fr 3.35fr}
 .sidebar-title{height:.95cm;min-height:0;background:linear-gradient(#0b477a,#062d59);color:#fff;padding:3px 8px;border:2px solid #d7a02d;border-left:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
 .sidebar-title b{display:block;font-size:13px;line-height:1}.sidebar-title small{display:block;font-size:8.5px;line-height:1.08;margin-top:1px;white-space:nowrap}
@@ -36,6 +36,32 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   body{background:#fff}
   .no-print{display:none!important}
   .mat{margin:0;box-shadow:none}
+  body.print-1v1-mode>.mat{display:none!important}
+  body.print-1v1-mode .print-1v1-sheet{
+    display:block!important;
+    width:42cm;
+    height:28.7cm;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+  }
+  body.print-1v1-mode .print-1v1-row{
+    position:relative;
+    width:42cm;
+    height:14.34888cm;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+  }
+  body.print-1v1-mode .print-1v1-row>.mat{
+    position:absolute;
+    left:2.78796cm;
+    top:0;
+    margin:0;
+    transform:scale(.9198);
+    transform-origin:top left;
+    box-shadow:none;
+  }
   @page{margin:0}
 }
 @media(max-width:900px){.toolbar .hint{display:none}body{overflow-x:auto}.mat{margin-left:8px;margin-right:8px;transform-origin:top left}}
