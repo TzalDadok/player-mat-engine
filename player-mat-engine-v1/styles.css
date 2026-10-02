@@ -910,57 +910,65 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .unit-ref-bonus.bonus-green{color:#0a7a39;}
 
 
-/* Columna UNIDADES: distribuir siempre todo el alto disponible */
+/* Columna UNIDADES: compacta pero legible; BONUS siempre en una línea */
 .unit-reference{
   padding-bottom:3px;
   display:flex;
   flex-direction:column;
 }
 .unit-ref-title{
-  height:.82cm;
-  min-height:.82cm;
-  margin-bottom:2px;
+  height:.88cm;
+  min-height:.88cm;
+  margin-bottom:3px;
   font-size:12px;
 }
 .unit-ref-head{
-  padding-top:1px;
-  padding-bottom:1px;
+  padding-top:2px;
+  padding-bottom:2px;
 }
 .unit-ref-row{
-  min-height:21px;
+  min-height:22px;
   padding-top:2px;
   padding-bottom:2px;
 }
 .unit-ref-section{
-  margin-top:3px;
-  margin-bottom:1px;
-  padding-top:2px;
-  padding-bottom:2px;
-  font-size:8.5px;
+  margin-top:4px;
+  margin-bottom:2px;
+  padding-top:3px;
+  padding-bottom:3px;
+  font-size:9px;
 }
 .unit-ref-note{
-  padding-top:2px;
-  padding-bottom:2px;
-  font-size:7.4px;
-  line-height:1.08;
+  padding-top:3px;
+  padding-bottom:3px;
+  font-size:7.8px;
+  line-height:1.12;
 }
-.unit-ref-note b{font-size:7.7px}
+.unit-ref-note b{
+  font-size:8px;
+}
 .unit-ref-bonus{
-  padding-top:2px;
-  padding-bottom:2px;
-  font-size:7.6px;
-  line-height:1.05;
+  padding:3px 1px;
+  font-size:7.5px;
+  line-height:1;
+  white-space:nowrap !important;
+  display:block !important;
 }
-.unit-ref-bonus span{font-size:10px}
+.unit-ref-bonus b,
+.unit-ref-bonus span{
+  display:inline !important;
+  white-space:nowrap !important;
+}
+.unit-ref-bonus span{
+  padding:0 3px;
+  font-size:10px;
+}
 
-/* El espacio sobrante se reparte entre todas las filas de contenido. */
-.unit-reference>.unit-ref-row,
-.unit-reference>.unit-ref-note,
-.unit-reference>.unit-ref-bonus{
-  flex:1 1 auto;
-  display:grid;
-  align-items:center;
-}
+/* Si sobra alto, dárselo a las zonas de texto, no a BONUS. */
 .unit-reference>.unit-ref-note{
-  display:block;
+  flex:1 1 auto;
+}
+.unit-reference>.unit-ref-row,
+.unit-reference>.unit-ref-bonus{
+  flex:0 0 auto;
 }
