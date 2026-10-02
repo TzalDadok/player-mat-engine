@@ -64,7 +64,8 @@ window.PLAYER_MAT_CIVS.francos = {
     bonuses: [
       {from:"Piquero", to:"Caballería"},
       {from:"Piquero", to:"Milicia", green:true},
-      {from:"Escorpión", to:"Infantería a pie"}
+      {from:"Escorpión", to:"Infantería a pie"},
+      {from:"Trebuchet", to:"Edificios (+2)"}
     ]
   },
   buildings: [
