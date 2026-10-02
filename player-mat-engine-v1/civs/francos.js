@@ -117,7 +117,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Sin gastar turno, podés cambiar 1 Comida por 1 Oro."},
     {age:"imperial", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Unidad disponible: Escorpión y Trebuchet."},
     {age:"imperial", building:"camp", type:"tech", title:"Ingeniería", cost:{wood:3,gold:3}, text:"Escorpiones entrenados pueden salir en un hexágono adyacente."},
-    {age:"imperial", building:"barracks", type:"tech", title:"Movilización", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de caballería por turno."},
+    {age:"imperial", building:"barracks", type:"tech", title:"Movilización", cost:{food:3,gold:3}, text:"Al entrenar una unidad de caballería, podés colocarla en cualquier construcción militar propia."},
     {age:"imperial", building:"tower", type:"tech", title:"Saqueo", cost:{food:2,gold:3}, text:"Al ganar una batalla en un hexágono enemigo, podés mover 2 recursos de ese hexágono con tu ejército."},
     {age:"imperial", building:"tower", type:"tech", title:"Vasallaje", cost:{food:3,gold:3}, text:"Caballería adyacente al Castillo puede usarlo como punto de entrenamiento."},
     {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Unidades convertidas por monjes enemigos mueren en lugar de cambiar de bando."}
