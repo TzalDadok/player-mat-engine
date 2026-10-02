@@ -3,6 +3,7 @@
   const mat = document.getElementById('mat');
   const sidebar = document.getElementById('sidebar');
   const tree = document.getElementById('tree');
+  let unitPanel = null;
   const select = document.getElementById('civSelect');
 
   const R = {food:'🥩', wood:'🪵', stone:'🪨', gold:'🪙'};
@@ -62,17 +63,31 @@
     });
   }
 
+  function renderUnits(c){
+    if (unitPanel) unitPanel.remove();
+    if (!c.unitReference) return;
+    unitPanel=document.createElement('aside');
+    unitPanel.className='unit-reference';
+    const rows=c.unitReference.units.map(u=>`<div class="unit-ref-row"><b>${esc(u.name)}</b><span>⚔ ${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>◎ ${esc(u.range)}</span><span>👣 ${esc(u.move)}</span></div>`).join('');
+    const upgrades=c.unitReference.upgrades.map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
+    const abilities=c.unitReference.abilities.map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
+    unitPanel.innerHTML=`<div class="unit-ref-title">UNIDADES</div><div class="unit-ref-head"><span>UNIDAD</span><span>F</span><span>A</span><span>M</span></div>${rows}<div class="unit-ref-section">MEJORAS</div>${upgrades}<div class="unit-ref-section">HABILIDADES</div>${abilities}`;
+    mat.appendChild(unitPanel);
+  }
+
   function render(id){
     const c=civs[id]; if(!c) return;
     // Physical player-mat size: fixed 14 cm height; width grows with the tech tree.
     const sidebarCm = 6.8;
     const ageCm = 3.6;
     const buildingCm = 4.2;
-    mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm)}cm`;
+    const unitsCm = c.unitReference ? 4.0 : 0;
+    mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm) + unitsCm}cm`;
     mat.style.height = '15.6cm';
     mat.style.setProperty('--sidebar-w', `${sidebarCm}cm`);
     tree.style.gridTemplateColumns = `${ageCm}cm repeat(${c.buildings.length}, ${buildingCm}cm)`;
-    renderSidebar(c); renderTree(c);
+    tree.style.right = `${unitsCm}cm`;
+    renderSidebar(c); renderTree(c); renderUnits(c);
   }
 
   Object.values(civs).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.appendChild(o)});
