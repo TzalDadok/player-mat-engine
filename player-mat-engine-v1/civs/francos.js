@@ -58,7 +58,7 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Caballería Pesada", text:"Caballero +1 Fuerza."}
     ],
     abilities: [
-      {name:"Caballería — Carga", text:"Requiere Carga. Unidades montadas que muevan a un hexágono enemigo y elijan pelear ese mismo turno obtienen +1 Fuerza en esa batalla."},
+      {name:"Caballería — Carga", text:"Requiere Carga. Unidades montadas que entren a un hexágono enemigo y peleen obtienen +1 Fuerza ese turno."},
       {name:"Monje — Conversión", text:"Si vencés una batalla en la que participaron Monjes, elegí 1 unidad enemiga derrotada por cada Monje participante. Las unidades elegidas pasan a tu control."}
     ],
     bonuses: [
@@ -108,7 +108,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"castles", building:"camp", type:"tech", title:"Herrería", cost:{food:2,stone:2,gold:2}, text:"La primera unidad militar que entrenes cada turno cuesta 1 Oro menos."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:3}},
     {age:"castles", building:"barracks", type:"unit", title:"Caballero", cost:{food:3,gold:4}},
-    {age:"castles", building:"barracks", type:"tech", title:"Carga", cost:{food:2,gold:2}, text:"Unidades montadas que muevan a un hexágono enemigo y elijan pelear ese mismo turno obtienen +1 Fuerza en esa batalla."},
+    {age:"castles", building:"barracks", type:"tech", title:"Carga", cost:{food:2,gold:2}, text:"Unidades montadas que entren a un hexágono enemigo y peleen obtienen +1 Fuerza ese turno."},
     {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:4,gold:2}, text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia.\\nUnidad disponible: Caballero."},
     {age:"castles", building:"tower", type:"tech", title:"Señorío", cost:{food:2,gold:2}, text:"Jinetes y Caballeros pueden entrenarse en el Castillo."},
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
