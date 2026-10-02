@@ -27,7 +27,17 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .flow{position:absolute;left:50%;bottom:-14px;width:3px;height:15px;background:#0967c7;z-index:12}.flow:after{content:"";position:absolute;bottom:-1px;left:-4px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #0967c7}
 .slot[data-age="dark"] .node,.slot[data-age="feudal"] .node{font-size:8.8px}.slot[data-age="dark"] .node-title,.slot[data-age="feudal"] .node-title{font-size:10.5px}
 .slot[data-building="castle"],.slot[data-building="monastery"]{background:linear-gradient(90deg,#f6e6b8,#f8ebc8)}
-@media print{body{background:#fff}.no-print{display:none!important}.mat{margin:0;box-shadow:none}@page{margin:0}}
+@media print{
+  html,body,.mat,.mat *{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+    color-adjust:exact !important;
+  }
+  body{background:#fff}
+  .no-print{display:none!important}
+  .mat{margin:0;box-shadow:none}
+  @page{margin:0}
+}
 @media(max-width:900px){.toolbar .hint{display:none}body{overflow-x:auto}.mat{margin-left:8px;margin-right:8px;transform-origin:top left}}
 .age-cell:has(>img):after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,#0002 0%,#0000 42%,#0008 100%);pointer-events:none}
 
