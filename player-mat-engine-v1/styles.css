@@ -791,3 +791,18 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .age-cell:has(.costline) .age-info{
   min-height:0;
 }
+
+
+/* Referencia de unidades: banda derecha independiente del árbol */
+.unit-reference{position:absolute;right:0;top:0;bottom:0;width:4cm;background:linear-gradient(90deg,#f7e9c2,#f3dfaa);border-left:3px solid #c7952b;padding:0 5px 5px;overflow:hidden}
+.unit-ref-title{height:.95cm;margin:0 -5px 4px;display:flex;align-items:center;justify-content:center;background:linear-gradient(#0b477a,#062d59);border-bottom:2px solid #d7a02d;color:#fff;font-size:13px;font-weight:700;letter-spacing:.4px}
+.unit-ref-head,.unit-ref-row{display:grid;grid-template-columns:minmax(0,1fr) 36px 30px 30px;align-items:center;column-gap:2px}
+.unit-ref-head{padding:2px 3px;border-bottom:1px solid #9d814f;font-size:7px;font-weight:700;text-align:center}
+.unit-ref-head span:first-child{text-align:left}
+.unit-ref-row{min-height:25px;padding:3px;border-bottom:1px solid #c4a66e;font-size:8.5px}
+.unit-ref-row b{font-size:8.5px;line-height:1.05}
+.unit-ref-row span{text-align:center;white-space:nowrap;font-family:Arial,sans-serif;font-size:8px}
+.unit-ref-row em{color:#0a7a39;font-style:normal;font-weight:700}
+.unit-ref-section{margin:5px -1px 2px;padding:3px 5px;background:linear-gradient(90deg,#0b477a,#062d59);border:1px solid #d3ad58;border-radius:4px;color:#fff;font-size:9px;font-weight:700;text-align:center}
+.unit-ref-note{padding:3px 2px;border-bottom:1px solid #c4a66e;font-size:7.8px;line-height:1.14}
+.unit-ref-note b{font-size:8px}
