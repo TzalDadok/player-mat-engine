@@ -1,7 +1,7 @@
 window.PLAYER_MAT_CIVS = window.PLAYER_MAT_CIVS || {};
 window.PLAYER_MAT_CIVS.britanicos = {
   id: "britanicos",
-  name: "BRITÁNICOS",
+  name: "BRITONES",
   subtitle: "MAESTROS DEL ARCO",
   motto: "Disciplina, alcance\ny control del territorio.",
   headerImage: "assets/reference-master.png",
