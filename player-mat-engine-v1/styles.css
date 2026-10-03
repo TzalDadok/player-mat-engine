@@ -559,6 +559,16 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .action.mil .action-row{
   padding:1px 0;
 }
+.action-row-detail{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:4px;
+  min-width:0;
+}
+.action-row-detail>.inline-cost{
+  flex:0 0 auto;
+}
 
 /* Modificar Terreno: título e icono centrados verticalmente en todo el bloque */
 .action.tech .action-row:nth-child(3) b{
