@@ -37,7 +37,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
       ["Mover","Mové unidades. Al entrar con enemigos, decidís si combatir."],
       ["Entrenar","Entrená una unidad militar disponible."],
       ["Construir","Realizar una construcción militar disponible."],
-      ["Instruir","Costo: 1 Oro. Obtené +1 Poder de pelea."]
+      {name:"Instruir", cost:{gold:1}, text:"Obtené +1 Poder de pelea."}
     ]
   },
   unitReference: {
