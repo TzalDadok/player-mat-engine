@@ -140,5 +140,48 @@
 
     requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
   };
+  document.getElementById('print1v1A4Btn').onclick=()=>{
+    const sheet=document.getElementById('print1v1');
+    const current=select.value || Object.keys(civs)[0];
+
+    const snapshot=id=>{
+      render(id);
+      const clone=mat.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.classList.remove('grid-guides','show-reference');
+      clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+      return clone;
+    };
+
+    const britones=snapshot('britanicos');
+    const francos=snapshot('francos');
+    render(current);
+
+    sheet.innerHTML='';
+    [britones,francos].forEach(clone=>{
+      const row=document.createElement('div');
+      row.className='print-1v1-row';
+      row.appendChild(clone);
+      sheet.appendChild(row);
+    });
+
+    const pageStyle=document.createElement('style');
+    pageStyle.id='a4PrintPageStyle';
+    pageStyle.textContent='@media print{@page{size:A4 landscape;margin:5mm 0}}';
+    document.head.appendChild(pageStyle);
+
+    document.body.classList.add('print-1v1-mode','print-1v1-a4');
+    sheet.setAttribute('aria-hidden','false');
+
+    const cleanup=()=>{
+      document.body.classList.remove('print-1v1-mode','print-1v1-a4');
+      sheet.setAttribute('aria-hidden','true');
+      sheet.innerHTML='';
+      pageStyle.remove();
+    };
+    window.addEventListener('afterprint',cleanup,{once:true});
+
+    requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
+  };
   render(select.value || Object.keys(civs)[0]);
 })();
