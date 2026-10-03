@@ -23,6 +23,9 @@
     if (row && row.kind === 'terrain') {
       return `<div class="action-row terrain-row"><b>${esc(row.label)}</b><div class="terrain-list">${row.items.map(item=>`<div class="terrain-item"><div class="terrain-top"><span class="terrain-name">${esc(item.name)}</span>${renderInlineCost(item.cost)}</div><div class="terrain-text">${esc(item.text)}</div></div>`).join('')}</div></div>`;
     }
+    if (row && row.name) {
+      return `<div class="action-row"><b>${esc(row.name)}</b><span class="action-row-detail"><span>${esc(row.text)}</span>${renderInlineCost(row.cost)}</span></div>`;
+    }
     const [a,b] = row;
     return `<div class="action-row"><b>${esc(a)}</b><span>${esc(b)}</span></div>`;
   }
