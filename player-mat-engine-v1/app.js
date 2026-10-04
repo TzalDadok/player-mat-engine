@@ -50,7 +50,9 @@
 
   function renderTree(c){
     tree.innerHTML = '';
-    const corner = document.createElement('div'); corner.className=`cell corner ${c.id==='britanicos'?'britones-corner':'francos-corner'}`; corner.innerHTML=`<div class="label">${esc(c.name)}</div>`; tree.appendChild(corner);
+    const corner = document.createElement('div');
+    const cornerClass = c.id==='britanicos' ? 'britones-corner' : c.id==='francos' ? 'francos-corner' : c.id==='vikingos' ? 'vikingos-corner' : '';
+    corner.className=`cell corner ${cornerClass}`; corner.innerHTML=`<div class="label">${esc(c.name)}</div>`; tree.appendChild(corner);
     c.buildings.forEach((b,i)=>{
       const d=document.createElement('div'); d.className='cell building-head'+(b.unlock?' locked':''); d.style.gridColumn=String(i+2); d.style.gridRow='1';
       d.innerHTML=`<div class="name">${esc(b.name)}</div>${b.image?`<img src="${esc(b.image)}" alt="">`:""}${b.cost?`<div class="building-cost">${costHTML(b.cost)}</div>`:""}`; tree.appendChild(d);
