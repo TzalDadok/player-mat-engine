@@ -85,7 +85,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
 
     {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
-    {age:"castles",building:"tc",type:"tech",title:"Desmantelar",cost:{wood:2,gold:1},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
+    {age:"castles",building:"tc",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
     {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"castles",building:"camp",type:"civil",title:"Aldeano",cost:{food:2}},
     {age:"castles",building:"camp",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción. Gasta tu acción económica."},
