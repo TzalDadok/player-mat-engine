@@ -3,8 +3,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
   id: "vikingos",
   name: "VIKINGOS",
   subtitle: "SEÑORES DEL NORTE",
-  motto: "Expansión, saqueo
-y dominio naval.",
+  motto: "Expansión, saqueo y dominio naval.",
   headerImage: "assets/reference-master.png",
   flag: "",
   resources: [
