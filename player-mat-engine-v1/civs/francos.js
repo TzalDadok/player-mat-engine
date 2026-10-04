@@ -115,7 +115,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"castles", building:"tower", type:"tech", title:"Señorío", cost:{food:2,gold:2}, text:"Jinetes y Caballeros pueden entrenarse en el Castillo."},
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
 
-    {age:"imperial", building:"tc", type:"tech", title:"Administración", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
+    {age:"imperial", building:"tc", type:"tech", title:"Admin. Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"barracks", type:"tech", title:"Caballería Pesada", cost:{food:4,gold:4}, text:"Los Caballeros obtienen +1 Fuerza."},
     {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Sin gastar turno, podés cambiar 1 Comida por 1 Oro."},
     {age:"castles", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
