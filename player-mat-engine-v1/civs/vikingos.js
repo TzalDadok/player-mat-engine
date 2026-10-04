@@ -5,7 +5,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
   subtitle: "SEÑORES DEL NORTE",
   motto: "Expansión, saqueo\ny dominio naval.",
   headerImage: "assets/reference-master.png",
-  flag: "🏴",
+  flag: "",
   resources: [
     {id:"food", label:"Comida", icon:"🥩"},
     {id:"wood", label:"Madera", icon:"🪵"},
@@ -59,7 +59,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {id:"camp",name:"Camp. de Recursos",image:"assets/buildings/campamento-recursos.png",cost:{wood:2}},
     {id:"port",name:"Puerto",image:"assets/buildings/puerto.png",cost:{wood:4,stone:2}},
     {id:"barracks",name:"Cuartel",image:"assets/buildings/cuartel.png",cost:{wood:1,stone:3,gold:1}},
-    {id:"other",name:"Otros",image:"assets/buildings/castillo.jpg"}
+    {id:"other",name:"Otros",image:""}
   ],
   ages: [
     {id:"dark",roman:"I",name:"ALTA EDAD MEDIA",image:"assets/ages/alta-centro-urbano.jpg"},
