@@ -70,7 +70,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
   nodes: [
     {age:"dark",building:"tc",type:"civil",title:"Aldeano",cost:{food:1}},
     {age:"dark",building:"tc",type:"tech",title:"Telar",cost:{food:1,wood:1},text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
-    {age:"dark",building:"mill",type:"tech",title:"Asentamiento Vikingo",cost:{food:1,wood:2},text:"Al tomar un hexágono con Granjas enemigas sin defensa militar, las unidades económicas enemigas vuelven a su Centro Urbano y las Granjas pasan a ser tuyas en lugar de destruirse."},
+    {age:"dark",building:"mill",type:"tech",title:"Asent. Vikingo",cost:{food:1,wood:2},text:"Al tomar un hexágono con granjas enemigas sin defensa militar, estas pasan a tu posesión en lugar de destruirse."},
     {age:"dark",building:"camp",type:"tech",title:"Doble Filo",cost:{food:1,gold:1,stone:1},text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
     {age:"dark",building:"port",type:"tech",title:"Urca",cost:{wood:2,gold:1},text:"Los pesqueros pueden transportar recursos ilimitados."},
