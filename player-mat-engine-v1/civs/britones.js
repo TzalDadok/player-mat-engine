@@ -91,7 +91,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar 6 unidades y 6 recursos."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", cost:{food:1,wood:2,gold:1}},
-    {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", text:"Tu milicia gana +1 de fuerza."},
+    {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", cost:{food:2,gold:1}, text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
     {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
@@ -105,7 +105,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"feudal", building:"barracks", type:"tech", title:"Marcha Disciplin.", cost:{food:2,gold:1}, text:"Unidades de arquería entrenadas pueden salir en hexágono adyacente."},
     {age:"feudal", building:"tower", type:"tech", title:"Zona de Control", cost:{wood:2,stone:1}, text:"Las unidades enemigas que entren en un hexágono adyacente a tu Torre deben finalizar allí su movimiento."},
 
-    {age:"castles", building:"tc", type:"tech", title:"Desarrollo", text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
+    {age:"castles", building:"tc", type:"tech", title:"Desarrollo", cost:{food:2,gold:2}, text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
     {age:"castles", building:"port", type:"unit", title:"Galera", cost:{wood:3,gold:1}},
     {age:"castles", building:"port", type:"tech", title:"Dominio Naval", cost:{food:3,gold:4}, text:"Si una Galera entra a un hexágono enemigo, su producción queda suspendida."},
     {age:"imperial", building:"port", type:"tech", title:"Espolón Oculto", cost:{wood:2,gold:2}, text:"La galera gana +1 bonus contra barcos sin alcance."},
