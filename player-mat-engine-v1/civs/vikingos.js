@@ -91,7 +91,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"castles",building:"port",type:"tech",title:"Comb. Naval Opt.",text:"Los barcos pueden recorrer todos los hexágonos de Agua y desembarcar sus unidades en un hexágono adyacente utilizando una única acción."},
     {age:"castles",building:"barracks",type:"unit",title:"Arquero",cost:{food:1,wood:2,gold:1}},
     {age:"castles",building:"barracks",type:"tech",title:"Hacha de Guerra",text:"Las Milicias obtienen +1 Fuerza al atacar un hexágono que contenga un edificio enemigo."},
-    {age:"castles",building:"other",type:"military-building",title:"Castillo",text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia. Unidad disponible: Milicia o Vikingo."},
+    {age:"castles",building:"other",type:"military-building",title:"Castillo",text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia. Unidad disponible: Milicia."},
 
     {age:"imperial",building:"tc",type:"tech",title:"Admin. Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
     {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."},
