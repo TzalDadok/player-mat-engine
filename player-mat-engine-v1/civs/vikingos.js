@@ -97,6 +97,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
 
     {age:"imperial",building:"tc",type:"tech",title:"Admin. Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
     {age:"imperial",building:"mill",type:"tech",title:"Colonos del Norte",cost:{wood:3,gold:3},text:"Podés mover una Granja propia a otro hexágono de Llanura o Desierto junto con el Aldeano que la ocupa."},
+    {age:"imperial",building:"camp",type:"tech",title:"Logística Naval",cost:{wood:3,gold:3},text:"Los recursos producidos en hexágonos adyacentes al Agua pueden cargarse directamente en un barco vikingo adyacente."},
     {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",cost:{wood:4,gold:3},text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."},
     {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",cost:{food:3,gold:3},text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",cost:{food:4,gold:3},text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
