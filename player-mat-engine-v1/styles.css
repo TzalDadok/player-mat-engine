@@ -1100,3 +1100,22 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   width:100% !important;
   flex:0 0 auto !important;
 }
+
+
+/* Vikingos: Campamento / Castillos — Carreta Mercante pegada a Aldeano y con espacio para su texto */
+.mat[data-civ="vikingos"] .slot[data-age="castles"][data-building="camp"]{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:2px !important;
+}
+.mat[data-civ="vikingos"] .slot[data-age="castles"][data-building="camp"]>.node{
+  flex:0 0 auto !important;
+  width:100% !important;
+}
+.mat[data-civ="vikingos"] .slot[data-age="castles"][data-building="camp"]>.node.tech{
+  height:auto !important;
+  min-height:72px !important;
+  overflow:hidden;
+}
