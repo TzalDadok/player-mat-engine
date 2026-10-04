@@ -95,7 +95,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
 
     {age:"imperial",building:"tc",type:"tech",title:"Admin. Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
     {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."},
-    {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",text:"Con 2+ Milicias, obtenés +2 Fuerza total en vez del +1 de Guerrero Vikingo."},
+    {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
     {age:"imperial",building:"other",type:"tech",title:"Salón de los Jarls",text:"Al ENTRENAR Milicias desde un Castillo, podés entrenar 2 con una sola acción, pagando el coste de ambas."}
   ]
