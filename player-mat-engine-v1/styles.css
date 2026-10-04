@@ -1040,3 +1040,35 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   padding:0 3px;
   font-size:10px;
 }
+
+
+/* Vikingos: columna UNIDADES compacta y alineada de arriba hacia abajo */
+.mat[data-civ="vikingos"] .unit-reference{
+  justify-content:flex-start;
+}
+.mat[data-civ="vikingos"] .unit-ref-title{
+  margin-bottom:0;
+}
+.mat[data-civ="vikingos"] .unit-ref-head{
+  margin-bottom:0;
+}
+.mat[data-civ="vikingos"] .unit-ref-row{
+  flex:0 0 22px;
+  min-height:22px;
+  padding:2px 0;
+}
+.mat[data-civ="vikingos"] .unit-ref-section{
+  margin:4px -1px 1px;
+  padding:3px 4px;
+}
+.mat[data-civ="vikingos"] .unit-ref-note{
+  padding:3px 2px;
+  font-size:8px;
+  line-height:1.1;
+}
+.mat[data-civ="vikingos"] .unit-ref-note b{
+  font-size:8.3px;
+}
+.mat[data-civ="vikingos"] .unit-ref-section:last-of-type{
+  margin-top:4px;
+}
