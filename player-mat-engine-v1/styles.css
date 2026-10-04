@@ -613,6 +613,21 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 }
 
 
+/* Vikingos: estandarte en la esquina superior izquierda del árbol */
+.corner.vikingos-corner{
+  background:url("assets/ui/vikingos-banner.png") center center / cover no-repeat !important;
+  overflow:hidden;
+}
+.corner.vikingos-corner:before,
+.corner.vikingos-corner:after{
+  content:none !important;
+  display:none !important;
+}
+.corner.vikingos-corner .label{
+  display:none !important;
+}
+
+
 /* Edificios militares: violeta claro */
 .node.military-building{background:linear-gradient(#f3e8ff,#dfc5f4);border:1.5px solid #a678c4;padding-top:21px}
 .node.military-building:before{content:"";position:absolute;left:-1.5px;right:-1.5px;top:-1.5px;height:19px;background:linear-gradient(#9a68bb,#754494);border-radius:5px 5px 0 0}
