@@ -3,7 +3,8 @@ window.PLAYER_MAT_CIVS.vikingos = {
   id: "vikingos",
   name: "VIKINGOS",
   subtitle: "SEÑORES DEL NORTE",
-  motto: "Expansión, saqueo\ny dominio naval.",
+  motto: "Expansión, saqueo
+y dominio naval.",
   headerImage: "assets/reference-master.png",
   flag: "",
   resources: [
@@ -72,7 +73,8 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"dark",building:"tc",type:"tech",title:"Telar",cost:{food:1,wood:1},text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"dark",building:"mill",type:"tech",title:"Asentamiento Vikingo",text:"Al tomar un hexágono con Granjas enemigas sin defensa militar, las unidades económicas enemigas vuelven a su Centro Urbano y las Granjas pasan a ser tuyas en lugar de destruirse."},
     {age:"dark",building:"camp",type:"tech",title:"Doble Filo",cost:{food:1,gold:1,stone:1},text:"Aldeanos trabajando en el bosque producen +1 madera."},
-    {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},\n    {age:"dark",building:"port",type:"tech",title:"Urca",text:"Los pesqueros pueden transportar recursos ilimitados."},
+    {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
+    {age:"dark",building:"port",type:"tech",title:"Urca",text:"Los pesqueros pueden transportar recursos ilimitados."},
     {age:"dark",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
     {age:"dark",building:"barracks",type:"unit",title:"Milicia",cost:{food:1,gold:1}},
 
