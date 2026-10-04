@@ -1042,6 +1042,11 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 }
 
 
+/* Vikingos: mismo espaciado que el resto, sin estirar para ocupar la columna */
+.mat[data-civ="vikingos"] .unit-reference{
+  justify-content:flex-start;
+}
+
 /* Vikingos: Asentamiento Vikingo necesita altura para contener toda la descripción */
 .mat[data-civ="vikingos"] .slot[data-age="dark"][data-building="mill"]{
   display:flex !important;
