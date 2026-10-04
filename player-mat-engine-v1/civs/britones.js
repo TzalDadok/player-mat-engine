@@ -110,7 +110,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"port", type:"tech", title:"Dominio Naval", cost:{food:3,gold:4}, text:"Si una Galera entra a un hexágono enemigo, su producción queda suspendida."},
     {age:"imperial", building:"port", type:"tech", title:"Espolón Oculto", cost:{wood:2,gold:2}, text:"La galera gana +1 bonus contra barcos sin alcance."},
     {age:"feudal", building:"camp", type:"tech", title:"Exp. Aurífera", cost:{food:3,wood:1,stone:2}, text:"Aldeanos trabajando en una cantera de oro producen +1 oro."},
-    {age:"castles", building:"camp", type:"tech", title:"Maestros Artesanos", cost:{food:3,gold:4}, text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
+    {age:"castles", building:"camp", type:"tech", title:"Maest. Artesanos", cost:{food:3,gold:4}, text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:3}},
     {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:5,gold:3}, text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia.\nUnidad disponible: Arquero de Tiro Largo."},
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Misionero."},
