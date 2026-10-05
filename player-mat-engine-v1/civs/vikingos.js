@@ -92,10 +92,10 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
 
     {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
-    {age:"castles",building:"tc",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
+    {age:"feudal",building:"other",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
     {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"castles",building:"camp",type:"civil",title:"Aldeano",cost:{food:2}},
-    {age:"castles",building:"camp",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción. Gasta tu acción económica."},
+    {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción. Gasta tu acción económica."},
     {age:"castles",building:"port",type:"tech",title:"Comb. Naval Opt.",cost:{wood:3,gold:3},text:"Los barcos pueden recorrer todos los hexágonos de Agua y desembarcar sus unidades en un hexágono adyacente utilizando una única acción."},
     {age:"castles",building:"barracks",type:"unit",title:"Arquero",cost:{food:1,wood:2,gold:1}},
     {age:"castles",building:"barracks",type:"tech",title:"Hacha de Guerra",cost:{food:2,gold:2},text:"Las Milicias obtienen +1 Fuerza al atacar un hexágono que contenga un edificio enemigo."},
@@ -107,7 +107,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",cost:{wood:4,gold:3},text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."},
     {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",cost:{food:3,gold:3},text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",cost:{food:4,gold:3},text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
-    {age:"castles",building:"other",type:"tech",title:"Jarl Saloon",cost:{wood:3,stone:2,gold:3},text:"Al ENTRENAR Milicias desde un Castillo, podés entrenar 2 con una sola acción, pagando el coste de ambas."},
-    {age:"imperial",building:"other",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."}
+    {age:"imperial",building:"other",type:"tech",title:"Jarl Saloon",cost:{wood:3,stone:2,gold:3},text:"Al ENTRENAR Milicias desde un Castillo, podés entrenar 2 con una sola acción, pagando el coste de ambas."},
+    {age:"castles",building:"camp",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."}
   ]
 };
