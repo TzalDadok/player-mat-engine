@@ -41,7 +41,9 @@ window.PLAYER_MAT_CIVS.vikingos = {
       {name:"Aldeano",force:0,range:0,move:1,forceUpgrade:1},
       {name:"Milicia",force:2,range:0,move:1},
       {name:"Arquero",force:1,range:1,move:1},
-      {name:"Galera",force:2,range:0,move:1}
+      {name:"Galera",force:2,range:0,move:1},
+      {name:"Escorpión",force:1,range:1,move:0},
+      {name:"Trebuchet",force:1,range:3,move:0}
     ],
     upgrades: [
       {name:"Telar",text:"Aldeano +1 Fuerza."},
@@ -52,7 +54,9 @@ window.PLAYER_MAT_CIVS.vikingos = {
       {name:"Drakkar Mejorado",text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."}
     ],
     bonuses: [
-      {from:"Milicia", to:"Construcciones", green:true}
+      {from:"Milicia", to:"Construcciones", green:true},
+      {from:"Escorpión", to:"Infantería a pie"},
+      {from:"Trebuchet", to:"Edificios (+2)"}
     ]
   },
   buildings: [
