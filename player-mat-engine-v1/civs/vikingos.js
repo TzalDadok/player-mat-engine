@@ -51,7 +51,9 @@ window.PLAYER_MAT_CIVS.vikingos = {
       {name:"Drakkar",text:"La Galera puede transportar hasta 6 unidades."},
       {name:"Drakkar Mejorado",text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."}
     ],
-    bonuses: [{label:"Milicia → Construcciones",className:"bonus-green"}]
+    bonuses: [
+      {from:"Milicia", to:"Construcciones", green:true}
+    ]
   },
   buildings: [
     {id:"tc",name:"Centro Urbano",image:"assets/buildings/centro-urbano.png"},
