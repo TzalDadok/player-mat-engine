@@ -62,18 +62,6 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
     transform-origin:top left;
     box-shadow:none;
   }
-  body.print-1v1-mode.print-1v1-a4 .print-1v1-sheet{
-    width:29.7cm;
-    height:20cm;
-  }
-  body.print-1v1-mode.print-1v1-a4 .print-1v1-row{
-    width:29.7cm;
-    height:10cm;
-  }
-  body.print-1v1-mode.print-1v1-a4 .print-1v1-row>.mat{
-    left:2.15769cm;
-    transform:scale(.64102564);
-  }
   @page{margin:0}
 }
 @media(max-width:900px){.toolbar .hint{display:none}body{overflow-x:auto}.mat{margin-left:8px;margin-right:8px;transform-origin:top left}}
