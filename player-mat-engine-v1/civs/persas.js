@@ -94,7 +94,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"feudal",building:"camp",type:"tech",title:"Minería Imperial",cost:{food:3,wood:1,stone:2},text:"Aldeanos trabajando en una cantera de Oro producen +1 Oro."},
     {age:"feudal",building:"port",type:"tech",title:"Redes de Carga",cost:{wood:4},text:"Pesqueros pueden transportar 2 recursos."},
     {age:"feudal",building:"barracks",type:"unit",title:"Piquero",cost:{food:2,wood:1}},
-    {age:"feudal",building:"tower",type:"tech",title:"Guarnición Imperial",cost:{food:2,stone:2},text:"Una Milicia o Piquero puede guarecerse en una Torre y continúa aportando su Fuerza a batallas adyacentes."},
+    {age:"feudal",building:"tower",type:"tech",title:"Fortificación Real",cost:{wood:2,stone:2},text:"Cuando una Torre participa en una batalla defensiva, obtenés +1 al máximo de Poder Militar que podés apostar."},
 
     {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
     {age:"castles",building:"mill",type:"tech",title:"Forraje",cost:{food:3,wood:2,gold:1},text:"Al entrenar un Elefante de Guerra, podés pagar hasta 2 Comidas ubicadas en Granjas propias sin transportarlas al Cuartel."},
