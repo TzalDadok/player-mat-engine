@@ -107,8 +107,6 @@
   printCiv1.value = civs.britanicos ? 'britanicos' : Object.keys(civs)[0];
   printCiv2.value = civs.francos ? 'francos' : (Object.keys(civs)[1] || Object.keys(civs)[0]);
   select.addEventListener('change',()=>render(select.value));
-  document.getElementById('toggleGrid').onclick=()=>mat.classList.toggle('grid-guides');
-  document.getElementById('printBtn').onclick=()=>window.print();
 
   document.getElementById('print1v1Btn').onclick=()=>{
     const sheet=document.getElementById('print1v1');
