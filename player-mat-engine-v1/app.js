@@ -108,8 +108,8 @@
     const o1=o.cloneNode(true); printCiv1.appendChild(o1);
     const o2=o.cloneNode(true); printCiv2.appendChild(o2);
   });
-  printCiv1.value = civs.britanicos ? 'britanicos' : Object.keys(civs)[0];
-  printCiv2.value = civs.francos ? 'francos' : '';
+  printCiv1.value = '';
+  printCiv2.value = '';
   select.addEventListener('change',()=>render(select.value));
 
   document.getElementById('print1v1Btn').onclick=()=>{
