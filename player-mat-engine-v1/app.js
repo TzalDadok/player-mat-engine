@@ -99,13 +99,17 @@
 
   const printCiv1=document.getElementById('printCiv1');
   const printCiv2=document.getElementById('printCiv2');
+  const empty1=document.createElement('option'); empty1.value=''; empty1.textContent='—';
+  const empty2=empty1.cloneNode(true);
+  printCiv1.appendChild(empty1);
+  printCiv2.appendChild(empty2);
   Object.values(civs).forEach(c=>{
     const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.appendChild(o);
     const o1=o.cloneNode(true); printCiv1.appendChild(o1);
     const o2=o.cloneNode(true); printCiv2.appendChild(o2);
   });
   printCiv1.value = civs.britanicos ? 'britanicos' : Object.keys(civs)[0];
-  printCiv2.value = civs.francos ? 'francos' : (Object.keys(civs)[1] || Object.keys(civs)[0]);
+  printCiv2.value = civs.francos ? 'francos' : '';
   select.addEventListener('change',()=>render(select.value));
 
   document.getElementById('print1v1Btn').onclick=()=>{
@@ -123,12 +127,15 @@
       return clone;
     };
 
-    const first=snapshot(civ1);
-    const second=snapshot(civ2);
+    const clones=[];
+    if(civ1) clones.push(snapshot(civ1));
+    if(civ2) clones.push(snapshot(civ2));
     render(current);
 
+    if(!clones.length) return;
+
     sheet.innerHTML='';
-    [first,second].forEach(clone=>{
+    clones.forEach(clone=>{
       const row=document.createElement('div');
       row.className='print-1v1-row';
       row.appendChild(clone);
