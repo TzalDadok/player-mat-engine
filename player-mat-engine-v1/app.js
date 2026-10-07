@@ -97,7 +97,15 @@
     renderSidebar(c); renderTree(c); renderUnits(c);
   }
 
-  Object.values(civs).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.appendChild(o)});
+  const printCiv1=document.getElementById('printCiv1');
+  const printCiv2=document.getElementById('printCiv2');
+  Object.values(civs).forEach(c=>{
+    const o=document.createElement('option');o.value=c.id;o.textContent=c.name;select.appendChild(o);
+    const o1=o.cloneNode(true); printCiv1.appendChild(o1);
+    const o2=o.cloneNode(true); printCiv2.appendChild(o2);
+  });
+  printCiv1.value = civs.britanicos ? 'britanicos' : Object.keys(civs)[0];
+  printCiv2.value = civs.francos ? 'francos' : (Object.keys(civs)[1] || Object.keys(civs)[0]);
   select.addEventListener('change',()=>render(select.value));
   document.getElementById('toggleGrid').onclick=()=>mat.classList.toggle('grid-guides');
   document.getElementById('printBtn').onclick=()=>window.print();
@@ -105,6 +113,8 @@
   document.getElementById('print1v1Btn').onclick=()=>{
     const sheet=document.getElementById('print1v1');
     const current=select.value || Object.keys(civs)[0];
+    const civ1=printCiv1.value;
+    const civ2=printCiv2.value;
 
     const snapshot=id=>{
       render(id);
@@ -115,12 +125,12 @@
       return clone;
     };
 
-    const britones=snapshot('britanicos');
-    const francos=snapshot('francos');
+    const first=snapshot(civ1);
+    const second=snapshot(civ2);
     render(current);
 
     sheet.innerHTML='';
-    [britones,francos].forEach(clone=>{
+    [first,second].forEach(clone=>{
       const row=document.createElement('div');
       row.className='print-1v1-row';
       row.appendChild(clone);
@@ -137,49 +147,6 @@
 
     const cleanup=()=>{
       document.body.classList.remove('print-1v1-mode');
-      sheet.setAttribute('aria-hidden','true');
-      sheet.innerHTML='';
-      pageStyle.remove();
-    };
-    window.addEventListener('afterprint',cleanup,{once:true});
-
-    requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
-  };
-  document.getElementById('print1v1A4Btn').onclick=()=>{
-    const sheet=document.getElementById('print1v1');
-    const current=select.value || Object.keys(civs)[0];
-
-    const snapshot=id=>{
-      render(id);
-      const clone=mat.cloneNode(true);
-      clone.removeAttribute('id');
-      clone.classList.remove('grid-guides','show-reference');
-      clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-      return clone;
-    };
-
-    const britones=snapshot('britanicos');
-    const francos=snapshot('francos');
-    render(current);
-
-    sheet.innerHTML='';
-    [britones,francos].forEach(clone=>{
-      const row=document.createElement('div');
-      row.className='print-1v1-row';
-      row.appendChild(clone);
-      sheet.appendChild(row);
-    });
-
-    const pageStyle=document.createElement('style');
-    pageStyle.id='a4PrintPageStyle';
-    pageStyle.textContent='@media print{@page{size:A4 landscape;margin:5mm 0}}';
-    document.head.appendChild(pageStyle);
-
-    document.body.classList.add('print-1v1-mode','print-1v1-a4');
-    sheet.setAttribute('aria-hidden','false');
-
-    const cleanup=()=>{
-      document.body.classList.remove('print-1v1-mode','print-1v1-a4');
       sheet.setAttribute('aria-hidden','true');
       sheet.innerHTML='';
       pageStyle.remove();
