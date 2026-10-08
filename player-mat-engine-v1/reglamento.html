@@ -189,10 +189,10 @@
           <div class="example"><strong>Ejemplo:</strong> Un Bosque controlado vale 2 puntos mientras siga siendo Bosque. Si se agota y se convierte en Llanura, valdrá 1 punto al final de la partida.</div>
           <h4>D. Territorios secundarios</h4>
           <div class="terrain-grid">
-            <article class="terrain"><span class="terrain-icon">🌊</span><span class="value">1 PUNTO</span><h4>Agua</h4><p>Se utiliza para navegación y pesca. Un Aldeano en un hexágono adyacente puede producir <strong>1 Comida</strong> pescando, según las reglas y habilidades habilitadas.</p></article>
+            <article class="terrain"><span class="terrain-icon">🌊</span><span class="value">1 PUNTO</span><h4>Agua</h4><p>Se utiliza para navegación y pesca. <strong>Todos los hexágonos de Agua se consideran adyacentes entre sí</strong> para el movimiento naval, sin importar su posición física. Cada Agua tiene una letra <strong>A o B</strong>; un barco solo puede desplazarse a un Agua de la letra opuesta, alternando A → B → A. Cada punto de Movimiento permite un salto. Un Aldeano en un territorio terrestre adyacente a Agua puede pescar desde la costa.</p></article>
             <article class="terrain"><span class="terrain-icon">🏜️</span><span class="value">1 PUNTO</span><h4>Desierto</h4><p>Normalmente no produce recursos. Algunas civilizaciones permiten construir o producir aquí. Puede transformarse en Llanura con IRRIGAR.</p></article>
             <article class="terrain"><span class="terrain-icon">🌱</span><span class="value">1 PUNTO</span><h4>Llanura</h4><p>Terreno terrestre sin producción propia. Puede albergar Granjas según las reglas de la civilización; con o sin Granjas vale 1 punto.</p></article>
-            <article class="terrain"><span class="terrain-icon">⛰️</span><span class="value">1 PUNTO</span><h4>Montaña</h4><p>Dificulta el desplazamiento. Los Aldeanos pueden entrar, pero deben esperar un turno para continuar. Algunas tecnologías especiales pueden ampliar el paso.</p></article>
+            <article class="terrain"><span class="terrain-icon">⛰️</span><span class="value">1 PUNTO</span><h4>Montaña</h4><p>Es transitable por unidades. <strong>Entrar en una Montaña termina inmediatamente el movimiento</strong>, aunque a la unidad le quedaran puntos de Movimiento. Salir no agrega un costo adicional, pero entrar en otra Montaña vuelve a terminar el movimiento. Cuando una unidad se mueve desde una Montaña hacia un hexágono que <strong>no sea Montaña</strong>, puede explorar esa Montaña si todavía no fue explorada.</p></article>
           </div>
           <h4>E. Maravilla</h4>
           <p>La Maravilla se ubica en el centro del tablero. Su funcionamiento y la forma de obtener sus recompensas se detallan en el <a href="#victoria">capítulo 6</a>.</p>
@@ -241,7 +241,8 @@
 
           <h3 style="margin-top:35px">1.5. Exploración y componentes especiales</h3>
           <p>El prototipo incluye un <strong>mazo de 16 cartas de Exploración</strong>, con beneficios de Economía, Tecnología, Militar y hallazgos inmediatos. Entre ellas hay recursos, movimientos especiales, refuerzos, Poder de Pelea y Reliquias.</p>
-          <div class="pending"><b><span class="pill pend">Por cerrar</span> Activación de Exploración</b>Queda por confirmar el procedimiento definitivo para descubrir cartas, el límite de cartas en mano, el momento de juego de cada categoría y el tratamiento de Reliquias. No se agregan reglas automáticas no acordadas.</div>
+          <div class="rule"><b>Exploración de Montañas</b>Cada Montaña puede ser explorada <strong>una sola vez</strong>. Cuando una unidad se mueve desde una Montaña hacia un hexágono que no sea Montaña, el jugador puede sacar <strong>1 carta de Exploración</strong>, siempre que esa Montaña no haya sido explorada anteriormente. La Montaña debe marcarse como explorada para que no vuelva a otorgar una carta.</div>
+          <div class="pending"><b><span class="pill pend">Por cerrar</span> Cartas y Reliquias</b>Queda por confirmar el límite de cartas en mano, el momento de juego de cada categoría y el tratamiento definitivo de las Reliquias.</div>
         </section>
       </section>
 
@@ -318,6 +319,8 @@
           <p>Al realizar esta acción, elegí hasta la cantidad de <strong>hexágonos productivos</strong> permitidos por tu Edad. Todos los Aldeanos y edificios productivos elegibles ubicados en esos hexágonos pueden producir una vez, respetando los requisitos de terreno y sus habilidades. Los recursos se toman del suministro general y se colocan <strong>en el mismo hexágono donde se produjeron</strong>.</p>
           <table><thead><tr><th>Edad</th><th>Hexágonos que pueden producir</th></tr></thead><tbody><tr><td>I · Alta Edad Media</td><td>2</td></tr><tr><td>II · Feudal</td><td>3</td></tr><tr><td>III · Castillos</td><td>4</td></tr><tr><td>IV · Imperial</td><td>5</td></tr></tbody></table>
           <p>Cada avance de Edad aumenta en <strong>+1</strong> la cantidad de hexágonos que pueden producir durante una misma acción PRODUCIR. La cantidad de Aldeanos o productores presentes dentro de un hexágono no hace que ese hexágono consuma activaciones adicionales.</p>
+          <div class="rule"><b>Granjas</b>Al activar un hexágono con Granjas, produce <strong>1 Comida por cada pareja de 1 Granja + 1 Aldeano</strong> presente allí. Por ejemplo: 2 Granjas + 2 Aldeanos producen 2 Comidas; 2 Granjas + 1 Aldeano producen 1; y 1 Granja + 2 Aldeanos produce 1. Las Granjas sin Aldeano no producen. Todo el territorio cuenta como <strong>un solo hexágono productivo</strong>.</div>
+          <div class="rule"><b>Pesca costera</b>Un Aldeano situado en un <strong>hexágono terrestre adyacente a Agua</strong> puede producir 1 Comida pescando desde la costa. Cada Aldeano de ese hexágono puede hacerlo: 2 Aldeanos producen 2 Comidas, 3 producen 3, etc. Todo el territorio terrestre cuenta como <strong>un solo hexágono productivo</strong>.</div>
           <p>Una explotación consecutiva del mismo recurso primario puede causar <a href="#territorios">sobreexplotación</a>. Las tecnologías de cada civilización pueden otorgar producción adicional, alterar los recursos válidos o evitar el agotamiento.</p>
 
           <div class="action-title"><h4>B. MOVER</h4><span class="type">Unidades económicas</span></div>
@@ -355,11 +358,11 @@
           <div class="action-title"><h4>C. MODIFICAR TERRENO</h4><span class="type">Una modificación</span></div>
           <div class="terrain-grid">
             <div class="terrain"><span class="value">🪵 3 · 🥩 3 · 🪨 3</span><h4>Irrigar</h4><p>Transforma <strong>Desierto → Llanura</strong>. Solo puede realizarse si el Desierto está adyacente a <strong>Montaña o Agua</strong>.</p></div>
-            <div class="terrain"><span class="value">🪵 5 · 🥩 5 · 🪨 5</span><h4>Drenar</h4><p>Requiere un hexágono de <strong>Agua adyacente a Desierto</strong>. El Agua pasa a Desierto y ese Desierto pasa a Llanura.</p></div>
+            <div class="terrain"><span class="value">🪵 5 · 🥩 5 · 🪨 5</span><h4>Drenar</h4><p>Requiere un hexágono de <strong>Agua adyacente a Desierto</strong>. El Agua pasa a Desierto y uno de sus Desiertos adyacentes pasa a Llanura. Si hay varios Desiertos válidos, <strong>el jugador elige cuál</strong>.</p></div>
             <div class="terrain"><span class="value">🪵 3</span><h4>Fortificar</h4><p>Colocá una <strong>empalizada en uno de los lados</strong> de un hexágono. Su efecto preciso en el combate se detalla entre las reglas pendientes.</p></div>
           </div>
           <div class="example"><strong>Ejemplo de DRENAR:</strong> Antes: <strong>Agua — Desierto</strong>. Después: <strong>Desierto — Llanura</strong>. Se transforman ambos hexágonos con una sola acción.</div>
-          <div class="pending"><b><span class="pill pend">Por aclarar</span> Varios terrenos adyacentes elegibles</b>Si hay más de un Desierto junto al Agua para DRENAR, queda por confirmar si el jugador elige cuál se convierte en Llanura. También falta definir las condiciones de alcance para modificar un hexágono lejano.</div>
+          <div class="pending"><b><span class="pill pend">Por aclarar</span> Alcance de la modificación</b>Falta definir las condiciones de alcance para modificar un hexágono lejano.</div>
         </section>
 
         <section class="section action-section mil" id="militares">
@@ -520,8 +523,8 @@
         <p class="lead-section">Estas notas no son reglas nuevas. Identifican los pocos puntos que todavía necesitan confirmación o una prueba de mesa para que nadie los confunda con decisiones ya cerradas.</p>
         <div class="pending"><b>01 · Estrella por eliminar un Centro Urbano</b>Está propuesta, pero todavía no aprobada. Si se incorpora, habrá que revisar el total de estrellas y su interacción con la finalización competitiva.</div>
         <div class="pending"><b>02 · Empates y eliminación en Competitivo</b>No se definió un desempate por puntos. Tampoco se cerró si un jugador eliminado en Competitivo puede seguir figurando en el recuento final o queda fuera de la clasificación.</div>
-        <div class="pending"><b>03 · Cartas de Exploración y Reliquias</b>Existen 16 cartas diseñadas, pero siguen pendientes sus reglas definitivas de obtención, uso, límites y efectos de Reliquias.</div>
-        <div class="pending"><b>04 · Fortificaciones y obstáculos</b>Falta concretar el efecto de empalizadas, la intervención de puertos en el desplazamiento y algunos casos de modificación de terreno con varios hexágonos adyacentes elegibles.</div>
+        <div class="pending"><b>03 · Cartas de Exploración y Reliquias</b>La obtención mediante Montañas ya está definida. Siguen pendientes el límite de cartas en mano, el momento de uso de cada categoría y las reglas definitivas de Reliquias.</div>
+        <div class="pending"><b>04 · Fortificaciones y obstáculos</b>Falta concretar el efecto de empalizadas, la intervención de puertos en el desplazamiento y el alcance permitido para modificar terrenos lejanos.</div>
         <div class="pending"><b>05 · Límites especiales de producción y despliegue</b>Conviene precisar cuándo produce un Campamento de Recursos por sí solo, los límites de Granjas, el entrenamiento de unidades económicas que no sean Aldeanos y algunas excepciones de movimiento.</div>
         <div class="pending"><b>06 · Religiosos y asedio: casos límite</b>Hay que probar qué sucede cuando curación y bajas alcanzan a los propios religiosos; si una máquina con Movimiento 0 puede desplazarse con un grupo que contiene un Aldeano y cómo se aplica el requisito de operación en apoyos de largo alcance.</div>
         <div class="pending"><b>07 · Preparación visual del tablero</b>Se agregarán los diagramas definitivos de 2 y 4 jugadores, el mapa FFA de 48 hexágonos y una vista etiquetada del Player Mat. Los espacios están preparados en el capítulo 2.</div>
