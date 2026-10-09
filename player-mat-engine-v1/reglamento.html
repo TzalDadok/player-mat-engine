@@ -175,11 +175,11 @@
 
           <h4>B. Territorios primarios</h4>
           <div class="terrain-grid">
-            <article class="terrain"><span class="terrain-icon">🫐</span><span class="value">2 PUNTOS</span><h4>Frutos silvestres</h4><p>Cada Aldeano que produce obtiene <strong>1 Comida</strong>. Si se sobreexplota, el terreno pasa a Llanura.</p></article>
-            <article class="terrain"><span class="terrain-icon">🐑</span><span class="value">2 PUNTOS</span><h4>Animales</h4><p>Cada Aldeano produce <strong>1 Comida</strong>. Un Molino ubicado aquí puede aportar otra Comida al PRODUCIR. Si se sobreexplota, pasa a Llanura.</p></article>
-            <article class="terrain"><span class="terrain-icon">🪙</span><span class="value">2 PUNTOS</span><h4>Cantera de Oro</h4><p>Cada Aldeano produce <strong>1 Oro</strong>, salvo mejoras. Un Campamento de Recursos puede potenciarla. Agotada, pasa a Agua.</p></article>
-            <article class="terrain"><span class="terrain-icon">🪨</span><span class="value">2 PUNTOS</span><h4>Cantera de Piedra</h4><p>Cada Aldeano produce <strong>1 Piedra</strong>, salvo mejoras. Un Campamento de Recursos puede potenciarla. Agotada, pasa a Agua.</p></article>
-            <article class="terrain"><span class="terrain-icon">🌲</span><span class="value">2 PUNTOS</span><h4>Bosque</h4><p>Cada Aldeano produce <strong>1 Madera</strong>, salvo mejoras. Un Campamento de Recursos puede potenciarlo. Agotado, pasa a Llanura.</p></article>
+            <article class="terrain"><span class="terrain-icon">🫐</span><span class="value">2 PUNTOS</span><h4>Frutos silvestres</h4><p>Cada Aldeano produce <strong>1 Comida</strong>. Un <strong>Molino</strong> ubicado aquí produce como un Aldeano adicional. Si se sobreexplota, el terreno pasa a Llanura.</p></article>
+            <article class="terrain"><span class="terrain-icon">🐑</span><span class="value">2 PUNTOS</span><h4>Animales</h4><p>Cada Aldeano produce <strong>1 Comida</strong>. Un <strong>Molino</strong> ubicado aquí produce como un Aldeano adicional. Si se sobreexplota, pasa a Llanura.</p></article>
+            <article class="terrain"><span class="terrain-icon">🪙</span><span class="value">2 PUNTOS</span><h4>Cantera de Oro</h4><p>Cada Aldeano produce <strong>1 Oro</strong>, salvo mejoras. Un <strong>Campamento de Recursos</strong> ubicado aquí produce como un Aldeano adicional. Agotada, pasa a Agua.</p></article>
+            <article class="terrain"><span class="terrain-icon">🪨</span><span class="value">2 PUNTOS</span><h4>Cantera de Piedra</h4><p>Cada Aldeano produce <strong>1 Piedra</strong>, salvo mejoras. Un <strong>Campamento de Recursos</strong> ubicado aquí produce como un Aldeano adicional. Agotada, pasa a Agua.</p></article>
+            <article class="terrain"><span class="terrain-icon">🌲</span><span class="value">2 PUNTOS</span><h4>Bosque</h4><p>Cada Aldeano produce <strong>1 Madera</strong>, salvo mejoras. Un <strong>Campamento de Recursos</strong> ubicado aquí produce como un Aldeano adicional. Agotado, pasa a Llanura.</p></article>
           </div>
           <h4>C. Sobreexplotación</h4>
           <p>Si un jugador produce en el mismo territorio primario durante <strong>dos turnos propios consecutivos</strong>, lo agota. Dejar descansar el hexágono al menos un turno propio evita la sobreexplotación. Algunas tecnologías de civilización cambian esta regla.</p>
@@ -205,9 +205,9 @@
           <h4>A. Disponibilidad según la acción</h4>
           <div class="table-wrap"><table><thead><tr><th>Acción</th><th>¿Dónde deben estar los recursos?</th></tr></thead><tbody>
             <tr><td><strong>Construir</strong> (económico o militar)</td><td>En el hexágono exacto donde se realiza la construcción, junto al Aldeano que construye.</td></tr>
-            <tr><td><strong>Entrenar Aldeano</strong></td><td>En un hexágono controlado por el jugador. El nuevo Aldeano aparece en ese mismo hexágono.</td></tr>
+            <tr><td><strong>Entrenar Aldeano</strong></td><td>El costo puede pagarse con recursos ubicados en uno o varios hexágonos controlados. Normalmente el Aldeano aparece en el <strong>Centro Urbano</strong>; si una civilización habilita otro edificio para entrenarlo, el jugador puede elegir que aparezca en el hexágono de ese edificio.</td></tr>
             <tr><td><strong>Entrenar militar</strong></td><td>En el hexágono donde se encuentra el edificio que entrena la unidad.</td></tr>
-            <tr><td><strong>Investigar / Avanzar de Edad / Modificar terreno</strong></td><td>En uno o varios hexágonos controlados. No es necesario transportarlos hasta una construcción.</td></tr>
+            <tr><td><strong>Investigar / Avanzar de Edad</strong></td><td>En uno o varios hexágonos controlados. No es necesario transportarlos hasta una construcción.</td></tr><tr><td><strong>Modificar terreno</strong></td><td>En uno o varios hexágonos controlados. Además, debe haber un <strong>Aldeano en el terreno que se modifica</strong>.</td></tr>
             <tr><td><strong>Instruir</strong></td><td>El Oro puede retirarse de cualquier hexágono controlado.</td></tr>
           </tbody></table></div>
           <p>Un jugador solo puede usar normalmente recursos que estén en territorios que <strong>controle</strong>. Las tecnologías y habilidades que habiliten transporte remoto son excepciones explícitas a la regla general.</p>
@@ -319,7 +319,7 @@
           <p>Al realizar esta acción, elegí hasta la cantidad de <strong>hexágonos productivos</strong> permitidos por tu Edad. Todos los Aldeanos y edificios productivos elegibles ubicados en esos hexágonos pueden producir una vez, respetando los requisitos de terreno y sus habilidades. Los recursos se toman del suministro general y se colocan <strong>en el mismo hexágono donde se produjeron</strong>.</p>
           <table><thead><tr><th>Edad</th><th>Hexágonos que pueden producir</th></tr></thead><tbody><tr><td>I · Alta Edad Media</td><td>2</td></tr><tr><td>II · Feudal</td><td>3</td></tr><tr><td>III · Castillos</td><td>4</td></tr><tr><td>IV · Imperial</td><td>5</td></tr></tbody></table>
           <p>Cada avance de Edad aumenta en <strong>+1</strong> la cantidad de hexágonos que pueden producir durante una misma acción PRODUCIR. La cantidad de Aldeanos o productores presentes dentro de un hexágono no hace que ese hexágono consuma activaciones adicionales.</p>
-          <div class="rule"><b>Granjas</b>Al activar un hexágono con Granjas, produce <strong>1 Comida por cada pareja de 1 Granja + 1 Aldeano</strong> presente allí. Por ejemplo: 2 Granjas + 2 Aldeanos producen 2 Comidas; 2 Granjas + 1 Aldeano producen 1; y 1 Granja + 2 Aldeanos produce 1. Las Granjas sin Aldeano no producen. Todo el territorio cuenta como <strong>un solo hexágono productivo</strong>.</div>
+          <div class="rule"><b>Granjas</b>Puede haber un máximo de <strong>2 Granjas por hexágono</strong>. Al activar un hexágono con Granjas, produce <strong>1 Comida por cada pareja de 1 Granja + 1 Aldeano</strong> presente allí. Por ejemplo: 2 Granjas + 2 Aldeanos producen 2 Comidas; 2 Granjas + 1 Aldeano producen 1; y 1 Granja + 2 Aldeanos produce 1. Las Granjas sin Aldeano no producen. Todo el territorio cuenta como <strong>un solo hexágono productivo</strong>.</div>
           <div class="rule"><b>Pesca costera</b>Un Aldeano situado en un <strong>hexágono terrestre adyacente a Agua</strong> puede producir 1 Comida pescando desde la costa. Cada Aldeano de ese hexágono puede hacerlo: 2 Aldeanos producen 2 Comidas, 3 producen 3, etc. Todo el territorio terrestre cuenta como <strong>un solo hexágono productivo</strong>.</div>
           <p>Una explotación consecutiva del mismo recurso primario puede causar <a href="#territorios">sobreexplotación</a>. Las tecnologías de cada civilización pueden otorgar producción adicional, alterar los recursos válidos o evitar el agotamiento.</p>
 
@@ -331,8 +331,8 @@
           <p>Elegí una construcción económica disponible. Debe haber un <strong>Aldeano en el hexágono elegido</strong> y todos los recursos necesarios deben encontrarse <strong>en ese hexágono</strong>. Pagá su costo y colocá el edificio.</p>
 
           <div class="action-title"><h4>D. ENTRENAR</h4><span class="type">Unidad económica</span></div>
-          <p>Entrená una unidad económica habilitada pagando su costo. <strong>Para entrenar un Aldeano</strong>, el costo puede retirarse de un territorio controlado y el nuevo Aldeano aparece en ese mismo hexágono. Se aplican las capacidades de entrenamiento que habilite tu civilización.</p>
-          <p>Pesqueros, transportes y otras unidades especiales siguen los requisitos de sus correspondientes edificios y tecnologías.</p>
+          <p><strong>Aldeanos:</strong> el Centro Urbano, aunque es un hexágono y no un edificio, <strong>oficia como edificio de entrenamiento</strong>. El costo puede pagarse con recursos ubicados en territorios controlados y el nuevo Aldeano aparece en el CU. Si una civilización permite entrenar Aldeanos desde otro edificio, el jugador puede elegir entrenarlo allí y colocarlo en el hexágono de ese edificio.</p>
+          <p><strong>Unidades económicas navales:</strong> Pesqueros y transportes se entrenan normalmente en el <strong>Puerto</strong> y aparecen en el mismo hexágono de Agua donde está construido, salvo que el Player Mat indique una excepción.</p>
 
           <div class="action-title"><h4>E. COMERCIAR</h4><span class="type">Intercambio</span></div>
           <p>El jugador activo puede iniciar un comercio si existe <strong>al menos un Mercado construido en la partida</strong>. Los jugadores negocian libremente los términos, pero todo intercambio debe incluir <strong>Oro como pago</strong>.</p>
@@ -355,14 +355,14 @@
           </tbody></table></div>
           <p>Los costos pueden cambiar por habilidades específicas de civilización. Alcanzar Imperial otorga una estrella y 10 puntos en Competitivo.</p>
 
-          <div class="action-title"><h4>C. MODIFICAR TERRENO</h4><span class="type">Una modificación</span></div>
+          <div class="action-title"><h4>C. MODIFICAR TERRENO</h4><span class="type">Una modificación</span></div><p>Para modificar un terreno debe haber un <strong>Aldeano propio en el hexágono que se modifica</strong>. El costo puede pagarse utilizando recursos ubicados en territorios controlados.</p>
           <div class="terrain-grid">
             <div class="terrain"><span class="value">🪵 3 · 🥩 3 · 🪨 3</span><h4>Irrigar</h4><p>Transforma <strong>Desierto → Llanura</strong>. Solo puede realizarse si el Desierto está adyacente a <strong>Montaña o Agua</strong>.</p></div>
             <div class="terrain"><span class="value">🪵 5 · 🥩 5 · 🪨 5</span><h4>Drenar</h4><p>Requiere un hexágono de <strong>Agua adyacente a Desierto</strong>. El Agua pasa a Desierto y uno de sus Desiertos adyacentes pasa a Llanura. Si hay varios Desiertos válidos, <strong>el jugador elige cuál</strong>.</p></div>
-            <div class="terrain"><span class="value">🪵 3</span><h4>Fortificar</h4><p>Colocá una <strong>empalizada en uno de los lados</strong> de un hexágono. Su efecto preciso en el combate se detalla entre las reglas pendientes.</p></div>
+            <div class="terrain"><span class="value">🪵 3</span><h4>Fortificar</h4><p>Colocá una <strong>empalizada en uno de los lados</strong> de un hexágono. Una empalizada <strong>no puede atravesarse mediante movimiento</strong>. Un jugador puede elegir atacarla; si el ataque incluye <strong>2 o más unidades</strong>, la empalizada se destruye en ese turno.</p></div>
           </div>
           <div class="example"><strong>Ejemplo de DRENAR:</strong> Antes: <strong>Agua — Desierto</strong>. Después: <strong>Desierto — Llanura</strong>. Se transforman ambos hexágonos con una sola acción.</div>
-          <div class="pending"><b><span class="pill pend">Por aclarar</span> Alcance de la modificación</b>Falta definir las condiciones de alcance para modificar un hexágono lejano.</div>
+          
         </section>
 
         <section class="section action-section mil" id="militares">
@@ -429,17 +429,17 @@
           <h3>5.6. Unidades religiosas</h3>
           <p>Las unidades religiosas, como <strong>Monje</strong> o <strong>Misionero</strong>, tienen dos posibles funciones: <strong>Curar</strong> y <strong>Convertir</strong>.</p>
           <h4>A. CURAR</h4>
-          <div class="rule"><b>Menos bajas al perder</b>Después de calcular las bajas del jugador derrotado, se resta <strong>1 baja por cada unidad religiosa participante que no sea elegida como baja</strong>. Las unidades salvadas regresan al CU junto con los demás supervivientes.</div>
+          <div class="rule"><b>Menos bajas al perder</b>Primero se calculan las bajas normales y el jugador derrotado elige qué unidades sufrirían esas bajas. <strong>Solo después se cuentan los Monjes o Misioneros que quedaron vivos.</strong> Cada religioso superviviente puede rescatar 1 de las unidades elegidas como baja; el jugador decide cuál. Las unidades rescatadas regresan al CU junto con los demás supervivientes.</div>
           <div class="example"><strong>Ejemplo:</strong> Una derrota por diferencia de 6 provocaría 6 bajas. Si entre los participantes hay <strong>2 Misioneros que sobreviven</strong>, reducen el resultado a <strong>4 bajas efectivas</strong>.</div>
-          <p>La curación solo actúa sobre las bajas de ese combate; no revive unidades eliminadas en turnos anteriores. Si no pueden sobrevivir todas las unidades religiosas, habrá que reducir la curación en consecuencia.</p>
+          <p>La curación solo actúa sobre las bajas de ese combate; no revive unidades eliminadas en turnos anteriores. Un religioso elegido como baja <strong>no puede rescatar</strong> ninguna unidad.</p>
           <h4>B. CONVERTIR</h4>
           <p>Si el jugador <strong>gana</strong> una batalla con unidades religiosas participantes, puede elegir <strong>una unidad enemiga derrotada por cada Monje o Misionero participante</strong>. Las unidades elegidas pasan al control del vencedor, según la capacidad de Conversión de su civilización.</p>
           <p>La tecnología <strong>Herejía</strong>, cuando está disponible y desarrollada por el defensor derrotado, hace que sus unidades convertidas <strong>mueran en lugar de cambiar de bando</strong>.</p>
-          <div class="pending"><b><span class="pill pend">Caso límite pendiente</span> Curación cuando quedan pocas unidades</b>La interacción exacta entre elección de bajas y protección de religiosos debe comprobarse cuando la diferencia de Fuerza supera a los participantes no religiosos. La intención acordada es que <strong>solo curen los religiosos que sobreviven</strong>.</div>
+          
 
           <h3>5.7. Unidades de asedio</h3>
           <p>Son máquinas de guerra como <strong>Ariete, Escorpión y Trebuchet</strong>. Se identifican por su <strong>Movimiento 0</strong> y sus bonificaciones especiales contra unidades o edificios.</p>
-          <div class="rule"><b>Transporte y operación</b>Una máquina de asedio <strong>no se mueve sola</strong>: para desplazarse debe acompañarla un Aldeano. Además, para poder utilizarla en combate debe participar <strong>al menos un Aldeano</strong> que la opere.</div>
+          <div class="rule"><b>Transporte y operación</b>Una máquina de asedio con Movimiento 0 <strong>no se mueve sola</strong>: puede desplazarse si forma parte de un grupo acompañado por <strong>al menos otra unidad</strong>, que se considera que transporta la máquina. Para que la máquina pueda aportar su Fuerza, Alcance y bonificaciones en combate, debe haber <strong>al menos un Aldeano en el mismo hexágono que la máquina</strong> para operarla. Sin Aldeano puede ser transportada, pero no utilizada en combate.</div>
           <p>Su Alcance y su Fuerza dependen de la unidad. Por ejemplo, el Trebuchet puede apoyar desde lejos, mientras que el Ariete se utiliza cerca de su objetivo. Las bonificaciones concretas aparecen en el Player Mat.</p>
           <p>El Taller de Maquinaria de Asedio —o la construcción equivalente que figure como <strong>Asedio</strong>— permite habilitar estas unidades según la Edad y la civilización.</p>
 
@@ -452,13 +452,13 @@
           <div class="rule"><b>Eliminación de una civilización</b>Si un ejército enemigo entra al CU de otro jugador y este no consigue defenderlo —o pierde su combate defensivo—, el propietario del CU <strong>queda eliminado de la partida</strong>.</div>
           <p>Al eliminarse una civilización:</p>
           <ul>
-            <li>Se retiran todas sus <strong>unidades, edificios y fichas propias</strong>.</li>
+            <li>En Competitivo, <strong>antes de retirar sus componentes</strong>, se calcula y conserva su puntuación: objetivos ya conseguidos más los puntos de los territorios que controla en ese momento.</li><li>Se retiran todas sus <strong>unidades, edificios y fichas propias</strong>.</li>
             <li>Sus <strong>recursos de Madera, Comida, Oro y Piedra permanecen</strong> donde estaban.</li>
             <li>Sus territorios quedan sin propietario, salvo que otro jugador los controle por sus propias unidades o edificios.</li>
             <li>Su CU permanece en el mapa, pero inactivo.</li>
             <li>El jugador eliminado deja de participar.</li>
           </ul>
-          <div class="pending"><b><span class="pill pend">Propuesta sin aprobar</span> Recompensa por conquistar un CU</b>Se conversó la posibilidad de otorgar <strong>★ + 10 puntos</strong> (una sola vez por conquistador). <strong>No está aprobada</strong> y no se incluye en las ocho estrellas del modo Competitivo.</div>
+          <div class="rule"><b>Recompensa por conquistar un CU · Competitivo</b>El jugador que elimina una civilización conquistando su Centro Urbano obtiene <strong>★ 1 estrella y 10 puntos</strong>.</div>
         </section>
       </section>
 
@@ -473,7 +473,7 @@
           <div class="placeholder"><b>[IMAGEN · HEXÁGONO DE LA MARAVILLA]</b><span>Ilustración definitiva de la Maravilla central</span></div>
 
           <h3>6.2. Estrellas del modo Competitivo</h3>
-          <p>Hay <strong>8 estrellas</strong> de objetivos. Las siete de desarrollo, una vez conseguidas, <strong>quedan aseguradas</strong> aunque después pierdas tropas, edificios o Poder de Pelea. Solo la estrella de la Maravilla puede transferirse.</p>
+          <p>Hay <strong>8 estrellas de objetivos</strong>. Las siete de desarrollo, una vez conseguidas, <strong>quedan aseguradas</strong> aunque después pierdas tropas, edificios o Poder de Pelea. Solo la estrella de la Maravilla puede transferirse. Además, cada civilización enemiga que elimines conquistando su Centro Urbano otorga <strong>★ 1 estrella y 10 puntos</strong>; estas estrellas son adicionales a las ocho de objetivos.</p>
 
           <h4>Desarrollo económico · 15 puntos</h4>
           <div class="table-wrap"><table><thead><tr><th>Objetivo</th><th>Recompensa</th></tr></thead><tbody>
@@ -499,11 +499,11 @@
           <div class="note"><b>Logros históricos</b>Para las estrellas de entrenamiento cuentan las unidades entrenadas <strong>durante toda la partida</strong>, no solo las que sigan vivas. Llegar una vez a 16 Poder de Pelea asegura la estrella aunque después lo gastes. Cada comercio válido cuenta para los dos participantes.</div>
 
           <h3>6.3. Final de la partida Competitiva</h3>
-          <div class="rule"><b>Final repentino: 5 estrellas</b>Cuando un jugador alcanza <strong>5 de las 8 estrellas</strong>, se resuelven los combates pendientes de ese mismo turno, se comprueba el control de la Maravilla y se confirma el total de estrellas. Si alguien conserva 5, la partida <strong>termina inmediatamente</strong>. No se completa la ronda.</div>
+          <div class="rule"><b>Final repentino: 5 estrellas</b>Cuando un jugador alcanza <strong>5 estrellas en total</strong>, se resuelven los combates pendientes de ese mismo turno, se comprueba el control de la Maravilla y se confirma el total de estrellas. Si alguien conserva 5, la partida <strong>termina inmediatamente</strong>. No se completa la ronda.</div>
           <p>La quinta estrella <strong>no garantiza ganar</strong>: quien haya acumulado más puntos al terminar será el vencedor. Este final repentino obliga a valorar muy bien cuándo provocar el cierre de partida.</p>
 
           <h3>6.4. Puntuación final Competitiva</h3>
-          <p>Cada jugador suma los puntos de los objetivos conseguidos y después agrega puntos por los terrenos que controla <strong>en el instante final de la partida</strong>.</p>
+          <p>Los jugadores que continúan en juego suman los puntos de los objetivos conseguidos y después agregan puntos por los terrenos que controlan <strong>en el instante final de la partida</strong>. Si una civilización fue eliminada antes, <strong>conserva el puntaje calculado inmediatamente antes de retirar sus componentes del tablero</strong> y sigue figurando en la clasificación final.</p>
           <div class="terrain-grid">
             <div class="terrain"><span class="value">+2 POR HEXÁGONO</span><h4>Primarios</h4><p>Frutos Silvestres, Animales, Bosque, Cantera de Oro y Cantera de Piedra.</p></div>
             <div class="terrain"><span class="value">+1 POR HEXÁGONO</span><h4>Secundarios</h4><p>Agua, Desierto, Llanura —con o sin Granjas— y Montaña.</p></div>
@@ -521,13 +521,10 @@
       <section class="chapter" id="pendientes">
         <div class="chapter-head"><div class="ch-num">7</div><div><small>Notas de diseño</small><h2>Decisiones pendientes</h2></div></div>
         <p class="lead-section">Estas notas no son reglas nuevas. Identifican los pocos puntos que todavía necesitan confirmación o una prueba de mesa para que nadie los confunda con decisiones ya cerradas.</p>
-        <div class="pending"><b>01 · Estrella por eliminar un Centro Urbano</b>Está propuesta, pero todavía no aprobada. Si se incorpora, habrá que revisar el total de estrellas y su interacción con la finalización competitiva.</div>
-        <div class="pending"><b>02 · Empates y eliminación en Competitivo</b>No se definió un desempate por puntos. Tampoco se cerró si un jugador eliminado en Competitivo puede seguir figurando en el recuento final o queda fuera de la clasificación.</div>
-        <div class="pending"><b>03 · Cartas de Exploración y Reliquias</b>La obtención mediante Montañas ya está definida. Siguen pendientes el límite de cartas en mano, el momento de uso de cada categoría y las reglas definitivas de Reliquias.</div>
-        <div class="pending"><b>04 · Fortificaciones y obstáculos</b>Falta concretar el efecto de empalizadas, la intervención de puertos en el desplazamiento y el alcance permitido para modificar terrenos lejanos.</div>
-        <div class="pending"><b>05 · Límites especiales de producción y despliegue</b>Conviene precisar cuándo produce un Campamento de Recursos por sí solo, los límites de Granjas, el entrenamiento de unidades económicas que no sean Aldeanos y algunas excepciones de movimiento.</div>
-        <div class="pending"><b>06 · Religiosos y asedio: casos límite</b>Hay que probar qué sucede cuando curación y bajas alcanzan a los propios religiosos; si una máquina con Movimiento 0 puede desplazarse con un grupo que contiene un Aldeano y cómo se aplica el requisito de operación en apoyos de largo alcance.</div>
-        <div class="pending"><b>07 · Preparación visual del tablero</b>Se agregarán los diagramas definitivos de 2 y 4 jugadores, el mapa FFA de 48 hexágonos y una vista etiquetada del Player Mat. Los espacios están preparados en el capítulo 2.</div>
+        <div class="pending"><b>01 · Desempate en Competitivo</b>Todavía no se definió cómo desempatar si dos o más jugadores terminan con el mismo puntaje.</div>
+        <div class="pending"><b>02 · Cartas de Exploración y Reliquias</b>La obtención mediante Montañas ya está definida. El efecto y momento de resolución depende del texto de cada carta. Falta recuperar y revisar el mazo de 16 cartas ya diseñado y cerrar las reglas definitivas de Reliquias.</div>
+        <div class="pending"><b>03 · Puertos y desplazamiento</b>Falta concretar si los Puertos intervienen de alguna manera especial en el desplazamiento naval además de entrenar y desplegar unidades.</div>
+        <div class="pending"><b>04 · Preparación visual del tablero</b>Se agregarán los diagramas definitivos de 2 y 4 jugadores, el mapa FFA de 48 hexágonos y una vista etiquetada del Player Mat. Los espacios están preparados en el capítulo 2.</div>
         <div class="note"><b>Fuente del desarrollo de civilizaciones</b>Los cuatro Player Mats actuales —<strong>Britones, Francos, Vikingos y Persas</strong>— son la referencia para unidades exclusivas, costos específicos, habilidades y excepciones. El reglamento explica lo común, mientras el mat explica lo propio.</div>
       </section>
 
