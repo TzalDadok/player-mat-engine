@@ -30,6 +30,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Build playtest data
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          rows = []
+          for path in sorted(Path("playtests").glob("*.md"), reverse=True):
+              rows.append({
+                  "name": path.name,
+                  "content": path.read_text(encoding="utf-8")
+              })
+
+          out = "window.PLAYTESTS = " + json.dumps(rows, ensure_ascii=False) + ";\n"
+          Path("player-mat-engine-v1/playtests-data.js").write_text(out, encoding="utf-8")
+          PY
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
