@@ -181,3 +181,22 @@ button:hover{filter:brightness(1.08)}
 .readonly-note .note-meta{
   background:#161410;
 }
+
+.delete-btn{
+  width:30px;
+  height:26px;
+  border:0;
+  border-left:1px solid var(--line);
+  background:transparent;
+  color:#a66;
+  font-size:1rem;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.delete-btn:hover{
+  background:#2a1717;
+  color:#e2a3a3;
+  filter:none;
+}
