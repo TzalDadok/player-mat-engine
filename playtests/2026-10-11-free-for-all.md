@@ -64,6 +64,18 @@ La primera impresión es que este cambio reduce turnos poco interesantes al comi
 
 ## Cosas a probar
 
+### Límite de Aldeanos
+
+Probar un límite máximo de **8 Aldeanos por jugador**.
+
+Objetivos de la prueba:
+- evitar que la estrategia dominante sea producir Aldeanos de forma indefinida;
+- obligar a redistribuir la población existente cuando se quiera ocupar nuevos recursos o expandirse;
+- mantener decisiones entre producir, construir, expandirse y reservar Aldeanos para tareas futuras;
+- comprobar si 8 permite una economía desarrollada sin saturar el tablero.
+
+El límite sería únicamente para **Aldeanos**. Pesqueros y otras unidades económicas no contarían dentro de ese máximo.
+
 ### Red logística por territorios controlados
 
 Evaluar permitir que los recursos puedan gastarse aunque no estén físicamente en el hexágono donde se realiza la acción, siempre que formen parte de una red continua de territorios controlados por el jugador.
