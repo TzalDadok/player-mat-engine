@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AoE BoardGame · Mats</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="toolbar no-print">
+    <strong><a href="index.html" style="color:inherit;text-decoration:none">AoE BoardGame</a> / Mat Creator</strong>
+    <label>Civilización <select id="civSelect"></select></label>
+    <span class="toolbar-spacer" aria-hidden="true"></span>
+    <label><select id="printCiv1"></select> <select id="printCiv2"></select></label>
+    <button id="print1v1Btn">Imprimir A3</button>
+    <span class="hint">Civilizaciones cargadas desde <code>civs/*.js</code>.</span>
+  </div>
+
+  <main id="mat" class="mat">
+    <div id="reference" class="reference-layer"></div>
+    <aside id="sidebar" class="sidebar"></aside>
+    <section id="tree" class="tree"></section>
+  </main>
+
+  <section id="print1v1" class="print-1v1-sheet" aria-hidden="true"></section>
+
+  <script src="civs/britones.js"></script>
+  <script src="civs/francos.js"></script>
+  <script src="civs/vikingos.js"></script>
+  <script src="civs/persas.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
