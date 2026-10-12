@@ -53,19 +53,19 @@
   <div class="layout">
     <aside class="sidebar">
       <div class="sidebar-head">PLAYTESTS</div>
-      <div class="playtest-list">
-        <button class="playtest-item" data-file="2026-10-11-free-for-all.md"><span>11/10/2026 · free for all</span><span class="arrow">→</span></button>
-      </div>
+      <div class="playtest-list" id="playtestList"></div>
     </aside>
 
     <section class="content-wrap">
-      <article id="content"><div class="placeholder">Seleccioná un playtest.</div></article>
+      <article id="content"><div class="placeholder">Cargando playtests…</div></article>
     </section>
   </div>
 </main>
 
+<script src="playtests-data.js"></script>
 <script>
 const esc=s=>String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+
 function renderMarkdown(md){
   const lines=md.replace(/\r/g,'').split('\n');
   let html='',inList=false;
@@ -86,28 +86,36 @@ function renderMarkdown(md){
   closeList();return html;
 }
 
-async function loadPlaytest(button){
-  document.querySelectorAll('.playtest-item').forEach(x=>x.classList.remove('active'));
-  button.classList.add('active');
-  const file=button.dataset.file;
-  const content=document.getElementById('content');
-  content.innerHTML='<div class="placeholder">Cargando…</div>';
-  try{
-    const r=await fetch('playtests/'+encodeURIComponent(file),{cache:'no-store'});
-    if(!r.ok) throw new Error();
-    const md=await r.text();
-    content.innerHTML=renderMarkdown(md);
-    history.replaceState(null,'','#'+file.replace(/\.md$/,''));
-  }catch{
-    content.innerHTML='<div class="error">No se pudo cargar este playtest.</div>';
-  }
+function prettyName(name){
+  return name.replace(/\.md$/,'')
+    .replace(/^(\d{4})-(\d{2})-(\d{2})-/,'$3/$2/$1 · ')
+    .replace(/-/g,' ');
 }
-document.querySelectorAll('.playtest-item').forEach(btn=>btn.addEventListener('click',()=>loadPlaytest(btn)));
 
-const hash=location.hash.slice(1);
-const target=[...document.querySelectorAll('.playtest-item')].find(b=>b.dataset.file.replace(/\.md$/,'')===hash)
-  || document.querySelector('.playtest-item');
-if(target) loadPlaytest(target);
+function loadPlaytest(index){
+  const data=(window.PLAYTESTS||[])[index];
+  if(!data) return;
+  document.querySelectorAll('.playtest-item').forEach(x=>x.classList.remove('active'));
+  const btn=document.querySelector('[data-index="'+index+'"]');
+  if(btn) btn.classList.add('active');
+  document.getElementById('content').innerHTML=renderMarkdown(data.content);
+  history.replaceState(null,'','#'+data.name.replace(/\.md$/,''));
+}
+
+const data=(window.PLAYTESTS||[]).slice().sort((a,b)=>b.name.localeCompare(a.name));
+window.PLAYTESTS=data;
+const list=document.getElementById('playtestList');
+
+if(!data.length){
+  list.innerHTML='<div class="placeholder">No hay playtests.</div>';
+  document.getElementById('content').innerHTML='<div class="placeholder">No hay playtests disponibles.</div>';
+}else{
+  list.innerHTML=data.map((p,i)=>'<button class="playtest-item" data-index="'+i+'"><span>'+esc(prettyName(p.name))+'</span><span class="arrow">→</span></button>').join('');
+  list.querySelectorAll('.playtest-item').forEach(btn=>btn.addEventListener('click',()=>loadPlaytest(Number(btn.dataset.index))));
+  const hash=location.hash.slice(1);
+  const idx=data.findIndex(p=>p.name.replace(/\.md$/,'')===hash);
+  loadPlaytest(idx>=0?idx:0);
+}
 </script>
 </body>
 </html>
