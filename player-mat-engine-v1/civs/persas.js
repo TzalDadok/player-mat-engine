@@ -14,7 +14,7 @@ window.PLAYER_MAT_CIVS.persas = {
   ],
   turn: {
     economy: [
-      ["Producir","Todos tus aldeanos y edificios productivos elegibles producen."],
+      ["Producir","Elegí 2 hexágonos productivos. Los productores elegibles en ellos generan sus recursos."],
       ["Mover","Mové aldeanos y los recursos que transportan."],
       ["Construir","Realizar una construcción económica disponible."],
       ["Entrenar","Entrená una unidad economica disponible."],
@@ -34,7 +34,7 @@ window.PLAYER_MAT_CIVS.persas = {
       }
     ],
     military: [
-      ["Mover","Mové unidades. Al entrar con enemigos, decidís si combatir."],
+      ["Mover","Mové unidades militares o económicas. Al entrar con enemigos, decidís si combatir."],
       ["Entrenar","Entrená una unidad militar disponible."],
       ["Construir","Realizar una construcción militar disponible."],
       {name:"Instruir",cost:{gold:1},text:"Obtené +1 Poder de pelea."}
