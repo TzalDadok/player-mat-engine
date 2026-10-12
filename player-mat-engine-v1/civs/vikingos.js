@@ -17,7 +17,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
       ["Mover","Mové aldeanos y los recursos que transportan."],
       ["Construir","Realizar una construcción económica disponible."],
-      ["Entrenar","Entrená una unidad economica disponible."],
+      ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
     ],
     technology: [
@@ -31,7 +31,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     ],
     military: [
       ["Mover","Mové unidades militares o económicas. Al entrar con enemigos, decidís si combatir."],
-      ["Entrenar","Entrená una unidad militar disponible."],
+      ["Entrenar","Entrená tantas unidades militares disponibles como puedas pagar."],
       ["Construir","Realizar una construcción militar disponible."],
       {name:"Instruir",cost:{gold:1},text:"Obtené +1 Poder de pelea."}
     ]
