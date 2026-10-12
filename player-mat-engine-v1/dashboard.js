@@ -142,6 +142,10 @@
         ? '<button class="promote-btn" type="button" data-promote="' + originalIndex + '" title="Pasar a Changelog">→</button>'
         : '';
 
+      const remove = type === 'changelog'
+        ? '<button class="delete-btn" type="button" data-delete="' + originalIndex + '" title="Eliminar del Changelog">×</button>'
+        : '';
+
       const date = type === 'changelog'
         ? (note.implementedAt || note.createdAt)
         : note.createdAt;
@@ -150,7 +154,7 @@
         <article class="note ${type === 'changelog' ? 'readonly-note' : ''}">
           <div class="note-meta">
             <span class="meta-left">${esc(formatDate(date))}</span>
-            ${promote}
+            ${promote}${remove}
           </div>
           <div class="note-body">${esc(note.text)}</div>
         </article>
@@ -160,6 +164,12 @@
     if (type === 'testing') {
       list.querySelectorAll('[data-promote]').forEach(btn => {
         btn.addEventListener('click', () => promoteNote(Number(btn.dataset.promote)));
+      });
+    }
+
+    if (type === 'changelog') {
+      list.querySelectorAll('[data-delete]').forEach(btn => {
+        btn.addEventListener('click', () => deleteChangelogNote(Number(btn.dataset.delete)));
       });
     }
   };
@@ -267,6 +277,53 @@
       const message = err.message === 'TOKEN_INVALID' ? 'Token inválido. Volvé a intentar.' : 'Error al implementar';
       setStatus('testing', message, true);
       setStatus('changelog', '', false);
+      await loadPublicData();
+    }
+  };
+
+  const deleteChangelogNote = async index => {
+    const localNote = state.changelog[index];
+    if (!localNote) return;
+
+    if (!window.confirm('¿Eliminar esta entrada del Changelog?')) return;
+
+    setStatus('changelog', 'Eliminando…', true);
+
+    try {
+      const file = await getFile('changelog');
+
+      const sameNote = n =>
+        (localNote.id && n.id === localNote.id) ||
+        (!localNote.id && n.text === localNote.text && n.createdAt === localNote.createdAt);
+
+      const removeIndex = file.data.findIndex(sameNote);
+
+      if (removeIndex < 0) {
+        state.changelog = file.data;
+        render('changelog');
+        setStatus('changelog', 'Ya estaba eliminada');
+        return;
+      }
+
+      const next = file.data.filter((_, i) => i !== removeIndex);
+
+      await putFile(
+        'changelog',
+        next,
+        file.sha,
+        'Delete changelog entry'
+      );
+
+      state.changelog = next;
+      render('changelog');
+      setStatus('changelog', 'Eliminado');
+    } catch (err) {
+      console.error(err);
+      setStatus(
+        'changelog',
+        err.message === 'TOKEN_INVALID' ? 'Token inválido. Volvé a intentar.' : 'Error al eliminar',
+        true
+      );
       await loadPublicData();
     }
   };
