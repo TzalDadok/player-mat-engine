@@ -3,5 +3,10 @@
     "id": "77accdec-b09d-4bd1-be61-fa005ad1b9aa",
     "text": "Movimiento de unidades económicas durante la acción Militar.",
     "createdAt": "2026-10-12T14:41:32.979Z"
+  },
+  {
+    "id": "c209aad3-00fa-4c12-90c7-e5b267540a07",
+    "text": "Producción automática cada turno",
+    "createdAt": "2026-10-12T14:45:21.723Z"
   }
 ]
