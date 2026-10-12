@@ -1,33 +1,91 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Player Mat Engine v1</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AoE BoardGame · Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-  <div class="toolbar no-print">
-    <strong>AoE BoardGame / Mat Creator</strong>
-    <label>Civilización <select id="civSelect"></select></label>
-    <span class="toolbar-spacer" aria-hidden="true"></span>
-    <label><select id="printCiv1"></select> <select id="printCiv2"></select></label>
-    <button id="print1v1Btn">Imprimir A3</button>
-    <span class="hint">Civilizaciones cargadas desde <code>civs/*.js</code>.</span>
-  </div>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">AOE BOARDGAME</div>
+      <h1>Dashboard</h1>
+    </div>
+    <nav class="nav">
+      <a href="mats.html">Mats</a>
+      <a href="log.html">Log</a>
+      <a href="reglamento.html">Reglamento</a>
+      <a href="#en-prueba">En prueba</a>
+      <a href="#changelog">Changelog</a>
+    </nav>
+  </header>
 
-  <main id="mat" class="mat">
-    <div id="reference" class="reference-layer"></div>
-    <aside id="sidebar" class="sidebar"></aside>
-    <section id="tree" class="tree"></section>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="kicker">Centro del proyecto</p>
+        <h2>Diseño, reglas y seguimiento del prototipo.</h2>
+        <p>Acceso rápido a los Player Mats, el registro de playtests y el reglamento actual.</p>
+      </div>
+    </section>
+
+    <section class="cards" aria-label="Secciones">
+      <a class="card" href="mats.html">
+        <span class="card-num">01</span>
+        <h3>Mats</h3>
+        <p>Árboles de civilización y Player Mats imprimibles.</p>
+        <span class="go">Abrir →</span>
+      </a>
+      <a class="card" href="log.html">
+        <span class="card-num">02</span>
+        <h3>Log</h3>
+        <p>Playtests, observaciones, problemas detectados y cosas a probar.</p>
+        <span class="go">Abrir →</span>
+      </a>
+      <a class="card" href="reglamento.html">
+        <span class="card-num">03</span>
+        <h3>Reglamento</h3>
+        <p>Reglas actuales del juego en formato de consulta.</p>
+        <span class="go">Abrir →</span>
+      </a>
+    </section>
+
+    <section class="notes-grid">
+      <article class="note-panel" id="en-prueba">
+        <div class="note-head">
+          <div>
+            <span class="tag">TRABAJO ACTUAL</span>
+            <h3>EN PRUEBA</h3>
+          </div>
+          <span class="save-status" id="testingStatus" aria-live="polite"></span>
+        </div>
+        <textarea id="testingNotes" placeholder="Anotá acá reglas, cambios o ideas que están siendo probadas..."></textarea>
+        <div class="actions">
+          <button data-save="testingNotes">Guardar</button>
+          <button class="secondary" data-clear="testingNotes">Limpiar</button>
+        </div>
+      </article>
+
+      <article class="note-panel" id="changelog">
+        <div class="note-head">
+          <div>
+            <span class="tag">HISTORIAL</span>
+            <h3>CHANGELOG</h3>
+          </div>
+          <span class="save-status" id="changelogStatus" aria-live="polite"></span>
+        </div>
+        <textarea id="changelogNotes" placeholder="Registrá acá cambios confirmados, fecha y motivo..."></textarea>
+        <div class="actions">
+          <button data-save="changelogNotes">Guardar</button>
+          <button class="secondary" data-clear="changelogNotes">Limpiar</button>
+        </div>
+      </article>
+    </section>
+
+    <p class="storage-note">Las notas se guardan localmente en este navegador y dispositivo.</p>
   </main>
 
-  <section id="print1v1" class="print-1v1-sheet" aria-hidden="true"></section>
-
-  <script src="civs/britones.js"></script>
-  <script src="civs/francos.js"></script>
-  <script src="civs/vikingos.js"></script>
-  <script src="civs/persas.js"></script>
-  <script src="app.js"></script>
+  <script src="dashboard.js"></script>
 </body>
 </html>
