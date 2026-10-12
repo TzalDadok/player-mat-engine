@@ -91,11 +91,11 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"port",type:"tech",title:"Drakkar",cost:{wood:2,gold:2},text:"La Galera puede transportar hasta 6 unidades."},
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
 
-    {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3}},
+    {age:"castles",building:"other",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita la acción COMERCIAR entre jugadores. Todo intercambio debe incluir al menos 1 Oro."},
     {age:"feudal",building:"other",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
     {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"castles",building:"camp",type:"civil",title:"Aldeano",cost:{food:2}},
-    {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción. Gasta tu acción económica."},
+    {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Mové hasta 6 recursos de un hexágono a otro hexágono que contenga una construcción. Consume tu acción económica."},
     {age:"castles",building:"port",type:"tech",title:"Comb. Naval Opt.",cost:{wood:3,gold:3},text:"Los barcos pueden recorrer todos los hexágonos de Agua y desembarcar sus unidades en un hexágono adyacente utilizando una única acción."},
     {age:"castles",building:"barracks",type:"unit",title:"Arquero",cost:{food:1,wood:2,gold:1}},
     {age:"castles",building:"barracks",type:"tech",title:"Hacha de Guerra",cost:{food:2,gold:2},text:"Las Milicias obtienen +1 Fuerza al atacar un hexágono que contenga un edificio enemigo."},
