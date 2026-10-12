@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "player-mat-engine-v1/**"
+      - "playtests/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
