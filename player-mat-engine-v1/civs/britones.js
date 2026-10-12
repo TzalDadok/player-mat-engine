@@ -105,7 +105,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"feudal", building:"barracks", type:"tech", title:"Marcha Disciplin.", cost:{food:2,gold:1}, text:"Unidades de arquería entrenadas pueden salir en hexágono adyacente."},
     {age:"feudal", building:"tower", type:"tech", title:"Zona de Control", cost:{wood:2,stone:1}, text:"Las unidades enemigas que entren en un hexágono adyacente a tu Torre deben finalizar allí su movimiento."},
 
-    {age:"castles", building:"tc", type:"tech", title:"Desarrollo", cost:{food:2,gold:2}, text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
+    {age:"feudal", building:"tc", type:"tech", title:"Desarrollo", cost:{food:2,gold:2}, text:"Recuperás el 50% de los recursos que gastaste para alcanzar tu Edad actual."},
     {age:"castles", building:"port", type:"unit", title:"Galera", cost:{wood:3,gold:1}},
     {age:"castles", building:"port", type:"tech", title:"Dominio Naval", cost:{food:3,gold:4}, text:"Si una Galera entra a un hexágono enemigo, su producción queda suspendida."},
     {age:"imperial", building:"port", type:"tech", title:"Espolón Oculto", cost:{wood:2,gold:2}, text:"La galera gana +1 bonus contra barcos sin alcance."},
