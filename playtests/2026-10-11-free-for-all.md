@@ -64,6 +64,30 @@ La primera impresión es que este cambio reduce turnos poco interesantes al comi
 
 ## Cosas a probar
 
+### Red logística por territorios controlados
+
+Evaluar permitir que los recursos puedan gastarse aunque no estén físicamente en el hexágono donde se realiza la acción, siempre que formen parte de una red continua de territorios controlados por el jugador.
+
+Propuesta:
+
+- Los recursos ubicados en hexágonos controlados pueden utilizarse para pagar acciones realizadas en otros hexágonos controlados.
+- Debe existir una cadena continua de hexágonos controlados entre el recurso y el lugar donde se realiza la acción.
+- Para **CONSTRUIR** sigue siendo obligatorio que haya un **Aldeano** en el hexágono donde se construye.
+- Si un enemigo corta la cadena de territorios controlados, los recursos de la zona aislada dejan de estar disponibles para acciones del otro lado de la red.
+
+Objetivos de la prueba:
+- reducir el micromanejo de transportar recursos físicamente;
+- acelerar el desarrollo inicial;
+- mantener importancia estratégica en el control territorial;
+- convertir las líneas de territorio en líneas de suministro;
+- observar qué tecnologías y unidades logísticas pierden valor y necesitan ser rediseñadas.
+
+Aspectos a vigilar:
+- impacto sobre Carretilla, Carreta Mercante y capacidades de transporte;
+- impacto sobre Pesqueros, Urca y Logística Naval;
+- facilidad con la que un jugador puede negar recursos cortando una conexión territorial;
+- si la economía pasa a ser demasiado flexible o rápida.
+
 ### Producción automática cada turno
 
 Evaluar eliminar **PRODUCIR** como acción económica elegible y convertir la producción en una fase automática al comienzo de cada turno.
