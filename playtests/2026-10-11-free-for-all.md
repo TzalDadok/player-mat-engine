@@ -60,3 +60,26 @@ La primera impresión es que este cambio reduce turnos poco interesantes al comi
 - Qué tan frecuente es quedar sin acceso razonable a Madera.
 - Si el mapa aleatorio necesita algún tipo de garantía mínima de recursos iniciales.
 - Si el primer jugador que logra desplegar una mejora militar temprana obtiene una ventaja demasiado difícil de remontar.
+
+
+## Cosas a probar
+
+### Producción automática cada turno
+
+Evaluar eliminar **PRODUCIR** como acción económica elegible y convertir la producción en una fase automática al comienzo de cada turno.
+
+Propuesta de estructura del turno:
+
+1. **Producción automática:** el jugador elige la cantidad de hexágonos productivos permitidos por su Edad y obtiene sus recursos.
+2. **Acción económica:** Mover, Construir, Entrenar o Comerciar.
+3. **Acción tecnológica:** Investigar, Avanzar de Edad o Modificar Terreno.
+4. **Acción militar:** Mover, Entrenar, Construir o Instruir.
+
+Objetivos de la prueba:
+- acelerar el comienzo de la partida;
+- reducir turnos poco interesantes dedicados únicamente a producir;
+- simplificar el seguimiento de la Sobreexplotación;
+- hacer que la Sobreexplotación se mida naturalmente entre producciones consecutivas;
+- comprobar si la economía general se acelera demasiado.
+
+Con esta variante, un hexágono que produce en turnos consecutivos podría sufrir Sobreexplotación, mientras que un turno en el que no sea elegido para producir contaría como descanso.
