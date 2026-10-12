@@ -3,15 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>AoE BoardGame · Dashboard</title>
+  <title>AoE BoardGame</title>
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
   <header class="topbar">
-    <div>
-      <div class="eyebrow">AOE BOARDGAME</div>
-      <h1>Dashboard</h1>
-    </div>
+    <strong class="brand">AoE BoardGame</strong>
     <nav class="nav">
       <a href="mats.html">Mats</a>
       <a href="log.html">Log</a>
@@ -21,69 +18,34 @@
     </nav>
   </header>
 
-  <main class="shell">
-    <section class="hero">
-      <div>
-        <p class="kicker">Centro del proyecto</p>
-        <h2>Diseño, reglas y seguimiento del prototipo.</h2>
-        <p>Acceso rápido a los Player Mats, el registro de playtests y el reglamento actual.</p>
+  <main class="dashboard">
+    <section class="column" id="en-prueba">
+      <div class="section-head">
+        <h2>EN PRUEBA</h2>
+        <span class="status" id="testingStatus"></span>
       </div>
+
+      <form class="note-form" data-type="testing">
+        <textarea id="testingInput" placeholder="Agregar una nota..."></textarea>
+        <button type="submit">Agregar</button>
+      </form>
+
+      <div class="notes-list" id="testingList"></div>
     </section>
 
-    <section class="cards" aria-label="Secciones">
-      <a class="card" href="mats.html">
-        <span class="card-num">01</span>
-        <h3>Mats</h3>
-        <p>Árboles de civilización y Player Mats imprimibles.</p>
-        <span class="go">Abrir →</span>
-      </a>
-      <a class="card" href="log.html">
-        <span class="card-num">02</span>
-        <h3>Log</h3>
-        <p>Playtests, observaciones, problemas detectados y cosas a probar.</p>
-        <span class="go">Abrir →</span>
-      </a>
-      <a class="card" href="reglamento.html">
-        <span class="card-num">03</span>
-        <h3>Reglamento</h3>
-        <p>Reglas actuales del juego en formato de consulta.</p>
-        <span class="go">Abrir →</span>
-      </a>
+    <section class="column" id="changelog">
+      <div class="section-head">
+        <h2>CHANGELOG</h2>
+        <span class="status" id="changelogStatus"></span>
+      </div>
+
+      <form class="note-form" data-type="changelog">
+        <textarea id="changelogInput" placeholder="Agregar un cambio..."></textarea>
+        <button type="submit">Agregar</button>
+      </form>
+
+      <div class="notes-list" id="changelogList"></div>
     </section>
-
-    <section class="notes-grid">
-      <article class="note-panel" id="en-prueba">
-        <div class="note-head">
-          <div>
-            <span class="tag">TRABAJO ACTUAL</span>
-            <h3>EN PRUEBA</h3>
-          </div>
-          <span class="save-status" id="testingStatus" aria-live="polite"></span>
-        </div>
-        <textarea id="testingNotes" placeholder="Anotá acá reglas, cambios o ideas que están siendo probadas..."></textarea>
-        <div class="actions">
-          <button data-save="testingNotes">Guardar</button>
-          <button class="secondary" data-clear="testingNotes">Limpiar</button>
-        </div>
-      </article>
-
-      <article class="note-panel" id="changelog">
-        <div class="note-head">
-          <div>
-            <span class="tag">HISTORIAL</span>
-            <h3>CHANGELOG</h3>
-          </div>
-          <span class="save-status" id="changelogStatus" aria-live="polite"></span>
-        </div>
-        <textarea id="changelogNotes" placeholder="Registrá acá cambios confirmados, fecha y motivo..."></textarea>
-        <div class="actions">
-          <button data-save="changelogNotes">Guardar</button>
-          <button class="secondary" data-clear="changelogNotes">Limpiar</button>
-        </div>
-      </article>
-    </section>
-
-    <p class="storage-note">Las notas se guardan localmente en este navegador y dispositivo.</p>
   </main>
 
   <script src="dashboard.js"></script>
