@@ -175,22 +175,25 @@
   };
 
   const loadPublicData = async () => {
-    const loadOne = async (type, url) => {
-      try {
-        const r = await fetch(url + '?v=' + Date.now(), {cache:'no-store'});
-        if (!r.ok) throw new Error();
-        const data = await r.json();
-        state[type] = Array.isArray(data) ? data : [];
-      } catch {
-        state[type] = [];
-      }
-      render(type);
-    };
+    try {
+      const [testingFile, changelogFile] = await Promise.all([
+        getFile('testing'),
+        getFile('changelog')
+      ]);
 
-    await Promise.all([
-      loadOne('testing', 'data/en-prueba.json'),
-      loadOne('changelog', 'data/changelog.json')
-    ]);
+      state.testing = Array.isArray(testingFile.data) ? testingFile.data : [];
+      state.changelog = Array.isArray(changelogFile.data) ? changelogFile.data : [];
+      render('testing');
+      render('changelog');
+    } catch (err) {
+      console.error(err);
+      setStatus(
+        'testing',
+        err.message === 'TOKEN_INVALID' ? 'Token inválido. Volvé a intentar.' : 'Error al cargar',
+        true
+      );
+      setStatus('changelog', 'Error al cargar', true);
+    }
   };
 
   const addTestingNote = async text => {
