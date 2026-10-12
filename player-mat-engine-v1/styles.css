@@ -1113,25 +1113,3 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   min-height:82px !important;
   overflow:hidden;
 }
-
-
-/* Vikingos: CU / Castillos — Mercado compacto */
-.mat[data-civ="vikingos"] .slot[data-age="castles"][data-building="tc"]>.node.building{
-  min-height:42px !important;
-  height:42px !important;
-  padding-top:18px !important;
-  padding-bottom:2px !important;
-  flex:0 0 42px !important;
-}
-.mat[data-civ="vikingos"] .slot[data-age="castles"][data-building="tc"]>.node.building:before{
-  height:17px !important;
-}
-.mat[data-civ="vikingos"] .slot[data-age="castles"][data-building="tc"]>.node.building .node-title{
-  margin-top:-17px !important;
-  margin-bottom:3px !important;
-}
-.mat[data-civ="vikingos"] .slot[data-age="castles"][data-building="tc"]>.node.building .node-text{
-  margin-top:0 !important;
-  font-size:8px !important;
-  line-height:1 !important;
-}
