@@ -38,7 +38,21 @@ Esta vez se logró entrenar una **Milicia**, pero el rival atacó con un **Hombr
 
 ## Cambios introducidos durante el playtest
 
-_Pendiente de completar con los cambios realizados durante las partidas._
+### Movimiento de unidades económicas durante la acción Militar
+
+Se probó permitir que la acción **Mover** de la fase Militar también pueda utilizarse para mover **unidades económicas**.
+
+La regla queda así:
+
+- La acción **Mover** de Economía puede mover unidades económicas.
+- La acción **Mover** de Militar puede mover unidades militares **o unidades económicas**.
+- Las unidades militares **no** pueden moverse utilizando la acción económica.
+
+La intención es acelerar especialmente los primeros turnos, cuando todavía no hay combate y gran parte del tiempo se consume transportando recursos.
+
+Ejemplo observado durante el playtest: una unidad económica puede utilizar la acción Militar para ir a buscar recursos al final de un turno. En el turno siguiente puede regresar con esos recursos utilizando la acción económica, dejando todavía disponible la acción Militar para desarrollar o utilizar el ejército.
+
+La primera impresión es que este cambio reduce turnos poco interesantes al comienzo de la partida sin alterar significativamente el juego posterior, ya que no aumenta la movilidad de las unidades militares.
 
 ## Próximas cosas a observar
 
