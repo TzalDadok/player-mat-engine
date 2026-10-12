@@ -1,49 +1,97 @@
 (() => {
-  const items = [
-    {id:'testingNotes', key:'aoe-boardgame-testing', status:'testingStatus'},
-    {id:'changelogNotes', key:'aoe-boardgame-changelog', status:'changelogStatus'}
-  ];
-
-  const flash = (id, text) => {
-    const el = document.getElementById(id);
-    el.textContent = text;
-    clearTimeout(el._timer);
-    el._timer = setTimeout(() => el.textContent = '', 1800);
+  const endpoints = {
+    testing: 'data/en-prueba.json',
+    changelog: 'data/changelog.json'
   };
 
-  items.forEach(item => {
-    const el = document.getElementById(item.id);
-    el.value = localStorage.getItem(item.key) || '';
-  });
+  const els = {
+    testing: {
+      input: document.getElementById('testingInput'),
+      list: document.getElementById('testingList'),
+      status: document.getElementById('testingStatus')
+    },
+    changelog: {
+      input: document.getElementById('changelogInput'),
+      list: document.getElementById('changelogList'),
+      status: document.getElementById('changelogStatus')
+    }
+  };
 
-  document.querySelectorAll('[data-save]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = items.find(x => x.id === btn.dataset.save);
-      const el = document.getElementById(item.id);
-      localStorage.setItem(item.key, el.value);
-      const now = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-      flash(item.status, 'Guardado ' + now);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+
+  const formatDate = value => {
+    try {
+      return new Intl.DateTimeFormat('es-UY', {
+        dateStyle:'short',
+        timeStyle:'short'
+      }).format(new Date(value));
+    } catch {
+      return value || '';
+    }
+  };
+
+  const render = (type, notes) => {
+    const list = els[type].list;
+    if (!notes.length) {
+      list.innerHTML = '<div class="empty">Todavía no hay notas.</div>';
+      return;
+    }
+
+    list.innerHTML = notes.slice().reverse().map(note => `
+      <article class="note">
+        <div class="note-meta">
+          <span>${esc(formatDate(note.createdAt))}</span>
+        </div>
+        <div class="note-body">${esc(note.text)}</div>
+      </article>
+    `).join('');
+  };
+
+  const load = async type => {
+    try {
+      const r = await fetch(endpoints[type] + '?v=' + Date.now(), {cache:'no-store'});
+      if (!r.ok) throw new Error('No se pudo cargar');
+      const data = await r.json();
+      render(type, Array.isArray(data) ? data : []);
+    } catch {
+      render(type, []);
+      els[type].status.textContent = 'Sin conexión al archivo';
+    }
+  };
+
+  document.querySelectorAll('.note-form').forEach(form => {
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const type = form.dataset.type;
+      const text = els[type].input.value.trim();
+      if (!text) return;
+
+      const temp = {
+        text,
+        createdAt: new Date().toISOString()
+      };
+
+      const current = [...els[type].list.querySelectorAll('.note')].map(() => null);
+      const existingHTML = els[type].list.innerHTML;
+      els[type].list.innerHTML = `
+        <article class="note">
+          <div class="note-meta"><span>Sin guardar</span></div>
+          <div class="note-body">${esc(text)}</div>
+        </article>` + (existingHTML.includes('Todavía no hay notas.') ? '' : existingHTML);
+
+      els[type].input.value = '';
+      els[type].status.textContent = 'Pendiente de guardado remoto';
+
+      // GitHub Pages es estático. La escritura remota se conectará aquí
+      // cuando exista un endpoint autenticado/backend.
+      window.setTimeout(() => {
+        els[type].status.textContent = 'No guardado en GitHub';
+      }, 1400);
     });
   });
 
-  document.querySelectorAll('[data-clear]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = items.find(x => x.id === btn.dataset.clear);
-      const el = document.getElementById(item.id);
-      el.value = '';
-      localStorage.removeItem(item.key);
-      flash(item.status, 'Limpio');
-    });
-  });
-
-  items.forEach(item => {
-    const el = document.getElementById(item.id);
-    el.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        localStorage.setItem(item.key, el.value);
-        flash(item.status, 'Guardado');
-      }
-    });
-  });
+  load('testing');
+  load('changelog');
 })();
