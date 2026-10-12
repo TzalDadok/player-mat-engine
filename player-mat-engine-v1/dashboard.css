@@ -156,3 +156,28 @@ button:hover{filter:brightness(1.08)}
   .note-form{grid-template-columns:1fr}
   button{width:100%;height:38px}
 }
+.promote-btn{
+  width:30px;
+  height:26px;
+  border:0;
+  border-left:1px solid var(--line);
+  background:transparent;
+  color:var(--gold);
+  font-size:1rem;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.promote-btn:hover{
+  background:#242019;
+  filter:none;
+}
+.note-meta .meta-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.readonly-note .note-meta{
+  background:#161410;
+}
