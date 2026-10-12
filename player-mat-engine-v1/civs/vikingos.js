@@ -91,7 +91,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"port",type:"tech",title:"Drakkar",cost:{wood:2,gold:2},text:"La Galera puede transportar hasta 6 unidades."},
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
 
-    {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
+    {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita COMERCIAR."},
     {age:"feudal",building:"other",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
     {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"castles",building:"camp",type:"civil",title:"Aldeano",cost:{food:2}},
