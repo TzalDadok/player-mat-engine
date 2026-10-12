@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AoE BoardGame · Log</title>
+  <style>
+    :root{--bg:#17140f;--panel:#211c15;--ink:#f4ead5;--muted:#b8aa90;--gold:#c5a45c;--line:#54462f}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+    header{padding:22px 5vw;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:20px;position:sticky;top:0;background:#17140ff2}
+    header a{text-decoration:none;color:var(--ink)} nav{display:flex;gap:10px;flex-wrap:wrap} nav a{border:1px solid var(--line);padding:9px 12px;font:14px Arial}
+    main{width:min(1050px,92vw);margin:42px auto 70px} h1{font-size:3rem;margin:0 0 8px}.sub{font:16px Arial;color:var(--muted);margin-bottom:28px}
+    article{background:var(--panel);border:1px solid var(--line);padding:clamp(22px,4vw,48px);line-height:1.55}
+    article h1{font-size:2.2rem} article h2{font-size:1.6rem;color:var(--gold);margin-top:1.7em} article h3{font-size:1.2rem;margin-top:1.5em}
+    article p,article li{font-family:Arial,sans-serif;color:#ddd1ba} article ul{padding-left:24px}
+    .error{color:#e3a29c;font-family:Arial}
+  </style>
+</head>
+<body>
+<header>
+  <a href="index.html"><strong>AoE BoardGame / Log</strong></a>
+  <nav><a href="index.html">Dashboard</a><a href="mats.html">Mats</a><a href="reglamento.html">Reglamento</a></nav>
+</header>
+<main>
+  <h1>Playtest Log</h1>
+  <p class="sub">Registro de pruebas y cambios en evaluación.</p>
+  <article id="content">Cargando log…</article>
+</main>
+<script>
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function renderMarkdown(md){
+  const lines=md.replace(/\r/g,'').split('\n');
+  let html='', inList=false;
+  const closeList=()=>{if(inList){html+='</ul>';inList=false}};
+  for(const raw of lines){
+    const line=raw.trim();
+    if(!line){closeList();continue}
+    if(line.startsWith('### ')){closeList();html+='<h3>'+esc(line.slice(4))+'</h3>';continue}
+    if(line.startsWith('## ')){closeList();html+='<h2>'+esc(line.slice(3))+'</h2>';continue}
+    if(line.startsWith('# ')){closeList();html+='<h1>'+esc(line.slice(2))+'</h1>';continue}
+    if(line.startsWith('- ')){
+      if(!inList){html+='<ul>';inList=true}
+      html+='<li>'+esc(line.slice(2)).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')+'</li>';continue
+    }
+    closeList();
+    html+='<p>'+esc(line).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')+'</p>';
+  }
+  closeList(); return html;
+}
+fetch('../playtests/2026-10-11-free-for-all.md')
+  .then(r=>{if(!r.ok) throw new Error(); return r.text()})
+  .then(md=>document.getElementById('content').innerHTML=renderMarkdown(md))
+  .catch(()=>document.getElementById('content').innerHTML='<p class="error">No se pudo cargar el log.</p>');
+</script>
+</body>
+</html>
