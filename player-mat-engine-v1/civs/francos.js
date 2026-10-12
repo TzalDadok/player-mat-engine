@@ -14,7 +14,7 @@ window.PLAYER_MAT_CIVS.francos = {
   ],
   turn: {
     economy: [
-      ["Producir","Elegí 2 hexágonos productivos. Los productores elegibles en ellos generan sus recursos."],
+      ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
       ["Mover","Mové aldeanos y los recursos que transportan."],
       ["Construir","Realizar una construcción económica disponible."],
       ["Entrenar","Entrená una unidad economica disponible."],
