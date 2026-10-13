@@ -96,7 +96,7 @@ function snapshotMetrics(game, bots, status) {
 
 export function createFFABots(game, {
   botSeed = 'baseline',
-  aggression = 0.7,
+  aggression = 0.2,
   maxVillagers = 4
 } = {}) {
   return new Map(game.state.players.map(p => [
