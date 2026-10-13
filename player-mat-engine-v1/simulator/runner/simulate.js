@@ -366,6 +366,7 @@ export function runFFAGame({
     const configured=startingSetupByPriority?.[priority-1] ||
       {villagers:startingVillagers,militaryPower:0};
     const count=configured.villagers;
+    const adjacentOnly=configured.adjacentOnly === true;
     const power=configured.militaryPower ?? 0;
     if(!Number.isInteger(count)||count<1||count>3||
        !Number.isInteger(power)||power<0){
@@ -379,18 +380,24 @@ export function runFFAGame({
     const neighbors=game.state.hexes
       .filter(h=>!h.special&&h.terrain!=='water'&&hexDistance(h,cu)===1)
       .sort((a,b)=>a.id.localeCompare(b.id));
-    if(neighbors.length<count-1){
-      throw new Error(`CU de ${player.id} tiene solo ${neighbors.length} terrenos terrestres adyacentes para ${count-1} aldeanos`);
+    const requiredNeighbors=adjacentOnly?count:count-1;
+    if(neighbors.length<requiredNeighbors){
+      throw new Error(`CU de ${player.id} tiene solo ${neighbors.length} terrenos terrestres adyacentes para ${requiredNeighbors} aldeanos`);
     }
-    for(const hex of neighbors.slice(0,count-1)) {
+    if(adjacentOnly){
+      const starting=game.state.units.find(u=>u.ownerId===player.id&&u.type==='villager'&&u.hexId===cu.id);
+      starting.hexId=neighbors[0].id;
+    }
+    for(const hex of neighbors.slice(adjacentOnly?1:0,requiredNeighbors)) {
       game.addUnit(player.id,'villager',hex.id);
     }
     player.militaryPower=power;
     const initial=game.state.units.filter(u=>u.ownerId===player.id&&u.type==='villager');
-    if(initial.length!==count||new Set(initial.map(u=>u.hexId)).size!==count) {
+    if(initial.length!==count||new Set(initial.map(u=>u.hexId)).size!==count||
+       (adjacentOnly && initial.some(u=>u.hexId===cu.id))) {
       throw new Error('Numero o distribucion de aldeanos iniciales incorrecta');
     }
-    startAssignments.push({playerId:player.id,priority,villagers:count,militaryPower:power,
+    startAssignments.push({playerId:player.id,priority,villagers:count,militaryPower:power,adjacentOnly,
       cuHexId:cu.id,adjacentHexIds:initial.filter(u=>u.hexId!==cu.id).map(u=>u.hexId)});
   }
   game.state.mapMeta.startAssignments=startAssignments;
