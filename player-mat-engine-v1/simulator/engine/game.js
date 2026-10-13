@@ -1058,6 +1058,26 @@ export class AoEGame {
     const target = this.hexMap.get(toHexId);
     if (!target) throw new RuleError('Destino inexistente.');
 
+    const origin = this.hexMap.get(originHexId);
+    if (
+      origin &&
+      hexDistance(origin, target) === 1 &&
+      this.edgeBlocked(originHexId, toHexId)
+    ) {
+      if (units.length < 2) {
+        throw new RuleError('Una empalizada bloquea el paso. Se necesitan al menos 2 unidades para destruirla.');
+      }
+
+      origin.palisades = (origin.palisades || []).filter(id => id !== toHexId);
+      target.palisades = (target.palisades || []).filter(id => id !== originHexId);
+      this.completeAction('break-palisade', {
+        unitIds,
+        fromHexId: originHexId,
+        protectedHexId: toHexId
+      });
+      return { palisadeDestroyed: true, moved: false };
+    }
+
     const escorts = units
       .map(u => ({ unit: u, spec: this.effectiveUnitSpec(playerId, u.type) }))
       .filter(x => !x.spec.tags?.includes('siege'));
@@ -1168,9 +1188,19 @@ export class AoEGame {
       u.hexId = this.playerMap.get(u.ownerId).tcHexId;
     }
 
-    const destroyed = this.state.buildings.filter(
+    const enemyBuildings = this.state.buildings.filter(
       b => b.hexId === hexId && b.ownerId !== attackerId
     );
+
+    const capturedFarms = [];
+    if (this.hasEffect(attackerId, 'captureFarms')) {
+      for (const farm of enemyBuildings.filter(b => b.type === 'farm')) {
+        farm.ownerId = attackerId;
+        capturedFarms.push(farm.id);
+      }
+    }
+
+    const destroyed = enemyBuildings.filter(b => !capturedFarms.includes(b.id));
     const destroyedIds = new Set(destroyed.map(b => b.id));
     const occupiedHex = this.hexMap.get(hexId);
     for (const building of destroyed) {
@@ -1187,6 +1217,10 @@ export class AoEGame {
     }
 
     const hex = this.hexMap.get(hexId);
+
+    if (capturedFarms.length) {
+      this.log('capture-farms', { attackerId, hexId, farmIds: capturedFarms });
+    }
 
     if (hex.special === 'tc' && hex.tcOwnerId && hex.tcOwnerId !== attackerId) {
       this.eliminatePlayer(hex.tcOwnerId);
