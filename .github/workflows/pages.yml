@@ -30,6 +30,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Test simulator engine
+        run: node player-mat-engine-v1/simulator/tests/hito1-smoke.mjs
+
       - name: Build playtest data
         shell: bash
         run: |
