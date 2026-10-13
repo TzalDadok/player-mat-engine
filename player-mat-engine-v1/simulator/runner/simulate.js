@@ -343,7 +343,8 @@ export function runFFAGame({
     players,
     seed,
     cuSelectionOrder,
-    mapPreset
+    mapPreset,
+    requireTwoAdjacentLand: startingVillagers===3
   });
   if(startingVillagers===3){
     for(const player of game.state.players){
