@@ -1,0 +1,39 @@
+name: Hito 4 human opening economy analysis
+on:
+  push:
+    paths:
+      - '.github/workflows/hito4-human-economy.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  economy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: player-mat-engine-v1/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Analyze 40 maps and economic opening access
+        run: node runner/audit-human-economy-10.mjs
+      - name: Upload human economic audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: hito4-human-economy-40-maps
+          path: |
+            player-mat-engine-v1/simulator/results/hito4-human-economy-10-audit.md
+            player-mat-engine-v1/simulator/results/hito4-human-economy-10-audit.json
+      - name: Save findings
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/hito4-human-economy-10-audit.md results/hito4-human-economy-10-audit.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record human-oriented economic access audit [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
