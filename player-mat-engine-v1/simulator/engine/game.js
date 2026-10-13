@@ -474,6 +474,135 @@ export class AoEGame {
     }
   }
 
+  spendLocalWithCiv(playerId, hexId, cost = {}, { unitType = null } = {}) {
+    const hex = this.hexMap.get(hexId);
+    if (!hex) throw new RuleError('Hexágono inexistente.');
+
+    const tryPlan = candidate => {
+      const local = this.resourcesAt(hexId);
+      const remoteFoodSources = [];
+
+      let remoteFoodCap = 0;
+
+      if (this.hasEffect(playerId, 'remoteSpend:animalsFood')) {
+        for (const id of this.controlledHexIds(playerId)) {
+          if (id === hexId) continue;
+          const h = this.hexMap.get(id);
+          if (!h || h.source !== 'animals') continue;
+          const food = h.looseResources.filter(t => t.type === 'food');
+          if (food.length) {
+            remoteFoodSources.push({ hex: h, tokens: food, cap: food.length });
+            remoteFoodCap += food.length;
+          }
+        }
+      }
+
+      if (unitType === 'elephant') {
+        let allowance = 0;
+        for (const effect of this.activeEffects(playerId)) {
+          const m = effect.match(/^elephantFarmFood:(\d+)$/);
+          if (m) allowance = Math.max(allowance, Number(m[1]));
+        }
+        if (allowance > 0) {
+          for (const id of this.controlledHexIds(playerId)) {
+            if (id === hexId) continue;
+            const h = this.hexMap.get(id);
+            const hasOwnFarm = this.state.buildings.some(
+              b => b.ownerId === playerId && b.type === 'farm' && b.hexId === id
+            );
+            if (!h || !hasOwnFarm) continue;
+            const food = h.looseResources.filter(t => t.type === 'food');
+            const remainingAllowance = Math.max(0, allowance - remoteFoodCap);
+            const cap = Math.min(food.length, remainingAllowance);
+            if (cap > 0) {
+              remoteFoodSources.push({ hex: h, tokens: food, cap });
+              remoteFoodCap += cap;
+            }
+            if (remoteFoodCap >= allowance) break;
+          }
+        }
+      }
+
+      for (const type of RESOURCE_TYPES) {
+        if (type === 'food') continue;
+        if (local[type] < (candidate[type] || 0)) return null;
+      }
+
+      const foodNeed = candidate.food || 0;
+      const remoteFoodNeeded = Math.max(0, foodNeed - local.food);
+      if (remoteFoodNeeded > remoteFoodCap) return null;
+
+      return { cost: candidate, remoteFoodNeeded, remoteFoodSources };
+    };
+
+    let adjusted = clone(cost);
+    let plan = tryPlan(adjusted);
+
+    if (!plan && this.hasEffect(playerId, 'stoneSubstitution') && (adjusted.stone || 0) > 0) {
+      const alt = clone(adjusted);
+      alt.stone = Math.max(0, alt.stone - 1);
+      alt.wood = (alt.wood || 0) + 2;
+      plan = tryPlan(alt);
+      if (plan) adjusted = alt;
+    }
+
+    if (!plan) {
+      throw new RuleError('No hay suficientes recursos para pagar localmente.', 'INSUFFICIENT_RESOURCES');
+    }
+
+    let remainingRemote = plan.remoteFoodNeeded;
+    for (const src of plan.remoteFoodSources) {
+      if (!remainingRemote) break;
+      const take = Math.min(src.cap, remainingRemote);
+      const ids = new Set(src.tokens.slice(0, take).map(t => t.id));
+      src.hex.looseResources = src.hex.looseResources.filter(t => !ids.has(t.id));
+      remainingRemote -= take;
+    }
+
+    const localCost = clone(adjusted);
+    localCost.food = Math.max(0, (localCost.food || 0) - plan.remoteFoodNeeded);
+    this.spendAt(hexId, localCost);
+
+    return {
+      paidCost: adjusted,
+      remoteFood: plan.remoteFoodNeeded
+    };
+  }
+
+  trainingCostFor(playerId, unitType, baseCost) {
+    const cost = this.effectiveUnitCost(playerId, unitType, baseCost);
+    const mod = this.modifiersFor(playerId);
+    mod.trainCountByType = mod.trainCountByType || {};
+    const typeCount = mod.trainCountByType[unitType] || 0;
+
+    for (const effect of this.activeEffects(playerId)) {
+      let m = effect.match(/^firstTrainDiscount:([^:]+):([^:]+):(\d+)$/);
+      if (m && m[1] === unitType && typeCount === 0) {
+        cost[m[2]] = Math.max(0, (cost[m[2]] || 0) - Number(m[3]));
+      }
+
+      m = effect.match(/^firstMilitaryGoldDiscount:(\d+)$/);
+      if (
+        m &&
+        (mod.militaryTrainedThisTurn || 0) === 0 &&
+        this.effectiveUnitSpec(playerId, unitType).category === 'military'
+      ) {
+        cost.gold = Math.max(0, (cost.gold || 0) - Number(m[1]));
+      }
+    }
+
+    return cost;
+  }
+
+  recordTraining(playerId, unitType) {
+    const mod = this.modifiersFor(playerId);
+    mod.trainCountByType = mod.trainCountByType || {};
+    mod.trainCountByType[unitType] = (mod.trainCountByType[unitType] || 0) + 1;
+    if (this.effectiveUnitSpec(playerId, unitType).category === 'military') {
+      mod.militaryTrainedThisTurn = (mod.militaryTrainedThisTurn || 0) + 1;
+    }
+  }
+
   canAffordControlled(playerId, cost = {}) {
     const totals = Object.fromEntries(RESOURCE_TYPES.map(r => [r, 0]));
 
