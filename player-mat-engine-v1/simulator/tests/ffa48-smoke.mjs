@@ -35,6 +35,14 @@ function ok(v,m){ if(!v) throw new Error(m); }
   ok(g.state.hexes.filter(h=>h.special==='tc').length===4,'Debe haber 4 CU adicionales.');
   ok(g.state.players.every(p=>p.tcHexId),'Cada jugador debe tener CU.');
   ok(
+    g.state.players.every(p => {
+      const tc = g.hexMap.get(p.tcHexId);
+      const anchor = g.hexMap.get(tc.tcAnchorId);
+      return anchor && anchor.terrain !== 'water';
+    }),
+    'Cada CU del FFA debe tener acceso terrestre inicial.'
+  );
+  ok(
     g.state.players.every(p=>g.state.units.some(u=>u.ownerId===p.id&&u.type==='villager'&&u.hexId===p.tcHexId)),
     'Cada jugador debe arrancar con un Aldeano en el CU.'
   );
