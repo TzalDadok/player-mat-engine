@@ -23,10 +23,5 @@
     "id": "6dd4e247-8f4f-4562-ba21-48ab0930b1c6",
     "text": "Simulador\n\nHito 1 — Motor jugable: reglas + mapa + economía + combate.\nHito 2 — Bots: que puedan terminar partidas solos.\nHito 3 — Simulación: miles de partidas y estadísticas.\nHito 4 — Interfaz: tablero visual y herramientas de análisis.",
     "createdAt": "2026-10-13T00:16:30.255Z"
-  },
-  {
-    "id": "3ba0e2d6-0c58-4c25-927e-2567a34ec134",
-    "text": "PRUEBA DE HEXAGONOS",
-    "createdAt": "2026-10-13T02:26:37.486Z"
   }
 ]
