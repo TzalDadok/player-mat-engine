@@ -33,8 +33,8 @@ La interfaz manual está en:
 - Maravilla.
 - Centros Urbanos como hexágonos especiales, no edificios.
 - Generador FFA determinista por `seed`.
-- Preset FFA: 48 terrenos + Maravilla + CUs externos.
-- 32 terrenos primarios y 16 secundarios.
+- Preset FFA de 4 jugadores: 36 terrenos en tres gradas (6 + 12 + 18) + Maravilla + CUs externos.
+- 18 terrenos primarios y 18 secundarios colocados según la alternancia de las reservas personales.
 - Repetición exacta de mapas usando la misma `seed`.
 
 ### Recursos y economía
@@ -311,7 +311,7 @@ Hay algunos puntos que el reglamento físico aún no define con suficiente preci
 
 1. **Puerto:** el Aldeano se encuentra en tierra adyacente, paga allí el coste y el Puerto se coloca en el hexágono de Agua elegido.
 2. **Comercio:** el simulador exige indicar físicamente hexágono de origen y destino de cada lado del intercambio.
-3. **FFA48:** la forma compacta usa los anillos 1–3 completos y 12 posiciones repartidas en el anillo 4. La composición por defecto del pool de 32 primarios / 16 secundarios es un preset del simulador hasta disponer del diagrama físico definitivo.
+3. **FFA de laboratorio con menos de 4 jugadores:** el setup físico definido usa J1–J4. Los experimentos 1v1/3p de Hito 3 completan los cuatro puestos de construcción del mapa con constructores virtuales sólo para generar un tablero comparable; no es una regla física.
 4. **Costes provisionales:** Longbow, Monje, Misionero, Ariete, Escorpión y Trebuchet conservan la marca `provisionalCost`.
 
 ## Reglas todavía pendientes de definición externa
