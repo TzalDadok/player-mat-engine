@@ -123,8 +123,9 @@ export function runFFAGame({
   botSeed = 'baseline',
   maxRounds = 250,
   maxSteps = 10000,
-  aggression = 0.7,
-  maxVillagers = 4,
+  profile = 'balanced',
+  profileByPlayer = null,
+  botOverrides = {},
   captureLog = false
 } = {}) {
   if (!Array.isArray(civs) || civs.length < 2 || civs.length > 4) {
