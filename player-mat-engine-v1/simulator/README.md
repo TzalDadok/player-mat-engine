@@ -1,59 +1,122 @@
 # AoE BoardGame — Simulador
 
-## Hito 1: motor base
+## Hito 1 — Motor base
 
-Estado actual del motor:
+El simulador está separado de la interfaz. El estado completo de una partida vive en `AoEGame`, y las futuras interfaces, bots y simulaciones masivas consumirán ese mismo motor.
 
-- 2 a 4 jugadores.
-- Mapa hexagonal con coordenadas axiales.
-- Distancia, adyacencia y pathfinding.
-- Turno Economía → Tecnología → Militar.
-- Una acción por fase y posibilidad de pasar.
-- Recursos físicos representados como fichas en hexágonos.
-- Carga y descarga de recursos en Aldeanos.
-- Producción por hexágonos con límite por Edad: 2 / 3 / 4 / 5.
-- Construcción económica y militar.
-- Entrenamiento de unidades.
-- Avance de Edad.
-- Poder Militar e Instruir.
-- Movimiento económico en Economía.
+### Implementado
+
+- Partidas de 2 a 4 jugadores.
+- Modo de partida guardado en el estado.
+- Mapa hexagonal mediante coordenadas axiales.
+- Distancia, adyacencia y búsqueda de caminos.
+- Centro Urbano como hexágono especial, no como edificio.
+- Maravilla como hexágono especial.
+- Turno: Economía → Tecnología → Militar.
+- Hasta una acción de cada categoría y posibilidad de pasar.
+- Recursos como fichas físicas sin propietario.
+- Control de territorio determinado por unidades y edificios.
+- Gasto local para construir y entrenar unidades militares.
+- Gasto distribuido entre territorios controlados para Aldeanos, tecnologías, Edad e Instruir.
+- Transporte de recursos mediante carga de unidades.
+- Producción limitada por Edad: 2 / 3 / 4 / 5 hexágonos.
+- Producción de múltiples Aldeanos dentro de un mismo hexágono.
+- Molino como productor adicional en Animales y Frutos.
+- Campamento de Recursos como productor adicional en Bosque, Oro y Piedra.
+- Granjas: máximo 2 por hexágono y producción por parejas Granja + Aldeano.
+- Pesca costera.
+- Sobreexplotación después de producir dos turnos propios consecutivos.
+- Transformación de terrenos agotados:
+  - Frutos / Animales / Bosque → Llanura.
+  - Oro / Piedra → Agua.
+- Movimiento económico durante Economía.
 - Movimiento económico o militar durante Militar.
-- Combate base con apoyo a distancia.
-- Apuesta de Poder Militar.
-- Empate a favor del defensor.
-- Unidades derrotadas vuelven al Centro Urbano.
-- Edificios derrotados salen del tablero.
-- Eliminación por pérdida del Centro Urbano.
-- Log completo de acciones.
+- Movimiento en grupo desde un mismo hexágono.
+- Montaña detiene el movimiento al entrar.
+- Base del movimiento naval A ↔ B.
+- Empalizadas almacenadas por lado de hexágono.
+- Construcción económica y militar.
+- Regla general de un edificio de cada tipo.
+- Entrenamiento de múltiples unidades en una acción.
+- Investigación genérica.
+- Avance de Edad.
+- Irrigar, Drenar y Fortificar.
+- Instruir: 1 Oro → +1 Poder de Pelea.
+- Poder de Pelea máximo 16.
+- Apuesta máxima estándar 7.
+- Apoyo de unidades con Alcance.
+- Empate de combate a favor del defensor.
+- Bajas iguales a la diferencia entre Fuerzas finales.
+- Elección explícita de bajas o selección automática para simulaciones.
+- Supervivientes derrotados regresan al CU.
+- Destrucción de edificios tras conquista.
+- Ocupación sin batalla cuando no existe defensa militar.
+- Eliminación de civilización al conquistar su Centro Urbano.
+- Al eliminar una civilización se retiran unidades y edificios, pero los recursos permanecen.
+- Victoria FFA cuando queda una sola civilización.
+- Log de acciones de partida.
+- Snapshot serializable del estado.
 
-## Reglas modeladas de forma provisional
+### Tests automáticos
 
-Estas reglas están parametrizadas o simplificadas y deben cerrarse antes de considerar terminado el Hito 1:
+`simulator/tests/hito1-smoke.mjs` comprueba actualmente:
 
-1. Recursos iniciales exactos de cada jugador.
-2. Generación definitiva del mapa y distribución de recursos.
-3. Sobreexplotación / descanso de Animales, Bosque y Montaña.
-4. Reglas exactas para construir Puerto.
-5. Costes finales de todas las unidades y edificios.
-6. Qué unidades están disponibles por civilización y Edad.
-7. Tecnologías de civilización y sus modificadores.
-8. Bonus de unidad contra unidad y contra edificios.
-9. Torre, Castillo, Monasterio y Asedio.
-10. Reglas navales.
-11. Granjas especiales por civilización.
-12. Carta de exploración.
-13. Reglas exactas de control territorial.
-14. Condiciones específicas para FFA / Competitivo.
+- que el CU no sea tratado como edificio;
+- que no aparezcan recursos iniciales inexistentes;
+- gasto desde territorios controlados;
+- avance de Edad;
+- producción con múltiples productores;
+- producción extra de Molino;
+- sobreexplotación;
+- bajas de combate;
+- ocupación del territorio;
+- conquista y eliminación por Centro Urbano.
 
-## Diseño
+GitHub Actions ejecuta estos tests antes de publicar GitHub Pages.
 
-El motor no depende de la interfaz. Esto permite usarlo después en:
+## Falta para cerrar Hito 1
 
-- partidas visuales;
-- bots;
-- simulaciones masivas;
-- tests A/B de reglas;
-- replays;
-- estadísticas de balance.
+### Integración de civilizaciones
 
-La interfaz debe consumir `AoEGame.snapshot()` y ejecutar acciones mediante los métodos públicos de `AoEGame`.
+El reglamento común ya está modelado. Falta conectar directamente los datos de los Player Mats para que el motor determine automáticamente:
+
+- unidades disponibles por civilización y Edad;
+- edificios disponibles;
+- costes particulares;
+- tecnologías;
+- mejoras de Fuerza, Movimiento, Alcance y transporte;
+- excepciones de entrenamiento;
+- reglas económicas especiales.
+
+### Combate avanzado
+
+- bonificaciones unidad contra unidad;
+- bonificaciones contra construcciones;
+- Torre y Castillo;
+- Monjes / Misioneros: Curar y Convertir;
+- Herejía;
+- máquinas de asedio y requisito de Aldeano operador;
+- cartas de combate;
+- resolución formal de combates pendientes al cierre del turno.
+
+### Mapa y exploración
+
+- generador definitivo de mapas Competitivo y FFA;
+- mapa FFA de 48 territorios;
+- elección inicial de Centros Urbanos;
+- cartas de Exploración;
+- exploración de Montañas;
+- Reliquias;
+- reglas completas de Maravilla;
+- cruce/destrucción de empalizadas durante MOVER.
+
+### Otras reglas
+
+- comercio: falta cerrar en qué hexágono quedan físicamente los recursos intercambiados;
+- Puerto: falta formalizar la colocación exacta en el modelo;
+- scoring y estrellas del modo Competitivo;
+- condiciones finales completas de Competitivo.
+
+## Principio de diseño
+
+Las excepciones de civilización no deben quedar codificadas con `if (civ === ...)` dispersos por el motor. Se implementarán como modificadores/datos de civilización para que una simulación pueda cambiar costes, tecnologías o reglas sin reescribir el motor central.
