@@ -1544,6 +1544,18 @@ export class AoEGame {
       }
     }
 
+    // Dos Granjas ocupan las dos mitades disponibles de la casilla.
+    // Una única Granja deja espacio para otro edificio permitido por el terreno.
+    const farmCountHere = this.state.buildings.filter(
+      b => b.hexId === hexId && b.type === 'farm'
+    ).length;
+    if (buildingType !== 'farm' && farmCountHere >= 2) {
+      throw new RuleError(
+        'Dos Granjas ocupan el hexágono completo; no se puede construir otro edificio.',
+        'BUILD_HEX_FULL'
+      );
+    }
+
     // Restricciones de terreno del reglamento. Se validan antes de gastar recursos.
     if (buildingType === 'mill' && !['animals', 'berries'].includes(hex.source)) {
       throw new RuleError('El Molino requiere un recurso de comida (animales o frutos).', 'INVALID_BUILD_TERRAIN');
