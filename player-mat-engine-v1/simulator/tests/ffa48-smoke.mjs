@@ -1,8 +1,29 @@
 import { AoEGame } from '../engine/game.js';
 import { generateFFA48Map } from '../maps/ffa48.js';
-import { shortestMovementPath } from '../engine/hex.js';
+import { hexDistance } from '../engine/hex.js';
 
 function ok(v,m){ if(!v) throw new Error(m); }
+function landReachable(hexes, fromId, toId){
+  const byId=new Map(hexes.map(h=>[h.id,h]));
+  const queue=[fromId];
+  const seen=new Set(queue);
+
+  while(queue.length){
+    const id=queue.shift();
+    if(id===toId)return true;
+    const current=byId.get(id);
+    for(const h of hexes){
+      if(
+        h.terrain==='water' ||
+        seen.has(h.id) ||
+        hexDistance(current,h)!==1
+      )continue;
+      seen.add(h.id);
+      queue.push(h.id);
+    }
+  }
+  return false;
+}
 
 {
   const map=generateFFA48Map({seed:'test-123'});
@@ -49,7 +70,7 @@ function ok(v,m){ if(!v) throw new Error(m); }
     g.state.players.every(p => {
       const tc=g.hexMap.get(p.tcHexId);
       const anchor=g.hexMap.get(tc.tcAnchorId);
-      return !!shortestMovementPath(g.state.hexes,anchor.id,wonder.id,{water:false});
+      return landReachable(g.state.hexes,anchor.id,wonder.id);
     }),
     'Cada posición inicial debe pertenecer a la red terrestre conectada a la Maravilla.'
   );
