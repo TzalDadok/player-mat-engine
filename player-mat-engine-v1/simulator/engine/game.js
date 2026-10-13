@@ -209,6 +209,7 @@ export class AoEGame {
           range: base.range,
           move: base.move,
           carry: base.carry || 0,
+          provisionalCost: !!rule.provisionalCost,
           training: options
         };
       });
