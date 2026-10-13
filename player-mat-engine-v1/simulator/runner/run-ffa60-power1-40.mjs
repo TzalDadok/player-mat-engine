@@ -117,5 +117,5 @@ lines.push('',
  'Las diferencias por cada uno de los 40 mapas están incluidas en el JSON. Las rotaciones no equivalen a mapas independientes.');
 mkdirSync('results',{recursive:true});
 writeFileSync('results/hito3-ffa60-power1-40.md',lines.join('\\n').replaceAll('\\n','\n'));
-writeFileSync('results/hito3-ffa60-staggered-40.json',JSON.stringify(results,null,2)+'\n');
+writeFileSync('results/hito3-ffa60-power1-40.json',JSON.stringify(results,null,2)+'\n');
 console.log(lines.join('\n'));
