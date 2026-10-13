@@ -9,7 +9,7 @@ const rotate=(a,n)=>[...a.slice(n),...a.slice(0,n)];
 const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const buckets=()=>Array.from({length:4},(_,i)=>({index:i+1,appearances:0,wins:0,scores:[],winRate:null,ci95:null,meanScore:null}));
 const variants={};
-for(const villagers of [3,1]){
+for(const villagers of [3]){
   const games=[],seatPriority=Array.from({length:4},buckets),perSeed=[];
   for(const seed of BENCHMARK_SEEDS){
     const seedGames=[];
@@ -40,7 +40,7 @@ for(const villagers of [3,1]){
   for(const row of seatPriority) for(const b of row){
     b.winRate=b.appearances?b.wins/b.appearances:null;
     b.ci95=wilsonInterval(b.wins,b.appearances);b.meanScore=mean(b.scores);delete b.scores;
-    if(b.appearances!==160)throw Error(`Unbalanced seat priority ${b.index}: ${b.appearances}`);
+    if(b.appearances!==640)throw Error(`Unbalanced seat priority ${b.index}: ${b.appearances}`);
   }
   const priority=buckets(),seat=buckets();
   for(let i=0;i<4;i++)for(let j=0;j<4;j++){
@@ -49,7 +49,7 @@ for(const villagers of [3,1]){
   }
   for(const b of [...priority,...seat]){
     b.winRate=b.wins/b.appearances;b.ci95=wilsonInterval(b.wins,b.appearances);
-    if(b.appearances!==640)throw Error('Unbalanced aggregation');
+    if(b.appearances!==2560)throw Error('Unbalanced aggregation');
   }
   variants[`villagers${villagers}`]={...summarizeGames(games,DEFAULT_CIVS),priority,seat,seatPriority,perSeed};
   console.log(`Completed ${games.length} games with ${villagers} villagers`);
@@ -58,27 +58,27 @@ const results={experiment:'FFA60 balanced CU priorities 40 seeds',mapPreset:'ffa
   profiles:DEFAULT_PROFILES,startingPositions:'Require two adjacent land hexes for both variants',
   notes:'40 seeds x 4 profiles x 4 civilization rotations x 4 CU order rotations per villager variant',
   variants};
-const pct=n=>n==null?'—':(n*100).toFixed(1)+'%';
-const lines=['# Hito 3 — FFA60: 40 seeds y prioridades de CU equilibradas','',
- 'Ambas variantes comparten el mismo mapa y el mismo criterio de CU legal.',
- 'Cada asiento ocupa cada prioridad exactamente 160 veces en cada variante.',
- '', '| Aldeanos | Partidas | Completadas | Rondas promedio |',
+const pct=n=>n==null?'—':(100*n).toFixed(1)+'%';
+const v=variants.villagers3;
+const lines=['# Hito 3 — FFA60: 40 semillas, 3 aldeanos y prioridad equilibrada','',
+ '40 mapas x 4 perfiles x 4 rotaciones de civilizaciones x 4 rotaciones del orden de CU = 2560 partidas.',
+ 'Cada asiento tuvo cada prioridad 640 veces. Se exige dos terrenos terrestres adyacentes para todos los CU.',
+ '',`Partidas terminadas: ${v.completed}/${v.games}.`,`Rondas promedio: ${v.avgRoundsCompleted?.toFixed(1)}.`,
+ '', '## Victorias por prioridad de CU',
+ '| Prioridad | Victorias | IC Wilson 95% | Calidad inicial |',
  '|---|---:|---:|---:|',
- ...[1,3].map(n=>{const v=variants[`villagers${n}`];return `| ${n} | ${v.games} | ${v.completed} | ${v.avgRoundsCompleted.toFixed(1)} |`;}),
- '', '## Victorias por prioridad real de CU','',
- '| Elección | 1 aldeano | 3 aldeanos |','|---|---:|---:|',
- ...seats.map((_,i)=>`| ${i+1}.ª | ${pct(variants.villagers1.priority[i].winRate)} | ${pct(variants.villagers3.priority[i].winRate)} |`),
- '', '## Victorias por asiento','',
- '| Asiento | 1 aldeano | 3 aldeanos |','|---|---:|---:|',
- ...seats.map((_,i)=>`| P${i+1} | ${pct(variants.villagers1.seat[i].winRate)} | ${pct(variants.villagers3.seat[i].winRate)} |`),
- '', '## Control de balance geométrico','',
- '| Asiento | 1.º | 2.º | 3.º | 4.º |','|---|---:|---:|---:|---:|',
- ...seats.map((_,i)=>`| P${i+1} | ${variants.villagers3.seatPriority[i].map(b=>b.appearances).join(' | ')} |`),
- '', '## Comprobación por semilla','',
- 'El archivo JSON incluye las victorias por prioridad y asiento separadas para cada una de las 40 semillas, además de los intervalos Wilson del 95%.',
- 'Las repeticiones de la misma semilla no son 64 mapas independientes.',
+ ...v.priority.map((p,i)=>{
+    const scores=v.seatPriority.map(row=>row[i].meanScore).filter(Number.isFinite);
+    const score=scores.reduce((a,b)=>a+b,0)/scores.length;
+    return `| ${i+1}.ª | ${pct(p.winRate)} | ${pct(p.ci95.low)}–${pct(p.ci95.high)} | ${score.toFixed(1)} |`;
+ }),
+ '', '## Victorias por asiento','| Asiento | Victorias | IC Wilson 95% |','|---|---:|---:|',
+ ...v.seat.map((p,i)=>`| P${i+1} | ${pct(p.winRate)} | ${pct(p.ci95.low)}–${pct(p.ci95.high)} |`),
+ '', '## Control de balance de prioridad por asiento','| Asiento | 1.º | 2.º | 3.º | 4.º |','|---|---:|---:|---:|---:|',
+ ...seats.map((_,i)=>`| P${i+1} | ${v.seatPriority[i].map(b=>b.appearances).join(' | ')} |`),
+ '', 'El JSON incluye victorias por semilla para estimar sensibilidad entre mapas. Los IC Wilson son descriptivos: las 2560 partidas reutilizan únicamente 40 mapas independientes.',
  ''];
 mkdirSync('results',{recursive:true});
-writeFileSync('results/hito3-ffa60-priority-40.md',lines.join('\n'));
+writeFileSync('results/hito3-ffa60-priority-40.md',lines.join('\\n').replaceAll('\\n','\n'));
 writeFileSync('results/hito3-ffa60-priority-40.json',JSON.stringify(results,null,2)+'\n');
 console.log(lines.join('\n'));
