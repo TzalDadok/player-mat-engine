@@ -329,7 +329,7 @@ Estas cinco decisiones no impiden ejecutar el núcleo del juego ni correr futura
 ## Hitos
 
 - **Hito 1 — Motor jugable:** cerrado.
-- **Hito 2 — Bots autónomos:** en cierre técnico; ver `HITO2.md`.
-- **Hito 3 — Simulación masiva y balance:** infraestructura adelantada; ver `HITO3.md`.
+- **Hito 2 — Bots autónomos:** cerrado; benchmark de cierre 80/80 partidas terminadas; ver `HITO2.md`.
+- **Hito 3 — Simulación masiva y balance:** siguiente hito; parte de la infraestructura ya está adelantada; ver `HITO3.md`.
 
 Las decisiones de reglas aún abiertas se mantienen separadas en `PENDIENTES.md`.
