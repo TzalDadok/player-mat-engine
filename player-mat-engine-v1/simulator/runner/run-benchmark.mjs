@@ -24,9 +24,12 @@ const lines = [
   '',
   `- Map seeds: **${count}**`,
   '- Seat rotations per map: **4**',
+  `- Bot profiles: **${result.profiles.length}** (${result.profiles.join(', ')})`,
   `- Total games: **${result.games}**`,
   `- Completed: **${result.completed} / ${result.games}** (${(result.completionRate*100).toFixed(1)}%)`,
   `- Statuses: \`${JSON.stringify(result.statuses)}\``,
+  '',
+  '## Overall civilization results',
   '',
   '| Civilization | Appearances | Wins | Win rate |',
   '|---|---:|---:|---:|',
@@ -34,8 +37,28 @@ const lines = [
     `| ${civ} | ${s.appearances} | ${s.wins} | ${(s.winRate*100).toFixed(1)}% |`
   ),
   '',
-  `Seat wins: ${result.seatWins.map((n,i)=>`P${i+1}=${n}`).join(', ')}`
+  `Seat wins: ${result.seatWins.map((n,i)=>`P${i+1}=${n}`).join(', ')}`,
+  ''
 ];
+
+for (const profile of result.profiles) {
+  const summary = result.byProfile[profile];
+
+  lines.push(
+    `## Profile: ${profile}`,
+    '',
+    `Completed: ${summary.completed}/${summary.games} (${(summary.completionRate*100).toFixed(1)}%)`,
+    '',
+    '| Civilization | Wins | Win rate |',
+    '|---|---:|---:|',
+    ...Object.entries(summary.civs).map(([civ,s]) =>
+      `| ${civ} | ${s.wins} | ${(s.winRate*100).toFixed(1)}% |`
+    ),
+    '',
+    `Seat wins: ${summary.seatWins.map((n,i)=>`P${i+1}=${n}`).join(', ')}`,
+    ''
+  );
+}
 
 writeFileSync(
   'benchmark-summary.md',
