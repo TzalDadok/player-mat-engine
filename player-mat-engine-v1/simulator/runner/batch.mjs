@@ -14,7 +14,7 @@ export function runBatch({
   civs = DEFAULT_CIVS,
   seedPrefix = 'batch',
   maxRounds = 250,
-  aggression = 0.7,
+  aggression = 0.2,
   maxVillagers = 4
 } = {}) {
   const rows = [];
