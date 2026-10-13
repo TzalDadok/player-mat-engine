@@ -1,0 +1,40 @@
+name: Verify FFA60 buildable hub bot fix
+on:
+  push:
+    paths:
+      - '.github/workflows/hito4-ffa60-fixed-hub.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: player-mat-engine-v1/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Smoke test on one map
+        run: node runner/run-ffa60-fixed-hub-40.mjs 1
+      - name: Run all forty maps
+        run: node runner/run-ffa60-fixed-hub-40.mjs 40
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hito4-ffa60-fixed-hub-40
+          path: |
+            player-mat-engine-v1/simulator/results/hito4-ffa60-fixed-hub-40.md
+            player-mat-engine-v1/simulator/results/hito4-ffa60-fixed-hub-40.json
+      - name: Save report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/hito4-ffa60-fixed-hub-40.md results/hito4-ffa60-fixed-hub-40.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record 40-map fixed bot hub verification [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
