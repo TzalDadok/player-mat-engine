@@ -1,5 +1,6 @@
 import { AoEGame } from '../engine/game.js';
-import { generateFFA48Map } from '../maps/ffa48.js';
+import { generateFFA48Map, autoPlaceFFAPlayerCUs } from '../maps/ffa48.js';
+import { BENCHMARK_SEEDS } from '../runner/benchmark-seeds.js';
 import { hexDistance } from '../engine/hex.js';
 
 function ok(v,m){ if(!v) throw new Error(m); }
@@ -92,3 +93,21 @@ function landReachable(hexes, fromId, toId){
 }
 
 console.log('FFA 48 map tests: OK');
+
+{
+  for (const seed of BENCHMARK_SEEDS) {
+    const map=generateFFA48Map({seed});
+    autoPlaceFFAPlayerCUs(map,['P1','P2','P3','P4']);
+
+    for (const cu of map.hexes.filter(h=>h.special==='tc')) {
+      const anchor=map.hexes.find(h=>h.id===cu.tcAnchorId);
+      ok(anchor,'Cada CU automático debe conservar su ancla.');
+      ok(
+        !['gold','stone'].includes(anchor.source),
+        `Seed ${seed}: el CU ${cu.id} no debe elegir ${anchor.source} como ancla cuando hay alternativas estables.`
+      );
+    }
+  }
+}
+
+console.log('FFA benchmark start selection tests: OK');
