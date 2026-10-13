@@ -1,0 +1,64 @@
+name: Hito 3 CU Order Experiment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "player-mat-engine-v1/simulator/runner/run-cu-order-experiment.mjs"
+      - "player-mat-engine-v1/simulator/runner/benchmark.mjs"
+      - "player-mat-engine-v1/simulator/runner/compare-benchmarks.mjs"
+      - "player-mat-engine-v1/simulator/runner/simulate.js"
+      - "player-mat-engine-v1/simulator/maps/ffa36.js"
+      - "player-mat-engine-v1/simulator/engine/game.js"
+      - "player-mat-engine-v1/simulator/bots/**"
+      - ".github/workflows/hito3-cu-order-experiment.yml"
+  workflow_dispatch:
+    inputs:
+      benchmark_seeds:
+        description: Fixed seeds to compare
+        required: false
+        default: "10"
+      max_rounds:
+        description: Maximum rounds per game
+        required: false
+        default: "400"
+
+permissions:
+  contents: read
+
+jobs:
+  cu-order:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run A vs B CU selection experiment
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SEEDS: ${{ github.event.inputs.benchmark_seeds }}
+          INPUT_MAX_ROUNDS: ${{ github.event.inputs.max_rounds }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            SEEDS="${INPUT_SEEDS:-10}"
+            MAX_ROUNDS="${INPUT_MAX_ROUNDS:-400}"
+          else
+            SEEDS="10"
+            MAX_ROUNDS="400"
+          fi
+
+          node player-mat-engine-v1/simulator/runner/run-cu-order-experiment.mjs "$SEEDS" "$MAX_ROUNDS"
+
+      - name: Upload experiment results
+        uses: actions/upload-artifact@v4
+        with:
+          name: hito3-cu-order-${{ github.run_number }}
+          path: |
+            cu-order-a-results.json
+            cu-order-b-results.json
+            cu-order-comparison.json
+            cu-order-experiment-summary.md
+          retention-days: 30
