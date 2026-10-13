@@ -39,6 +39,8 @@ jobs:
           node player-mat-engine-v1/simulator/tests/conversion-garrison-naval-smoke.mjs
           node player-mat-engine-v1/simulator/tests/ffa48-smoke.mjs
           node player-mat-engine-v1/simulator/tests/exploration-relic-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/economic-special-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/exploration-cards-smoke.mjs
 
       - name: Build playtest data
         shell: bash
