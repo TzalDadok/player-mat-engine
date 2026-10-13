@@ -124,40 +124,28 @@ export class BaselineBot {
   }
 
   hub(game) {
+    const viable = h => h && ['plain','desert'].includes(h.terrain) &&
+      !h.special && !h.source &&
+      game.state.buildings.filter(b=>b.hexId===h.id&&b.type==='farm').length<2;
     const remembered = this.memory.hubHexId
-      ? game.hexMap.get(this.memory.hubHexId)
-      : null;
+      ? game.hexMap.get(this.memory.hubHexId) : null;
+    if (viable(remembered)) return remembered;
 
-    if (remembered && remembered.terrain !== 'water') {
-      return remembered;
-    }
-
-    const player = this.player(game);
-    const tc = game.hexMap.get(player.tcHexId);
-    const anchor = tc?.tcAnchorId ? game.hexMap.get(tc.tcAnchorId) : null;
-
-    const controlledLand = game.controlledHexIds(this.playerId)
-      .map(id => game.hexMap.get(id))
-      .filter(h => h && h.terrain !== 'water' && !h.special)
-      .sort((a,b) => {
-        const da = tc ? hexDistance(a,tc) : 0;
-        const db = tc ? hexDistance(b,tc) : 0;
-        return da-db;
-      });
-
-    const neighbors = tc
-      ? physicalNeighbors(game.state.hexes, tc.id)
-          .filter(h => h.terrain !== 'water' && h.special !== 'wonder')
-      : [];
-
-    const chosen =
-      (anchor && anchor.terrain !== 'water' ? anchor : null) ||
-      controlledLand[0] ||
-      neighbors[0] ||
-      game.state.hexes.find(h => h.terrain !== 'water' && !h.special);
-
-    this.memory.hubHexId = chosen?.id || player.tcHexId;
-    return game.hexMap.get(this.memory.hubHexId);
+    const tc = game.hexMap.get(this.player(game).tcHexId);
+    const villagers = this.villagers(game);
+    const locations = game.state.hexes.filter(viable).map(h=>{
+      const routes=villagers.map(v=>strategicLandPath(game,v.hexId,h.id))
+        .filter(Boolean);
+      if (!routes.length) return null;
+      const distance=Math.min(...routes.map(p=>p.length-1));
+      const tcDistance=tc?hexDistance(h,tc):0;
+      const sources=physicalNeighbors(game.state.hexes,h.id)
+        .filter(n=>SOURCE_TO_RESOURCE[n.source]).length;
+      return {h,score:distance*5+tcDistance*2-sources*2};
+    }).filter(Boolean).sort((a,b)=>a.score-b.score||a.h.id.localeCompare(b.h.id));
+    const chosen=locations[0]?.h || null;
+    if(chosen) this.memory.hubHexId=chosen.id;
+    return chosen || tc;
   }
 
   ownUnits(game, predicate = () => true) {
