@@ -10,7 +10,7 @@ on:
       max_rounds:
         description: Maximum rounds per game
         required: false
-        default: "300"
+        default: "400"
   push:
     branches:
       - main
@@ -45,7 +45,7 @@ jobs:
             MAX_ROUNDS="${INPUT_MAX_ROUNDS:-300}"
           else
             SEEDS="5"
-            MAX_ROUNDS="250"
+            MAX_ROUNDS="400"
           fi
 
           node player-mat-engine-v1/simulator/runner/run-benchmark.mjs "$SEEDS" "$MAX_ROUNDS"
