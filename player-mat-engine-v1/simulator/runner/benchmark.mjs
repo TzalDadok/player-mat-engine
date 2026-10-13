@@ -100,6 +100,18 @@ export function summarizeGames(games,civs){
     avgStartScore:null
   }));
   const seatCompletedSamples=Array.from({length:civs.length},()=>[]);
+  const seatCivSummary=Array.from({length:civs.length},(_,seat)=>
+    Object.fromEntries(civs.map(civ=>[
+      civ,
+      {
+        seat:seat+1,
+        civ,
+        completedAppearances:0,
+        wins:0,
+        winRate:null
+      }
+    ]))
+  );
 
   const completedGames=games.filter(g=>g.status==='completed' && g.winnerId);
   const completedSet=new Set(completedGames);
@@ -133,9 +145,21 @@ export function summarizeGames(games,civs){
       completedSamples[p.civ].push(p);
       seatCompletedSamples[seat].push(p);
 
+      const seatCiv=seatCivSummary[seat][p.civ] || (
+        seatCivSummary[seat][p.civ]={
+          seat:seat+1,
+          civ:p.civ,
+          completedAppearances:0,
+          wins:0,
+          winRate:null
+        }
+      );
+      seatCiv.completedAppearances++;
+
       if(game.winnerId===p.id){
         row.wins++;
         seatSummary[seat].wins++;
+        seatCiv.wins++;
       }
     });
   }
@@ -156,6 +180,14 @@ export function summarizeGames(games,civs){
     );
   }
 
+  for(const seat of seatCivSummary){
+    for(const row of Object.values(seat)){
+      row.winRate=row.completedAppearances
+        ? row.wins/row.completedAppearances
+        : null;
+    }
+  }
+
   return {
     games:games.length,
     completed:completedGames.length,
@@ -166,7 +198,8 @@ export function summarizeGames(games,civs){
     avgRoundsAll:mean(games.map(g=>g.rounds)),
     civs:civSummary,
     seatWins:seatSummary.map(x=>x.wins),
-    seatSummary
+    seatSummary,
+    seatCivSummary
   };
 }
 
