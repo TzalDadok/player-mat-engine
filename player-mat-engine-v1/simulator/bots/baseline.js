@@ -87,7 +87,11 @@ export class BaselineBot {
     aggression = 0.2,
     maxVillagers = 4,
     desiredArmy = 5,
-    maxArmy = 8
+    maxArmy = 8,
+    villagerCadence = 3,
+    ageArmyThreshold = 2,
+    researchArmyThreshold = 1,
+    researchFirst = false
   } = {}) {
     this.playerId = playerId;
     this.random = createRng(`${seed}:${playerId}`);
@@ -95,6 +99,10 @@ export class BaselineBot {
     this.maxVillagers = maxVillagers;
     this.desiredArmy = desiredArmy;
     this.maxArmy = maxArmy;
+    this.villagerCadence = villagerCadence;
+    this.ageArmyThreshold = ageArmyThreshold;
+    this.researchArmyThreshold = researchArmyThreshold;
+    this.researchFirst = researchFirst;
     this.memory = {
       hubHexId: null,
       rejectedActions: 0,
@@ -369,7 +377,7 @@ export class BaselineBot {
       if (returning.ok) return returning;
     }
 
-    if (game.state.round % 3 === 0) {
+    if (game.state.round % this.villagerCadence === 0) {
       const trained = this.tryTrainVillager(game);
       if (trained.ok) return trained;
     }
@@ -623,29 +631,50 @@ export class BaselineBot {
     const player = this.player(game);
     const armyCount = this.military(game).length;
     const controlled = this.controlledResources(game);
-
     const ageIndex = AGES.indexOf(player.age);
-    if (armyCount >= 2 && ageIndex < AGES.length - 1) {
-      const next = AGES[ageIndex + 1];
-      if (canPay(controlled, AGE_COSTS[next])) {
-        const advanced = this.safe(game, 'advance-age', () => game.advanceAge(this.playerId));
-        if (advanced.ok) return advanced;
-      }
-    }
 
-    if (armyCount >= 1) {
+    const tryResearch = () => {
+      if (armyCount < this.researchArmyThreshold) return { ok: false };
+
       const affordable = game.availableTechnologies(this.playerId)
         .filter(t => canPay(controlled, t.cost))
         .sort((a, b) => costWeight(a.cost) - costWeight(b.cost));
 
-      if (affordable.length) {
-        const cheapest = affordable.filter(t => costWeight(t.cost) === costWeight(affordable[0].cost));
-        const tech = pickRandom(cheapest, this.random);
-        const researched = this.safe(game, 'research', () =>
-          game.research(this.playerId, tech.id)
-        );
-        if (researched.ok) return researched;
-      }
+      if (!affordable.length) return { ok: false };
+
+      const cheapest = affordable.filter(
+        t => costWeight(t.cost) === costWeight(affordable[0].cost)
+      );
+      const tech = pickRandom(cheapest, this.random);
+      return this.safe(game, 'research', () =>
+        game.research(this.playerId, tech.id)
+      );
+    };
+
+    const tryAdvance = () => {
+      if (
+        armyCount < this.ageArmyThreshold ||
+        ageIndex >= AGES.length - 1
+      ) return { ok: false };
+
+      const next = AGES[ageIndex + 1];
+      if (!canPay(controlled, AGE_COSTS[next])) return { ok: false };
+
+      return this.safe(game, 'advance-age', () =>
+        game.advanceAge(this.playerId)
+      );
+    };
+
+    if (this.researchFirst) {
+      const researched = tryResearch();
+      if (researched.ok) return researched;
+      const advanced = tryAdvance();
+      if (advanced.ok) return advanced;
+    } else {
+      const advanced = tryAdvance();
+      if (advanced.ok) return advanced;
+      const researched = tryResearch();
+      if (researched.ok) return researched;
     }
 
     return { ok: false };
