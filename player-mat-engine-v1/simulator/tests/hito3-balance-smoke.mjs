@@ -117,3 +117,21 @@ function ok(v,m){ if(!v) throw new Error(m); }
 }
 
 console.log('Hito 3 balance methodology tests: OK');
+
+
+{
+  const regression=runBenchmark({
+    seeds:['bench-006'],
+    profiles:['aggressive'],
+    maxRounds:40
+  });
+
+  ok(
+    regression.results.every(g=>
+      g.players.some(p=>p.economy?.totalProduced>0)
+    ),
+    'bench-006 no debe volver a quedar atrapado sin producir recursos.'
+  );
+}
+
+console.log('Hito 3 bench-006 logistics regression: OK');
