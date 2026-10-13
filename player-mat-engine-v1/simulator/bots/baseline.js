@@ -25,7 +25,7 @@ function strategicLandPath(game, fromId, toId) {
     const currentId = queue.shift();
     const current = byId.get(currentId);
 
-    for (const candidate of game.state.hexes) {
+    for (const candidate of [...game.state.hexes].sort((a,b)=>a.q-b.q || a.r-b.r)) {
       if (
         candidate.terrain === 'water' ||
         prev.has(candidate.id) ||
@@ -523,14 +523,14 @@ export class BaselineBot {
         path,
         armyForce,
         score,
-        tieBreak:this.random()
+        tieBreak:player.id
       };
     })
       .filter(x => x.path)
       .sort((a, b) =>
         a.score - b.score ||
         a.path.length - b.path.length ||
-        a.tieBreak - b.tieBreak
+        a.tieBreak.localeCompare(b.tieBreak)
       );
   }
 
