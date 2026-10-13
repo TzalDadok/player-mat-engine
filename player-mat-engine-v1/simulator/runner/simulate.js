@@ -280,6 +280,7 @@ function snapshotMetrics(game, bots, status) {
     rounds:game.state.round,
     winnerId:winner?.id || null,
     winnerCiv:winner?.civ || null,
+    cuSelectionOrder:[...(game.state.mapMeta?.cuSelectionOrder || [])],
     logEntries:game.state.log.length,
     actions:actions.length,
     combats:combats.length,
@@ -318,6 +319,7 @@ export function runFFAGame({
   profile = 'balanced',
   profileByPlayer = null,
   botOverrides = {},
+  cuSelectionOrder = null,
   captureLog = false
 } = {}) {
   if (!Array.isArray(civs) || civs.length < 2 || civs.length > 4) {
@@ -330,7 +332,11 @@ export function runFFAGame({
     civ
   }));
 
-  const game = AoEGame.createFFA({ players, seed });
+  const game = AoEGame.createFFA({
+    players,
+    seed,
+    cuSelectionOrder
+  });
   const bots = createFFABots(game, {
     botSeed,
     profile,
