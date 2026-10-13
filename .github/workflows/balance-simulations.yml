@@ -17,6 +17,9 @@ on:
     paths:
       - "player-mat-engine-v1/simulator/bots/**"
       - "player-mat-engine-v1/simulator/runner/**"
+      - "player-mat-engine-v1/simulator/maps/**"
+      - "player-mat-engine-v1/simulator/engine/**"
+      - "player-mat-engine-v1/simulator/civs/**"
       - ".github/workflows/balance-simulations.yml"
 
 permissions:
