@@ -83,6 +83,14 @@ Actualmente:
 
 Las civilizaciones se comparan usando el mismo perfil dentro de cada grupo experimental.
 
+### Duelos controlados
+
+`runner/duel-benchmark.mjs` enfrenta cada par de civilizaciones en ambos asientos y bajo los mismos perfiles/seeds.
+
+Esto sirve para detectar matchups particulares sin confundirlos con la dinámica política y multiobjetivo de un FFA.
+
+No representa el modo Competitivo físico ni resuelve su mapa pendiente.
+
 ### Métricas temporales
 
 Se registran, entre otras:
@@ -148,7 +156,7 @@ Antes de recomendar cambios de costes o habilidades:
 1. estabilizar el benchmark por encima de ~95% de finalización;
 2. medir hitos temporales por civilización y perfil;
 3. aumentar el benchmark a cientos/miles de partidas;
-4. agregar 1v1 controlado además de FFA;
+4. ampliar el benchmark de duelos 1v1 controlados sobre el preset FFA48 (ya existe el runner; no representa el mapa Competitivo oficial);
 5. agregar comparaciones A/B de cambios de reglas/costes;
 6. calcular intervalos de confianza y detectar diferencias estadísticamente débiles;
 7. recién entonces proponer cambios de balance.
