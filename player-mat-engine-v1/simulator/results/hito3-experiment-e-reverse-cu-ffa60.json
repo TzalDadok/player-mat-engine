@@ -1,0 +1,236 @@
+{
+  "experiment": "E-reverse-cu-ffa60",
+  "seeds": [
+    "bench-001",
+    "bench-002",
+    "bench-003",
+    "bench-004",
+    "bench-005",
+    "bench-006",
+    "bench-007",
+    "bench-008",
+    "bench-009",
+    "bench-010"
+  ],
+  "revision": "42239283dd5063baf283758aa48e87d8f1efc6f8",
+  "reference": {
+    "mapPreset": "ffa60",
+    "games": 160,
+    "completed": 160,
+    "completionRate": 1,
+    "avgRoundsCompleted": 37.25625,
+    "seatSummary": [
+      {
+        "seat": 1,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 46,
+        "losses": 114,
+        "winRate": 0.2875,
+        "winRateCI95": {
+          "low": 0.22300116781037166,
+          "high": 0.36196346513751804
+        },
+        "avgStartScore": 46.94624999999998
+      },
+      {
+        "seat": 2,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 11,
+        "losses": 149,
+        "winRate": 0.06875,
+        "winRateCI95": {
+          "low": 0.03881942091091279,
+          "high": 0.11890292242451045
+        },
+        "avgStartScore": 42.79375
+      },
+      {
+        "seat": 3,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 78,
+        "losses": 82,
+        "winRate": 0.4875,
+        "winRateCI95": {
+          "low": 0.4112556929842917,
+          "high": 0.564330461894996
+        },
+        "avgStartScore": 39.04375000000003
+      },
+      {
+        "seat": 4,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 25,
+        "losses": 135,
+        "winRate": 0.15625,
+        "winRateCI95": {
+          "low": 0.1081312640891095,
+          "high": 0.22048799509130035
+        },
+        "avgStartScore": 35.0325
+      }
+    ],
+    "priorities": [
+      {
+        "priority": 1,
+        "appearances": 160,
+        "wins": 46,
+        "winRate": 0.2875,
+        "avgStartScore": 46.94624999999998
+      },
+      {
+        "priority": 2,
+        "appearances": 160,
+        "wins": 11,
+        "winRate": 0.06875,
+        "avgStartScore": 42.79375
+      },
+      {
+        "priority": 3,
+        "appearances": 160,
+        "wins": 78,
+        "winRate": 0.4875,
+        "avgStartScore": 39.04375000000003
+      },
+      {
+        "priority": 4,
+        "appearances": 160,
+        "wins": 25,
+        "winRate": 0.15625,
+        "avgStartScore": 35.0325
+      }
+    ],
+    "civs": {
+      "britanicos": {
+        "winRate": 0.25
+      },
+      "francos": {
+        "winRate": 0.2
+      },
+      "vikingos": {
+        "winRate": 0.2875
+      },
+      "persas": {
+        "winRate": 0.2625
+      }
+    },
+    "avgCombatsPerPlayer": 1.01875
+  },
+  "expanded": {
+    "mapPreset": "ffa60",
+    "games": 160,
+    "completed": 160,
+    "completionRate": 1,
+    "avgRoundsCompleted": 38.2375,
+    "seatSummary": [
+      {
+        "seat": 1,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 30,
+        "losses": 130,
+        "winRate": 0.1875,
+        "winRateCI95": {
+          "low": 0.1346142688298028,
+          "high": 0.255039603152388
+        },
+        "avgStartScore": 35.0325
+      },
+      {
+        "seat": 2,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 75,
+        "losses": 85,
+        "winRate": 0.46875,
+        "winRateCI95": {
+          "low": 0.39306810757121635,
+          "high": 0.5458972796270029
+        },
+        "avgStartScore": 39.04375000000003
+      },
+      {
+        "seat": 3,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 21,
+        "losses": 139,
+        "winRate": 0.13125,
+        "winRateCI95": {
+          "low": 0.08747283759654537,
+          "high": 0.19231873134243974
+        },
+        "avgStartScore": 42.79375
+      },
+      {
+        "seat": 4,
+        "appearances": 160,
+        "completedAppearances": 160,
+        "incompleteAppearances": 0,
+        "wins": 34,
+        "losses": 126,
+        "winRate": 0.2125,
+        "winRateCI95": {
+          "low": 0.15624068307038502,
+          "high": 0.2822408791532305
+        },
+        "avgStartScore": 46.94624999999998
+      }
+    ],
+    "priorities": [
+      {
+        "priority": 1,
+        "appearances": 160,
+        "wins": 34,
+        "winRate": 0.2125,
+        "avgStartScore": 46.94624999999998
+      },
+      {
+        "priority": 2,
+        "appearances": 160,
+        "wins": 21,
+        "winRate": 0.13125,
+        "avgStartScore": 42.79375
+      },
+      {
+        "priority": 3,
+        "appearances": 160,
+        "wins": 75,
+        "winRate": 0.46875,
+        "avgStartScore": 39.04375000000003
+      },
+      {
+        "priority": 4,
+        "appearances": 160,
+        "wins": 30,
+        "winRate": 0.1875,
+        "avgStartScore": 35.0325
+      }
+    ],
+    "civs": {
+      "britanicos": {
+        "winRate": 0.26875
+      },
+      "francos": {
+        "winRate": 0.21875
+      },
+      "vikingos": {
+        "winRate": 0.2625
+      },
+      "persas": {
+        "winRate": 0.25
+      }
+    },
+    "avgCombatsPerPlayer": 1.1875
+  }
+}
