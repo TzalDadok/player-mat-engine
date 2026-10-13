@@ -55,6 +55,7 @@ La colocación automática reproduce esa secuencia de elección:
 - P1 evalúa las posiciones exteriores y elige una;
 - P2 elige entre las restantes;
 - luego P3 y P4;
+- dos CU nunca pueden quedar pegados: la distancia hexagonal mínima entre Centros Urbanos es 2;
 - el CU se agrega **fuera** de los 48 terrenos, adyacente al borde; nunca ocupa un hexágono interior ni queda rodeado por el mapa;
 - la valoración prioriza un arranque favorable: comida y Bosque cercanos, variedad de recursos, acceso a Oro/Piedra, conectividad y separación razonable de CUs ya elegidos;
 - posiciones frágiles pueden recibir penalización, pero no quedan prohibidas por una regla artificial.
