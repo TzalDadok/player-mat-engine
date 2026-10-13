@@ -380,13 +380,14 @@ export function scoreFFAStartAnchor(map,anchorId,chosenAnchorIds=[]){
   ) return -Infinity;
 
   let score=0;
-  const area=startArea(map,anchor);
+  const cuPos=freeOuterNeighbor(map.hexes,anchor);
+  const area=map.hexes.filter(h=>!h.special&&hexDistance(cuPos,h)<=3);
   const nearbyResources=new Set();
 
   for(const h of area){
-    const d=hexDistance(anchor,h);
-    score+=startResourceValue(h,d);
-    if(h.source) nearbyResources.add(h.source);
+    const d=hexDistance(cuPos,h);
+    score+=startResourceValue(h,Math.max(0,d-1));
+    if(h.source && h.terrain!=='water') nearbyResources.add(h.source);
   }
 
   const hasFood=nearbyResources.has('animals')||nearbyResources.has('berries');
