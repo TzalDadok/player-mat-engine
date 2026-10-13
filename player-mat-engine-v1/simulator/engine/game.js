@@ -749,22 +749,38 @@ export class AoEGame {
     return created;
   }
 
-  research(playerId, { id, cost = {}, minAge = 'dark' } = {}) {
+  research(playerId, technology) {
     this.assertActive(playerId);
     this.assertPhase('technology');
 
-    const p = this.playerMap.get(playerId);
+    const player = this.playerMap.get(playerId);
+    const id = typeof technology === 'string' ? technology : technology?.id;
 
     if (!id) throw new RuleError('Tecnología sin id.');
-    if (p.technologies.includes(id)) throw new RuleError('Tecnología ya investigada.');
+    if (player.technologies.includes(id)) throw new RuleError('Tecnología ya investigada.');
 
-    if (AGES.indexOf(p.age) < AGES.indexOf(minAge)) {
+    const rule = this.technologyRule(playerId, id);
+    if (!rule) {
+      throw new RuleError('Tecnología no disponible para esta civilización.', 'TECH_UNAVAILABLE');
+    }
+
+    if (!this.ageAllows(player, rule.age)) {
       throw new RuleError('La tecnología aún no está disponible.');
     }
 
-    this.spendControlled(playerId, cost);
-    p.technologies.push(id);
-    this.completeAction('research', { id });
+    if (
+      rule.building &&
+      rule.building !== 'tc' &&
+      rule.building !== 'other' &&
+      !this.state.buildings.some(b => b.ownerId === playerId && b.type === rule.building)
+    ) {
+      throw new RuleError(`Se requiere ${BUILDING_TYPES[rule.building]?.name || rule.building} para investigar esta tecnología.`);
+    }
+
+    this.spendControlled(playerId, rule.cost);
+    player.technologies.push(id);
+    this.completeAction('research', { id, name: rule.name, effects: rule.effects });
+    return rule;
   }
 
   advanceAge(playerId) {
