@@ -23,6 +23,14 @@ export const persas = {
     market: entry('castles', null, { wood: 3 }),
     castle: entry('castles', null, { stone: 4, gold: 2 })
   },
+  combatBonuses: [
+    { source: 'spearman', targetTag: 'cavalry', amount: 1 },
+    { source: 'spearman', targetType: 'elephant', amount: 2 },
+    { source: 'elephant', target: 'building', amount: 1 }
+  ],
+  buildingSupport: {
+    castle: { range: 1, force: 1 }
+  },
   technologies: [
     tech('wheelbarrow','Carretilla','dark','camp',{wood:1,gold:1},'Aldeanos +1 carga.',['carry:villager:+1']),
     tech('border_guard','Guardia de Frontera','dark','tower',{wood:1,stone:1},'Torre +1 Fuerza en su hexágono.',['towerOwnHex:+1']),
