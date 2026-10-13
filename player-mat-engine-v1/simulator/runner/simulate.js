@@ -3,6 +3,49 @@ import { BaselineBot } from '../bots/baseline.js';
 
 export const DEFAULT_CIVS = ['britanicos','francos','vikingos','persas'];
 
+function stallDiagnostics(game, bots) {
+  const alive = game.state.players.filter(p => !p.eliminated);
+  const details = alive.map(p => {
+    const units = game.state.units.filter(u => u.ownerId === p.id);
+    const military = units.filter(u => game.effectiveUnitSpec(p.id,u.type).category === 'military');
+    const villagers = units.filter(u => u.type === 'villager');
+    const buildings = game.state.buildings.filter(b => b.ownerId === p.id);
+    const controlled = game.controlledHexIds(p.id);
+    const resources = { food:0,wood:0,stone:0,gold:0 };
+    for (const id of controlled) {
+      const row = game.resourcesAt(id);
+      for (const r of Object.keys(resources)) resources[r] += row[r] || 0;
+    }
+
+    let category = 'active';
+    if (!villagers.length && !military.length) category = 'no-mobile-units';
+    else if (!buildings.some(b => b.type === 'barracks') && military.length === 0) category = 'no-barracks';
+    else if (military.length === 0) category = 'no-army';
+    else if ((bots.get(p.id)?.memory?.passes || 0) > game.state.round * 2) category = 'high-pass-rate';
+
+    return {
+      playerId:p.id,
+      civ:p.civ,
+      category,
+      villagers:villagers.length,
+      military:military.length,
+      buildings:buildings.length,
+      controlled:controlled.length,
+      resources,
+      passes:bots.get(p.id)?.memory?.passes || 0
+    };
+  });
+
+  const counts = {};
+  for (const d of details) counts[d.category] = (counts[d.category] || 0) + 1;
+
+  return {
+    alivePlayers: alive.length,
+    categories: counts,
+    players: details
+  };
+}
+
 function snapshotMetrics(game, bots, status) {
   const winner = game.state.winnerId ? game.playerMap.get(game.state.winnerId) : null;
 
@@ -113,6 +156,7 @@ export function runFFAGame({
 
   const metrics = snapshotMetrics(game, bots, status);
   metrics.steps = steps;
+  if (status !== 'completed') metrics.stall = stallDiagnostics(game, bots);
 
   if (captureLog) metrics.log = structuredClone(game.state.log);
 
