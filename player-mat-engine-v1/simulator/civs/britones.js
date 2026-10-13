@@ -29,6 +29,14 @@ export const britones = {
     monastery: entry('castles', null, { wood: 3, stone: 2 }),
     siege: entry('imperial', null, { wood: 4, stone: 2, gold: 2 })
   },
+  combatBonuses: [
+    { source: 'skirmisher', targetTag: 'ranged', amount: 1 },
+    { source: 'ram', target: 'building', amount: 1 },
+    { source: 'trebuchet', target: 'building', amount: 2 }
+  ],
+  buildingSupport: {
+    castle: { range: 1, force: 1 }
+  },
   technologies: [
     tech('man_at_arms','Hombre de Armas','dark','barracks',{food:2,gold:1},'La Milicia gana +1 Fuerza.',['unitForce:militia:+1']),
     tech('garrison','Guarnición','dark','tower',{food:2,wood:1},'Arquería puede guarecerse en Torre.',['garrison:ranged']),
