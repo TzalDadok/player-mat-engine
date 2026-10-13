@@ -1,0 +1,415 @@
+{
+  "experiment": "FFA60-three-villagers",
+  "seeds": [
+    "bench-001",
+    "bench-002",
+    "bench-003",
+    "bench-004",
+    "bench-005",
+    "bench-006",
+    "bench-007",
+    "bench-008",
+    "bench-009",
+    "bench-010"
+  ],
+  "configurations": {
+    "normal": {
+      "games": 160,
+      "completed": 160,
+      "completionRate": 1,
+      "avgRoundsCompleted": 34.275,
+      "seatSummary": [
+        {
+          "seat": 1,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 60,
+          "losses": 100,
+          "winRate": 0.375,
+          "winRateCI95": {
+            "low": 0.30374323210068377,
+            "high": 0.4521183166921926
+          },
+          "avgStartScore": 46.94624999999998
+        },
+        {
+          "seat": 2,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 14,
+          "losses": 146,
+          "winRate": 0.0875,
+          "winRateCI95": {
+            "low": 0.05283679339459573,
+            "high": 0.14150631762189603
+          },
+          "avgStartScore": 42.79375
+        },
+        {
+          "seat": 3,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 56,
+          "losses": 104,
+          "winRate": 0.35,
+          "winRateCI95": {
+            "low": 0.2803979974382879,
+            "high": 0.4266358611131637
+          },
+          "avgStartScore": 38.156250000000014
+        },
+        {
+          "seat": 4,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 30,
+          "losses": 130,
+          "winRate": 0.1875,
+          "winRateCI95": {
+            "low": 0.1346142688298028,
+            "high": 0.255039603152388
+          },
+          "avgStartScore": 34.59625000000003
+        }
+      ],
+      "civs": {
+        "britanicos": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 48,
+          "losses": 112,
+          "winRate": 0.3,
+          "winRateCI95": {
+            "low": 0.23436363950797706,
+            "high": 0.37501483856062506
+          },
+          "avgMilitaryTrained": 1.58125,
+          "avgVillagersTrained": 1.01875,
+          "avgTechnologies": 1.11875,
+          "avgFirstBarracks": 14.777777777777779,
+          "avgFirstMilitary": 18.02777777777778,
+          "avgFirstCombat": 26.966666666666665,
+          "avgFeudal": 26.75,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.62312500000001,
+          "avgCombats": 0.91875,
+          "avgCombatWins": 0.4875,
+          "avgAttacks": 0.49375,
+          "avgAttackWins": 0.35625,
+          "avgEliminatedRound": 25.901785714285715,
+          "avgProduced": 18.775,
+          "avgSpent": 11.16875,
+          "avgFoodProduced": 8.9125,
+          "avgWoodProduced": 2.90625,
+          "avgStoneProduced": 3.51875,
+          "avgGoldProduced": 3.4375
+        },
+        "francos": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 34,
+          "losses": 126,
+          "winRate": 0.2125,
+          "winRateCI95": {
+            "low": 0.15624068307038502,
+            "high": 0.2822408791532305
+          },
+          "avgMilitaryTrained": 1.5875,
+          "avgVillagersTrained": 0.98125,
+          "avgTechnologies": 0.73125,
+          "avgFirstBarracks": 14.823529411764707,
+          "avgFirstMilitary": 17.88785046728972,
+          "avgFirstCombat": 27.34426229508197,
+          "avgFeudal": 28.25,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.62312500000001,
+          "avgCombats": 0.85,
+          "avgCombatWins": 0.58125,
+          "avgAttacks": 0.6125,
+          "avgAttackWins": 0.4625,
+          "avgEliminatedRound": 26.873015873015873,
+          "avgProduced": 18.11875,
+          "avgSpent": 10.4,
+          "avgFoodProduced": 8.1375,
+          "avgWoodProduced": 2.8625,
+          "avgStoneProduced": 3.525,
+          "avgGoldProduced": 3.59375
+        },
+        "vikingos": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 40,
+          "losses": 120,
+          "winRate": 0.25,
+          "winRateCI95": {
+            "low": 0.1892994022761924,
+            "high": 0.3224236953095602
+          },
+          "avgMilitaryTrained": 1.99375,
+          "avgVillagersTrained": 1.08125,
+          "avgTechnologies": 0.51875,
+          "avgFirstBarracks": 14.823529411764707,
+          "avgFirstMilitary": 17.830188679245282,
+          "avgFirstCombat": 27.56756756756757,
+          "avgFeudal": 31.272727272727273,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.62312500000001,
+          "avgCombats": 1.20625,
+          "avgCombatWins": 0.475,
+          "avgAttacks": 0.46875,
+          "avgAttackWins": 0.25,
+          "avgEliminatedRound": 27.191666666666666,
+          "avgProduced": 18.7,
+          "avgSpent": 10.94375,
+          "avgFoodProduced": 8.6875,
+          "avgWoodProduced": 2.875,
+          "avgStoneProduced": 3.6,
+          "avgGoldProduced": 3.5375
+        },
+        "persas": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 38,
+          "losses": 122,
+          "winRate": 0.2375,
+          "winRateCI95": {
+            "low": 0.1782035847518699,
+            "high": 0.3091056677131703
+          },
+          "avgMilitaryTrained": 2.0875,
+          "avgVillagersTrained": 1.0375,
+          "avgTechnologies": 0.5125,
+          "avgFirstBarracks": 14.777777777777779,
+          "avgFirstMilitary": 17.98148148148148,
+          "avgFirstCombat": 27.591549295774648,
+          "avgFeudal": 29.88888888888889,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.62312500000001,
+          "avgCombats": 1.1875,
+          "avgCombatWins": 0.5375,
+          "avgAttacks": 0.50625,
+          "avgAttackWins": 0.3,
+          "avgEliminatedRound": 27.10655737704918,
+          "avgProduced": 18.73125,
+          "avgSpent": 10.975,
+          "avgFoodProduced": 8.75,
+          "avgWoodProduced": 2.9,
+          "avgStoneProduced": 3.53125,
+          "avgGoldProduced": 3.55
+        }
+      },
+      "avgCombatsPerPlayer": 1.040625
+    },
+    "reverse": {
+      "games": 160,
+      "completed": 160,
+      "completionRate": 1,
+      "avgRoundsCompleted": 32.66875,
+      "seatSummary": [
+        {
+          "seat": 1,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 21,
+          "losses": 139,
+          "winRate": 0.13125,
+          "winRateCI95": {
+            "low": 0.08747283759654537,
+            "high": 0.19231873134243974
+          },
+          "avgStartScore": 34.59625000000003
+        },
+        {
+          "seat": 2,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 71,
+          "losses": 89,
+          "winRate": 0.44375,
+          "winRateCI95": {
+            "low": 0.36898269384251464,
+            "high": 0.5211550031142796
+          },
+          "avgStartScore": 38.156250000000014
+        },
+        {
+          "seat": 3,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 14,
+          "losses": 146,
+          "winRate": 0.0875,
+          "winRateCI95": {
+            "low": 0.05283679339459573,
+            "high": 0.14150631762189603
+          },
+          "avgStartScore": 42.79375
+        },
+        {
+          "seat": 4,
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 54,
+          "losses": 106,
+          "winRate": 0.3375,
+          "winRateCI95": {
+            "low": 0.26880525616204454,
+            "high": 0.41381475726869477
+          },
+          "avgStartScore": 46.94624999999998
+        }
+      ],
+      "civs": {
+        "britanicos": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 47,
+          "losses": 113,
+          "winRate": 0.29375,
+          "winRateCI95": {
+            "low": 0.2286747315770294,
+            "high": 0.3684968239312166
+          },
+          "avgMilitaryTrained": 1.60625,
+          "avgVillagersTrained": 1.025,
+          "avgTechnologies": 1.2,
+          "avgFirstBarracks": 15.035714285714286,
+          "avgFirstMilitary": 18.169811320754718,
+          "avgFirstCombat": 26.78846153846154,
+          "avgFeudal": 30.75,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.62312500000001,
+          "avgCombats": 0.85625,
+          "avgCombatWins": 0.5,
+          "avgAttacks": 0.46875,
+          "avgAttackWins": 0.41875,
+          "avgEliminatedRound": 25.991150442477878,
+          "avgProduced": 18.83125,
+          "avgSpent": 11.56875,
+          "avgFoodProduced": 8.9125,
+          "avgWoodProduced": 2.81875,
+          "avgStoneProduced": 3.575,
+          "avgGoldProduced": 3.525
+        },
+        "francos": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 35,
+          "losses": 125,
+          "winRate": 0.21875,
+          "winRateCI95": {
+            "low": 0.1617014725523996,
+            "high": 0.2889870122315721
+          },
+          "avgMilitaryTrained": 1.4875,
+          "avgVillagersTrained": 0.9625,
+          "avgTechnologies": 0.75625,
+          "avgFirstBarracks": 14.899280575539569,
+          "avgFirstMilitary": 18.133333333333333,
+          "avgFirstCombat": 27.142857142857142,
+          "avgFeudal": 30.5,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.623125,
+          "avgCombats": 0.675,
+          "avgCombatWins": 0.44375,
+          "avgAttacks": 0.4625,
+          "avgAttackWins": 0.4,
+          "avgEliminatedRound": 26.128,
+          "avgProduced": 18.0875,
+          "avgSpent": 10.3375,
+          "avgFoodProduced": 8.325,
+          "avgWoodProduced": 2.725,
+          "avgStoneProduced": 3.5375,
+          "avgGoldProduced": 3.5
+        },
+        "vikingos": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 40,
+          "losses": 120,
+          "winRate": 0.25,
+          "winRateCI95": {
+            "low": 0.1892994022761924,
+            "high": 0.3224236953095602
+          },
+          "avgMilitaryTrained": 2.0125,
+          "avgVillagersTrained": 1.05,
+          "avgTechnologies": 0.56875,
+          "avgFirstBarracks": 14.899280575539569,
+          "avgFirstMilitary": 18.133333333333333,
+          "avgFirstCombat": 26.705882352941178,
+          "avgFeudal": 30,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.62312500000001,
+          "avgCombats": 0.88125,
+          "avgCombatWins": 0.3625,
+          "avgAttacks": 0.3625,
+          "avgAttackWins": 0.28125,
+          "avgEliminatedRound": 26.5,
+          "avgProduced": 18.575,
+          "avgSpent": 11.0875,
+          "avgFoodProduced": 8.825,
+          "avgWoodProduced": 2.75625,
+          "avgStoneProduced": 3.55625,
+          "avgGoldProduced": 3.4375
+        },
+        "persas": {
+          "appearances": 160,
+          "completedAppearances": 160,
+          "incompleteAppearances": 0,
+          "wins": 38,
+          "losses": 122,
+          "winRate": 0.2375,
+          "winRateCI95": {
+            "low": 0.1782035847518699,
+            "high": 0.3091056677131703
+          },
+          "avgMilitaryTrained": 1.98125,
+          "avgVillagersTrained": 1.05625,
+          "avgTechnologies": 0.5375,
+          "avgFirstBarracks": 14.906474820143885,
+          "avgFirstMilitary": 18.169811320754718,
+          "avgFirstCombat": 27.22,
+          "avgFeudal": 31.4,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 40.62312500000001,
+          "avgCombats": 0.8375,
+          "avgCombatWins": 0.31875,
+          "avgAttacks": 0.33125,
+          "avgAttackWins": 0.25,
+          "avgEliminatedRound": 26.762295081967213,
+          "avgProduced": 18.59375,
+          "avgSpent": 10.99375,
+          "avgFoodProduced": 8.78125,
+          "avgWoodProduced": 2.78125,
+          "avgStoneProduced": 3.5875,
+          "avgGoldProduced": 3.44375
+        }
+      },
+      "avgCombatsPerPlayer": 0.8125
+    }
+  }
+}
