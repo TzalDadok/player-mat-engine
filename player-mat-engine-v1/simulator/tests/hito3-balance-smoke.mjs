@@ -73,6 +73,14 @@ function ok(v,m){ if(!v) throw new Error(m); }
     benchmark.results.every(g=>g.players.every(p=>p.combat)),
     'Cada jugador debe registrar métricas de combate.'
   );
+  ok(
+    benchmark.results.every(g=>g.players.every(p=>
+      p.economy &&
+      Number.isFinite(p.economy.totalProduced) &&
+      Number.isFinite(p.economy.totalSpent)
+    )),
+    'Cada jugador debe registrar flujo económico.'
+  );
 }
 
 {
