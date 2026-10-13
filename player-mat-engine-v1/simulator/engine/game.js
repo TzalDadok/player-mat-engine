@@ -1544,6 +1544,18 @@ export class AoEGame {
       }
     }
 
+    // Restricciones de terreno del reglamento. Se validan antes de gastar recursos.
+    if (buildingType === 'mill' && !['animals', 'berries'].includes(hex.source)) {
+      throw new RuleError('El Molino requiere un recurso de comida (animales o frutos).', 'INVALID_BUILD_TERRAIN');
+    }
+    if (buildingType === 'camp' && !['forest', 'gold', 'stone'].includes(hex.source)) {
+      throw new RuleError('El Campamento de Recursos requiere bosque, oro o piedra.', 'INVALID_BUILD_TERRAIN');
+    }
+    if (['barracks', 'tower', 'monastery', 'market', 'siege', 'castle'].includes(buildingType) &&
+        (!['plain', 'desert'].includes(hex.terrain) || hex.source)) {
+      throw new RuleError('Este edificio sólo se construye en Llanura o Desierto libre de recursos.', 'INVALID_BUILD_TERRAIN');
+    }
+
     if (
       !base.multiple &&
       this.state.buildings.some(b => b.ownerId === playerId && b.type === buildingType)
