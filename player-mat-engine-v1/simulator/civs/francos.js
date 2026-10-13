@@ -11,7 +11,7 @@ export const francos = {
     archer: entry('dark', 'barracks', { food: 1, wood: 2, gold: 1 }),
     spearman: entry('feudal', 'barracks', { food: 2, wood: 1 }),
     rider: entry('castles', 'barracks', { food: 2, gold: 3 }),
-    knight: entry('castles', 'barracks', { food: 3, gold: 4 }),
+    knight: entry('castles', 'barracks', { food: 3, gold: 4 }, { alternateTraining: [{ age: 'castles', building: 'castle', cost: { food: 3, gold: 4 } }] }),
     galley: entry('castles', 'port', { wood: 3, gold: 1 }),
     monk: entry('castles', 'monastery', { food: 2, gold: 2 }, { provisionalCost: true }),
     scorpion: entry('castles', 'siege', { wood: 3, gold: 2 }, { provisionalCost: true }),
