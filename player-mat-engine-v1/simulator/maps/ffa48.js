@@ -164,6 +164,40 @@ export function placeFFAPlayerCU(map, playerId, anchorTerrainId){
   return cu;
 }
 
+function hasPermanentLandPathToWonder(map, startId){
+  const start=map.hexes.find(h=>h.id===startId);
+  const wonder=map.hexes.find(h=>h.special==='wonder');
+  if(
+    !start ||
+    !wonder ||
+    start.terrain==='water' ||
+    ['gold','stone'].includes(start.source)
+  ) return false;
+
+  const queue=[start.id];
+  const seen=new Set(queue);
+
+  while(queue.length){
+    const id=queue.shift();
+    if(id===wonder.id) return true;
+    const current=map.hexes.find(h=>h.id===id);
+
+    for(const candidate of map.hexes){
+      if(
+        candidate.terrain==='water' ||
+        ['gold','stone'].includes(candidate.source) ||
+        seen.has(candidate.id) ||
+        hexDistance(current,candidate)!==1
+      ) continue;
+
+      seen.add(candidate.id);
+      queue.push(candidate.id);
+    }
+  }
+
+  return false;
+}
+
 function hasLandPathToWonder(map, startId){
   const start=map.hexes.find(h=>h.id===startId);
   const wonder=map.hexes.find(h=>h.special==='wonder');
@@ -205,7 +239,15 @@ export function autoPlaceFFAPlayerCUs(map, playerIds){
     const h=map.hexes.find(x=>x.id===id);
     return h && !['gold','stone'].includes(h.source);
   });
-  const perimeter=stable.length >= playerIds.length ? stable : connected;
+
+  const permanent=stable.filter(id => hasPermanentLandPathToWonder(map,id));
+
+  const perimeter=
+    permanent.length >= playerIds.length
+      ? permanent
+      : stable.length >= playerIds.length
+        ? stable
+        : connected;
 
   const chosen=[];
   const step=perimeter.length/playerIds.length;
