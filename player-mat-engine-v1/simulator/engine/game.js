@@ -595,14 +595,29 @@ export class AoEGame {
     const target = this.hexMap.get(toHexId);
     if (!target) throw new RuleError('Destino inexistente.');
 
+    const escorts = units
+      .map(u => ({ unit: u, spec: this.effectiveUnitSpec(playerId, u.type) }))
+      .filter(x => !x.spec.tags?.includes('siege'));
+
+    const escortMove = escorts.length
+      ? Math.min(...escorts.map(x => x.spec.move))
+      : 0;
+
     for (const unit of units) {
       const spec = this.effectiveUnitSpec(playerId, unit.type);
+      const transportedSiege = spec.tags?.includes('siege');
+      const allowedMove = transportedSiege ? escortMove : spec.move;
+
+      if (transportedSiege && !escorts.length) {
+        throw new RuleError(`${spec.name} necesita otra unidad para ser transportado.`);
+      }
+
       const path = shortestMovementPath(this.state.hexes, unit.hexId, toHexId, {
         water: !!spec.water,
         blockedEdge: (a, b) => this.edgeBlocked(a, b)
       });
 
-      if (!path || path.length - 1 > spec.move) {
+      if (!path || path.length - 1 > allowedMove) {
         throw new RuleError(`${spec.name} no puede llegar al destino.`);
       }
     }
@@ -1158,7 +1173,8 @@ export class AoEGame {
       targetHexId,
       attackerBid = 0,
       defenderBid = 0,
-      loserCasualtyIds = null
+      loserCasualtyIds = null,
+      healedCasualtyIds = null
     } = {}
   ) {
     this.assertActive(playerId);
@@ -1338,6 +1354,42 @@ export class AoEGame {
         .map(u => u.id);
     }
 
+    const initialCasualtyIds = [...casualtyIds];
+    const loserReligiousSurvivors = loserParts.filter(
+      u =>
+        this.effectiveUnitSpec(loserId, u.type).category === 'religious' &&
+        !casualtyIds.includes(u.id)
+    );
+    const rescueCount = Math.min(loserReligiousSurvivors.length, casualtyIds.length);
+    let rescuedIds = [];
+
+    if (rescueCount > 0) {
+      if (healedCasualtyIds) {
+        const casualtySet = new Set(casualtyIds);
+        rescuedIds = [...new Set(healedCasualtyIds)]
+          .filter(id => casualtySet.has(id))
+          .slice(0, rescueCount);
+
+        if (rescuedIds.length > rescueCount) {
+          throw new RuleError('Se intentaron curar más bajas de las permitidas.');
+        }
+      } else {
+        rescuedIds = casualtyIds
+          .map(id => this.state.units.find(u => u.id === id))
+          .filter(Boolean)
+          .sort(
+            (a, b) =>
+              this.effectiveUnitSpec(loserId, b.type).force -
+              this.effectiveUnitSpec(loserId, a.type).force
+          )
+          .slice(0, rescueCount)
+          .map(u => u.id);
+      }
+
+      const rescued = new Set(rescuedIds);
+      casualtyIds = casualtyIds.filter(id => !rescued.has(id));
+    }
+
     const dead = new Set(casualtyIds);
 
     this.state.units = this.state.units.filter(
@@ -1403,6 +1455,8 @@ export class AoEGame {
       attackerTotal: atkTotal,
       defenderTotal: defTotal,
       difference,
+      initialCasualties: initialCasualtyIds,
+      rescuedByReligious: rescuedIds,
       casualties: casualtyIds,
       winnerId: attackerWins ? playerId : defenderId
     };
