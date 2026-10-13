@@ -1,11 +1,12 @@
 import {
-  PHASES, AGES, AGE_PRODUCTION_LIMIT, RESOURCE_TYPES,
-  UNIT_TYPES, BUILDING_TYPES, AGE_COSTS, SOURCE_TO_RESOURCE
+  PHASES, AGES, AGE_PRODUCTION_LIMIT, RESOURCE_TYPES, MAX_MILITARY_POWER, MAX_MILITARY_BID,
+  UNIT_TYPES, BUILDING_TYPES, AGE_COSTS, SOURCE_TO_RESOURCE, EXHAUSTED_TO
 } from './constants.js';
-import { generateHexRadius, hexDistance, shortestPath } from './hex.js';
+import { generateHexRadius, hexDistance, physicalNeighbors, shortestMovementPath } from './hex.js';
 
-const clone = value => structuredClone(value);
-const uid = prefix => `${prefix}-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
+const clone = v => structuredClone(v);
+let seq = 1;
+const uid = prefix => `${prefix}${seq++}`;
 
 export class RuleError extends Error {
   constructor(message, code = 'RULE_ERROR') {
@@ -18,7 +19,7 @@ export class RuleError extends Error {
 export class AoEGame {
   constructor(state) { this.state = state; }
 
-  static create({ players, radius = 2, seedMap = true } = {}) {
+  static create({ players, radius = 2, seedMap = true, mode = 'ffa' } = {}) {
     if (!Array.isArray(players) || players.length < 2 || players.length > 4) {
       throw new RuleError('La partida requiere entre 2 y 4 jugadores.');
     }
@@ -27,8 +28,9 @@ export class AoEGame {
     if (seedMap) AoEGame.seedDemoMap(hexes);
 
     const state = {
-      version: 1,
-      turn: 1,
+      version: 2,
+      mode,
+      round: 1,
       activePlayerIndex: 0,
       phase: 'economy',
       actionUsed: false,
@@ -39,11 +41,12 @@ export class AoEGame {
         name: p.name || `Jugador ${i + 1}`,
         civ: p.civ || 'generic',
         age: 'dark',
-        militaryPower: p.militaryPower ?? 3,
-        maxMilitaryBid: p.maxMilitaryBid ?? 7,
+        militaryPower: p.militaryPower ?? 0,
+        maxMilitaryBid: p.maxMilitaryBid ?? MAX_MILITARY_BID,
         technologies: [],
         eliminated: false,
-        tcHexId: null
+        tcHexId: null,
+        stats: { villagersTrained: 0, militaryTrained: 0, trades: 0 }
       })),
       units: [],
       buildings: [],
@@ -52,32 +55,54 @@ export class AoEGame {
 
     const game = new AoEGame(state);
     game.setupPlayers();
-    game.log('game-start', { players: state.players.map(p => p.id) });
+    game.log('game-start', { mode, players: state.players.map(p => p.id) });
     return game;
   }
 
   static seedDemoMap(hexes) {
     const sources = ['forest', 'animals', 'stone', 'gold', 'berries', 'forest', 'animals', 'gold', 'stone'];
+    let waterN = 0;
+
     hexes.forEach((hex, i) => {
-      if (i % 7 === 0) hex.terrain = 'forest';
       if (i % 11 === 0) hex.terrain = 'mountain';
-      if (i % 13 === 0) hex.terrain = 'desert';
-      if (i > 1 && i % 9 === 0) hex.terrain = 'water';
-      hex.source = hex.terrain === 'water' ? null : (sources[i % sources.length] || null);
+      else if (i % 13 === 0) hex.terrain = 'desert';
+      else if (i > 1 && i % 9 === 0) {
+        hex.terrain = 'water';
+        hex.waterLane = waterN++ % 2 ? 'B' : 'A';
+      } else if (i % 7 === 0) {
+        hex.terrain = 'forest';
+      }
+
+      hex.source =
+        hex.terrain === 'water' || hex.terrain === 'mountain' || hex.terrain === 'desert'
+          ? null
+          : sources[i % sources.length];
     });
+
+    const center = hexes.find(h => h.q === 0 && h.r === 0);
+    if (center) {
+      center.special = 'wonder';
+      center.source = null;
+      center.terrain = 'plain';
+    }
   }
 
   setupPlayers() {
-    const land = this.state.hexes.filter(h => h.terrain !== 'water');
-    const starts = [land[0], land[land.length - 1], land[Math.floor(land.length / 3)], land[Math.floor(land.length * 2 / 3)]];
+    const land = this.state.hexes.filter(h => h.terrain !== 'water' && h.special !== 'wonder');
+    const starts = [
+      land[0],
+      land[land.length - 1],
+      land[Math.floor(land.length / 3)],
+      land[Math.floor(land.length * 2 / 3)]
+    ];
 
-    this.state.players.forEach((player, i) => {
+    this.state.players.forEach((p, i) => {
       const hex = starts[i];
-      player.tcHexId = hex.id;
-      hex.controller = player.id;
-      this.addBuilding(player.id, 'tc', hex.id);
-      this.addUnit(player.id, 'villager', hex.id);
-      this.addResourceTokens(player.id, hex.id, { food: 2, wood: 2, stone: 1, gold: 1 });
+      p.tcHexId = hex.id;
+      hex.special = 'tc';
+      hex.tcOwnerId = p.id;
+      hex.source = null;
+      this.addUnit(p.id, 'villager', hex.id);
     });
   }
 
@@ -99,7 +124,7 @@ export class AoEGame {
   log(type, data = {}) {
     this.state.log.push({
       n: this.state.log.length + 1,
-      turn: this.state.turn,
+      round: this.state.round,
       playerId: this.activePlayer?.id || null,
       phase: this.state.phase,
       type,
@@ -113,9 +138,10 @@ export class AoEGame {
   }
 
   endPhase() {
-    const phaseIndex = PHASES.indexOf(this.state.phase);
-    if (phaseIndex < PHASES.length - 1) {
-      this.state.phase = PHASES[phaseIndex + 1];
+    const i = PHASES.indexOf(this.state.phase);
+
+    if (i < PHASES.length - 1) {
+      this.state.phase = PHASES[i + 1];
       this.state.actionUsed = false;
       this.log('phase-start', { phase: this.state.phase });
       return;
@@ -134,6 +160,7 @@ export class AoEGame {
 
   advanceActivePlayer() {
     const alive = this.state.players.filter(p => !p.eliminated);
+
     if (alive.length === 1) {
       this.state.winnerId = alive[0].id;
       this.log('game-end', { winnerId: alive[0].id });
@@ -141,61 +168,80 @@ export class AoEGame {
     }
 
     let next = this.state.activePlayerIndex;
-    do { next = (next + 1) % this.state.players.length; }
-    while (this.state.players[next].eliminated);
+    do {
+      next = (next + 1) % this.state.players.length;
+    } while (this.state.players[next].eliminated);
 
-    if (next <= this.state.activePlayerIndex) this.state.turn += 1;
+    if (next <= this.state.activePlayerIndex) this.state.round += 1;
     this.state.activePlayerIndex = next;
     this.log('turn-start', { playerId: this.activePlayer.id });
   }
 
   addUnit(ownerId, type, hexId) {
     if (!UNIT_TYPES[type]) throw new RuleError(`Unidad desconocida: ${type}`);
-    const unit = { id: uid('U'), ownerId, type, hexId, cargo: [], exhausted: false };
-    this.state.units.push(unit);
-    return unit;
+    const u = { id: uid('U'), ownerId, type, hexId, cargo: [] };
+    this.state.units.push(u);
+    return u;
   }
 
   addBuilding(ownerId, type, hexId) {
     if (!BUILDING_TYPES[type]) throw new RuleError(`Edificio desconocido: ${type}`);
-    const building = { id: uid('B'), ownerId, type, hexId };
-    this.state.buildings.push(building);
-    return building;
+    const b = { id: uid('B'), ownerId, type, hexId };
+    this.state.buildings.push(b);
+    return b;
   }
 
-  addResourceTokens(ownerId, hexId, resources) {
+  addResourceTokens(hexId, resources) {
     const hex = this.hexMap.get(hexId);
     if (!hex) throw new RuleError('Hexágono inexistente.');
+
     for (const type of RESOURCE_TYPES) {
-      const amount = Math.max(0, Number(resources[type] || 0));
-      for (let i = 0; i < amount; i++) hex.looseResources.push({ id: uid('R'), ownerId, type });
+      for (let i = 0; i < Math.max(0, Number(resources[type] || 0)); i++) {
+        hex.looseResources.push({ id: uid('R'), type });
+      }
     }
   }
 
-  resourcesAt(ownerId, hexId) {
-    const hex = this.hexMap.get(hexId);
-    const counts = Object.fromEntries(RESOURCE_TYPES.map(r => [r, 0]));
-    for (const token of hex?.looseResources || []) if (token.ownerId === ownerId) counts[token.type]++;
-    return counts;
+  resourcesAt(hexId) {
+    const out = Object.fromEntries(RESOURCE_TYPES.map(r => [r, 0]));
+    for (const token of this.hexMap.get(hexId)?.looseResources || []) out[token.type]++;
+    return out;
   }
 
-  canAffordAt(ownerId, hexId, cost = {}) {
-    const have = this.resourcesAt(ownerId, hexId);
+  controllerOf(hexId) {
+    const unitOwners = [...new Set(this.state.units.filter(u => u.hexId === hexId).map(u => u.ownerId))];
+    if (unitOwners.length === 1) return unitOwners[0];
+    if (unitOwners.length > 1) return null;
+
+    const buildingOwners = [...new Set(this.state.buildings.filter(b => b.hexId === hexId).map(b => b.ownerId))];
+    return buildingOwners.length === 1 ? buildingOwners[0] : null;
+  }
+
+  controlledHexIds(playerId) {
+    return this.state.hexes
+      .filter(h =>
+        this.controllerOf(h.id) === playerId ||
+        (h.special === 'tc' && h.tcOwnerId === playerId && !this.playerMap.get(playerId).eliminated)
+      )
+      .map(h => h.id);
+  }
+
+  canAffordAt(hexId, cost = {}) {
+    const have = this.resourcesAt(hexId);
     return RESOURCE_TYPES.every(r => have[r] >= (cost[r] || 0));
   }
 
-  spendAt(ownerId, hexId, cost = {}) {
-    if (!this.canAffordAt(ownerId, hexId, cost)) {
+  spendAt(hexId, cost = {}) {
+    if (!this.canAffordAt(hexId, cost)) {
       throw new RuleError('No hay suficientes recursos en ese hexágono.', 'INSUFFICIENT_RESOURCES');
     }
 
     const hex = this.hexMap.get(hexId);
     for (const type of RESOURCE_TYPES) {
-      let remaining = cost[type] || 0;
-      if (!remaining) continue;
-      hex.looseResources = hex.looseResources.filter(token => {
-        if (remaining > 0 && token.ownerId === ownerId && token.type === type) {
-          remaining--;
+      let n = cost[type] || 0;
+      hex.looseResources = hex.looseResources.filter(t => {
+        if (n > 0 && t.type === type) {
+          n--;
           return false;
         }
         return true;
@@ -203,255 +249,749 @@ export class AoEGame {
     }
   }
 
-  produce(playerId, hexIds) {
+  canAffordControlled(playerId, cost = {}) {
+    const totals = Object.fromEntries(RESOURCE_TYPES.map(r => [r, 0]));
+
+    for (const id of this.controlledHexIds(playerId)) {
+      const x = this.resourcesAt(id);
+      for (const r of RESOURCE_TYPES) totals[r] += x[r];
+    }
+
+    return RESOURCE_TYPES.every(r => totals[r] >= (cost[r] || 0));
+  }
+
+  spendControlled(playerId, cost = {}) {
+    if (!this.canAffordControlled(playerId, cost)) {
+      throw new RuleError('No hay suficientes recursos en territorios controlados.', 'INSUFFICIENT_RESOURCES');
+    }
+
+    const remaining = { ...cost };
+
+    for (const hexId of this.controlledHexIds(playerId)) {
+      const hex = this.hexMap.get(hexId);
+
+      for (const type of RESOURCE_TYPES) {
+        let need = remaining[type] || 0;
+        if (!need) continue;
+
+        hex.looseResources = hex.looseResources.filter(t => {
+          if (need > 0 && t.type === type) {
+            need--;
+            remaining[type]--;
+            return false;
+          }
+          return true;
+        });
+      }
+    }
+  }
+
+  produce(playerId, selections) {
     this.assertActive(playerId);
     this.assertPhase('economy');
+
     const player = this.playerMap.get(playerId);
-    const unique = [...new Set(hexIds || [])];
+    const normalized = (selections || []).map(x =>
+      typeof x === 'string' ? { hexId: x, mode: 'source' } : { mode: 'source', ...x }
+    );
+    const unique = [...new Map(normalized.map(x => [x.hexId, x])).values()];
     const limit = AGE_PRODUCTION_LIMIT[player.age];
-    if (!unique.length || unique.length > limit) throw new RuleError(`Podés producir en entre 1 y ${limit} hexágonos.`);
+
+    if (!unique.length || unique.length > limit) {
+      throw new RuleError(`Podés producir en entre 1 y ${limit} hexágonos.`);
+    }
 
     const results = [];
-    for (const hexId of unique) {
-      const hex = this.hexMap.get(hexId);
-      if (!hex) throw new RuleError(`Hexágono inexistente: ${hexId}`);
-      const villagers = this.state.units.filter(u => u.ownerId === playerId && u.hexId === hexId && u.type === 'villager');
-      const farm = this.state.buildings.find(b => b.ownerId === playerId && b.hexId === hexId && b.type === 'farm');
-      const source = farm ? 'farm' : hex.source;
-      const resourceType = SOURCE_TO_RESOURCE[source];
-      if (!resourceType) throw new RuleError(`El hexágono ${hexId} no tiene una fuente productiva.`);
-      if (!farm && villagers.length === 0) throw new RuleError(`Falta un Aldeano productor en ${hexId}.`);
 
-      this.addResourceTokens(playerId, hexId, { [resourceType]: 1 });
-      results.push({ hexId, resourceType, amount: 1 });
+    for (const sel of unique) {
+      const hex = this.hexMap.get(sel.hexId);
+      if (!hex) throw new RuleError(`Hexágono inexistente: ${sel.hexId}`);
+
+      const villagers = this.state.units.filter(
+        u => u.ownerId === playerId && u.hexId === hex.id && u.type === 'villager'
+      ).length;
+
+      let type = null;
+      let amount = 0;
+      let primary = false;
+
+      if (sel.mode === 'coast') {
+        const touchesWater = physicalNeighbors(this.state.hexes, hex.id).some(h => h.terrain === 'water');
+        if (!touchesWater || hex.terrain === 'water') {
+          throw new RuleError('La pesca costera requiere terreno terrestre adyacente a Agua.');
+        }
+        type = 'food';
+        amount = villagers;
+      } else {
+        const farms = this.state.buildings.filter(
+          b => b.ownerId === playerId && b.hexId === hex.id && b.type === 'farm'
+        ).length;
+
+        if (farms) {
+          type = 'food';
+          amount = Math.min(farms, villagers);
+        } else {
+          type = SOURCE_TO_RESOURCE[hex.source];
+          primary = !!type;
+
+          if (!type) throw new RuleError(`El hexágono ${hex.id} no tiene una fuente productiva.`);
+
+          amount = villagers;
+
+          if (
+            ['animals', 'berries'].includes(hex.source) &&
+            this.state.buildings.some(b => b.ownerId === playerId && b.hexId === hex.id && b.type === 'mill')
+          ) {
+            amount += 1;
+          }
+
+          if (
+            ['forest', 'gold', 'stone'].includes(hex.source) &&
+            this.state.buildings.some(b => b.ownerId === playerId && b.hexId === hex.id && b.type === 'camp')
+          ) {
+            amount += 1;
+          }
+        }
+      }
+
+      if (amount <= 0) throw new RuleError(`No hay productores elegibles en ${hex.id}.`);
+
+      this.addResourceTokens(hex.id, { [type]: amount });
+      results.push({ hexId: hex.id, resourceType: type, amount, mode: sel.mode });
+
+      if (primary) {
+        const hist = hex.productionHistory[playerId] || { lastRound: null };
+        const exhaust = hist.lastRound === this.state.round - 1;
+        hex.productionHistory[playerId] = { lastRound: this.state.round };
+
+        if (exhaust && EXHAUSTED_TO[hex.source]) {
+          const oldSource = hex.source;
+          const change = EXHAUSTED_TO[oldSource];
+          hex.terrain = change.terrain;
+          hex.source = change.source;
+          if (hex.terrain === 'water' && !hex.waterLane) hex.waterLane = 'A';
+          results[results.length - 1].exhausted = oldSource;
+        }
+      }
     }
 
     this.completeAction('produce', { results });
     return results;
   }
 
+  edgeBlocked(a, b) {
+    const ha = this.hexMap.get(a);
+    const hb = this.hexMap.get(b);
+    return !!(ha?.palisades?.includes(b) || hb?.palisades?.includes(a));
+  }
+
   moveUnits(playerId, unitIds, toHexId) {
     this.assertActive(playerId);
-    if (!['economy', 'military'].includes(this.state.phase)) throw new RuleError('Mover sólo está disponible en Economía o Militar.');
-    if (this.state.actionUsed) throw new RuleError('La acción de esta fase ya fue utilizada.');
 
-    const target = this.hexMap.get(toHexId);
-    if (!target) throw new RuleError('Hexágono de destino inexistente.');
+    if (!['economy', 'military'].includes(this.state.phase) || this.state.actionUsed) {
+      throw new RuleError('Mover no está disponible ahora.');
+    }
+
     if (!unitIds?.length) throw new RuleError('Seleccioná al menos una unidad.');
 
     const units = unitIds.map(id => this.state.units.find(u => u.id === id));
-    if (units.some(u => !u || u.ownerId !== playerId)) throw new RuleError('Hay una unidad inválida o enemiga.');
-    if (this.state.phase === 'economy' && units.some(u => UNIT_TYPES[u.type].category !== 'economic')) {
-      throw new RuleError('La acción Mover de Economía sólo mueve unidades económicas.');
+
+    if (units.some(u => !u || u.ownerId !== playerId)) {
+      throw new RuleError('Hay una unidad inválida o enemiga.');
     }
-    if (this.state.units.some(u => u.hexId === toHexId && u.ownerId !== playerId)) {
-      throw new RuleError('El destino contiene unidades enemigas: usá atacar().', 'ENEMY_OCCUPIED');
+
+    const origins = [...new Set(units.map(u => u.hexId))];
+
+    if (origins.length !== 1) {
+      throw new RuleError('Las unidades que se mueven juntas deben partir del mismo hexágono.');
     }
+
+    if (
+      this.state.phase === 'economy' &&
+      units.some(u => UNIT_TYPES[u.type].category !== 'economic')
+    ) {
+      throw new RuleError('Economía sólo mueve unidades económicas.');
+    }
+
+    const target = this.hexMap.get(toHexId);
+    if (!target) throw new RuleError('Destino inexistente.');
 
     for (const unit of units) {
       const spec = UNIT_TYPES[unit.type];
-      const path = shortestPath(
-        this.state.hexes,
-        unit.hexId,
-        toHexId,
-        h => spec.water ? h.terrain === 'water' : h.terrain !== 'water'
-      );
-      if (!path) throw new RuleError(`No existe camino válido para ${spec.name}.`);
-      if (path.length - 1 > spec.move) throw new RuleError(`${spec.name} sólo puede mover ${spec.move}.`);
+      const path = shortestMovementPath(this.state.hexes, unit.hexId, toHexId, {
+        water: !!spec.water,
+        blockedEdge: (a, b) => this.edgeBlocked(a, b)
+      });
+
+      if (!path || path.length - 1 > spec.move) {
+        throw new RuleError(`${spec.name} no puede llegar al destino.`);
+      }
     }
 
-    units.forEach(u => { u.hexId = toHexId; });
-    target.controller = playerId;
+    const enemyMilitary = this.state.units.filter(
+      u =>
+        u.hexId === toHexId &&
+        u.ownerId !== playerId &&
+        UNIT_TYPES[u.type].category === 'military'
+    );
+
+    if (enemyMilitary.length) {
+      throw new RuleError('El destino tiene defensa militar: usá attack().', 'COMBAT_REQUIRED');
+    }
+
+    const movingMilitary = units.some(u => UNIT_TYPES[u.type].category === 'military');
+    if (movingMilitary) this.occupyUndefended(playerId, toHexId);
+
+    units.forEach(u => {
+      u.hexId = toHexId;
+    });
+
     this.completeAction('move', { unitIds, toHexId });
+  }
+
+  occupyUndefended(attackerId, hexId) {
+    const displaced = this.state.units.filter(
+      u =>
+        u.hexId === hexId &&
+        u.ownerId !== attackerId &&
+        UNIT_TYPES[u.type].category !== 'military'
+    );
+
+    for (const u of displaced) {
+      u.hexId = this.playerMap.get(u.ownerId).tcHexId;
+    }
+
+    this.state.buildings = this.state.buildings.filter(
+      b => !(b.hexId === hexId && b.ownerId !== attackerId)
+    );
+
+    const hex = this.hexMap.get(hexId);
+
+    if (hex.special === 'tc' && hex.tcOwnerId && hex.tcOwnerId !== attackerId) {
+      this.eliminatePlayer(hex.tcOwnerId);
+    }
   }
 
   loadResource(playerId, unitId, resourceType, amount = 1) {
     this.assertActive(playerId);
+
     const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
     if (!unit) throw new RuleError('Unidad inválida.');
+
     const spec = UNIT_TYPES[unit.type];
     if (!spec.carry) throw new RuleError('Esa unidad no transporta recursos.');
     if (unit.cargo.length + amount > spec.carry) throw new RuleError('Supera la capacidad de carga.');
 
     const hex = this.hexMap.get(unit.hexId);
-    const available = hex.looseResources.filter(r => r.ownerId === playerId && r.type === resourceType);
-    if (available.length < amount) throw new RuleError('No hay suficientes recursos para cargar.');
+    const available = hex.looseResources.filter(r => r.type === resourceType);
+
+    if (available.length < amount) {
+      throw new RuleError('No hay suficientes recursos para cargar.');
+    }
 
     const ids = new Set(available.slice(0, amount).map(r => r.id));
-    const moved = [];
+
     hex.looseResources = hex.looseResources.filter(r => {
       if (ids.has(r.id)) {
-        moved.push(r);
+        unit.cargo.push(r);
         return false;
       }
       return true;
     });
-    unit.cargo.push(...moved);
   }
 
   unloadAll(playerId, unitId) {
     this.assertActive(playerId);
-    const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
-    if (!unit) throw new RuleError('Unidad inválida.');
-    const hex = this.hexMap.get(unit.hexId);
-    hex.looseResources.push(...unit.cargo);
-    unit.cargo = [];
+
+    const u = this.state.units.find(x => x.id === unitId && x.ownerId === playerId);
+    if (!u) throw new RuleError('Unidad inválida.');
+
+    this.hexMap.get(u.hexId).looseResources.push(...u.cargo);
+    u.cargo = [];
   }
 
   build(playerId, buildingType, hexId, villagerId) {
     this.assertActive(playerId);
+
     const spec = BUILDING_TYPES[buildingType];
     if (!spec) throw new RuleError('Edificio desconocido.');
+
     this.assertPhase(spec.category === 'military' ? 'military' : 'economy');
 
     const hex = this.hexMap.get(hexId);
-    const villager = this.state.units.find(
-      u => u.id === villagerId && u.ownerId === playerId && u.type === 'villager' && u.hexId === hexId
+    const v = this.state.units.find(
+      u =>
+        u.id === villagerId &&
+        u.ownerId === playerId &&
+        u.type === 'villager' &&
+        u.hexId === hexId
     );
 
-    if (!hex || !villager) throw new RuleError('Se requiere un Aldeano propio en el hexágono.');
-    if (hex.terrain === 'water') throw new RuleError('No se puede construir directamente sobre Agua.');
-    if (this.state.buildings.some(b => b.hexId === hexId && b.type === buildingType)) {
-      throw new RuleError('Ese edificio ya existe en el hexágono.');
-    }
-    if (buildingType === 'farm' && hex.terrain !== 'plain') throw new RuleError('La Granja base requiere Llanura.');
+    if (!hex || !v) throw new RuleError('Se requiere un Aldeano propio en el hexágono.');
 
-    this.spendAt(playerId, hexId, spec.cost);
-    const building = this.addBuilding(playerId, buildingType, hexId);
-    hex.controller = playerId;
-    this.completeAction('build', { buildingId: building.id, buildingType, hexId });
-    return building;
+    if (hex.terrain === 'water' && buildingType !== 'port') {
+      throw new RuleError('No se puede construir ahí.');
+    }
+
+    if (
+      !spec.multiple &&
+      this.state.buildings.some(b => b.ownerId === playerId && b.type === buildingType)
+    ) {
+      throw new RuleError('En general sólo puede haber un edificio de cada tipo.');
+    }
+
+    if (buildingType === 'farm') {
+      if (hex.terrain !== 'plain') throw new RuleError('La Granja base requiere Llanura.');
+
+      if (
+        this.state.buildings.filter(b => b.hexId === hexId && b.type === 'farm').length >= 2
+      ) {
+        throw new RuleError('Máximo 2 Granjas por hexágono.');
+      }
+    }
+
+    this.spendAt(hexId, spec.cost);
+
+    const b = this.addBuilding(playerId, buildingType, hexId);
+    this.completeAction('build', { buildingId: b.id, buildingType, hexId });
+    return b;
   }
 
-  train(playerId, unitType, buildingId) {
+  trainUnits(playerId, requests) {
     this.assertActive(playerId);
-    const spec = UNIT_TYPES[unitType];
-    if (!spec) throw new RuleError('Unidad desconocida.');
-    this.assertPhase(spec.category === 'military' ? 'military' : 'economy');
 
-    const player = this.playerMap.get(playerId);
-    if (AGES.indexOf(player.age) < AGES.indexOf(spec.age)) throw new RuleError('La Edad actual no permite entrenar esa unidad.');
-
-    const building = this.state.buildings.find(b => b.id === buildingId && b.ownerId === playerId);
-    if (!building || building.type !== spec.building) {
-      throw new RuleError(`Se requiere ${BUILDING_TYPES[spec.building]?.name || spec.building}.`);
+    if (!Array.isArray(requests) || !requests.length) {
+      throw new RuleError('No hay unidades para entrenar.');
     }
 
-    this.spendAt(playerId, building.hexId, spec.cost);
-    const unit = this.addUnit(playerId, unitType, building.hexId);
-    this.completeAction('train', { unitId: unit.id, unitType, buildingId });
-    return unit;
+    const specs = requests.map(r => ({ r, spec: UNIT_TYPES[r.type] }));
+
+    if (specs.some(x => !x.spec)) throw new RuleError('Unidad desconocida.');
+
+    const category = specs[0].spec.category;
+
+    if (specs.some(x => x.spec.category !== category)) {
+      throw new RuleError('No se mezclan unidades económicas y militares en una misma acción.');
+    }
+
+    this.assertPhase(category === 'military' ? 'military' : 'economy');
+
+    const player = this.playerMap.get(playerId);
+    const created = [];
+
+    for (const { r, spec } of specs) {
+      if (AGES.indexOf(player.age) < AGES.indexOf(spec.age)) {
+        throw new RuleError('La Edad actual no permite entrenar una unidad solicitada.');
+      }
+
+      let spawnHexId;
+
+      if (r.type === 'villager') {
+        spawnHexId = r.hexId || player.tcHexId;
+
+        if (
+          spawnHexId !== player.tcHexId &&
+          !this.state.buildings.some(
+            b => b.ownerId === playerId && b.hexId === spawnHexId
+          )
+        ) {
+          throw new RuleError('Ese punto no puede entrenar Aldeanos.');
+        }
+
+        this.spendControlled(playerId, spec.cost);
+        player.stats.villagersTrained++;
+      } else {
+        const b = this.state.buildings.find(
+          x => x.id === r.buildingId && x.ownerId === playerId
+        );
+
+        if (!b || b.type !== spec.building) {
+          throw new RuleError('Edificio de entrenamiento inválido.');
+        }
+
+        spawnHexId = b.hexId;
+        this.spendAt(spawnHexId, spec.cost);
+
+        if (category === 'military') player.stats.militaryTrained++;
+      }
+
+      created.push(this.addUnit(playerId, r.type, spawnHexId));
+    }
+
+    this.completeAction('train', {
+      units: created.map(u => ({ id: u.id, type: u.type, hexId: u.hexId }))
+    });
+
+    return created;
+  }
+
+  research(playerId, { id, cost = {}, minAge = 'dark' } = {}) {
+    this.assertActive(playerId);
+    this.assertPhase('technology');
+
+    const p = this.playerMap.get(playerId);
+
+    if (!id) throw new RuleError('Tecnología sin id.');
+    if (p.technologies.includes(id)) throw new RuleError('Tecnología ya investigada.');
+
+    if (AGES.indexOf(p.age) < AGES.indexOf(minAge)) {
+      throw new RuleError('La tecnología aún no está disponible.');
+    }
+
+    this.spendControlled(playerId, cost);
+    p.technologies.push(id);
+    this.completeAction('research', { id });
   }
 
   advanceAge(playerId) {
     this.assertActive(playerId);
     this.assertPhase('technology');
-    const player = this.playerMap.get(playerId);
-    const current = AGES.indexOf(player.age);
-    if (current >= AGES.length - 1) throw new RuleError('Ya está en Edad Imperial.');
 
-    const nextAge = AGES[current + 1];
-    this.spendAt(playerId, player.tcHexId, AGE_COSTS[nextAge]);
-    player.age = nextAge;
-    this.completeAction('advance-age', { age: nextAge });
+    const p = this.playerMap.get(playerId);
+    const i = AGES.indexOf(p.age);
+
+    if (i >= AGES.length - 1) throw new RuleError('Ya está en Edad Imperial.');
+
+    const next = AGES[i + 1];
+    this.spendControlled(playerId, AGE_COSTS[next]);
+    p.age = next;
+    this.completeAction('advance-age', { age: next });
+  }
+
+  modifyTerrain(playerId, action, hexId, extra = {}) {
+    this.assertActive(playerId);
+    this.assertPhase('technology');
+
+    const hex = this.hexMap.get(hexId);
+
+    const villager = this.state.units.some(
+      u => u.ownerId === playerId && u.type === 'villager' && u.hexId === hexId
+    );
+
+    if (!hex || !villager) {
+      throw new RuleError('Modificar terreno requiere un Aldeano propio en el terreno.');
+    }
+
+    if (action === 'irrigate') {
+      if (
+        hex.terrain !== 'desert' ||
+        !physicalNeighbors(this.state.hexes, hexId).some(
+          h => ['mountain', 'water'].includes(h.terrain)
+        )
+      ) {
+        throw new RuleError('Irrigar requiere Desierto adyacente a Montaña o Agua.');
+      }
+
+      this.spendControlled(playerId, { wood: 3, food: 3, stone: 3 });
+      hex.terrain = 'plain';
+    } else if (action === 'drain') {
+      const water = this.hexMap.get(extra.waterHexId);
+
+      if (
+        hex.terrain !== 'desert' ||
+        !water ||
+        water.terrain !== 'water' ||
+        hexDistance(hex, water) !== 1
+      ) {
+        throw new RuleError('Drenar requiere Agua adyacente al Desierto del Aldeano.');
+      }
+
+      this.spendControlled(playerId, { wood: 5, food: 5, stone: 5 });
+      water.terrain = 'desert';
+      water.waterLane = null;
+      hex.terrain = 'plain';
+    } else if (action === 'fortify') {
+      const neighbor = this.hexMap.get(extra.neighborHexId);
+
+      if (!neighbor || hexDistance(hex, neighbor) !== 1) {
+        throw new RuleError('Elegí un lado adyacente válido.');
+      }
+
+      this.spendControlled(playerId, { wood: 3 });
+
+      if (!hex.palisades.includes(neighbor.id)) {
+        hex.palisades.push(neighbor.id);
+      }
+    } else {
+      throw new RuleError('Modificación de terreno desconocida.');
+    }
+
+    this.completeAction('modify-terrain', { action, hexId, ...extra });
   }
 
   instruct(playerId) {
     this.assertActive(playerId);
     this.assertPhase('military');
-    const player = this.playerMap.get(playerId);
-    this.spendAt(playerId, player.tcHexId, { gold: 1 });
-    player.militaryPower += 1;
-    this.completeAction('instruct', { militaryPower: player.militaryPower });
+
+    const p = this.playerMap.get(playerId);
+
+    if (p.militaryPower >= MAX_MILITARY_POWER) {
+      throw new RuleError('Poder de Pelea ya está en 16.');
+    }
+
+    this.spendControlled(playerId, { gold: 1 });
+    p.militaryPower++;
+    this.completeAction('instruct', { militaryPower: p.militaryPower });
   }
 
-  forceFor(playerId, targetHexId, directUnitIds = null) {
-    let force = 0;
+  combatParticipants(playerId, targetHexId, directIds = []) {
     const target = this.hexMap.get(targetHexId);
-    if (!target) return 0;
+    const ids = new Set(directIds);
+    const out = [];
 
-    for (const unit of this.state.units) {
-      if (unit.ownerId !== playerId) continue;
-      const spec = UNIT_TYPES[unit.type];
-      if (directUnitIds && directUnitIds.includes(unit.id)) force += spec.force;
-      else if (!directUnitIds && unit.hexId === targetHexId) force += spec.force;
-      else if (spec.range > 0) {
-        const source = this.hexMap.get(unit.hexId);
-        if (source && hexDistance(source, target) <= spec.range) force += spec.force;
+    for (const u of this.state.units) {
+      if (
+        u.ownerId !== playerId ||
+        UNIT_TYPES[u.type].category !== 'military'
+      ) {
+        continue;
+      }
+
+      const spec = UNIT_TYPES[u.type];
+
+      if (
+        ids.has(u.id) ||
+        u.hexId === targetHexId ||
+        (
+          spec.range > 0 &&
+          hexDistance(this.hexMap.get(u.hexId), target) <= spec.range
+        )
+      ) {
+        out.push(u);
       }
     }
-    return force;
+
+    return [...new Map(out.map(u => [u.id, u])).values()];
   }
 
-  attack(playerId, { unitIds, targetHexId, attackerBid = 0, defenderBid = 0 } = {}) {
+  attack(
+    playerId,
+    {
+      unitIds,
+      targetHexId,
+      attackerBid = 0,
+      defenderBid = 0,
+      loserCasualtyIds = null
+    } = {}
+  ) {
     this.assertActive(playerId);
     this.assertPhase('military');
 
-    const attacker = this.playerMap.get(playerId);
     const target = this.hexMap.get(targetHexId);
-    if (!target) throw new RuleError('Hexágono objetivo inexistente.');
+    if (!target) throw new RuleError('Objetivo inexistente.');
 
-    const directUnits = (unitIds || []).map(id => this.state.units.find(u => u.id === id));
-    if (!directUnits.length || directUnits.some(
-      u => !u || u.ownerId !== playerId || UNIT_TYPES[u.type].category !== 'military'
-    )) throw new RuleError('El ataque requiere unidades militares propias.');
+    const direct = (unitIds || []).map(id =>
+      this.state.units.find(u => u.id === id)
+    );
 
-    const defenderUnit = this.state.units.find(u => u.hexId === targetHexId && u.ownerId !== playerId);
-    const defenderBuilding = this.state.buildings.find(b => b.hexId === targetHexId && b.ownerId !== playerId);
-    const defenderId = defenderUnit?.ownerId || defenderBuilding?.ownerId;
-    if (!defenderId) throw new RuleError('No hay objetivo enemigo en ese hexágono.');
-
-    const defender = this.playerMap.get(defenderId);
-    for (const unit of directUnits) {
-      const spec = UNIT_TYPES[unit.type];
-      const from = this.hexMap.get(unit.hexId);
-      if (!from || hexDistance(from, target) > spec.move) throw new RuleError(`${spec.name} no llega al objetivo.`);
+    if (
+      !direct.length ||
+      direct.some(
+        u =>
+          !u ||
+          u.ownerId !== playerId ||
+          UNIT_TYPES[u.type].category !== 'military'
+      )
+    ) {
+      throw new RuleError('Ataque inválido.');
     }
 
-    if (attackerBid < 0 || attackerBid > Math.min(attacker.maxMilitaryBid, attacker.militaryPower)) {
+    if (new Set(direct.map(u => u.hexId)).size !== 1) {
+      throw new RuleError('El grupo atacante debe partir del mismo hexágono.');
+    }
+
+    for (const u of direct) {
+      const spec = UNIT_TYPES[u.type];
+
+      const path = shortestMovementPath(
+        this.state.hexes,
+        u.hexId,
+        targetHexId,
+        {
+          water: !!spec.water,
+          blockedEdge: (a, b) => this.edgeBlocked(a, b)
+        }
+      );
+
+      if (!path || path.length - 1 > spec.move) {
+        throw new RuleError(`${spec.name} no llega al objetivo.`);
+      }
+    }
+
+    const defenderMilitary = this.state.units.filter(
+      u =>
+        u.hexId === targetHexId &&
+        u.ownerId !== playerId &&
+        UNIT_TYPES[u.type].category === 'military'
+    );
+
+    const defenderId =
+      defenderMilitary[0]?.ownerId ||
+      this.state.buildings.find(
+        b => b.hexId === targetHexId && b.ownerId !== playerId
+      )?.ownerId ||
+      (
+        target.special === 'tc' && target.tcOwnerId !== playerId
+          ? target.tcOwnerId
+          : null
+      );
+
+    if (!defenderId) throw new RuleError('No hay objetivo enemigo.');
+
+    if (!defenderMilitary.length) {
+      this.occupyUndefended(playerId, targetHexId);
+
+      direct.forEach(u => {
+        u.hexId = targetHexId;
+      });
+
+      const result = {
+        winnerId: playerId,
+        defenderId,
+        targetHexId,
+        unopposed: true
+      };
+
+      this.completeAction('combat', result);
+      return result;
+    }
+
+    const attacker = this.playerMap.get(playerId);
+    const defender = this.playerMap.get(defenderId);
+
+    if (
+      attackerBid < 0 ||
+      attackerBid > Math.min(attacker.maxMilitaryBid, attacker.militaryPower)
+    ) {
       throw new RuleError('Apuesta atacante inválida.');
     }
-    if (defenderBid < 0 || defenderBid > Math.min(defender.maxMilitaryBid, defender.militaryPower)) {
+
+    if (
+      defenderBid < 0 ||
+      defenderBid > Math.min(defender.maxMilitaryBid, defender.militaryPower)
+    ) {
       throw new RuleError('Apuesta defensora inválida.');
     }
 
-    const attackerForce = this.forceFor(playerId, targetHexId, directUnits.map(u => u.id));
-    const defenderForce = this.forceFor(defenderId, targetHexId, null);
-    const attackerTotal = attackerForce + attackerBid;
-    const defenderTotal = defenderForce + defenderBid;
-    const attackerWins = attackerTotal > defenderTotal;
+    const atkParts = this.combatParticipants(
+      playerId,
+      targetHexId,
+      direct.map(u => u.id)
+    );
+
+    const defParts = this.combatParticipants(
+      defenderId,
+      targetHexId,
+      []
+    );
+
+    const atkForce = atkParts.reduce(
+      (n, u) => n + UNIT_TYPES[u.type].force,
+      0
+    );
+
+    const defForce = defParts.reduce(
+      (n, u) => n + UNIT_TYPES[u.type].force,
+      0
+    );
+
+    const atkTotal = atkForce + attackerBid;
+    const defTotal = defForce + defenderBid;
+    const attackerWins = atkTotal > defTotal;
 
     attacker.militaryPower -= attackerBid;
     defender.militaryPower -= defenderBid;
 
-    if (attackerWins) {
-      directUnits.forEach(u => { u.hexId = targetHexId; });
-      this.returnUnitsToTC(defenderId, targetHexId);
-      this.state.buildings = this.state.buildings.filter(
-        b => !(b.ownerId === defenderId && b.hexId === targetHexId)
-      );
-      target.controller = playerId;
+    const loserParts = attackerWins ? defParts : atkParts;
+    const loserId = attackerWins ? defenderId : playerId;
+    const difference = Math.abs(atkTotal - defTotal);
+    const casualtiesNeeded = Math.min(difference, loserParts.length);
 
-      if (!this.state.buildings.some(b => b.ownerId === defenderId && b.type === 'tc')) {
-        this.eliminatePlayer(defenderId);
+    let casualtyIds;
+
+    if (loserCasualtyIds) {
+      const valid = new Set(loserParts.map(u => u.id));
+      casualtyIds = loserCasualtyIds
+        .filter(id => valid.has(id))
+        .slice(0, casualtiesNeeded);
+
+      if (casualtyIds.length !== casualtiesNeeded) {
+        throw new RuleError(
+          `El derrotado debe elegir ${casualtiesNeeded} bajas.`
+        );
       }
     } else {
-      const losingIds = new Set(directUnits.map(u => u.id));
+      casualtyIds = [...loserParts]
+        .sort(
+          (a, b) =>
+            UNIT_TYPES[a.type].force - UNIT_TYPES[b.type].force
+        )
+        .slice(0, casualtiesNeeded)
+        .map(u => u.id);
+    }
+
+    const dead = new Set(casualtyIds);
+
+    this.state.units = this.state.units.filter(
+      u => !dead.has(u.id)
+    );
+
+    const tc = this.playerMap.get(loserId).tcHexId;
+
+    for (const u of this.state.units) {
+      if (
+        u.ownerId === loserId &&
+        loserParts.some(p => p.id === u.id)
+      ) {
+        u.hexId = tc;
+      }
+    }
+
+    if (attackerWins) {
+      for (const u of this.state.units) {
+        if (direct.some(d => d.id === u.id)) {
+          u.hexId = targetHexId;
+        }
+      }
+
       this.state.units.forEach(u => {
-        if (losingIds.has(u.id)) u.hexId = attacker.tcHexId;
+        if (
+          u.hexId === targetHexId &&
+          u.ownerId === defenderId &&
+          UNIT_TYPES[u.type].category !== 'military'
+        ) {
+          u.hexId = defender.tcHexId;
+        }
       });
+
+      this.state.buildings = this.state.buildings.filter(
+        b =>
+          !(
+            b.hexId === targetHexId &&
+            b.ownerId === defenderId
+          )
+      );
+
+      if (
+        target.special === 'tc' &&
+        target.tcOwnerId === defenderId
+      ) {
+        this.eliminatePlayer(defenderId);
+      }
     }
 
     const result = {
       attackerId: playerId,
       defenderId,
       targetHexId,
-      attackerForce,
-      defenderForce,
+      attackerForce: atkForce,
+      defenderForce: defForce,
       attackerBid,
       defenderBid,
-      attackerTotal,
-      defenderTotal,
+      attackerTotal: atkTotal,
+      defenderTotal: defTotal,
+      difference,
+      casualties: casualtyIds,
       winnerId: attackerWins ? playerId : defenderId
     };
 
@@ -459,19 +999,24 @@ export class AoEGame {
     return result;
   }
 
-  returnUnitsToTC(playerId, hexId) {
-    const player = this.playerMap.get(playerId);
-    for (const unit of this.state.units) {
-      if (unit.ownerId === playerId && unit.hexId === hexId) unit.hexId = player.tcHexId;
-    }
-  }
-
   eliminatePlayer(playerId) {
-    const player = this.playerMap.get(playerId);
-    if (!player) return;
-    player.eliminated = true;
+    const p = this.playerMap.get(playerId);
+    if (!p || p.eliminated) return;
+
+    p.eliminated = true;
+
+    this.state.units = this.state.units.filter(
+      u => u.ownerId !== playerId
+    );
+
+    this.state.buildings = this.state.buildings.filter(
+      b => b.ownerId !== playerId
+    );
+
     this.log('player-eliminated', { playerId });
   }
 
-  snapshot() { return clone(this.state); }
+  snapshot() {
+    return clone(this.state);
+  }
 }
