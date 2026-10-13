@@ -35,7 +35,9 @@ jobs:
           node player-mat-engine-v1/simulator/tests/hito1-smoke.mjs
           node player-mat-engine-v1/simulator/tests/civilizations-smoke.mjs
           node player-mat-engine-v1/simulator/tests/combat-advanced-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/special-units-smoke.mjs\n          node player-mat-engine-v1/simulator/tests/conversion-garrison-naval-smoke.mjs\n          node player-mat-engine-v1/simulator/tests/ffa48-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/special-units-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/conversion-garrison-naval-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/ffa48-smoke.mjs
 
       - name: Build playtest data
         shell: bash
