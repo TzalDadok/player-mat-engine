@@ -422,7 +422,11 @@ export function chooseFFAStartAnchor(map,playerId,chosenAnchorIds=[]){
   return candidates[0];
 }
 
-export function autoPlaceFFAPlayerCUs(map,players){
+export function autoPlaceFFAPlayerCUs(
+  map,
+  players,
+  { selectionOrder = null } = {}
+){
   const normalized=(players||[]).map((player,i)=>
     typeof player==='string'
       ? {id:player,order:i}
@@ -433,14 +437,27 @@ export function autoPlaceFFAPlayerCUs(map,players){
     throw new Error('FFA admite 2 a 4 jugadores.');
   }
 
+  const byId=new Map(normalized.map(p=>[p.id,p]));
+  const orderIds=selectionOrder || normalized.map(p=>p.id);
+
+  if(
+    orderIds.length!==normalized.length ||
+    new Set(orderIds).size!==normalized.length ||
+    orderIds.some(id=>!byId.has(id))
+  ){
+    throw new Error('El orden de selección de CU debe contener exactamente una vez a cada jugador.');
+  }
+
   const chosen=[];
   const placements=[];
 
-  for(const player of normalized){
+  for(const playerId of orderIds){
+    const player=byId.get(playerId);
     const choice=chooseFFAStartAnchor(map,player.id,chosen);
     chosen.push(choice.id);
     const cu=placeFFAPlayerCU(map,player.id,choice.id);
     cu.startScore=choice.score;
+    cu.selectionIndex=placements.length+1;
     placements.push(cu);
   }
 
