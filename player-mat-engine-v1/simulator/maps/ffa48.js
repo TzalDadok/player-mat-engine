@@ -165,8 +165,12 @@ export function placeFFAPlayerCU(map, playerId, anchorTerrainId){
 }
 
 export function autoPlaceFFAPlayerCUs(map, playerIds){
-  const perimeter=[...map.perimeterIds];
+  const perimeter=map.perimeterIds.filter(id => {
+    const h = map.hexes.find(x => x.id === id);
+    return h && h.terrain !== 'water';
+  });
   if(playerIds.length<2 || playerIds.length>4) throw new Error('FFA admite 2 a 4 jugadores.');
+  if(perimeter.length < playerIds.length) throw new Error('No hay suficientes posiciones terrestres para los CU.');
 
   const chosen=[];
   const step=perimeter.length/playerIds.length;
