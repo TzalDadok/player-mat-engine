@@ -65,6 +65,16 @@ function landReachable(hexes, fromId, toId){
     'Cada CU del FFA debe tener acceso terrestre inicial.'
   );
 
+  ok(
+    g.state.players.every(p => {
+      const tc = g.hexMap.get(p.tcHexId);
+      const anchor = g.hexMap.get(tc.tcAnchorId);
+      return anchor && !['gold','stone'].includes(anchor.source);
+    }),
+    'La colocación automática debe evitar anclas de Oro/Piedra cuando existen alternativas estables.'
+  );
+
+
   const wonder=g.state.hexes.find(h=>h.special==='wonder');
   ok(
     g.state.players.every(p => {
