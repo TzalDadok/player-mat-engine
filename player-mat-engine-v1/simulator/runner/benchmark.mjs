@@ -220,7 +220,8 @@ export function runBenchmark({
   civs = DEFAULT_CIVS,
   profiles = DEFAULT_PROFILES,
   maxRounds = 400,
-  cuSelectionOrder = null
+  cuSelectionOrder = null,
+  mapPreset = 'ffa36'
 } = {}) {
   const games=[];
 
@@ -235,7 +236,8 @@ export function runBenchmark({
           botSeed:`benchmark:${profile}:${seed}`,
           profile,
           maxRounds,
-          cuSelectionOrder
+          cuSelectionOrder,
+          mapPreset
         });
 
         result.profile=profile;
@@ -261,7 +263,7 @@ export function runBenchmark({
     benchmarkVersion:'hito3-v1',
     revision:process.env.GITHUB_SHA || null,
     generatedAt:new Date().toISOString(),
-    mapPreset:'ffa36',
+    mapPreset,
     seeds:[...seeds],
     profiles:[...profiles],
     civOrderBase:[...civs],
