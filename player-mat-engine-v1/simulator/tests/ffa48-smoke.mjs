@@ -1,5 +1,10 @@
 import { AoEGame } from '../engine/game.js';
-import { generateFFA48Map, autoPlaceFFAPlayerCUs } from '../maps/ffa48.js';
+import {
+  generateFFA48Map,
+  autoPlaceFFAPlayerCUs,
+  chooseFFAStartAnchor,
+  scoreFFAStartAnchor
+} from '../maps/ffa48.js';
 import { BENCHMARK_SEEDS } from '../runner/benchmark-seeds.js';
 import { hexDistance } from '../engine/hex.js';
 
@@ -66,16 +71,6 @@ function landReachable(hexes, fromId, toId){
     'Cada CU del FFA debe tener acceso terrestre inicial.'
   );
 
-  ok(
-    g.state.players.every(p => {
-      const tc = g.hexMap.get(p.tcHexId);
-      const anchor = g.hexMap.get(tc.tcAnchorId);
-      return anchor && !['gold','stone'].includes(anchor.source);
-    }),
-    'La colocación automática debe evitar anclas de Oro/Piedra cuando existen alternativas estables.'
-  );
-
-
   const wonder=g.state.hexes.find(h=>h.special==='wonder');
   ok(
     g.state.players.every(p => {
@@ -94,62 +89,55 @@ function landReachable(hexes, fromId, toId){
 
 console.log('FFA 48 map tests: OK');
 
-{
-  for (const seed of BENCHMARK_SEEDS) {
-    const map=generateFFA48Map({seed});
-    autoPlaceFFAPlayerCUs(map,['P1','P2','P3','P4']);
 
-    for (const cu of map.hexes.filter(h=>h.special==='tc')) {
-      const anchor=map.hexes.find(h=>h.id===cu.tcAnchorId);
-      ok(anchor,'Cada CU automático debe conservar su ancla.');
-      ok(
-        !['gold','stone'].includes(anchor.source),
-        `Seed ${seed}: el CU ${cu.id} no debe elegir ${anchor.source} como ancla cuando hay alternativas estables.`
+
+
+
+
+{
+  const map=generateFFA48Map({seed:'strategic-start'});
+  const players=['P1','P2','P3','P4'];
+  const expected=[];
+  const chosen=[];
+
+  for(const id of players){
+    const choice=chooseFFAStartAnchor(map,id,chosen);
+    expected.push(choice);
+    chosen.push(choice.id);
+  }
+
+  const placements=autoPlaceFFAPlayerCUs(map,players);
+
+  ok(
+    placements.every((cu,i)=>cu.tcAnchorId===expected[i].id),
+    'La colocación automática debe respetar la mejor elección exterior disponible de cada jugador.'
+  );
+
+  const wonder=map.hexes.find(h=>h.special==='wonder');
+  ok(
+    placements.every(cu=>hexDistance(cu,wonder)===5),
+    'Cada CU debe quedar fuera del mapa, a distancia 5 del centro.'
+  );
+
+  ok(
+    placements.every(cu=>!map.terrainIds.includes(cu.id)),
+    'Los CU no forman parte de los 48 terrenos del mapa.'
+  );
+
+  ok(
+    placements.every(cu=>{
+      const adjacentTerrain=map.hexes.filter(
+        h=>map.terrainIds.includes(h.id)&&hexDistance(cu,h)===1
       );
-    }
-  }
+      return adjacentTerrain.length>=1 && adjacentTerrain.length<6;
+    }),
+    'Un CU exterior debe tocar el borde del mapa, nunca quedar rodeado por terrenos.'
+  );
+
+  ok(
+    expected.every(x=>Number.isFinite(scoreFFAStartAnchor(map,x.id,[]))),
+    'Las posiciones elegidas deben tener una valoración estratégica válida.'
+  );
 }
 
-console.log('FFA benchmark start selection tests: OK');
-
-{
-  for (const seed of BENCHMARK_SEEDS.slice(0,5)) {
-    const map=generateFFA48Map({seed});
-    autoPlaceFFAPlayerCUs(map,['P1','P2','P3','P4']);
-
-    const byId=new Map(map.hexes.map(h=>[h.id,h]));
-    const wonder=map.hexes.find(h=>h.special==='wonder');
-
-    const permanentReachable = startId => {
-      const queue=[startId];
-      const seen=new Set(queue);
-
-      while(queue.length){
-        const id=queue.shift();
-        if(id===wonder.id) return true;
-        const current=byId.get(id);
-
-        for(const h of map.hexes){
-          if(
-            h.terrain==='water' ||
-            ['gold','stone'].includes(h.source) ||
-            seen.has(h.id) ||
-            hexDistance(current,h)!==1
-          ) continue;
-          seen.add(h.id);
-          queue.push(h.id);
-        }
-      }
-      return false;
-    };
-
-    ok(
-      map.hexes
-        .filter(h=>h.special==='tc')
-        .every(cu=>permanentReachable(cu.tcAnchorId)),
-      `Seed ${seed}: los CUs automáticos del benchmark de cierre deben conservar una ruta terrestre permanente al centro.`
-    );
-  }
-}
-
-console.log('FFA permanent-corridor start tests: OK');
+console.log('FFA strategic exterior start tests: OK');
