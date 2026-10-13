@@ -83,7 +83,8 @@ export class AoEGame {
     players,
     seed = 'aevum-ffa',
     cuSelectionOrder = null,
-    mapPreset = 'ffa36'
+    mapPreset = 'ffa36',
+    requireTwoAdjacentLand = false
   } = {}) {
     if (!Array.isArray(players) || players.length < 2 || players.length > 4) {
       throw new RuleError('FFA requiere entre 2 y 4 jugadores.');
@@ -99,7 +100,7 @@ export class AoEGame {
     const placements = autoPlaceFFAPlayerCUs(
       map,
       normalizedPlayers,
-      { selectionOrder: cuSelectionOrder }
+      { selectionOrder: cuSelectionOrder, minAdjacentLand:requireTwoAdjacentLand?2:0 }
     );
 
     const game = AoEGame.create({
