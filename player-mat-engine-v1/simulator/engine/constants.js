@@ -7,8 +7,8 @@ export const MAX_MILITARY_BID = 7;
 
 export const UNIT_TYPES = {
   villager: { name: 'Aldeano', category: 'economic', force: 0, range: 0, move: 1, carry: 2 },
-  fishingBoat: { name: 'Pesquero', category: 'economic', force: 0, range: 0, move: 1, carry: 0, water: true },
-  transportShip: { name: 'Barco de Transporte', category: 'economic', force: 0, range: 0, move: 2, carry: 6, water: true },
+  fishingBoat: { name: 'Pesquero', category: 'economic', force: 0, range: 0, move: 1, carry: 0, water: true, tags: ['ship'] },
+  transportShip: { name: 'Barco de Transporte', category: 'economic', force: 0, range: 0, move: 2, carry: 6, water: true, tags: ['ship'] },
 
   militia: { name: 'Milicia', category: 'military', force: 2, range: 0, move: 1, tags: ['infantry','foot'] },
   archer: { name: 'Arquero', category: 'military', force: 1, range: 1, move: 1, tags: ['ranged','foot'] },
