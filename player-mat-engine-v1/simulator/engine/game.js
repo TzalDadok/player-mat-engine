@@ -541,7 +541,20 @@ export class AoEGame {
       let amount = 0;
       let primary = false;
 
-      if (sel.mode === 'coast') {
+      if (hex.terrain === 'water') {
+        const fishingBoats = this.state.units.filter(
+          u => u.ownerId === playerId && u.hexId === hex.id && u.type === 'fishingBoat' && !u.embarkedIn
+        ).length;
+        if (!fishingBoats) throw new RuleError('El Agua requiere al menos un Pesquero para producir.');
+
+        type = 'food';
+        let perBoat = 1;
+        for (const effect of this.activeEffects(playerId)) {
+          const m = effect.match(/^fishingBoatProduction:([+-]?\d+)$/);
+          if (m) perBoat += Number(m[1]);
+        }
+        amount = fishingBoats * perBoat;
+      } else if (sel.mode === 'coast') {
         const touchesWater = physicalNeighbors(this.state.hexes, hex.id).some(h => h.terrain === 'water');
         if (!touchesWater || hex.terrain === 'water') {
           throw new RuleError('La pesca costera requiere terreno terrestre adyacente a Agua.');
@@ -623,7 +636,52 @@ export class AoEGame {
       if (amount <= 0) throw new RuleError(`No hay productores elegibles en ${hex.id}.`);
 
       this.addResourceTokens(hex.id, { [type]: amount });
-      results.push({ hexId: hex.id, resourceType: type, amount, mode: sel.mode });
+      const result = { hexId: hex.id, resourceType: type, amount, mode: sel.mode };
+
+      if (
+        sel.sendToTC &&
+        ['gold','stone'].includes(type) &&
+        this.hasEffect(playerId, 'tributeProduction:1')
+      ) {
+        const token = hex.looseResources.find(r => r.type === type);
+        const tc = this.hexMap.get(player.tcHexId);
+        if (token && tc) {
+          hex.looseResources = hex.looseResources.filter(r => r.id !== token.id);
+          tc.looseResources.push(token);
+          result.sentToTC = 1;
+        }
+      }
+
+      if (amount > 1) {
+        const neighbors = physicalNeighbors(this.state.hexes, hex.id);
+        for (const rival of this.state.players) {
+          if (
+            rival.id === playerId ||
+            rival.eliminated ||
+            !this.hasEffect(rival.id, 'productionRaid:1')
+          ) continue;
+
+          const raider = this.state.units.find(
+            u =>
+              u.ownerId === rival.id &&
+              u.type === 'villager' &&
+              neighbors.some(n => n.id === u.hexId)
+          );
+          if (!raider) continue;
+
+          const token = hex.looseResources.find(r => r.type === type);
+          const raidHex = this.hexMap.get(raider.hexId);
+          if (token && raidHex) {
+            hex.looseResources = hex.looseResources.filter(r => r.id !== token.id);
+            raidHex.looseResources.push(token);
+            result.raidedBy = rival.id;
+            result.raidedAmount = 1;
+          }
+          break;
+        }
+      }
+
+      results.push(result);
 
       if (primary) {
         const hist = hex.productionHistory[playerId] || { lastRound: null };
