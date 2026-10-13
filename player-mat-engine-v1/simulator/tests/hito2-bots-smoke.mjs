@@ -1,5 +1,7 @@
 import { runFFAGame } from '../runner/simulate.js';
 import { runBatch } from '../runner/batch.mjs';
+import { runBenchmark } from '../runner/benchmark.mjs';
+import { getBotProfile } from '../bots/profiles.js';
 
 function ok(v,m){ if(!v) throw new Error(m); }
 
@@ -15,6 +17,7 @@ function ok(v,m){ if(!v) throw new Error(m); }
   ok(r.players.length===2,'Debe conservar dos jugadores.');
   ok(r.actions>0,'Los bots deben realizar acciones.');
   ok(r.players.every(p=>p.bot.successfulActions>0),'Cada bot debe ejecutar acciones válidas.');
+  ok(r.players.every(p=>p.milestones),'Cada jugador debe exponer hitos de balance.');
 }
 
 {
@@ -54,3 +57,24 @@ function ok(v,m){ if(!v) throw new Error(m); }
 }
 
 console.log('Hito 2 bot runner tests: OK');
+
+{
+  const aggressive=getBotProfile('aggressive');
+  const technological=getBotProfile('technological');
+  ok(aggressive.aggression > technological.aggression,'Los perfiles deben producir estilos realmente distintos.');
+
+  const benchmark=runBenchmark({
+    seeds:['hito2-benchmark'],
+    profiles:['balanced','aggressive'],
+    maxRounds:30
+  });
+
+  ok(benchmark.games===8,'1 mapa × 4 asientos × 2 perfiles debe producir 8 partidas.');
+  ok(Object.keys(benchmark.byProfile).length===2,'Debe resumir cada perfil por separado.');
+  ok(
+    Object.values(benchmark.civs).every(c=>c.appearances===8),
+    'Cada civilización debe aparecer la misma cantidad de veces.'
+  );
+}
+
+console.log('Hito 2 benchmark/profile tests: OK');
