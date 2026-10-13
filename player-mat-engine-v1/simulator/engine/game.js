@@ -882,12 +882,12 @@ export class AoEGame {
     for (const u of this.state.units) {
       if (
         u.ownerId !== playerId ||
-        UNIT_TYPES[u.type].category !== 'military'
+        !this.isCombatParticipant(playerId, u)
       ) {
         continue;
       }
 
-      const spec = UNIT_TYPES[u.type];
+      const spec = this.effectiveUnitSpec(playerId, u.type);
 
       if (
         ids.has(u.id) ||
@@ -930,7 +930,7 @@ export class AoEGame {
         u =>
           !u ||
           u.ownerId !== playerId ||
-          UNIT_TYPES[u.type].category !== 'military'
+          !this.isCombatParticipant(playerId, u)
       )
     ) {
       throw new RuleError('Ataque inválido.');
@@ -941,7 +941,7 @@ export class AoEGame {
     }
 
     for (const u of direct) {
-      const spec = UNIT_TYPES[u.type];
+      const spec = this.effectiveUnitSpec(playerId, u.type);
 
       const path = shortestMovementPath(
         this.state.hexes,
@@ -962,7 +962,7 @@ export class AoEGame {
       u =>
         u.hexId === targetHexId &&
         u.ownerId !== playerId &&
-        UNIT_TYPES[u.type].category === 'military'
+        this.isCombatParticipant(u.ownerId, u)
     );
 
     const defenderId =
@@ -1026,12 +1026,12 @@ export class AoEGame {
     );
 
     const atkForce = atkParts.reduce(
-      (n, u) => n + UNIT_TYPES[u.type].force,
+      (n, u) => n + this.effectiveUnitSpec(playerId, u.type).force,
       0
     );
 
     const defForce = defParts.reduce(
-      (n, u) => n + UNIT_TYPES[u.type].force,
+      (n, u) => n + this.effectiveUnitSpec(defenderId, u.type).force,
       0
     );
 
@@ -1064,7 +1064,7 @@ export class AoEGame {
       casualtyIds = [...loserParts]
         .sort(
           (a, b) =>
-            UNIT_TYPES[a.type].force - UNIT_TYPES[b.type].force
+            this.effectiveUnitSpec(loserId, a.type).force - this.effectiveUnitSpec(loserId, b.type).force
         )
         .slice(0, casualtiesNeeded)
         .map(u => u.id);
