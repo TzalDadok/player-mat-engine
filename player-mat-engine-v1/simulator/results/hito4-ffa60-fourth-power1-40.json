@@ -1,0 +1,2212 @@
+{
+  "experiment": "FFA60 adjacent-only start, fourth CU selector receives 1 PM",
+  "mapPreset": "ffa60",
+  "seeds": [
+    "bench-001",
+    "bench-002",
+    "bench-003",
+    "bench-004",
+    "bench-005",
+    "bench-006",
+    "bench-007",
+    "bench-008",
+    "bench-009",
+    "bench-010",
+    "bench-011",
+    "bench-012",
+    "bench-013",
+    "bench-014",
+    "bench-015",
+    "bench-016",
+    "bench-017",
+    "bench-018",
+    "bench-019",
+    "bench-020",
+    "bench-021",
+    "bench-022",
+    "bench-023",
+    "bench-024",
+    "bench-025",
+    "bench-026",
+    "bench-027",
+    "bench-028",
+    "bench-029",
+    "bench-030",
+    "bench-031",
+    "bench-032",
+    "bench-033",
+    "bench-034",
+    "bench-035",
+    "bench-036",
+    "bench-037",
+    "bench-038",
+    "bench-039",
+    "bench-040"
+  ],
+  "setup": [
+    {
+      "villagers": 1,
+      "militaryPower": 1,
+      "adjacentOnly": true
+    },
+    {
+      "villagers": 1,
+      "militaryPower": 1,
+      "adjacentOnly": true
+    },
+    {
+      "villagers": 2,
+      "militaryPower": 0,
+      "adjacentOnly": true
+    },
+    {
+      "villagers": 2,
+      "militaryPower": 1,
+      "adjacentOnly": true
+    }
+  ],
+  "profiles": [
+    "balanced",
+    "aggressive",
+    "economic",
+    "technological"
+  ],
+  "startingPositions": "Require two adjacent land hexes for both variants",
+  "notes": "40 seeds, four bot profiles, four civ rotations, four balanced CU order rotations; same CU legality as experiment H; priority 3 +1 military power and priority 4 0",
+  "variants": {
+    "staggered": {
+      "games": 2560,
+      "completed": 2560,
+      "incomplete": [],
+      "completionRate": 1,
+      "statuses": {
+        "completed": 2560
+      },
+      "avgRoundsCompleted": 33.811328125,
+      "avgRoundsAll": 33.811328125,
+      "civs": {
+        "britanicos": {
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 659,
+          "losses": 1901,
+          "winRate": 0.257421875,
+          "winRateCI95": {
+            "low": 0.2408576939890754,
+            "high": 0.27471297605879486
+          },
+          "avgMilitaryTrained": 1.0296875,
+          "avgVillagersTrained": 2.087890625,
+          "avgTechnologies": 0.6703125,
+          "avgFirstBarracks": 17.494551115723922,
+          "avgFirstMilitary": 21.96875,
+          "avgFirstCombat": 30.202898550724637,
+          "avgFeudal": 36.6,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 44.420468750000296,
+          "avgCombats": 0.55625,
+          "avgCombatWins": 0.280859375,
+          "avgAttacks": 0.270703125,
+          "avgAttackWins": 0.225,
+          "avgEliminatedRound": 26.639137296159916,
+          "avgProduced": 15.1484375,
+          "avgSpent": 9.45078125,
+          "avgFoodProduced": 7.033203125,
+          "avgWoodProduced": 2.46484375,
+          "avgStoneProduced": 3.21015625,
+          "avgGoldProduced": 2.440234375
+        },
+        "francos": {
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 598,
+          "losses": 1962,
+          "winRate": 0.23359375,
+          "winRateCI95": {
+            "low": 0.21760998206865056,
+            "high": 0.25037584236395405
+          },
+          "avgMilitaryTrained": 1.014453125,
+          "avgVillagersTrained": 2.06328125,
+          "avgTechnologies": 0.399609375,
+          "avgFirstBarracks": 17.498695878977568,
+          "avgFirstMilitary": 21.782312925170068,
+          "avgFirstCombat": 29.864157119476268,
+          "avgFeudal": 32.84615384615385,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 44.420468750000296,
+          "avgCombats": 0.4171875,
+          "avgCombatWins": 0.248046875,
+          "avgAttacks": 0.2703125,
+          "avgAttackWins": 0.2171875,
+          "avgEliminatedRound": 26.632008154943936,
+          "avgProduced": 14.773046875,
+          "avgSpent": 8.81484375,
+          "avgFoodProduced": 6.636328125,
+          "avgWoodProduced": 2.433203125,
+          "avgStoneProduced": 3.218359375,
+          "avgGoldProduced": 2.48515625
+        },
+        "vikingos": {
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 656,
+          "losses": 1904,
+          "winRate": 0.25625,
+          "winRateCI95": {
+            "low": 0.2397127783711358,
+            "high": 0.2735176533677869
+          },
+          "avgMilitaryTrained": 1.216015625,
+          "avgVillagersTrained": 2.089453125,
+          "avgTechnologies": 0.371875,
+          "avgFirstBarracks": 17.468274777136862,
+          "avgFirstMilitary": 21.88622291021672,
+          "avgFirstCombat": 30.053072625698324,
+          "avgFeudal": 33.3448275862069,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 44.420468750000296,
+          "avgCombats": 0.61171875,
+          "avgCombatWins": 0.2875,
+          "avgAttacks": 0.280078125,
+          "avgAttackWins": 0.226171875,
+          "avgEliminatedRound": 26.54674369747899,
+          "avgProduced": 15.086328125,
+          "avgSpent": 9.1953125,
+          "avgFoodProduced": 6.94921875,
+          "avgWoodProduced": 2.442578125,
+          "avgStoneProduced": 3.221484375,
+          "avgGoldProduced": 2.473046875
+        },
+        "persas": {
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 647,
+          "losses": 1913,
+          "winRate": 0.252734375,
+          "winRateCI95": {
+            "low": 0.23627899064410252,
+            "high": 0.26993072616797775
+          },
+          "avgMilitaryTrained": 1.249609375,
+          "avgVillagersTrained": 2.09375,
+          "avgTechnologies": 0.362109375,
+          "avgFirstBarracks": 17.489405684754523,
+          "avgFirstMilitary": 21.795558958652375,
+          "avgFirstCombat": 30.358229598893498,
+          "avgFeudal": 34.86538461538461,
+          "avgCastles": null,
+          "avgImperial": null,
+          "avgStartScore": 44.420468750000296,
+          "avgCombats": 0.5890625,
+          "avgCombatWins": 0.270703125,
+          "avgAttacks": 0.266015625,
+          "avgAttackWins": 0.209765625,
+          "avgEliminatedRound": 26.738630423418716,
+          "avgProduced": 15.11640625,
+          "avgSpent": 9.272265625,
+          "avgFoodProduced": 6.994140625,
+          "avgWoodProduced": 2.439453125,
+          "avgStoneProduced": 3.2234375,
+          "avgGoldProduced": 2.459375
+        }
+      },
+      "seatWins": [
+        649,
+        667,
+        628,
+        616
+      ],
+      "seatSummary": [
+        {
+          "seat": 1,
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 649,
+          "losses": 1911,
+          "winRate": 0.253515625,
+          "winRateCI95": {
+            "low": 0.2370419296258096,
+            "high": 0.2707279460589024
+          },
+          "avgStartScore": 44.420468750000296
+        },
+        {
+          "seat": 2,
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 667,
+          "losses": 1893,
+          "winRate": 0.260546875,
+          "winRateCI95": {
+            "low": 0.24391157608326805,
+            "high": 0.27789972945512875
+          },
+          "avgStartScore": 44.420468750000296
+        },
+        {
+          "seat": 3,
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 628,
+          "losses": 1932,
+          "winRate": 0.2453125,
+          "winRateCI95": {
+            "low": 0.22903468322864037,
+            "high": 0.26235352429343906
+          },
+          "avgStartScore": 44.420468750000296
+        },
+        {
+          "seat": 4,
+          "appearances": 2560,
+          "completedAppearances": 2560,
+          "incompleteAppearances": 0,
+          "wins": 616,
+          "losses": 1944,
+          "winRate": 0.240625,
+          "winRateCI95": {
+            "low": 0.22446275874484273,
+            "high": 0.25756449554144684
+          },
+          "avgStartScore": 44.420468750000296
+        }
+      ],
+      "seatCivSummary": [
+        {
+          "britanicos": {
+            "seat": 1,
+            "civ": "britanicos",
+            "completedAppearances": 640,
+            "wins": 169,
+            "winRate": 0.2640625
+          },
+          "francos": {
+            "seat": 1,
+            "civ": "francos",
+            "completedAppearances": 640,
+            "wins": 156,
+            "winRate": 0.24375
+          },
+          "vikingos": {
+            "seat": 1,
+            "civ": "vikingos",
+            "completedAppearances": 640,
+            "wins": 163,
+            "winRate": 0.2546875
+          },
+          "persas": {
+            "seat": 1,
+            "civ": "persas",
+            "completedAppearances": 640,
+            "wins": 161,
+            "winRate": 0.2515625
+          }
+        },
+        {
+          "britanicos": {
+            "seat": 2,
+            "civ": "britanicos",
+            "completedAppearances": 640,
+            "wins": 172,
+            "winRate": 0.26875
+          },
+          "francos": {
+            "seat": 2,
+            "civ": "francos",
+            "completedAppearances": 640,
+            "wins": 150,
+            "winRate": 0.234375
+          },
+          "vikingos": {
+            "seat": 2,
+            "civ": "vikingos",
+            "completedAppearances": 640,
+            "wins": 177,
+            "winRate": 0.2765625
+          },
+          "persas": {
+            "seat": 2,
+            "civ": "persas",
+            "completedAppearances": 640,
+            "wins": 168,
+            "winRate": 0.2625
+          }
+        },
+        {
+          "britanicos": {
+            "seat": 3,
+            "civ": "britanicos",
+            "completedAppearances": 640,
+            "wins": 166,
+            "winRate": 0.259375
+          },
+          "francos": {
+            "seat": 3,
+            "civ": "francos",
+            "completedAppearances": 640,
+            "wins": 149,
+            "winRate": 0.2328125
+          },
+          "vikingos": {
+            "seat": 3,
+            "civ": "vikingos",
+            "completedAppearances": 640,
+            "wins": 158,
+            "winRate": 0.246875
+          },
+          "persas": {
+            "seat": 3,
+            "civ": "persas",
+            "completedAppearances": 640,
+            "wins": 155,
+            "winRate": 0.2421875
+          }
+        },
+        {
+          "britanicos": {
+            "seat": 4,
+            "civ": "britanicos",
+            "completedAppearances": 640,
+            "wins": 152,
+            "winRate": 0.2375
+          },
+          "francos": {
+            "seat": 4,
+            "civ": "francos",
+            "completedAppearances": 640,
+            "wins": 143,
+            "winRate": 0.2234375
+          },
+          "vikingos": {
+            "seat": 4,
+            "civ": "vikingos",
+            "completedAppearances": 640,
+            "wins": 158,
+            "winRate": 0.246875
+          },
+          "persas": {
+            "seat": 4,
+            "civ": "persas",
+            "completedAppearances": 640,
+            "wins": 163,
+            "winRate": 0.2546875
+          }
+        }
+      ],
+      "priority": [
+        {
+          "index": 1,
+          "appearances": 2560,
+          "wins": 629,
+          "scores": [],
+          "winRate": 0.245703125,
+          "ci95": {
+            "low": 0.22941579786726088,
+            "high": 0.26275248909113447
+          },
+          "meanScore": null
+        },
+        {
+          "index": 2,
+          "appearances": 2560,
+          "wins": 692,
+          "scores": [],
+          "winRate": 0.2703125,
+          "ci95": {
+            "low": 0.2534620871528224,
+            "high": 0.28785120429347016
+          },
+          "meanScore": null
+        },
+        {
+          "index": 3,
+          "appearances": 2560,
+          "wins": 631,
+          "scores": [],
+          "winRate": 0.246484375,
+          "ci95": {
+            "low": 0.2301780825089584,
+            "high": 0.2635503633220686
+          },
+          "meanScore": null
+        },
+        {
+          "index": 4,
+          "appearances": 2560,
+          "wins": 608,
+          "scores": [],
+          "winRate": 0.2375,
+          "ci95": {
+            "low": 0.22141631470002227,
+            "high": 0.25437030409574063
+          },
+          "meanScore": null
+        }
+      ],
+      "seat": [
+        {
+          "index": 1,
+          "appearances": 2560,
+          "wins": 649,
+          "scores": [],
+          "winRate": 0.253515625,
+          "ci95": {
+            "low": 0.2370419296258096,
+            "high": 0.2707279460589024
+          },
+          "meanScore": null
+        },
+        {
+          "index": 2,
+          "appearances": 2560,
+          "wins": 667,
+          "scores": [],
+          "winRate": 0.260546875,
+          "ci95": {
+            "low": 0.24391157608326805,
+            "high": 0.27789972945512875
+          },
+          "meanScore": null
+        },
+        {
+          "index": 3,
+          "appearances": 2560,
+          "wins": 628,
+          "scores": [],
+          "winRate": 0.2453125,
+          "ci95": {
+            "low": 0.22903468322864037,
+            "high": 0.26235352429343906
+          },
+          "meanScore": null
+        },
+        {
+          "index": 4,
+          "appearances": 2560,
+          "wins": 616,
+          "scores": [],
+          "winRate": 0.240625,
+          "ci95": {
+            "low": 0.22446275874484273,
+            "high": 0.25756449554144684
+          },
+          "meanScore": null
+        }
+      ],
+      "seatPriority": [
+        [
+          {
+            "index": 1,
+            "appearances": 640,
+            "wins": 154,
+            "winRate": 0.240625,
+            "ci95": {
+              "low": 0.20911782092909167,
+              "high": 0.2752272838299046
+            },
+            "meanScore": 51.55874999999993
+          },
+          {
+            "index": 2,
+            "appearances": 640,
+            "wins": 176,
+            "winRate": 0.275,
+            "ci95": {
+              "low": 0.24182627706048215,
+              "high": 0.31085863309190015
+            },
+            "meanScore": 46.18624999999988
+          },
+          {
+            "index": 3,
+            "appearances": 640,
+            "wins": 166,
+            "winRate": 0.259375,
+            "ci95": {
+              "low": 0.22692532792514902,
+              "high": 0.2946960343211487
+            },
+            "meanScore": 41.99874999999996
+          },
+          {
+            "index": 4,
+            "appearances": 640,
+            "wins": 153,
+            "winRate": 0.2390625,
+            "ci95": {
+              "low": 0.20763765967325473,
+              "high": 0.2736010902951331
+            },
+            "meanScore": 37.93812500000003
+          }
+        ],
+        [
+          {
+            "index": 1,
+            "appearances": 640,
+            "wins": 169,
+            "winRate": 0.2640625,
+            "ci95": {
+              "low": 0.2313899250293634,
+              "high": 0.2995505015887596
+            },
+            "meanScore": 51.55874999999993
+          },
+          {
+            "index": 2,
+            "appearances": 640,
+            "wins": 172,
+            "winRate": 0.26875,
+            "ci95": {
+              "low": 0.23585943322266423,
+              "high": 0.3044000577672842
+            },
+            "meanScore": 46.18624999999988
+          },
+          {
+            "index": 3,
+            "appearances": 640,
+            "wins": 173,
+            "winRate": 0.2703125,
+            "ci95": {
+              "low": 0.23735034648519499,
+              "high": 0.3060154992953619
+            },
+            "meanScore": 41.99874999999996
+          },
+          {
+            "index": 4,
+            "appearances": 640,
+            "wins": 153,
+            "winRate": 0.2390625,
+            "ci95": {
+              "low": 0.20763765967325473,
+              "high": 0.2736010902951331
+            },
+            "meanScore": 37.93812500000003
+          }
+        ],
+        [
+          {
+            "index": 1,
+            "appearances": 640,
+            "wins": 153,
+            "winRate": 0.2390625,
+            "ci95": {
+              "low": 0.20763765967325473,
+              "high": 0.2736010902951331
+            },
+            "meanScore": 51.55874999999993
+          },
+          {
+            "index": 2,
+            "appearances": 640,
+            "wins": 175,
+            "winRate": 0.2734375,
+            "ci95": {
+              "low": 0.24033377125018512,
+              "high": 0.3092447841115887
+            },
+            "meanScore": 46.18624999999988
+          },
+          {
+            "index": 3,
+            "appearances": 640,
+            "wins": 148,
+            "winRate": 0.23125,
+            "ci95": {
+              "low": 0.2002459655158884,
+              "high": 0.26546101049945714
+            },
+            "meanScore": 41.99874999999996
+          },
+          {
+            "index": 4,
+            "appearances": 640,
+            "wins": 152,
+            "winRate": 0.2375,
+            "ci95": {
+              "low": 0.20615810042227378,
+              "high": 0.27197429475550555
+            },
+            "meanScore": 37.93812500000003
+          }
+        ],
+        [
+          {
+            "index": 1,
+            "appearances": 640,
+            "wins": 153,
+            "winRate": 0.2390625,
+            "ci95": {
+              "low": 0.20763765967325473,
+              "high": 0.2736010902951331
+            },
+            "meanScore": 51.55874999999993
+          },
+          {
+            "index": 2,
+            "appearances": 640,
+            "wins": 169,
+            "winRate": 0.2640625,
+            "ci95": {
+              "low": 0.2313899250293634,
+              "high": 0.2995505015887596
+            },
+            "meanScore": 46.18624999999988
+          },
+          {
+            "index": 3,
+            "appearances": 640,
+            "wins": 144,
+            "winRate": 0.225,
+            "ci95": {
+              "low": 0.19434379965300258,
+              "high": 0.25893775719990914
+            },
+            "meanScore": 41.99874999999996
+          },
+          {
+            "index": 4,
+            "appearances": 640,
+            "wins": 150,
+            "winRate": 0.234375,
+            "ci95": {
+              "low": 0.20320080420241668,
+              "high": 0.2687188813941458
+            },
+            "meanScore": 37.93812500000003
+          }
+        ]
+      ],
+      "perSeed": [
+        {
+          "seed": "bench-001",
+          "games": 64,
+          "priorityWins": [
+            0,
+            29,
+            7,
+            28
+          ],
+          "seatWins": [
+            9,
+            18,
+            16,
+            21
+          ]
+        },
+        {
+          "seed": "bench-002",
+          "games": 64,
+          "priorityWins": [
+            0,
+            19,
+            24,
+            21
+          ],
+          "seatWins": [
+            16,
+            12,
+            15,
+            21
+          ]
+        },
+        {
+          "seed": "bench-003",
+          "games": 64,
+          "priorityWins": [
+            0,
+            4,
+            2,
+            58
+          ],
+          "seatWins": [
+            18,
+            17,
+            14,
+            15
+          ]
+        },
+        {
+          "seed": "bench-004",
+          "games": 64,
+          "priorityWins": [
+            12,
+            7,
+            14,
+            31
+          ],
+          "seatWins": [
+            19,
+            25,
+            8,
+            12
+          ]
+        },
+        {
+          "seed": "bench-005",
+          "games": 64,
+          "priorityWins": [
+            25,
+            26,
+            6,
+            7
+          ],
+          "seatWins": [
+            21,
+            18,
+            6,
+            19
+          ]
+        },
+        {
+          "seed": "bench-006",
+          "games": 64,
+          "priorityWins": [
+            0,
+            7,
+            0,
+            57
+          ],
+          "seatWins": [
+            17,
+            20,
+            12,
+            15
+          ]
+        },
+        {
+          "seed": "bench-007",
+          "games": 64,
+          "priorityWins": [
+            26,
+            0,
+            34,
+            4
+          ],
+          "seatWins": [
+            16,
+            16,
+            17,
+            15
+          ]
+        },
+        {
+          "seed": "bench-008",
+          "games": 64,
+          "priorityWins": [
+            31,
+            22,
+            6,
+            5
+          ],
+          "seatWins": [
+            17,
+            17,
+            17,
+            13
+          ]
+        },
+        {
+          "seed": "bench-009",
+          "games": 64,
+          "priorityWins": [
+            19,
+            30,
+            15,
+            0
+          ],
+          "seatWins": [
+            18,
+            14,
+            12,
+            20
+          ]
+        },
+        {
+          "seed": "bench-010",
+          "games": 64,
+          "priorityWins": [
+            6,
+            0,
+            58,
+            0
+          ],
+          "seatWins": [
+            16,
+            20,
+            16,
+            12
+          ]
+        },
+        {
+          "seed": "bench-011",
+          "games": 64,
+          "priorityWins": [
+            11,
+            16,
+            3,
+            34
+          ],
+          "seatWins": [
+            22,
+            15,
+            15,
+            12
+          ]
+        },
+        {
+          "seed": "bench-012",
+          "games": 64,
+          "priorityWins": [
+            7,
+            0,
+            53,
+            4
+          ],
+          "seatWins": [
+            18,
+            18,
+            12,
+            16
+          ]
+        },
+        {
+          "seed": "bench-013",
+          "games": 64,
+          "priorityWins": [
+            0,
+            0,
+            10,
+            54
+          ],
+          "seatWins": [
+            15,
+            13,
+            20,
+            16
+          ]
+        },
+        {
+          "seed": "bench-014",
+          "games": 64,
+          "priorityWins": [
+            1,
+            18,
+            8,
+            37
+          ],
+          "seatWins": [
+            18,
+            20,
+            16,
+            10
+          ]
+        },
+        {
+          "seed": "bench-015",
+          "games": 64,
+          "priorityWins": [
+            29,
+            21,
+            4,
+            10
+          ],
+          "seatWins": [
+            14,
+            17,
+            16,
+            17
+          ]
+        },
+        {
+          "seed": "bench-016",
+          "games": 64,
+          "priorityWins": [
+            4,
+            0,
+            23,
+            37
+          ],
+          "seatWins": [
+            23,
+            17,
+            14,
+            10
+          ]
+        },
+        {
+          "seed": "bench-017",
+          "games": 64,
+          "priorityWins": [
+            24,
+            32,
+            7,
+            1
+          ],
+          "seatWins": [
+            20,
+            17,
+            13,
+            14
+          ]
+        },
+        {
+          "seed": "bench-018",
+          "games": 64,
+          "priorityWins": [
+            0,
+            62,
+            0,
+            2
+          ],
+          "seatWins": [
+            15,
+            15,
+            18,
+            16
+          ]
+        },
+        {
+          "seed": "bench-019",
+          "games": 64,
+          "priorityWins": [
+            57,
+            2,
+            5,
+            0
+          ],
+          "seatWins": [
+            16,
+            15,
+            17,
+            16
+          ]
+        },
+        {
+          "seed": "bench-020",
+          "games": 64,
+          "priorityWins": [
+            35,
+            12,
+            0,
+            17
+          ],
+          "seatWins": [
+            11,
+            17,
+            21,
+            15
+          ]
+        },
+        {
+          "seed": "bench-021",
+          "games": 64,
+          "priorityWins": [
+            7,
+            0,
+            56,
+            1
+          ],
+          "seatWins": [
+            13,
+            20,
+            16,
+            15
+          ]
+        },
+        {
+          "seed": "bench-022",
+          "games": 64,
+          "priorityWins": [
+            7,
+            21,
+            36,
+            0
+          ],
+          "seatWins": [
+            24,
+            20,
+            11,
+            9
+          ]
+        },
+        {
+          "seed": "bench-023",
+          "games": 64,
+          "priorityWins": [
+            18,
+            27,
+            0,
+            19
+          ],
+          "seatWins": [
+            11,
+            17,
+            16,
+            20
+          ]
+        },
+        {
+          "seed": "bench-024",
+          "games": 64,
+          "priorityWins": [
+            9,
+            24,
+            29,
+            2
+          ],
+          "seatWins": [
+            22,
+            8,
+            14,
+            20
+          ]
+        },
+        {
+          "seed": "bench-025",
+          "games": 64,
+          "priorityWins": [
+            0,
+            11,
+            0,
+            53
+          ],
+          "seatWins": [
+            20,
+            15,
+            18,
+            11
+          ]
+        },
+        {
+          "seed": "bench-026",
+          "games": 64,
+          "priorityWins": [
+            3,
+            0,
+            50,
+            11
+          ],
+          "seatWins": [
+            20,
+            18,
+            11,
+            15
+          ]
+        },
+        {
+          "seed": "bench-027",
+          "games": 64,
+          "priorityWins": [
+            0,
+            64,
+            0,
+            0
+          ],
+          "seatWins": [
+            16,
+            16,
+            16,
+            16
+          ]
+        },
+        {
+          "seed": "bench-028",
+          "games": 64,
+          "priorityWins": [
+            61,
+            0,
+            3,
+            0
+          ],
+          "seatWins": [
+            15,
+            14,
+            16,
+            19
+          ]
+        },
+        {
+          "seed": "bench-029",
+          "games": 64,
+          "priorityWins": [
+            3,
+            45,
+            7,
+            9
+          ],
+          "seatWins": [
+            14,
+            21,
+            13,
+            16
+          ]
+        },
+        {
+          "seed": "bench-030",
+          "games": 64,
+          "priorityWins": [
+            0,
+            11,
+            53,
+            0
+          ],
+          "seatWins": [
+            16,
+            20,
+            14,
+            14
+          ]
+        },
+        {
+          "seed": "bench-031",
+          "games": 64,
+          "priorityWins": [
+            21,
+            43,
+            0,
+            0
+          ],
+          "seatWins": [
+            10,
+            17,
+            19,
+            18
+          ]
+        },
+        {
+          "seed": "bench-032",
+          "games": 64,
+          "priorityWins": [
+            0,
+            16,
+            23,
+            25
+          ],
+          "seatWins": [
+            23,
+            11,
+            17,
+            13
+          ]
+        },
+        {
+          "seed": "bench-033",
+          "games": 64,
+          "priorityWins": [
+            45,
+            0,
+            3,
+            16
+          ],
+          "seatWins": [
+            13,
+            18,
+            20,
+            13
+          ]
+        },
+        {
+          "seed": "bench-034",
+          "games": 64,
+          "priorityWins": [
+            38,
+            26,
+            0,
+            0
+          ],
+          "seatWins": [
+            6,
+            26,
+            22,
+            10
+          ]
+        },
+        {
+          "seed": "bench-035",
+          "games": 64,
+          "priorityWins": [
+            0,
+            1,
+            63,
+            0
+          ],
+          "seatWins": [
+            17,
+            16,
+            15,
+            16
+          ]
+        },
+        {
+          "seed": "bench-036",
+          "games": 64,
+          "priorityWins": [
+            25,
+            24,
+            0,
+            15
+          ],
+          "seatWins": [
+            19,
+            9,
+            19,
+            17
+          ]
+        },
+        {
+          "seed": "bench-037",
+          "games": 64,
+          "priorityWins": [
+            39,
+            22,
+            1,
+            2
+          ],
+          "seatWins": [
+            19,
+            18,
+            14,
+            13
+          ]
+        },
+        {
+          "seed": "bench-038",
+          "games": 64,
+          "priorityWins": [
+            28,
+            31,
+            4,
+            1
+          ],
+          "seatWins": [
+            10,
+            8,
+            21,
+            25
+          ]
+        },
+        {
+          "seed": "bench-039",
+          "games": 64,
+          "priorityWins": [
+            0,
+            0,
+            17,
+            47
+          ],
+          "seatWins": [
+            4,
+            18,
+            21,
+            21
+          ]
+        },
+        {
+          "seed": "bench-040",
+          "games": 64,
+          "priorityWins": [
+            38,
+            19,
+            7,
+            0
+          ],
+          "seatWins": [
+            18,
+            16,
+            20,
+            10
+          ]
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "against": "experiment K with same bot, maps and rules; only fourth priority gets one military power",
+    "priority": [
+      {
+        "priority": 1,
+        "baseline": 0.242578125,
+        "compensated": 0.245703125,
+        "deltaPp": 0.3124999999999989
+      },
+      {
+        "priority": 2,
+        "baseline": 0.237890625,
+        "compensated": 0.2703125,
+        "deltaPp": 3.2421875000000018
+      },
+      {
+        "priority": 3,
+        "baseline": 0.273046875,
+        "compensated": 0.246484375,
+        "deltaPp": -2.6562500000000018
+      },
+      {
+        "priority": 4,
+        "baseline": 0.166796875,
+        "compensated": 0.2375,
+        "deltaPp": 7.070312499999998
+      }
+    ],
+    "perSeed": [
+      {
+        "seed": "bench-001",
+        "oldPriorityWins": [
+          0,
+          0,
+          0,
+          64
+        ],
+        "newPriorityWins": [
+          0,
+          29,
+          7,
+          28
+        ],
+        "deltaPp": [
+          0,
+          45.3125,
+          10.9375,
+          -56.25
+        ]
+      },
+      {
+        "seed": "bench-002",
+        "oldPriorityWins": [
+          0,
+          14,
+          50,
+          0
+        ],
+        "newPriorityWins": [
+          0,
+          19,
+          24,
+          21
+        ],
+        "deltaPp": [
+          0,
+          7.8125,
+          -40.625,
+          32.8125
+        ]
+      },
+      {
+        "seed": "bench-003",
+        "oldPriorityWins": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "newPriorityWins": [
+          0,
+          4,
+          2,
+          58
+        ],
+        "deltaPp": [
+          0,
+          -43.75,
+          3.125,
+          40.625
+        ]
+      },
+      {
+        "seed": "bench-004",
+        "oldPriorityWins": [
+          24,
+          22,
+          15,
+          3
+        ],
+        "newPriorityWins": [
+          12,
+          7,
+          14,
+          31
+        ],
+        "deltaPp": [
+          -18.75,
+          -23.4375,
+          -1.5625,
+          43.75
+        ]
+      },
+      {
+        "seed": "bench-005",
+        "oldPriorityWins": [
+          0,
+          64,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          25,
+          26,
+          6,
+          7
+        ],
+        "deltaPp": [
+          39.0625,
+          -59.375,
+          9.375,
+          10.9375
+        ]
+      },
+      {
+        "seed": "bench-006",
+        "oldPriorityWins": [
+          0,
+          64,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          0,
+          7,
+          0,
+          57
+        ],
+        "deltaPp": [
+          0,
+          -89.0625,
+          0,
+          89.0625
+        ]
+      },
+      {
+        "seed": "bench-007",
+        "oldPriorityWins": [
+          0,
+          0,
+          0,
+          64
+        ],
+        "newPriorityWins": [
+          26,
+          0,
+          34,
+          4
+        ],
+        "deltaPp": [
+          40.625,
+          0,
+          53.125,
+          -93.75
+        ]
+      },
+      {
+        "seed": "bench-008",
+        "oldPriorityWins": [
+          7,
+          28,
+          11,
+          18
+        ],
+        "newPriorityWins": [
+          31,
+          22,
+          6,
+          5
+        ],
+        "deltaPp": [
+          37.5,
+          -9.375,
+          -7.8125,
+          -20.3125
+        ]
+      },
+      {
+        "seed": "bench-009",
+        "oldPriorityWins": [
+          36,
+          28,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          19,
+          30,
+          15,
+          0
+        ],
+        "deltaPp": [
+          -26.5625,
+          3.125,
+          23.4375,
+          0
+        ]
+      },
+      {
+        "seed": "bench-010",
+        "oldPriorityWins": [
+          0,
+          0,
+          64,
+          0
+        ],
+        "newPriorityWins": [
+          6,
+          0,
+          58,
+          0
+        ],
+        "deltaPp": [
+          9.375,
+          0,
+          -9.375,
+          0
+        ]
+      },
+      {
+        "seed": "bench-011",
+        "oldPriorityWins": [
+          0,
+          0,
+          64,
+          0
+        ],
+        "newPriorityWins": [
+          11,
+          16,
+          3,
+          34
+        ],
+        "deltaPp": [
+          17.1875,
+          25,
+          -95.3125,
+          53.125
+        ]
+      },
+      {
+        "seed": "bench-012",
+        "oldPriorityWins": [
+          26,
+          0,
+          3,
+          35
+        ],
+        "newPriorityWins": [
+          7,
+          0,
+          53,
+          4
+        ],
+        "deltaPp": [
+          -29.6875,
+          0,
+          78.125,
+          -48.4375
+        ]
+      },
+      {
+        "seed": "bench-013",
+        "oldPriorityWins": [
+          15,
+          0,
+          49,
+          0
+        ],
+        "newPriorityWins": [
+          0,
+          0,
+          10,
+          54
+        ],
+        "deltaPp": [
+          -23.4375,
+          0,
+          -60.9375,
+          84.375
+        ]
+      },
+      {
+        "seed": "bench-014",
+        "oldPriorityWins": [
+          13,
+          16,
+          15,
+          20
+        ],
+        "newPriorityWins": [
+          1,
+          18,
+          8,
+          37
+        ],
+        "deltaPp": [
+          -18.75,
+          3.125,
+          -10.9375,
+          26.5625
+        ]
+      },
+      {
+        "seed": "bench-015",
+        "oldPriorityWins": [
+          54,
+          10,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          29,
+          21,
+          4,
+          10
+        ],
+        "deltaPp": [
+          -39.0625,
+          17.1875,
+          6.25,
+          15.625
+        ]
+      },
+      {
+        "seed": "bench-016",
+        "oldPriorityWins": [
+          0,
+          0,
+          0,
+          64
+        ],
+        "newPriorityWins": [
+          4,
+          0,
+          23,
+          37
+        ],
+        "deltaPp": [
+          6.25,
+          0,
+          35.9375,
+          -42.1875
+        ]
+      },
+      {
+        "seed": "bench-017",
+        "oldPriorityWins": [
+          32,
+          32,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          24,
+          32,
+          7,
+          1
+        ],
+        "deltaPp": [
+          -12.5,
+          0,
+          10.9375,
+          1.5625
+        ]
+      },
+      {
+        "seed": "bench-018",
+        "oldPriorityWins": [
+          2,
+          62,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          0,
+          62,
+          0,
+          2
+        ],
+        "deltaPp": [
+          -3.125,
+          0,
+          0,
+          3.125
+        ]
+      },
+      {
+        "seed": "bench-019",
+        "oldPriorityWins": [
+          0,
+          0,
+          63,
+          1
+        ],
+        "newPriorityWins": [
+          57,
+          2,
+          5,
+          0
+        ],
+        "deltaPp": [
+          89.0625,
+          3.125,
+          -90.625,
+          -1.5625
+        ]
+      },
+      {
+        "seed": "bench-020",
+        "oldPriorityWins": [
+          29,
+          11,
+          7,
+          17
+        ],
+        "newPriorityWins": [
+          35,
+          12,
+          0,
+          17
+        ],
+        "deltaPp": [
+          9.375,
+          1.5625,
+          -10.9375,
+          0
+        ]
+      },
+      {
+        "seed": "bench-021",
+        "oldPriorityWins": [
+          16,
+          0,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          7,
+          0,
+          56,
+          1
+        ],
+        "deltaPp": [
+          -14.0625,
+          0,
+          87.5,
+          1.5625
+        ]
+      },
+      {
+        "seed": "bench-022",
+        "oldPriorityWins": [
+          64,
+          0,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          7,
+          21,
+          36,
+          0
+        ],
+        "deltaPp": [
+          -89.0625,
+          32.8125,
+          56.25,
+          0
+        ]
+      },
+      {
+        "seed": "bench-023",
+        "oldPriorityWins": [
+          64,
+          0,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          18,
+          27,
+          0,
+          19
+        ],
+        "deltaPp": [
+          -71.875,
+          42.1875,
+          0,
+          29.6875
+        ]
+      },
+      {
+        "seed": "bench-024",
+        "oldPriorityWins": [
+          3,
+          0,
+          61,
+          0
+        ],
+        "newPriorityWins": [
+          9,
+          24,
+          29,
+          2
+        ],
+        "deltaPp": [
+          9.375,
+          37.5,
+          -50,
+          3.125
+        ]
+      },
+      {
+        "seed": "bench-025",
+        "oldPriorityWins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          0,
+          11,
+          0,
+          53
+        ],
+        "deltaPp": [
+          0,
+          17.1875,
+          0,
+          82.8125
+        ]
+      },
+      {
+        "seed": "bench-026",
+        "oldPriorityWins": [
+          0,
+          0,
+          52,
+          0
+        ],
+        "newPriorityWins": [
+          3,
+          0,
+          50,
+          11
+        ],
+        "deltaPp": [
+          4.6875,
+          0,
+          -3.125,
+          17.1875
+        ]
+      },
+      {
+        "seed": "bench-027",
+        "oldPriorityWins": [
+          14,
+          48,
+          0,
+          2
+        ],
+        "newPriorityWins": [
+          0,
+          64,
+          0,
+          0
+        ],
+        "deltaPp": [
+          -21.875,
+          25,
+          0,
+          -3.125
+        ]
+      },
+      {
+        "seed": "bench-028",
+        "oldPriorityWins": [
+          64,
+          0,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          61,
+          0,
+          3,
+          0
+        ],
+        "deltaPp": [
+          -4.6875,
+          0,
+          4.6875,
+          0
+        ]
+      },
+      {
+        "seed": "bench-029",
+        "oldPriorityWins": [
+          16,
+          48,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          3,
+          45,
+          7,
+          9
+        ],
+        "deltaPp": [
+          -20.3125,
+          -4.6875,
+          10.9375,
+          14.0625
+        ]
+      },
+      {
+        "seed": "bench-030",
+        "oldPriorityWins": [
+          0,
+          7,
+          57,
+          0
+        ],
+        "newPriorityWins": [
+          0,
+          11,
+          53,
+          0
+        ],
+        "deltaPp": [
+          0,
+          6.25,
+          -6.25,
+          0
+        ]
+      },
+      {
+        "seed": "bench-031",
+        "oldPriorityWins": [
+          0,
+          64,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          21,
+          43,
+          0,
+          0
+        ],
+        "deltaPp": [
+          32.8125,
+          -32.8125,
+          0,
+          0
+        ]
+      },
+      {
+        "seed": "bench-032",
+        "oldPriorityWins": [
+          0,
+          57,
+          0,
+          7
+        ],
+        "newPriorityWins": [
+          0,
+          16,
+          23,
+          25
+        ],
+        "deltaPp": [
+          0,
+          -64.0625,
+          35.9375,
+          28.125
+        ]
+      },
+      {
+        "seed": "bench-033",
+        "oldPriorityWins": [
+          58,
+          0,
+          0,
+          6
+        ],
+        "newPriorityWins": [
+          45,
+          0,
+          3,
+          16
+        ],
+        "deltaPp": [
+          -20.3125,
+          0,
+          4.6875,
+          15.625
+        ]
+      },
+      {
+        "seed": "bench-034",
+        "oldPriorityWins": [
+          4,
+          0,
+          1,
+          59
+        ],
+        "newPriorityWins": [
+          38,
+          26,
+          0,
+          0
+        ],
+        "deltaPp": [
+          53.125,
+          40.625,
+          -1.5625,
+          -92.1875
+        ]
+      },
+      {
+        "seed": "bench-035",
+        "oldPriorityWins": [
+          0,
+          2,
+          62,
+          0
+        ],
+        "newPriorityWins": [
+          0,
+          1,
+          63,
+          0
+        ],
+        "deltaPp": [
+          0,
+          -1.5625,
+          1.5625,
+          0
+        ]
+      },
+      {
+        "seed": "bench-036",
+        "oldPriorityWins": [
+          59,
+          0,
+          3,
+          2
+        ],
+        "newPriorityWins": [
+          25,
+          24,
+          0,
+          15
+        ],
+        "deltaPp": [
+          -53.125,
+          37.5,
+          -4.6875,
+          20.3125
+        ]
+      },
+      {
+        "seed": "bench-037",
+        "oldPriorityWins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "newPriorityWins": [
+          39,
+          22,
+          1,
+          2
+        ],
+        "deltaPp": [
+          60.9375,
+          34.375,
+          1.5625,
+          3.125
+        ]
+      },
+      {
+        "seed": "bench-038",
+        "oldPriorityWins": [
+          21,
+          0,
+          43,
+          0
+        ],
+        "newPriorityWins": [
+          28,
+          31,
+          4,
+          1
+        ],
+        "deltaPp": [
+          10.9375,
+          48.4375,
+          -60.9375,
+          1.5625
+        ]
+      },
+      {
+        "seed": "bench-039",
+        "oldPriorityWins": [
+          0,
+          0,
+          31,
+          33
+        ],
+        "newPriorityWins": [
+          0,
+          0,
+          17,
+          47
+        ],
+        "deltaPp": [
+          0,
+          0,
+          -21.875,
+          21.875
+        ]
+      },
+      {
+        "seed": "bench-040",
+        "oldPriorityWins": [
+          0,
+          0,
+          48,
+          0
+        ],
+        "newPriorityWins": [
+          38,
+          19,
+          7,
+          0
+        ],
+        "deltaPp": [
+          59.375,
+          29.6875,
+          -64.0625,
+          0
+        ]
+      }
+    ],
+    "oldRangePp": 10.625000000000002,
+    "newRangePp": 3.281250000000002,
+    "oldMeanAbsoluteDeviationPp": 3.1445312500000004,
+    "newMeanAbsoluteDeviationPp": 1.0156250000000004
+  }
+}
