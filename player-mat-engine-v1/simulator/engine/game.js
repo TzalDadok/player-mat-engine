@@ -79,7 +79,11 @@ export class AoEGame {
     return game;
   }
 
-  static createFFA({ players, seed = 'aevum-ffa' } = {}) {
+  static createFFA({
+    players,
+    seed = 'aevum-ffa',
+    cuSelectionOrder = null
+  } = {}) {
     if (!Array.isArray(players) || players.length < 2 || players.length > 4) {
       throw new RuleError('FFA requiere entre 2 y 4 jugadores.');
     }
@@ -89,7 +93,11 @@ export class AoEGame {
       id: p.id || `P${i + 1}`
     }));
     const map = generateFFA36Map({ seed, players: normalizedPlayers });
-    const placements = autoPlaceFFAPlayerCUs(map, normalizedPlayers);
+    const placements = autoPlaceFFAPlayerCUs(
+      map,
+      normalizedPlayers,
+      { selectionOrder: cuSelectionOrder }
+    );
 
     const game = AoEGame.create({
       players: normalizedPlayers,
@@ -107,11 +115,13 @@ export class AoEGame {
       builders: clone(map.builders),
       placementHistory: clone(map.placementHistory),
       discardedTerrain: clone(map.discarded),
+      cuSelectionOrder: placements.map(cu => cu.tcOwnerId),
       startPositions: placements.map(cu => ({
         playerId: cu.tcOwnerId,
         cuHexId: cu.id,
         anchorTerrainId: cu.tcAnchorId,
-        startScore: cu.startScore
+        startScore: cu.startScore,
+        selectionIndex: cu.selectionIndex
       }))
     };
 
