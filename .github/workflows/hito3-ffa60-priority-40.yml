@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run 5120 paired FFA60 games
+      - name: Run 2560 FFA60 three-villager games
         run: node runner/run-ffa60-priority-40.mjs
       - name: Publish simulation artifacts
         uses: actions/upload-artifact@v4
