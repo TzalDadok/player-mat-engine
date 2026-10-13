@@ -517,7 +517,7 @@ export class AoEGame {
     if (!target) throw new RuleError('Destino inexistente.');
 
     for (const unit of units) {
-      const spec = UNIT_TYPES[unit.type];
+      const spec = this.effectiveUnitSpec(playerId, unit.type);
       const path = shortestMovementPath(this.state.hexes, unit.hexId, toHexId, {
         water: !!spec.water,
         blockedEdge: (a, b) => this.edgeBlocked(a, b)
@@ -532,7 +532,7 @@ export class AoEGame {
       u =>
         u.hexId === toHexId &&
         u.ownerId !== playerId &&
-        UNIT_TYPES[u.type].category === 'military'
+        this.isCombatParticipant(u.ownerId, u)
     );
 
     if (enemyMilitary.length) {
@@ -578,7 +578,7 @@ export class AoEGame {
     const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
     if (!unit) throw new RuleError('Unidad inválida.');
 
-    const spec = UNIT_TYPES[unit.type];
+    const spec = this.effectiveUnitSpec(playerId, unit.type);
     if (!spec.carry) throw new RuleError('Esa unidad no transporta recursos.');
     if (unit.cargo.length + amount > spec.carry) throw new RuleError('Supera la capacidad de carga.');
 
@@ -613,13 +613,22 @@ export class AoEGame {
   build(playerId, buildingType, hexId, villagerId) {
     this.assertActive(playerId);
 
-    const spec = BUILDING_TYPES[buildingType];
-    if (!spec) throw new RuleError('Edificio desconocido.');
+    const base = BUILDING_TYPES[buildingType];
+    const rule = this.buildingRule(playerId, buildingType);
+    const player = this.playerMap.get(playerId);
 
-    this.assertPhase(spec.category === 'military' ? 'military' : 'economy');
+    if (!base || !rule) {
+      throw new RuleError('Ese edificio no está disponible para esta civilización.', 'BUILDING_UNAVAILABLE');
+    }
+
+    if (!this.ageAllows(player, rule.age)) {
+      throw new RuleError('La Edad actual no permite construir ese edificio.');
+    }
+
+    this.assertPhase(base.category === 'military' ? 'military' : 'economy');
 
     const hex = this.hexMap.get(hexId);
-    const v = this.state.units.find(
+    const villager = this.state.units.find(
       u =>
         u.id === villagerId &&
         u.ownerId === playerId &&
@@ -627,34 +636,39 @@ export class AoEGame {
         u.hexId === hexId
     );
 
-    if (!hex || !v) throw new RuleError('Se requiere un Aldeano propio en el hexágono.');
+    if (!hex || !villager) {
+      throw new RuleError('Se requiere un Aldeano propio en el hexágono.');
+    }
 
     if (hex.terrain === 'water' && buildingType !== 'port') {
       throw new RuleError('No se puede construir ahí.');
     }
 
     if (
-      !spec.multiple &&
+      !base.multiple &&
       this.state.buildings.some(b => b.ownerId === playerId && b.type === buildingType)
     ) {
       throw new RuleError('En general sólo puede haber un edificio de cada tipo.');
     }
 
     if (buildingType === 'farm') {
-      if (hex.terrain !== 'plain') throw new RuleError('La Granja base requiere Llanura.');
+      const allowed = new Set(rule.terrains || ['plain']);
+      if (this.hasEffect(playerId, 'farmTerrain:desert')) allowed.add('desert');
 
-      if (
-        this.state.buildings.filter(b => b.hexId === hexId && b.type === 'farm').length >= 2
-      ) {
-        throw new RuleError('Máximo 2 Granjas por hexágono.');
+      if (!allowed.has(hex.terrain)) {
+        throw new RuleError('La civilización no puede construir una Granja en ese terreno.');
+      }
+
+      const max = rule.maxPerHex || 2;
+      if (this.state.buildings.filter(b => b.hexId === hexId && b.type === 'farm').length >= max) {
+        throw new RuleError(`Máximo ${max} Granjas por hexágono.`);
       }
     }
 
-    this.spendAt(hexId, spec.cost);
-
-    const b = this.addBuilding(playerId, buildingType, hexId);
-    this.completeAction('build', { buildingId: b.id, buildingType, hexId });
-    return b;
+    this.spendAt(hexId, rule.cost);
+    const building = this.addBuilding(playerId, buildingType, hexId);
+    this.completeAction('build', { buildingId: building.id, buildingType, hexId });
+    return building;
   }
 
   trainUnits(playerId, requests) {
