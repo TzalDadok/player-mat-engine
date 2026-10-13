@@ -12,8 +12,8 @@ export const vikingos = {
     galley: entry('dark', 'port', { wood: 3, gold: 1 }),
     militia: entry('dark', 'barracks', { food: 1, gold: 1 }),
     archer: entry('castles', 'barracks', { food: 1, wood: 2, gold: 1 }),
-    scorpion: entry('castles', 'siege', { wood: 3, gold: 2 }),
-    trebuchet: entry('castles', 'siege', { wood: 4, gold: 3 })
+    scorpion: entry('castles', 'siege', { wood: 3, gold: 2 }, { provisionalCost: true }),
+    trebuchet: entry('castles', 'siege', { wood: 4, gold: 3 }, { provisionalCost: true })
   },
   buildings: {
     mill: entry('dark', null, { wood: 3 }),
