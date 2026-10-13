@@ -46,8 +46,12 @@ jobs:
           node --check player-mat-engine-v1/simulator/app.js
           node --check player-mat-engine-v1/simulator/engine/game.js
           node --check player-mat-engine-v1/simulator/bots/baseline.js
+          node --check player-mat-engine-v1/simulator/bots/profiles.js
           node --check player-mat-engine-v1/simulator/runner/simulate.js
           node --check player-mat-engine-v1/simulator/runner/batch.mjs
+          node --check player-mat-engine-v1/simulator/runner/benchmark.mjs
+          node --check player-mat-engine-v1/simulator/runner/benchmark-seeds.js
+          node --check player-mat-engine-v1/simulator/runner/run-benchmark.mjs
 
       - name: Build playtest data
         shell: bash
