@@ -5,6 +5,7 @@ import {
 import { generateHexRadius, hexDistance, physicalNeighbors, shortestMovementPath } from './hex.js';
 import { getCivilization } from '../civs/index.js';
 import { generateFFA48Map, autoPlaceFFAPlayerCUs } from '../maps/ffa48.js';
+import { createExplorationState, cardById, shuffleCards } from './exploration.js';
 
 const clone = v => structuredClone(v);
 let seq = 1;
@@ -21,7 +22,14 @@ export class RuleError extends Error {
 export class AoEGame {
   constructor(state) { this.state = state; }
 
-  static create({ players, radius = 2, seedMap = true, mode = 'ffa', mapHexes = null } = {}) {
+  static create({
+    players,
+    radius = 2,
+    seedMap = true,
+    mode = 'ffa',
+    mapHexes = null,
+    explorationSeed = 'aevum-exploration'
+  } = {}) {
     if (!Array.isArray(players) || players.length < 2 || players.length > 4) {
       throw new RuleError('La partida requiere entre 2 y 4 jugadores.');
     }
@@ -52,6 +60,8 @@ export class AoEGame {
       })),
       units: [],
       buildings: [],
+      exploration: createExplorationState(explorationSeed),
+      turnModifiers: {},
       log: []
     };
 
@@ -74,7 +84,8 @@ export class AoEGame {
       players,
       seedMap: false,
       mode: 'ffa',
-      mapHexes: map.hexes
+      mapHexes: map.hexes,
+      explorationSeed: `${seed}:exploration`
     });
 
     game.state.mapMeta = {
@@ -373,19 +384,30 @@ export class AoEGame {
 
     if (next <= this.state.activePlayerIndex) this.state.round += 1;
     this.state.activePlayerIndex = next;
+    this.state.turnModifiers = {};
+    this.applyStartTurnIncome(this.activePlayer.id);
     this.log('turn-start', { playerId: this.activePlayer.id });
   }
 
   addUnit(ownerId, type, hexId) {
     if (!UNIT_TYPES[type]) throw new RuleError(`Unidad desconocida: ${type}`);
-    const u = { id: uid('U'), ownerId, type, hexId, cargo: [], embarkedIn: null, garrisonedIn: null };
+    const u = {
+      id: uid('U'),
+      ownerId,
+      type,
+      hexId,
+      cargo: [],
+      relics: 0,
+      embarkedIn: null,
+      garrisonedIn: null
+    };
     this.state.units.push(u);
     return u;
   }
 
   addBuilding(ownerId, type, hexId) {
     if (!BUILDING_TYPES[type]) throw new RuleError(`Edificio desconocido: ${type}`);
-    const b = { id: uid('B'), ownerId, type, hexId };
+    const b = { id: uid('B'), ownerId, type, hexId, relics: 0 };
     this.state.buildings.push(b);
     return b;
   }
@@ -1194,9 +1216,159 @@ export class AoEGame {
       throw new RuleError('Poder de Pelea ya está en 16.');
     }
 
-    this.spendControlled(playerId, { gold: 1 });
+    const wonder = this.state.hexes.find(h => h.special === 'wonder');
+    const controlsWonder = wonder && this.controllerOf(wonder.id) === playerId;
+
+    if (!controlsWonder) {
+      this.spendControlled(playerId, { gold: 1 });
+    }
     p.militaryPower++;
     this.completeAction('instruct', { militaryPower: p.militaryPower });
+  }
+
+  explorationHand(playerId) {
+    const exp = this.state.exploration;
+    exp.hands[playerId] = exp.hands[playerId] || [];
+    return exp.hands[playerId];
+  }
+
+  drawExplorationCard(playerId, mountainHexId) {
+    const mountain = this.hexMap.get(mountainHexId);
+    if (!mountain || mountain.terrain !== 'mountain') {
+      throw new RuleError('La exploración debe originarse en una Montaña.');
+    }
+    if (mountain.explored) {
+      throw new RuleError('Esa Montaña ya fue explorada.');
+    }
+
+    const exp = this.state.exploration;
+    if (!exp.deck.length) {
+      exp.deck = shuffleCards(
+        exp.discard.splice(0),
+        `${exp.seed}:recycle:${++exp.shuffleCount}`
+      );
+    }
+    if (!exp.deck.length) throw new RuleError('No quedan cartas de Exploración.');
+
+    mountain.explored = true;
+    const cardId = exp.deck.shift();
+    const card = cardById(cardId);
+    if (!card) throw new RuleError('Carta de Exploración desconocida.');
+
+    if (card.immediate) {
+      this.resolveImmediateExplorationCard(playerId, card, mountain);
+    } else {
+      this.explorationHand(playerId).push(card.id);
+    }
+
+    this.log('exploration-draw', {
+      playerId,
+      mountainHexId,
+      cardId: card.id,
+      immediate: card.immediate
+    });
+    return clone(card);
+  }
+
+  resolveImmediateExplorationCard(playerId, card, mountain) {
+    const exp = this.state.exploration;
+
+    if (card.id === 'treasure') {
+      this.addResourceTokens(mountain.id, { gold: 2 });
+      exp.discard.push(card.id);
+      return;
+    }
+
+    if (card.id === 'mercenaries') {
+      this.addUnit(playerId, 'militia', mountain.id);
+      exp.discard.push(card.id);
+      return;
+    }
+
+    if (card.id === 'relic') {
+      mountain.relics = (mountain.relics || 0) + 1;
+      exp.deck.push(card.id);
+      exp.deck = shuffleCards(
+        exp.deck,
+        `${exp.seed}:relic:${++exp.shuffleCount}`
+      );
+      return;
+    }
+
+    exp.discard.push(card.id);
+  }
+
+  exploreMountain(playerId, mountainHexId) {
+    const mountain = this.hexMap.get(mountainHexId);
+    if (!mountain || mountain.terrain !== 'mountain' || mountain.explored) return null;
+    return this.drawExplorationCard(playerId, mountainHexId);
+  }
+
+  pickupRelic(playerId, unitId) {
+    const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
+    if (!unit) throw new RuleError('Unidad religiosa inválida.');
+    const spec = this.effectiveUnitSpec(playerId, unit.type);
+    if (spec.category !== 'religious') {
+      throw new RuleError('Sólo una unidad religiosa puede transportar Reliquias.');
+    }
+
+    const hex = this.hexMap.get(unit.hexId);
+    if (!hex || (hex.relics || 0) < 1) throw new RuleError('No hay Reliquia en ese hexágono.');
+
+    hex.relics--;
+    unit.relics = (unit.relics || 0) + 1;
+    this.log('relic-pickup', { playerId, unitId, hexId: hex.id });
+    return unit.relics;
+  }
+
+  depositRelics(playerId, unitId, monasteryId) {
+    const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
+    const monastery = this.state.buildings.find(
+      b => b.id === monasteryId && b.ownerId === playerId && b.type === 'monastery'
+    );
+
+    if (!unit || !monastery || unit.hexId !== monastery.hexId) {
+      throw new RuleError('La unidad religiosa debe estar en el Monasterio propio.');
+    }
+    if (this.effectiveUnitSpec(playerId, unit.type).category !== 'religious') {
+      throw new RuleError('Sólo una unidad religiosa puede depositar Reliquias.');
+    }
+
+    const amount = unit.relics || 0;
+    monastery.relics = (monastery.relics || 0) + amount;
+    unit.relics = 0;
+    this.log('relic-deposit', { playerId, unitId, monasteryId, amount });
+    return amount;
+  }
+
+  dropUnitRelics(unit, hexId = unit.hexId) {
+    const amount = unit?.relics || 0;
+    if (!amount) return 0;
+    const hex = this.hexMap.get(hexId);
+    if (hex) hex.relics = (hex.relics || 0) + amount;
+    unit.relics = 0;
+    return amount;
+  }
+
+  applyStartTurnIncome(playerId) {
+    let relicCount = 0;
+    for (const monastery of this.state.buildings.filter(
+      b => b.ownerId === playerId && b.type === 'monastery'
+    )) {
+      const count = monastery.relics || 0;
+      if (!count) continue;
+      relicCount += count;
+      this.addResourceTokens(monastery.hexId, { gold: count * 2 });
+    }
+
+    if (relicCount) {
+      this.log('relic-income', {
+        playerId,
+        relics: relicCount,
+        gold: relicCount * 2
+      });
+    }
+    return relicCount * 2;
   }
 
   combatParticipants(playerId, targetHexId, directIds = []) {
