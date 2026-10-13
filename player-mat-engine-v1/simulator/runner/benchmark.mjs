@@ -219,7 +219,8 @@ export function runBenchmark({
   seeds = BENCHMARK_SEEDS,
   civs = DEFAULT_CIVS,
   profiles = DEFAULT_PROFILES,
-  maxRounds = 400
+  maxRounds = 400,
+  cuSelectionOrder = null
 } = {}) {
   const games=[];
 
@@ -233,7 +234,8 @@ export function runBenchmark({
           seed,
           botSeed:`benchmark:${profile}:${seed}`,
           profile,
-          maxRounds
+          maxRounds,
+          cuSelectionOrder
         });
 
         result.profile=profile;
@@ -264,6 +266,7 @@ export function runBenchmark({
     profiles:[...profiles],
     civOrderBase:[...civs],
     maxRounds,
+    cuSelectionOrder:cuSelectionOrder ? [...cuSelectionOrder] : null,
     ...overall,
     byProfile,
     results:games
