@@ -1,5 +1,7 @@
 # Hito 3 — Simulación masiva y balance
 
+**Estado: en curso.**
+
 ## Objetivo
 
 Usar los bots cerrados en Hito 2 para producir evidencia de balance mediante partidas reproducibles y comparables.
@@ -66,3 +68,38 @@ El benchmark debe conservar el setup físico:
 - elección posterior de CU exterior con distancia mínima 2.
 
 Para experimentos de menos de cuatro jugadores se permiten constructores virtuales de mapa exclusivamente como convención de laboratorio.
+
+
+## Baseline Hito 3
+
+La baseline de Hito 3 usa:
+
+- mapa físico `ffa36`;
+- cuatro rotaciones de asiento por seed;
+- cuatro perfiles de bot;
+- win rate calculado sólo sobre partidas completadas;
+- partidas incompletas reportadas por separado;
+- intervalos Wilson del 95%;
+- métricas por civilización y por asiento;
+- matriz civilización × asiento;
+- calidad estimada del arranque;
+- métricas de combate;
+- revisión/commit guardada en cada artefacto.
+
+El benchmark automático de cada cambio relevante usa 10 seeds:
+**10 × 4 rotaciones × 4 perfiles = 160 partidas**.
+
+El workflow manual admite las 40 seeds fijas:
+**40 × 4 × 4 = 640 partidas**.
+
+## Comparaciones A/B
+
+`runner/compare-benchmarks.mjs` compara dos artefactos de benchmark emparejando:
+
+- seed;
+- perfil;
+- rotación de asiento.
+
+Los cambios de win rate se calculan sólo sobre pares que terminaron en ambas versiones. También se registran victorias ganadas/perdidas por civilización y cambios de ganador.
+
+La regla para balancear es: **mismo escenario antes y después del cambio**.
