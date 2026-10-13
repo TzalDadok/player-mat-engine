@@ -25,7 +25,7 @@ function pair(g){
   const [a,b]=pair(g);
   const mil1=g.addUnit('P1','militia',a.id);
   const mil2=g.addUnit('P1','militia',a.id);
-  const mil3=g.addUnit('P1','militia',a.id);
+  const mil3=g.addUnit('P1','archer',a.id);
   const mis=g.addUnit('P1','missionary',a.id);
   const d1=g.addUnit('P2','militia',b.id);
   const d2=g.addUnit('P2','militia',b.id);
@@ -50,7 +50,7 @@ function pair(g){
   const [a,b]=pair(g);
   const m1=g.addUnit('P1','militia',a.id);
   const m2=g.addUnit('P1','militia',a.id);
-  const m3=g.addUnit('P1','militia',a.id);
+  const m3=g.addUnit('P1','archer',a.id);
   const mis=g.addUnit('P1','missionary',a.id);
   const d1=g.addUnit('P2','militia',b.id);
   const d2=g.addUnit('P2','militia',b.id);
