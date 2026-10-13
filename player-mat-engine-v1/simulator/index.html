@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AoE BoardGame · Simulador</title>
+  <link rel="stylesheet" href="simulator.css">
+</head>
+<body>
+  <header class="topbar">
+    <strong><a href="../index.html">AoE BoardGame</a> / Simulador</strong>
+    <nav>
+      <a href="../mats.html">Mats</a>
+      <a class="active" href="index.html">Simulador</a>
+      <a href="../log.html">Log</a>
+      <a href="../reglamento.html">Reglamento</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="setup" class="setup card">
+      <div>
+        <h1>Simulador manual</h1>
+        <p>Motor de reglas del prototipo. Esta interfaz es para validar partidas y detectar ambigüedades, no para reemplazar todavía la presentación física.</p>
+      </div>
+      <div class="setup-grid">
+        <label>Jugadores
+          <select id="playerCount">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+          </select>
+        </label>
+        <label>Seed
+          <input id="seedInput" value="aevum-playtest">
+        </label>
+      </div>
+      <div id="playersSetup" class="players-setup"></div>
+      <button id="startBtn" class="primary">Crear partida FFA</button>
+    </section>
+
+    <section id="game" class="game hidden">
+      <div class="gamebar card">
+        <div>
+          <b id="activePlayerLabel"></b>
+          <span id="turnLabel"></span>
+        </div>
+        <div class="phase-strip">
+          <span data-phase="economy">Economía</span>
+          <span data-phase="technology">Tecnología</span>
+          <span data-phase="military">Militar</span>
+        </div>
+        <div class="gamebar-actions">
+          <button id="finishPhaseBtn">Cerrar fase</button>
+          <button id="newGameBtn">Nueva partida</button>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <section class="board-card card">
+          <div class="board-head">
+            <div>
+              <strong>Tablero</strong>
+              <small>Click en un hexágono para seleccionarlo.</small>
+            </div>
+            <div id="winnerBanner"></div>
+          </div>
+          <svg id="board" aria-label="Tablero hexagonal"></svg>
+        </section>
+
+        <aside class="sidepanel">
+          <section class="card status-card">
+            <h2>Jugador</h2>
+            <div id="playerStatus"></div>
+          </section>
+
+          <section class="card selected-card">
+            <h2>Hexágono seleccionado</h2>
+            <div id="selectedInfo" class="muted">Seleccioná un hexágono.</div>
+            <div id="unitSelection"></div>
+          </section>
+
+          <section class="card action-card">
+            <h2>Acciones</h2>
+            <div id="actionPanel"></div>
+            <div id="actionMessage" class="message"></div>
+          </section>
+
+          <section class="card hand-card">
+            <h2>Exploración</h2>
+            <div id="handPanel"></div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="card log-card">
+        <div class="section-head">
+          <h2>Log de partida</h2>
+          <button id="exportBtn">Exportar estado JSON</button>
+        </div>
+        <div id="gameLog"></div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
