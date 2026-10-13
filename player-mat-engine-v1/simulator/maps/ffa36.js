@@ -123,11 +123,13 @@ function randomPlacementPolicy({availableCoords,random}){
 
 function sameCoord(a,b){ return a&&b&&a.q===b.q&&a.r===b.r; }
 
-export function generateFFA36Map({
+export function generateFFAMap({
+  rings=3,
   seed='aevum-ffa',
   players=['P1','P2','P3','P4'],
   placementPolicy=randomPlacementPolicy
 }={}){
+  if(![3,4].includes(rings)) throw new Error('FFA experimental admite 3 o 4 gradas.');
   const builders=normalizeBuilders(players);
   const mapRandom=mulberry32(hashSeed(`${seed}:placement`));
   const piles=new Map(
@@ -143,7 +145,7 @@ export function generateFFA36Map({
   const placementHistory=[];
   let placementNumber=0;
 
-  for(let radius=1;radius<=3;radius++){
+  for(let radius=1;radius<=rings;radius++){
     const available=ring(radius).map(coord=>({...coord}));
 
     while(available.length){
@@ -216,8 +218,9 @@ export function generateFFA36Map({
     }
   }
 
-  if(placementNumber!==36){
-    throw new Error(`El FFA debe completar 36 terrenos y generó ${placementNumber}.`);
+  const expected=3*rings*(rings+1);
+  if(placementNumber!==expected){
+    throw new Error(`El FFA debe completar ${expected} terrenos y generó ${placementNumber}.`);
   }
 
   const discarded=Object.fromEntries(builders.map(player=>{
@@ -230,15 +233,23 @@ export function generateFFA36Map({
 
   return {
     mode:'ffa',
-    preset:'ffa36',
+    preset:`ffa${3*rings*(rings+1)}`,
     seed:String(seed),
     builders:builders.map(x=>({...x})),
     hexes,
     terrainIds:hexes.filter(h=>!h.special).map(h=>h.id),
-    perimeterIds:hexes.filter(h=>!h.special&&hexDistance(h,wonder)===3).map(h=>h.id),
+    perimeterIds:hexes.filter(h=>!h.special&&hexDistance(h,wonder)===rings).map(h=>h.id),
     placementHistory,
     discarded
   };
+}
+
+export function generateFFA36Map(options={}){
+  return generateFFAMap({...options,rings:3});
+}
+
+export function generateFFA60Map(options={}){
+  return generateFFAMap({...options,rings:4});
 }
 
 function freeOuterNeighbor(hexes,anchor){
