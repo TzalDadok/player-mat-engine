@@ -579,8 +579,8 @@ export class AoEGame {
 
     const units = unitIds.map(id => this.state.units.find(u => u.id === id));
 
-    if (units.some(u => !u || u.ownerId !== playerId)) {
-      throw new RuleError('Hay una unidad inválida o enemiga.');
+    if (units.some(u => !u || u.ownerId !== playerId || u.embarkedIn || u.garrisonedIn)) {
+      throw new RuleError('Hay una unidad inválida, enemiga, embarcada o guarecida.');
     }
 
     const origins = [...new Set(units.map(u => u.hexId))];
@@ -591,7 +591,7 @@ export class AoEGame {
 
     if (
       this.state.phase === 'economy' &&
-      units.some(u => UNIT_TYPES[u.type].category !== 'economic')
+      units.some(u => this.effectiveUnitSpec(playerId, u.type).category !== 'economic')
     ) {
       throw new RuleError('Economía sólo mueve unidades económicas.');
     }
@@ -629,6 +629,7 @@ export class AoEGame {
     const enemyMilitary = this.state.units.filter(
       u =>
         u.hexId === toHexId &&
+        !u.embarkedIn &&
         u.ownerId !== playerId &&
         this.isCombatParticipant(u.ownerId, u)
     );
@@ -637,12 +638,45 @@ export class AoEGame {
       throw new RuleError('El destino tiene defensa militar: usá attack().', 'COMBAT_REQUIRED');
     }
 
-    const movingMilitary = units.some(u => UNIT_TYPES[u.type].category === 'military');
+    const movingMilitary = units.some(
+      u => this.effectiveUnitSpec(playerId, u.type).category === 'military'
+    );
+
+    const movingReligious = units.filter(
+      u => this.effectiveUnitSpec(playerId, u.type).category === 'religious'
+    );
+    const enemyReligious = this.state.units.filter(
+      u =>
+        u.hexId === toHexId &&
+        !u.embarkedIn &&
+        u.ownerId !== playerId &&
+        this.effectiveUnitSpec(u.ownerId, u.type).category === 'religious'
+    );
+
     if (movingMilitary) this.occupyUndefended(playerId, toHexId);
 
     units.forEach(u => {
       u.hexId = toHexId;
+      if (['transportShip','galley'].includes(u.type)) {
+        this.state.units
+          .filter(p => p.embarkedIn === u.id)
+          .forEach(p => { p.hexId = toHexId; });
+      }
     });
+
+    if (movingReligious.length && enemyReligious.length) {
+      const returned = [];
+      for (const u of [...movingReligious, ...enemyReligious]) {
+        const current = this.state.units.find(x => x.id === u.id);
+        if (!current) continue;
+        current.hexId = this.playerMap.get(current.ownerId).tcHexId;
+        current.garrisonedIn = null;
+        returned.push(current.id);
+      }
+      this.log('religious-encounter', { hexId: toHexId, unitIds: returned });
+    } else {
+      this.resolveReligiousEncounterAtHex(toHexId);
+    }
 
     this.completeAction('move', { unitIds, toHexId });
   }
@@ -659,9 +693,16 @@ export class AoEGame {
       u.hexId = this.playerMap.get(u.ownerId).tcHexId;
     }
 
-    this.state.buildings = this.state.buildings.filter(
-      b => !(b.hexId === hexId && b.ownerId !== attackerId)
+    const destroyed = this.state.buildings.filter(
+      b => b.hexId === hexId && b.ownerId !== attackerId
     );
+    const destroyedIds = new Set(destroyed.map(b => b.id));
+    this.state.buildings = this.state.buildings.filter(b => !destroyedIds.has(b.id));
+    for (const unit of this.state.units) {
+      if (unit.garrisonedIn && destroyedIds.has(unit.garrisonedIn)) {
+        unit.garrisonedIn = null;
+      }
+    }
 
     const hex = this.hexMap.get(hexId);
 
@@ -1317,7 +1358,8 @@ export class AoEGame {
       attackerBid = 0,
       defenderBid = 0,
       loserCasualtyIds = null,
-      healedCasualtyIds = null
+      healedCasualtyIds = null,
+      convertedUnitIds = null
     } = {}
   ) {
     this.assertActive(playerId);
@@ -1539,6 +1581,67 @@ export class AoEGame {
       u => !dead.has(u.id)
     );
 
+    const winnerId = attackerWins ? playerId : defenderId;
+    const winnerParts = attackerWins ? atkParts : defParts;
+    const winnerReligious = winnerParts.filter(
+      u =>
+        this.state.units.some(x => x.id === u.id) &&
+        this.effectiveUnitSpec(winnerId, u.type).category === 'religious'
+    );
+
+    const conversionCandidates = loserParts.filter(
+      u =>
+        this.state.units.some(x => x.id === u.id) &&
+        u.ownerId === loserId
+    );
+    const convertLimit = Math.min(winnerReligious.length, conversionCandidates.length);
+    let selectedConversions = [];
+
+    if (convertLimit > 0) {
+      if (convertedUnitIds) {
+        const allowed = new Set(conversionCandidates.map(u => u.id));
+        selectedConversions = [...new Set(convertedUnitIds)]
+          .filter(id => allowed.has(id))
+          .slice(0, convertLimit);
+
+        if (selectedConversions.length !== Math.min(convertLimit, new Set(convertedUnitIds).size)) {
+          throw new RuleError('Hay una unidad inválida entre las conversiones elegidas.');
+        }
+      } else {
+        selectedConversions = [...conversionCandidates]
+          .sort(
+            (a, b) =>
+              this.effectiveUnitSpec(loserId, b.type).force -
+              this.effectiveUnitSpec(loserId, a.type).force
+          )
+          .slice(0, convertLimit)
+          .map(u => u.id);
+      }
+    }
+
+    const converted = [];
+    const heresyKilled = [];
+
+    for (const id of selectedConversions) {
+      const unit = this.state.units.find(u => u.id === id);
+      if (!unit) continue;
+
+      const protectedByHeresy =
+        this.hasEffect(loserId, 'heresy') ||
+        this.hasEffect(loserId, `heresyUnit:${unit.type}`);
+
+      if (protectedByHeresy) {
+        this.state.units = this.state.units.filter(u => u.id !== id);
+        heresyKilled.push(id);
+      } else {
+        unit.ownerId = winnerId;
+        unit.hexId = targetHexId;
+        unit.embarkedIn = null;
+        unit.garrisonedIn = null;
+        converted.push(id);
+      }
+    }
+
     const tc = this.playerMap.get(loserId).tcHexId;
 
     for (const u of this.state.units) {
@@ -1567,13 +1670,19 @@ export class AoEGame {
         }
       });
 
-      this.state.buildings = this.state.buildings.filter(
-        b =>
-          !(
-            b.hexId === targetHexId &&
-            b.ownerId === defenderId
-          )
+      const destroyedBuildings = this.state.buildings.filter(
+        b => b.hexId === targetHexId && b.ownerId === defenderId
       );
+      const destroyedBuildingIds = new Set(destroyedBuildings.map(b => b.id));
+      this.state.buildings = this.state.buildings.filter(
+        b => !destroyedBuildingIds.has(b.id)
+      );
+      for (const unit of this.state.units) {
+        if (unit.garrisonedIn && destroyedBuildingIds.has(unit.garrisonedIn)) {
+          unit.garrisonedIn = null;
+          unit.hexId = targetHexId;
+        }
+      }
 
       if (
         target.special === 'tc' &&
@@ -1601,7 +1710,9 @@ export class AoEGame {
       initialCasualties: initialCasualtyIds,
       rescuedByReligious: rescuedIds,
       casualties: casualtyIds,
-      winnerId: attackerWins ? playerId : defenderId
+      converted,
+      heresyKilled,
+      winnerId
     };
 
     this.completeAction('combat', result);
