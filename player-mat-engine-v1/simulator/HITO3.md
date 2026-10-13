@@ -49,3 +49,20 @@ Antes de recomendar cambios hay que revisar:
 - cantidad de tropas;
 - frecuencia de combate;
 - reglas provisionales o pendientes.
+
+
+## Generación del mapa FFA
+
+El benchmark debe conservar el setup físico:
+
+- cuatro reservas personales de terreno;
+- dos copias de cada tipo Primario y Secundario por jugador;
+- pilas Primario/Secundario barajadas por separado;
+- alternancia propia P/S según el asiento;
+- tres gradas: 6 + 12 + 18;
+- robo aleatorio de la ficha correspondiente;
+- elección de posición dentro de la grada;
+- descarte de sobrantes;
+- elección posterior de CU exterior con distancia mínima 2.
+
+Para experimentos de menos de cuatro jugadores se permiten constructores virtuales de mapa exclusivamente como convención de laboratorio.
