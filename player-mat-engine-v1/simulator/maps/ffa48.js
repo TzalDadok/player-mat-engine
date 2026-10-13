@@ -190,12 +190,22 @@ function hasLandPathToWonder(map, startId){
 }
 
 export function autoPlaceFFAPlayerCUs(map, playerIds){
-  const perimeter=map.perimeterIds.filter(id => {
+  const connected=map.perimeterIds.filter(id => {
     const h = map.hexes.find(x => x.id === id);
     return h && h.terrain !== 'water' && hasLandPathToWonder(map,id);
   });
   if(playerIds.length<2 || playerIds.length>4) throw new Error('FFA admite 2 a 4 jugadores.');
-  if(perimeter.length < playerIds.length) throw new Error('No hay suficientes posiciones terrestres para los CU.');
+  if(connected.length < playerIds.length) throw new Error('No hay suficientes posiciones terrestres para los CU.');
+
+  // En FFA los jugadores eligen su CU después de revelar el mapa.
+  // La colocación automática imita una decisión humana mínima: evitar
+  // Oro/Piedra como ancla si hay alternativas, porque pueden agotarse y
+  // transformarse en Agua, aislando el CU.
+  const stable=connected.filter(id => {
+    const h=map.hexes.find(x=>x.id===id);
+    return h && !['gold','stone'].includes(h.source);
+  });
+  const perimeter=stable.length >= playerIds.length ? stable : connected;
 
   const chosen=[];
   const step=perimeter.length/playerIds.length;
