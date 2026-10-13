@@ -60,7 +60,13 @@ function emptyCivSummary(civs){
       avgCombatWins:null,
       avgAttacks:null,
       avgAttackWins:null,
-      avgEliminatedRound:null
+      avgEliminatedRound:null,
+      avgProduced:null,
+      avgSpent:null,
+      avgFoodProduced:null,
+      avgWoodProduced:null,
+      avgStoneProduced:null,
+      avgGoldProduced:null
     }
   ]));
 }
@@ -81,6 +87,12 @@ function aggregatePlayerMetrics(row,samples){
   row.avgAttacks=mean(samples.map(p=>p.combat?.attacks));
   row.avgAttackWins=mean(samples.map(p=>p.combat?.attackWins));
   row.avgEliminatedRound=mean(samples.map(p=>p.eliminatedRound));
+  row.avgProduced=mean(samples.map(p=>p.economy?.totalProduced));
+  row.avgSpent=mean(samples.map(p=>p.economy?.totalSpent));
+  row.avgFoodProduced=mean(samples.map(p=>p.economy?.produced?.food));
+  row.avgWoodProduced=mean(samples.map(p=>p.economy?.produced?.wood));
+  row.avgStoneProduced=mean(samples.map(p=>p.economy?.produced?.stone));
+  row.avgGoldProduced=mean(samples.map(p=>p.economy?.produced?.gold));
 }
 
 export function summarizeGames(games,civs){
