@@ -15,11 +15,6 @@
     "createdAt": "2026-10-12T14:45:48.764Z"
   },
   {
-    "id": "e35ffb88-c653-406e-9e93-e97067bfb2dc",
-    "text": "Límite de 8 aldeanos.",
-    "createdAt": "2026-10-12T14:45:59.494Z"
-  },
-  {
     "id": "6dd4e247-8f4f-4562-ba21-48ab0930b1c6",
     "text": "Simulador\n\nHito 1 — Motor jugable: reglas + mapa + economía + combate.\nHito 2 — Bots: que puedan terminar partidas solos.\nHito 3 — Simulación: miles de partidas y estadísticas.\nHito 4 — Interfaz: tablero visual y herramientas de análisis.",
     "createdAt": "2026-10-13T00:16:30.255Z"
