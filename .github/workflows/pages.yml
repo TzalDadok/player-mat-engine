@@ -52,6 +52,7 @@ jobs:
           node --check player-mat-engine-v1/simulator/runner/benchmark.mjs
           node --check player-mat-engine-v1/simulator/runner/benchmark-seeds.js
           node --check player-mat-engine-v1/simulator/runner/run-benchmark.mjs
+          node --check player-mat-engine-v1/simulator/runner/duel-benchmark.mjs
 
       - name: Build playtest data
         shell: bash
