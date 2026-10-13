@@ -81,11 +81,20 @@ function forceOf(game, playerId, units) {
 }
 
 export class BaselineBot {
-  constructor({ playerId, seed = 'bot', aggression = 0.2, maxVillagers = 4 } = {}) {
+  constructor({
+    playerId,
+    seed = 'bot',
+    aggression = 0.2,
+    maxVillagers = 4,
+    desiredArmy = 5,
+    maxArmy = 8
+  } = {}) {
     this.playerId = playerId;
     this.random = createRng(`${seed}:${playerId}`);
     this.aggression = aggression;
     this.maxVillagers = maxVillagers;
+    this.desiredArmy = desiredArmy;
+    this.maxArmy = maxArmy;
     this.memory = {
       hubHexId: null,
       rejectedActions: 0,
@@ -420,6 +429,8 @@ export class BaselineBot {
   }
 
   tryTrainMilitary(game) {
+    if (this.military(game).length >= this.maxArmy) return { ok: false };
+
     const buildings = game.state.buildings.filter(
       b => b.ownerId === this.playerId && ['barracks','castle','port','siege'].includes(b.type)
     );
@@ -448,12 +459,22 @@ export class BaselineBot {
 
   enemyTargets(game, fromHexId) {
     const alive = game.state.players.filter(p => !p.eliminated && p.id !== this.playerId);
+
     return alive.map(player => {
       const target = game.hexMap.get(player.tcHexId);
       const path = strategicLandPath(game, fromHexId, target.id);
-      return { player, target, path };
-    }).filter(x => x.path)
-      .sort((a, b) => a.path.length - b.path.length);
+      const enemyMilitary = game.state.units.filter(
+        u =>
+          u.ownerId === player.id &&
+          game.effectiveUnitSpec(player.id, u.type).category === 'military'
+      );
+      const armyForce = forceOf(game, player.id, enemyMilitary);
+      const structures = game.state.buildings.filter(b => b.ownerId === player.id).length;
+      const score = (path?.length || 999) * 2 + armyForce + structures * 0.5;
+      return { player, target, path, armyForce, score };
+    })
+      .filter(x => x.path)
+      .sort((a, b) => a.score - b.score || a.path.length - b.path.length);
   }
 
   defenseBid(game, defenderId, targetHexId, attackerForce) {
@@ -512,57 +533,86 @@ export class BaselineBot {
     if (!stacks.length) return { ok: false };
 
     for (const stack of stacks) {
-      const targets = this.enemyTargets(game, stack.hexId);
-      if (!targets.length) continue;
-      const chosen = targets[0];
-      const nextId = chosen.path[1];
-      if (!nextId) continue;
-
       const direct = stack.units.filter(u => {
         const spec = game.effectiveUnitSpec(this.playerId, u.type);
         return spec.move > 0 && !spec.water;
       });
       if (!direct.length) continue;
 
-      const enemyMilitary = game.state.units.filter(
-        u => u.hexId === nextId && u.ownerId !== this.playerId && game.isCombatParticipant(u.ownerId, u)
-      );
-      const enemyBuilding = game.state.buildings.some(
-        b => b.hexId === nextId && b.ownerId !== this.playerId
-      );
-      const targetHex = game.hexMap.get(nextId);
-      const enemyTC = targetHex?.special === 'tc' && targetHex.tcOwnerId !== this.playerId;
+      const targets = this.enemyTargets(game, stack.hexId);
 
-      if (enemyMilitary.length) {
-        const defenderId = enemyMilitary[0].ownerId;
-        const atkParts = game.combatParticipants(this.playerId, nextId, direct.map(u => u.id));
-        const defParts = game.combatParticipants(defenderId, nextId, []);
-        const atkForce = game.combatForceBreakdown(this.playerId, atkParts, defParts, nextId, {
-          role: 'attacker',
-          directIds: direct.map(u => u.id)
-        }).total;
-        const defenderBid = this.defenseBid(game, defenderId, nextId, atkForce);
-        const bids = this.attackBid(game, direct, nextId, defenderBid);
+      for (const chosen of targets) {
+        const nextId = chosen.path[1];
+        if (!nextId) continue;
 
-        const favorable =
-          atkForce + bids.attackerBid >
-          forceOf(game, defenderId, defParts) + defenderBid;
-
-        if (!favorable && this.random() > this.aggression) continue;
-
-        return this.safe(game, 'attack', () => game.attack(this.playerId, {
-          unitIds: direct.map(u => u.id),
-          targetHexId: nextId,
-          attackerBid: bids.attackerBid,
-          defenderBid: bids.defenderBid
-        }));
-      }
-
-      if (enemyBuilding || enemyTC || !enemyMilitary.length) {
-        const result = this.safe(game, 'advance-army', () =>
-          game.moveUnits(this.playerId, direct.map(u => u.id), nextId)
+        const enemyMilitary = game.state.units.filter(
+          u =>
+            u.hexId === nextId &&
+            u.ownerId !== this.playerId &&
+            game.isCombatParticipant(u.ownerId, u)
         );
-        if (result.ok) return result;
+
+        const enemyBuilding = game.state.buildings.some(
+          b => b.hexId === nextId && b.ownerId !== this.playerId
+        );
+        const targetHex = game.hexMap.get(nextId);
+        const enemyTC =
+          targetHex?.special === 'tc' &&
+          targetHex.tcOwnerId &&
+          targetHex.tcOwnerId !== this.playerId;
+
+        if (enemyMilitary.length) {
+          const defenderId = enemyMilitary[0].ownerId;
+          const atkParts = game.combatParticipants(
+            this.playerId,
+            nextId,
+            direct.map(u => u.id)
+          );
+          const defParts = game.combatParticipants(defenderId, nextId, []);
+          const atkForce = game.combatForceBreakdown(
+            this.playerId,
+            atkParts,
+            defParts,
+            nextId,
+            { role:'attacker', directIds:direct.map(u => u.id) }
+          ).total;
+          const defenderBid = this.defenseBid(game, defenderId, nextId, atkForce);
+          const bids = this.attackBid(game, direct, nextId, defenderBid);
+
+          const defenderForce = game.combatForceBreakdown(
+            defenderId,
+            defParts,
+            atkParts,
+            nextId,
+            { role:'defender', directIds:[] }
+          ).total;
+
+          const favorable =
+            atkForce + bids.attackerBid >
+            defenderForce + defenderBid;
+
+          if (!favorable && this.random() > this.aggression) {
+            continue;
+          }
+
+          const attack = this.safe(game, 'attack', () =>
+            game.attack(this.playerId, {
+              unitIds:direct.map(u => u.id),
+              targetHexId:nextId,
+              attackerBid:bids.attackerBid,
+              defenderBid:bids.defenderBid
+            })
+          );
+          if (attack.ok) return attack;
+          continue;
+        }
+
+        if (enemyBuilding || enemyTC || !enemyMilitary.length) {
+          const result = this.safe(game, 'advance-army', () =>
+            game.moveUnits(this.playerId, direct.map(u => u.id), nextId)
+          );
+          if (result.ok) return result;
+        }
       }
     }
 
@@ -608,13 +658,21 @@ export class BaselineBot {
     if (built.ok) return built;
 
     const army = this.military(game);
+
+    if (army.length < this.desiredArmy) {
+      const rearmed = this.tryTrainMilitary(game);
+      if (rearmed.ok) return rearmed;
+    }
+
     if (army.length >= 2) {
       const action = this.tryArmyAction(game);
       if (action.ok) return action;
     }
 
-    const trained = this.tryTrainMilitary(game);
-    if (trained.ok) return trained;
+    if (army.length < this.maxArmy) {
+      const trained = this.tryTrainMilitary(game);
+      if (trained.ok) return trained;
+    }
 
     if (army.length) {
       const action = this.tryArmyAction(game);
