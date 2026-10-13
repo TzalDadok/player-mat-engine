@@ -42,6 +42,8 @@ jobs:
           node player-mat-engine-v1/simulator/tests/economic-special-smoke.mjs
           node player-mat-engine-v1/simulator/tests/exploration-cards-smoke.mjs
           node player-mat-engine-v1/simulator/tests/competitive-scoring-smoke.mjs
+          node --check player-mat-engine-v1/simulator/app.js
+          node --check player-mat-engine-v1/simulator/engine/game.js
 
       - name: Build playtest data
         shell: bash
