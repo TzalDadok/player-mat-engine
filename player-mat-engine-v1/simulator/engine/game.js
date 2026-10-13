@@ -1090,7 +1090,30 @@ export class AoEGame {
       const spec = this.effectiveUnitSpec(playerId, unit.type);
       const transportedSiege = spec.tags?.includes('siege');
       const forcedMarch = this.modifiersFor(playerId).forcedMarchUnitId === unit.id ? 1 : 0;
-      const allowedMove = transportedSiege ? escortMove : spec.move + forcedMarch;
+
+      let unitMove = spec.move + forcedMarch;
+
+      if (
+        unit.type === 'villager' &&
+        this.hasEffect(playerId, 'roadMovement:villager:2')
+      ) {
+        const hasOriginBuilding = this.state.buildings.some(
+          b => b.ownerId === playerId && b.hexId === unit.hexId
+        );
+        const hasDestinationBuilding = this.state.buildings.some(
+          b => b.ownerId === playerId && b.hexId === toHexId
+        );
+        if (hasOriginBuilding && hasDestinationBuilding) unitMove = Math.max(unitMove, 2);
+      }
+
+      if (
+        spec.tags?.includes('ship') &&
+        this.hasEffect(playerId, 'navalNetworkMovement')
+      ) {
+        unitMove = Math.max(unitMove, 99);
+      }
+
+      const allowedMove = transportedSiege ? escortMove : unitMove;
 
       if (transportedSiege && !escorts.length) {
         throw new RuleError(`${spec.name} necesita otra unidad para ser transportado.`);
@@ -1103,6 +1126,22 @@ export class AoEGame {
 
       if (!path || path.length - 1 > allowedMove) {
         throw new RuleError(`${spec.name} no puede llegar al destino.`);
+      }
+
+      if (path.length > 2) {
+        for (const intermediateId of path.slice(1, -1)) {
+          const intermediate = this.hexMap.get(intermediateId);
+          const stoppedByTower = this.state.buildings.some(tower => {
+            if (tower.type !== 'tower' || tower.ownerId === playerId) return false;
+            if (!this.hasEffect(tower.ownerId, 'towerZoneControl')) return false;
+            const towerHex = this.hexMap.get(tower.hexId);
+            return towerHex && intermediate && hexDistance(towerHex, intermediate) <= 1;
+          });
+
+          if (stoppedByTower) {
+            throw new RuleError('Zona de Control obliga a terminar el movimiento al entrar junto a una Torre enemiga.');
+          }
+        }
       }
     }
 
