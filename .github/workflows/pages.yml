@@ -56,6 +56,7 @@ jobs:
           node --check player-mat-engine-v1/simulator/runner/run-benchmark.mjs
           node --check player-mat-engine-v1/simulator/runner/compare-benchmarks.mjs
           node --check player-mat-engine-v1/simulator/runner/run-cu-order-experiment.mjs
+          node --check player-mat-engine-v1/simulator/runner/run-cu-balanced-experiment.mjs
           node --check player-mat-engine-v1/simulator/runner/duel-benchmark.mjs
 
       - name: Build playtest data
