@@ -495,10 +495,21 @@ export class BaselineBot {
       const armyForce = forceOf(game, player.id, enemyMilitary);
       const structures = game.state.buildings.filter(b => b.ownerId === player.id).length;
       const score = (path?.length || 999) * 2 + armyForce + structures * 0.5;
-      return { player, target, path, armyForce, score };
+      return {
+        player,
+        target,
+        path,
+        armyForce,
+        score,
+        tieBreak:this.random()
+      };
     })
       .filter(x => x.path)
-      .sort((a, b) => a.score - b.score || a.path.length - b.path.length);
+      .sort((a, b) =>
+        a.score - b.score ||
+        a.path.length - b.path.length ||
+        a.tieBreak - b.tieBreak
+      );
   }
 
   defenseBid(game, defenderId, targetHexId, attackerForce) {
