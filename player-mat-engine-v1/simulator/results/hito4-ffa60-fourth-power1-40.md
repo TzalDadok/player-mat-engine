@@ -39,19 +39,19 @@ El JSON incluye resultados por semilla y asiento. IC Wilson descriptivos: las pa
 
 | Prioridad | Experimento K | Experimento L | Cambio (pp) |
 |---|---:|---:|---:|
-| 1.ª | 24.3% | 24.6% | +0.3 |
-| 2.ª | 23.8% | 27.0% | +3.2 |
-| 3.ª | 27.3% | 24.6% | -2.7 |
-| 4.ª | 16.7% | 23.8% | +7.1 |
+| 1.ª | 25.5% | 24.6% | -1.0 |
+| 2.ª | 27.9% | 27.0% | -0.9 |
+| 3.ª | 25.5% | 24.6% | -0.9 |
+| 4.ª | 21.0% | 23.8% | +2.7 |
 
 ## Desviación media frente al 25% ideal
 
-Experimento J: 3.14 puntos porcentuales.
+Experimento K: 1.99 puntos porcentuales.
 Experimento L: 1.02 puntos porcentuales.
 
 ## Diferencia entre la mejor y la peor prioridad
 
-Experimento J: 10.63 puntos porcentuales.
+Experimento K: 6.91 puntos porcentuales.
 Experimento L: 3.28 puntos porcentuales.
 
 Las diferencias por cada uno de los 40 mapas están incluidas en el JSON. Las rotaciones no equivalen a mapas independientes.
