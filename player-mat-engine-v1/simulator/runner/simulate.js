@@ -156,10 +156,27 @@ function snapshotMetrics(game, bots, status) {
       for (const r of Object.keys(resources)) resources[r] += row[r] || 0;
     }
 
+    const start = game.state.mapMeta?.startPositions?.find(x=>x.playerId===p.id) || null;
+    const anchor = start?.anchorTerrainId ? game.hexMap.get(start.anchorTerrainId) : null;
+
+    const playerCombats = game.state.log.filter(x =>
+      x.type === 'combat' &&
+      (x.playerId === p.id || x.data?.defenderId === p.id)
+    );
+    const attacks = playerCombats.filter(x=>x.playerId===p.id);
+    const defenses = playerCombats.filter(x=>x.data?.defenderId===p.id);
+
+    const eliminatedEntry = game.state.log.find(x =>
+      x.type === 'player-eliminated' &&
+      x.data?.playerId === p.id
+    );
+
     return {
       id:p.id,
+      seat:game.state.players.indexOf(p)+1,
       civ:p.civ,
       eliminated:p.eliminated,
+      eliminatedRound:eliminatedEntry?.round ?? null,
       age:p.age,
       militaryPower:p.militaryPower,
       technologies:p.technologies.length,
@@ -170,6 +187,21 @@ function snapshotMetrics(game, bots, status) {
       buildingsAlive:game.state.buildings.filter(b=>b.ownerId===p.id).length,
       controlledTerritories:controlled.filter(id=>!game.hexMap.get(id)?.special).length,
       resources,
+      start:{
+        cuHexId:start?.cuHexId || p.tcHexId,
+        anchorTerrainId:start?.anchorTerrainId || null,
+        anchorTerrain:anchor?.terrain || null,
+        anchorSource:anchor?.source || null,
+        score:Number.isFinite(start?.startScore) ? start.startScore : null
+      },
+      combat:{
+        fought:playerCombats.length,
+        wins:playerCombats.filter(x=>x.data?.winnerId===p.id).length,
+        attacks:attacks.length,
+        attackWins:attacks.filter(x=>x.data?.winnerId===p.id).length,
+        defenses:defenses.length,
+        defenseWins:defenses.filter(x=>x.data?.winnerId===p.id).length
+      },
       milestones:playerMilestones(game,p.id),
       bot:bots.get(p.id)?.memory || null
     };
