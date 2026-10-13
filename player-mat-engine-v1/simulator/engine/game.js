@@ -653,6 +653,7 @@ export class AoEGame {
     }
 
     const origins = [...new Set(units.map(u => u.hexId))];
+    const originHexId = origins[0];
 
     if (origins.length !== 1) {
       throw new RuleError('Las unidades que se mueven juntas deben partir del mismo hexágono.');
@@ -738,6 +739,7 @@ export class AoEGame {
       for (const u of [...movingReligious, ...enemyReligious]) {
         const current = this.state.units.find(x => x.id === u.id);
         if (!current) continue;
+        this.dropUnitRelics(current, toHexId);
         current.hexId = this.playerMap.get(current.ownerId).tcHexId;
         current.garrisonedIn = null;
         returned.push(current.id);
@@ -745,6 +747,16 @@ export class AoEGame {
       this.log('religious-encounter', { hexId: toHexId, unitIds: returned });
     } else {
       this.resolveReligiousEncounterAtHex(toHexId);
+    }
+
+    const originHex = this.hexMap.get(originHexId);
+    if (
+      originHex &&
+      originHex.terrain === 'mountain' &&
+      target.terrain !== 'mountain' &&
+      !originHex.explored
+    ) {
+      this.exploreMountain(playerId, originHexId);
     }
 
     this.completeAction('move', { unitIds, toHexId });
@@ -759,6 +771,9 @@ export class AoEGame {
     );
 
     for (const u of displaced) {
+      if (this.effectiveUnitSpec(u.ownerId, u.type).category === 'religious') {
+        this.dropUnitRelics(u, hexId);
+      }
       u.hexId = this.playerMap.get(u.ownerId).tcHexId;
     }
 
@@ -766,6 +781,13 @@ export class AoEGame {
       b => b.hexId === hexId && b.ownerId !== attackerId
     );
     const destroyedIds = new Set(destroyed.map(b => b.id));
+    const occupiedHex = this.hexMap.get(hexId);
+    for (const building of destroyed) {
+      if (building.type === 'monastery' && (building.relics || 0) > 0 && occupiedHex) {
+        occupiedHex.relics = (occupiedHex.relics || 0) + building.relics;
+        building.relics = 0;
+      }
+    }
     this.state.buildings = this.state.buildings.filter(b => !destroyedIds.has(b.id));
     for (const unit of this.state.units) {
       if (unit.garrisonedIn && destroyedIds.has(unit.garrisonedIn)) {
@@ -910,6 +932,7 @@ export class AoEGame {
 
     const returned = [];
     for (const unit of religious) {
+      this.dropUnitRelics(unit, hexId);
       unit.garrisonedIn = null;
       unit.hexId = this.playerMap.get(unit.ownerId).tcHexId;
       returned.push(unit.id);
@@ -1893,6 +1916,12 @@ export class AoEGame {
         b => b.hexId === targetHexId && b.ownerId === defenderId
       );
       const destroyedBuildingIds = new Set(destroyedBuildings.map(b => b.id));
+      for (const building of destroyedBuildings) {
+        if (building.type === 'monastery' && (building.relics || 0) > 0) {
+          target.relics = (target.relics || 0) + building.relics;
+          building.relics = 0;
+        }
+      }
       this.state.buildings = this.state.buildings.filter(
         b => !destroyedBuildingIds.has(b.id)
       );
@@ -1944,13 +1973,19 @@ export class AoEGame {
 
     p.eliminated = true;
 
-    this.state.units = this.state.units.filter(
-      u => u.ownerId !== playerId
-    );
+    for (const unit of this.state.units.filter(u => u.ownerId === playerId)) {
+      this.dropUnitRelics(unit, unit.hexId);
+    }
 
-    this.state.buildings = this.state.buildings.filter(
-      b => b.ownerId !== playerId
-    );
+    for (const building of this.state.buildings.filter(b => b.ownerId === playerId)) {
+      if (building.type === 'monastery' && (building.relics || 0) > 0) {
+        const hex = this.hexMap.get(building.hexId);
+        if (hex) hex.relics = (hex.relics || 0) + building.relics;
+      }
+    }
+
+    this.state.units = this.state.units.filter(u => u.ownerId !== playerId);
+    this.state.buildings = this.state.buildings.filter(b => b.ownerId !== playerId);
 
     this.log('player-eliminated', { playerId });
   }
