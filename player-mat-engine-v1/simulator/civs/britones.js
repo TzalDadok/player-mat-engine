@@ -12,10 +12,10 @@ export const britones = {
     skirmisher: entry('feudal', 'barracks', { food: 2, wood: 2 }),
     rider: entry('castles', 'barracks', { food: 2, gold: 3 }),
     galley: entry('castles', 'port', { wood: 3, gold: 1 }),
-    longbow: entry('castles', 'castle', { food: 2, wood: 2, gold: 2 }),
-    missionary: entry('castles', 'monastery', { food: 2, gold: 2 }),
-    ram: entry('imperial', 'siege', { wood: 3, gold: 2 }),
-    trebuchet: entry('imperial', 'siege', { wood: 4, gold: 3 })
+    longbow: entry('castles', 'castle', { food: 2, wood: 2, gold: 2 }, { provisionalCost: true }),
+    missionary: entry('castles', 'monastery', { food: 2, gold: 2 }, { provisionalCost: true }),
+    ram: entry('imperial', 'siege', { wood: 3, gold: 2 }, { provisionalCost: true }),
+    trebuchet: entry('imperial', 'siege', { wood: 4, gold: 3 }, { provisionalCost: true })
   },
   buildings: {
     mill: entry('dark', null, { wood: 3 }),
