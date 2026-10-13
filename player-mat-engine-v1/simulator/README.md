@@ -326,8 +326,10 @@ No se inventaron estas decisiones porque el propio reglamento / Player Mats no l
 
 Estas cinco decisiones no impiden ejecutar el núcleo del juego ni correr futuras simulaciones; se mantienen visibles para resolverlas en playtest.
 
-## Siguiente hito
+## Hitos
 
-**Hito 2 — Bots.**
+- **Hito 1 — Motor jugable:** cerrado.
+- **Hito 2 — Bots autónomos:** en cierre técnico; ver `HITO2.md`.
+- **Hito 3 — Simulación masiva y balance:** infraestructura adelantada; ver `HITO3.md`.
 
-El motor ya expone catálogos de acciones disponibles y estado serializable. El siguiente paso es crear agentes capaces de terminar partidas automáticamente y luego ejecutar grandes volúmenes de partidas para estudiar balance.
+Las decisiones de reglas aún abiertas se mantienen separadas en `PENDIENTES.md`.
