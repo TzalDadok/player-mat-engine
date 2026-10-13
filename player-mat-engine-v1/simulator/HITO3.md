@@ -103,3 +103,19 @@ El workflow manual admite las 40 seeds fijas:
 Los cambios de win rate se calculan sólo sobre pares que terminaron en ambas versiones. También se registran victorias ganadas/perdidas por civilización y cambios de ganador.
 
 La regla para balancear es: **mismo escenario antes y después del cambio**.
+
+
+## Experimento B — Orden inverso de CU
+
+Se comparó la baseline `P1 → P2 → P3 → P4` contra `P4 → P3 → P2 → P1`, con 160 partidas por variante.
+
+Resultado principal:
+
+- P4: 8.1% → 26.9%;
+- P1: 30.6% → 11.3%;
+- P2: 23.8% → 28.7%;
+- P3: 37.5% → 33.1%.
+
+Conclusión: el orden de elección de CU explica una parte importante del sesgo, pero invertirlo sólo desplaza la desventaja. No se adopta como regla definitiva por ahora.
+
+Ver `results/hito3-experiment-b-cu-order.md`.
