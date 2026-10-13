@@ -282,9 +282,10 @@ export function scoreFFAStartAnchor(map, anchorId, chosenAnchorIds=[]){
 
   // Oro/Piedra pueden agotarse y transformarse en Agua: no se prohíben como
   // elección humana, pero son una ancla inicial más riesgosa.
-  if(['gold','stone'].includes(anchor.source)) score-=5;
+  if(['gold','stone'].includes(anchor.source)) score-=12;
 
-  if(hasPermanentLandPathToWonder(map,anchorId)) score+=3;
+  if(hasPermanentLandPathToWonder(map,anchorId)) score+=10;
+  else score-=18;
 
   // Los jugadores posteriores ven los CUs ya elegidos. Evitar arrancar
   // inmediatamente encima de otro jugador suele ser una elección razonable,
