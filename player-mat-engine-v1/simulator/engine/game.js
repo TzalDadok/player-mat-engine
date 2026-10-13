@@ -3,6 +3,7 @@ import {
   UNIT_TYPES, BUILDING_TYPES, AGE_COSTS, SOURCE_TO_RESOURCE, EXHAUSTED_TO
 } from './constants.js';
 import { generateHexRadius, hexDistance, physicalNeighbors, shortestMovementPath } from './hex.js';
+import { getCivilization } from '../civs/index.js';
 
 const clone = v => structuredClone(v);
 let seq = 1;
@@ -109,6 +110,78 @@ export class AoEGame {
   get activePlayer() { return this.state.players[this.state.activePlayerIndex]; }
   get hexMap() { return new Map(this.state.hexes.map(h => [h.id, h])); }
   get playerMap() { return new Map(this.state.players.map(p => [p.id, p])); }
+
+  civFor(playerId) {
+    const player = typeof playerId === 'string' ? this.playerMap.get(playerId) : playerId;
+    if (!player) throw new RuleError('Jugador inexistente.');
+    const civ = getCivilization(player.civ);
+    if (!civ) throw new RuleError(`Civilización no integrada al simulador: ${player.civ}`, 'UNKNOWN_CIV');
+    return civ;
+  }
+
+  technologyRule(playerId, technologyId) {
+    return this.civFor(playerId).technologies.find(t => t.id === technologyId) || null;
+  }
+
+  activeEffects(playerId) {
+    const player = this.playerMap.get(playerId);
+    if (!player) return [];
+    return player.technologies.flatMap(id => this.technologyRule(playerId, id)?.effects || []);
+  }
+
+  hasEffect(playerId, effect) {
+    return this.activeEffects(playerId).includes(effect);
+  }
+
+  unitRule(playerId, type) {
+    return this.civFor(playerId).units[type] || null;
+  }
+
+  buildingRule(playerId, type) {
+    return this.civFor(playerId).buildings[type] || null;
+  }
+
+  effectiveUnitSpec(playerId, type) {
+    const base = UNIT_TYPES[type];
+    if (!base) throw new RuleError(`Unidad desconocida: ${type}`);
+
+    const spec = { ...base };
+    for (const effect of this.activeEffects(playerId)) {
+      let m = effect.match(/^unitForce:([^:]+):([+-]?\d+)$/);
+      if (m && m[1] === type) spec.force += Number(m[2]);
+
+      m = effect.match(/^unitMove:([^:]+):([+-]?\d+)$/);
+      if (m && m[1] === type) spec.move += Number(m[2]);
+
+      m = effect.match(/^carry:([^:]+):(.+)$/);
+      if (m && m[1] === type) {
+        if (m[2] === 'infinite') spec.carry = Number.MAX_SAFE_INTEGER;
+        else if (/^[+-]/.test(m[2])) spec.carry = (spec.carry || 0) + Number(m[2]);
+        else spec.carry = Number(m[2]);
+      }
+    }
+    return spec;
+  }
+
+  effectiveUnitCost(playerId, type, baseCost) {
+    const cost = { ...(baseCost || {}) };
+    for (const effect of this.activeEffects(playerId)) {
+      const m = effect.match(/^unitCost:([^:]+):([^:]+):([+-]?\d+)$/);
+      if (m && m[1] === type) {
+        cost[m[2]] = Math.max(0, (cost[m[2]] || 0) + Number(m[3]));
+      }
+    }
+    return cost;
+  }
+
+  isCombatParticipant(playerId, unit) {
+    const spec = this.effectiveUnitSpec(playerId, unit.type);
+    return spec.category === 'military' || spec.category === 'religious' || spec.force > 0;
+  }
+
+  ageAllows(player, requiredAge) {
+    return AGES.indexOf(player.age) >= AGES.indexOf(requiredAge);
+  }
 
   assertActive(playerId) {
     if (this.state.winnerId) throw new RuleError('La partida ya terminó.');
