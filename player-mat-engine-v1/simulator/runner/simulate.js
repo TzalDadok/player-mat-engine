@@ -47,6 +47,82 @@ function stallDiagnostics(game, bots) {
   };
 }
 
+function firstLogRound(game, predicate) {
+  const entry = game.state.log.find(predicate);
+  return entry ? entry.round : null;
+}
+
+function playerMilestones(game, playerId) {
+  const firstBarracks = firstLogRound(
+    game,
+    x =>
+      x.playerId === playerId &&
+      x.type === 'build' &&
+      x.data?.buildingType === 'barracks'
+  );
+
+  const firstMilitary = firstLogRound(
+    game,
+    x =>
+      x.playerId === playerId &&
+      x.type === 'train' &&
+      (x.data?.units || []).some(u => {
+        try {
+          return game.effectiveUnitSpec(playerId, u.type).category === 'military';
+        } catch {
+          return false;
+        }
+      })
+  );
+
+  const firstTechnology = firstLogRound(
+    game,
+    x => x.playerId === playerId && x.type === 'research'
+  );
+
+  const firstCombat = firstLogRound(
+    game,
+    x =>
+      x.type === 'combat' &&
+      (x.playerId === playerId || x.data?.defenderId === playerId)
+  );
+
+  const firstAttack = firstLogRound(
+    game,
+    x => x.type === 'combat' && x.playerId === playerId
+  );
+
+  const firstElimination = firstLogRound(
+    game,
+    x =>
+      x.type === 'player-eliminated' &&
+      x.data?.killerId === playerId
+  );
+
+  const ages = {};
+  for (const age of ['feudal','castles','imperial']) {
+    ages[age] = firstLogRound(
+      game,
+      x =>
+        x.playerId === playerId &&
+        x.type === 'advance-age' &&
+        x.data?.age === age
+    );
+  }
+
+  return {
+    firstBarracks,
+    firstMilitary,
+    firstTechnology,
+    firstCombat,
+    firstAttack,
+    firstElimination,
+    feudal: ages.feudal,
+    castles: ages.castles,
+    imperial: ages.imperial
+  };
+}
+
 function snapshotMetrics(game, bots, status) {
   const winner = game.state.winnerId ? game.playerMap.get(game.state.winnerId) : null;
 
@@ -72,6 +148,7 @@ function snapshotMetrics(game, bots, status) {
       buildingsAlive:game.state.buildings.filter(b=>b.ownerId===p.id).length,
       controlledTerritories:controlled.filter(id=>!game.hexMap.get(id)?.special).length,
       resources,
+      milestones:playerMilestones(game,p.id),
       bot:bots.get(p.id)?.memory || null
     };
   });
