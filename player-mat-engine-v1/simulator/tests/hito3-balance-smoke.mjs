@@ -135,3 +135,34 @@ console.log('Hito 3 balance methodology tests: OK');
 }
 
 console.log('Hito 3 bench-006 logistics regression: OK');
+
+
+{
+  const forward=runBenchmark({
+    seeds:['hito3-cu-order'],
+    profiles:['balanced'],
+    maxRounds:40,
+    cuSelectionOrder:['P1','P2','P3','P4']
+  });
+  const reverse=runBenchmark({
+    seeds:['hito3-cu-order'],
+    profiles:['balanced'],
+    maxRounds:40,
+    cuSelectionOrder:['P4','P3','P2','P1']
+  });
+
+  ok(
+    forward.results.every(g=>
+      JSON.stringify(g.cuSelectionOrder)===JSON.stringify(['P1','P2','P3','P4'])
+    ),
+    'Variante A debe conservar el orden normal de elección de CU.'
+  );
+  ok(
+    reverse.results.every(g=>
+      JSON.stringify(g.cuSelectionOrder)===JSON.stringify(['P4','P3','P2','P1'])
+    ),
+    'Variante B debe invertir sólo el orden de elección de CU.'
+  );
+}
+
+console.log('Hito 3 CU-order experiment tests: OK');
