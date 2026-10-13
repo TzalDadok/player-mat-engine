@@ -43,7 +43,29 @@ function stallDiagnostics(game, bots) {
   return {
     alivePlayers: alive.length,
     categories: counts,
-    players: details
+    players: details,
+    recentLog: game.state.log.slice(-40),
+    aliveUnits: game.state.units
+      .filter(u => alive.some(p => p.id === u.ownerId))
+      .map(u => ({
+        id:u.id,
+        ownerId:u.ownerId,
+        type:u.type,
+        hexId:u.hexId,
+        embarkedIn:u.embarkedIn,
+        garrisonedIn:u.garrisonedIn
+      })),
+    starts: alive.map(p => {
+      const tc=game.hexMap.get(p.tcHexId);
+      const anchor=tc?.tcAnchorId ? game.hexMap.get(tc.tcAnchorId) : null;
+      return {
+        playerId:p.id,
+        tcHexId:p.tcHexId,
+        anchorId:anchor?.id || null,
+        anchorTerrain:anchor?.terrain || null,
+        anchorSource:anchor?.source || null
+      };
+    })
   };
 }
 
