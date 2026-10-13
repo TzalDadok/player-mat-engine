@@ -4,5 +4,11 @@
     "text": "PRUEBA DE HEXAGONOS",
     "createdAt": "2026-10-13T02:26:37.486Z",
     "implementedAt": "2026-10-13T02:27:03.791Z"
+  },
+  {
+    "id": "e35ffb88-c653-406e-9e93-e97067bfb2dc",
+    "text": "Límite de 8 aldeanos.",
+    "createdAt": "2026-10-12T14:45:59.494Z",
+    "implementedAt": "2026-10-13T02:27:25.971Z"
   }
 ]
