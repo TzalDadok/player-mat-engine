@@ -4,7 +4,7 @@ import {
 } from './constants.js';
 import { generateHexRadius, hexDistance, physicalNeighbors, shortestMovementPath } from './hex.js';
 import { getCivilization } from '../civs/index.js';
-import { generateFFA36Map, autoPlaceFFAPlayerCUs } from '../maps/ffa36.js';
+import { generateFFA36Map, generateFFA60Map, autoPlaceFFAPlayerCUs } from '../maps/ffa36.js';
 import { createExplorationState, cardById, shuffleCards } from './exploration.js';
 
 const clone = v => structuredClone(v);
@@ -82,7 +82,8 @@ export class AoEGame {
   static createFFA({
     players,
     seed = 'aevum-ffa',
-    cuSelectionOrder = null
+    cuSelectionOrder = null,
+    mapPreset = 'ffa36'
   } = {}) {
     if (!Array.isArray(players) || players.length < 2 || players.length > 4) {
       throw new RuleError('FFA requiere entre 2 y 4 jugadores.');
@@ -92,7 +93,9 @@ export class AoEGame {
       ...p,
       id: p.id || `P${i + 1}`
     }));
-    const map = generateFFA36Map({ seed, players: normalizedPlayers });
+    if(!['ffa36','ffa60'].includes(mapPreset)) throw new RuleError('Mapa FFA desconocido.');
+    const generator=mapPreset==='ffa60'?generateFFA60Map:generateFFA36Map;
+    const map = generator({ seed, players: normalizedPlayers });
     const placements = autoPlaceFFAPlayerCUs(
       map,
       normalizedPlayers,
@@ -108,7 +111,7 @@ export class AoEGame {
     });
 
     game.state.mapMeta = {
-      preset: 'ffa36',
+      preset: map.preset,
       seed: map.seed,
       terrainIds: [...map.terrainIds],
       perimeterIds: [...map.perimeterIds],
