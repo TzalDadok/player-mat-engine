@@ -104,6 +104,9 @@ export class AoEGame {
       seed: map.seed,
       terrainIds: [...map.terrainIds],
       perimeterIds: [...map.perimeterIds],
+      builders: clone(map.builders),
+      placementHistory: clone(map.placementHistory),
+      discardedTerrain: clone(map.discarded),
       startPositions: placements.map(cu => ({
         playerId: cu.tcOwnerId,
         cuHexId: cu.id,
