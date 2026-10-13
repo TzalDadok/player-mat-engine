@@ -81,7 +81,7 @@ function forceOf(game, playerId, units) {
 }
 
 export class BaselineBot {
-  constructor({ playerId, seed = 'bot', aggression = 0.7, maxVillagers = 4 } = {}) {
+  constructor({ playerId, seed = 'bot', aggression = 0.2, maxVillagers = 4 } = {}) {
     this.playerId = playerId;
     this.random = createRng(`${seed}:${playerId}`);
     this.aggression = aggression;
@@ -350,6 +350,16 @@ export class BaselineBot {
   takeEconomy(game) {
     this.ensureFreeCargoOps(game);
 
+    const hub = this.hub(game);
+    const hasCargoAway = this.villagers(game).some(
+      v => v.hexId !== hub.id && (v.cargo?.length || 0) > 0
+    );
+
+    if (hasCargoAway) {
+      const returning = this.moveLogistics(game);
+      if (returning.ok) return returning;
+    }
+
     if (game.state.round % 3 === 0) {
       const trained = this.tryTrainVillager(game);
       if (trained.ok) return trained;
@@ -535,7 +545,7 @@ export class BaselineBot {
         const bids = this.attackBid(game, direct, nextId, defenderBid);
 
         const favorable =
-          atkForce + bids.attackerBid >=
+          atkForce + bids.attackerBid >
           forceOf(game, defenderId, defParts) + defenderBid;
 
         if (!favorable && this.random() > this.aggression) continue;
