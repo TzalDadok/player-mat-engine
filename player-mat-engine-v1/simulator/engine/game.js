@@ -1251,7 +1251,7 @@ export class AoEGame {
       delete buildMod.buildWoodDiscount;
     }
 
-    this.spendAt(hexId, buildCost);
+    this.spendLocalWithCiv(playerId, hexId, buildCost);
     const building = this.addBuilding(playerId, buildingType, hexId);
     this.completeAction('build', { buildingId: building.id, buildingType, hexId });
     return building;
@@ -1292,22 +1292,49 @@ export class AoEGame {
       const options = [
         { age: rule.age, building: rule.building, cost: rule.cost },
         ...(rule.alternateTraining || [])
-      ].filter(o => this.ageAllows(player, o.age));
+      ];
+
+      for (const effect of this.activeEffects(playerId)) {
+        if (
+          effect === 'alternateTraining:cavalry:castle' &&
+          this.effectiveUnitSpec(playerId, r.type).tags?.includes('cavalry')
+        ) {
+          options.push({ age: 'castles', building: 'castle', cost: rule.cost });
+        }
+      }
+
+      const availableOptions = options.filter(o => this.ageAllows(player, o.age));
 
       let option = null;
       let spawnHexId = null;
+      let building = null;
 
       if (!r.buildingId) {
-        option = options.find(o => o.building === 'tc');
+        option = availableOptions.find(o => o.building === 'tc');
         if (option) spawnHexId = player.tcHexId;
       } else {
-        const building = this.state.buildings.find(
+        building = this.state.buildings.find(
           b => b.id === r.buildingId && b.ownerId === playerId
         );
 
         if (!building) throw new RuleError('Edificio de entrenamiento inválido.');
 
-        option = options.find(o => o.building === building.type);
+        option = availableOptions.find(o => o.building === building.type);
+
+        if (
+          !option &&
+          this.hasEffect(playerId, 'castleTrainingAdjacent:cavalry') &&
+          this.effectiveUnitSpec(playerId, r.type).tags?.includes('cavalry')
+        ) {
+          const castle = this.state.buildings.find(
+            b =>
+              b.ownerId === playerId &&
+              b.type === 'castle' &&
+              hexDistance(this.hexMap.get(b.hexId), this.hexMap.get(building.hexId)) <= 1
+          );
+          if (castle) option = { age: 'imperial', building: building.type, cost: rule.cost };
+        }
+
         if (option) spawnHexId = building.hexId;
       }
 
@@ -1315,17 +1342,74 @@ export class AoEGame {
         throw new RuleError(`No hay un punto válido para entrenar ${base.name}.`);
       }
 
-      const cost = this.effectiveUnitCost(playerId, r.type, option.cost);
+      const cost = this.trainingCostFor(playerId, r.type, option.cost);
 
       if (r.type === 'villager') {
         this.spendControlled(playerId, cost);
         player.stats.villagersTrained++;
       } else {
-        this.spendAt(spawnHexId, cost);
+        this.spendLocalWithCiv(playerId, spawnHexId, cost, { unitType: r.type });
         if (base.category === 'military') player.stats.militaryTrained++;
       }
 
-      created.push(this.addUnit(playerId, r.type, spawnHexId));
+      let finalSpawnHexId = spawnHexId;
+
+      const chooseAdjacent = desiredId => {
+        if (!desiredId) return null;
+        const h = this.hexMap.get(desiredId);
+        const origin = this.hexMap.get(spawnHexId);
+        if (!h || !origin || hexDistance(origin, h) !== 1) {
+          throw new RuleError('El hexágono de aparición alternativo debe ser adyacente.');
+        }
+        return h.id;
+      };
+
+      if (
+        r.spawnHexId &&
+        r.type === 'villager' &&
+        this.hasEffect(playerId, 'spawnAdjacent:villager')
+      ) {
+        finalSpawnHexId = chooseAdjacent(r.spawnHexId);
+      } else if (
+        r.spawnHexId &&
+        this.effectiveUnitSpec(playerId, r.type).tags?.includes('ranged') &&
+        this.hasEffect(playerId, 'spawnAdjacent:ranged')
+      ) {
+        finalSpawnHexId = chooseAdjacent(r.spawnHexId);
+      } else if (
+        r.spawnHexId &&
+        this.effectiveUnitSpec(playerId, r.type).tags?.includes('ship') &&
+        this.hasEffect(playerId, 'spawnAdjacent:ships')
+      ) {
+        finalSpawnHexId = chooseAdjacent(r.spawnHexId);
+        if (this.hexMap.get(finalSpawnHexId).terrain !== 'water') {
+          throw new RuleError('Astillero sólo permite aparecer en Agua adyacente.');
+        }
+      } else if (
+        r.spawnHexId &&
+        r.type === 'scorpion' &&
+        this.hasEffect(playerId, 'spawnAdjacent:scorpion')
+      ) {
+        finalSpawnHexId = chooseAdjacent(r.spawnHexId);
+      } else if (
+        r.spawnHexId &&
+        this.effectiveUnitSpec(playerId, r.type).tags?.includes('cavalry') &&
+        this.hasEffect(playerId, 'spawnMilitaryBuilding:cavalry')
+      ) {
+        const destination = this.state.buildings.find(
+          b =>
+            b.ownerId === playerId &&
+            b.hexId === r.spawnHexId &&
+            BUILDING_TYPES[b.type]?.category === 'military'
+        );
+        if (!destination) {
+          throw new RuleError('Movilización requiere una construcción militar propia.');
+        }
+        finalSpawnHexId = r.spawnHexId;
+      }
+
+      created.push(this.addUnit(playerId, r.type, finalSpawnHexId));
+      this.recordTraining(playerId, r.type);
     }
 
     this.completeAction('train', {
