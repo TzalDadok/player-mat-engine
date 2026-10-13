@@ -1,187 +1,333 @@
 # AoE BoardGame — Simulador
 
-## Hito 1 — Motor base
+## Hito 1 — Motor jugable
 
-El simulador está separado de la interfaz. El estado completo de una partida vive en `AoEGame`, y las futuras interfaces, bots y simulaciones masivas consumirán ese mismo motor.
+**Estado: cerrado para simulación v0.1.**
 
-### Implementado
+El simulador usa un único motor de reglas (`AoEGame`) independiente de la interfaz. La misma base queda preparada para el siguiente hito: bots y simulaciones masivas.
 
-- Partidas de 2 a 4 jugadores.
-- Modo de partida guardado en el estado.
-- Mapa hexagonal mediante coordenadas axiales.
-- Distancia, adyacencia y búsqueda de caminos.
-- Centro Urbano como hexágono especial, no como edificio.
-- Maravilla como hexágono especial.
-- Turno: Economía → Tecnología → Militar.
-- Hasta una acción de cada categoría y posibilidad de pasar.
-- Recursos como fichas físicas sin propietario.
-- Control de territorio determinado por unidades y edificios.
-- Gasto local para construir y entrenar unidades militares.
-- Gasto distribuido entre territorios controlados para Aldeanos, tecnologías, Edad e Instruir.
-- Transporte de recursos mediante carga de unidades.
-- Producción limitada por Edad: 2 / 3 / 4 / 5 hexágonos.
-- Producción de múltiples Aldeanos dentro de un mismo hexágono.
-- Molino como productor adicional en Animales y Frutos.
-- Campamento de Recursos como productor adicional en Bosque, Oro y Piedra.
-- Granjas: máximo 2 por hexágono y producción por parejas Granja + Aldeano.
+La interfaz manual está en:
+
+`/simulator/index.html`
+
+## Qué quedó implementado
+
+### Partida y turno
+
+- 2 a 4 jugadores.
+- Fases Economía → Tecnología → Militar.
+- Una acción por fase, con posibilidad de pasar.
+- Rondas, jugador activo, log completo y snapshot serializable.
+- Victoria FFA inmediata cuando queda una sola civilización.
+- Puntuación Competitiva y final repentino a 5 estrellas.
+- Desempate Competitivo por puntos → territorios → Poder de Pelea.
+
+### Mapa
+
+- Coordenadas hexagonales axiales.
+- Adyacencia, distancia y pathfinding.
+- Movimiento terrestre y naval.
+- Montañas detienen el movimiento.
+- Empalizadas por lado de hexágono.
+- Dos o más unidades pueden destruir una Empalizada gastando MOVER y quedándose en origen.
+- Maravilla.
+- Centros Urbanos como hexágonos especiales, no edificios.
+- Generador FFA determinista por `seed`.
+- Preset FFA: 48 terrenos + Maravilla + CUs externos.
+- 32 terrenos primarios y 16 secundarios.
+- Repetición exacta de mapas usando la misma `seed`.
+
+### Recursos y economía
+
+- Comida, Madera, Piedra y Oro como fichas físicas sobre el mapa.
+- Los recursos no tienen propietario.
+- Control territorial determinado por presencia.
+- Producción limitada a 2 / 3 / 4 / 5 hexágonos según Edad.
+- Producción por múltiples Aldeanos.
+- Molino y Campamento como productores adicionales.
+- Granjas con hasta 2 pares Granja + Aldeano por hexágono.
 - Pesca costera.
-- Sobreexplotación después de producir dos turnos propios consecutivos.
-- Transformación de terrenos agotados:
-  - Frutos / Animales / Bosque → Llanura.
-  - Oro / Piedra → Agua.
-- Movimiento económico durante Economía.
-- Movimiento económico o militar durante Militar.
-- Movimiento en grupo desde un mismo hexágono.
-- Montaña detiene el movimiento al entrar.
-- Base del movimiento naval A ↔ B.
-- Empalizadas almacenadas por lado de hexágono.
-- Construcción económica y militar.
-- Regla general de un edificio de cada tipo.
+- Producción mediante Pesqueros.
+- Transporte mediante capacidad de carga.
+- Carretilla y tecnologías de transporte.
+- Sobreexplotación por producción en dos turnos propios consecutivos.
+- Animales / Frutos / Bosque agotados → Llanura.
+- Oro / Piedra agotados → Agua.
+- Gasto local cuando corresponde.
+- Gasto desde territorios controlados cuando corresponde.
+- Pastoreo britón.
+- Forraje persa.
+- Maestros Artesanos / sustitución de Piedra.
+- Saqueos vikingos.
+- Tributo Real persa.
+- Carreta Mercante.
+- Desmantelar.
+- Excedentes.
+- Satrapías.
+- Colonos del Norte.
+- Captura de Granjas mediante Asentamiento Vikingo.
+- Doble Filo, Minería, Canteros, Qanats y otros modificadores de producción.
+- Admin. Real aplicado a construcciones productivas.
+- Comercio entre jugadores con Mercado y Oro obligatorio.
+
+### Construcción y entrenamiento
+
+- Costes por civilización.
+- Disponibilidad por Edad.
+- Un edificio de cada tipo salvo excepciones como Granjas.
 - Entrenamiento de múltiples unidades en una acción.
-- Investigación genérica.
-- Avance de Edad.
-- Irrigar, Drenar y Fortificar.
-- Instruir: 1 Oro → +1 Poder de Pelea.
-- Poder de Pelea máximo 16.
-- Apuesta máxima estándar 7.
-- Apoyo de unidades con Alcance.
-- Empate de combate a favor del defensor.
-- Bajas iguales a la diferencia entre Fuerzas finales.
-- Elección explícita de bajas o selección automática para simulaciones.
-- Supervivientes derrotados regresan al CU.
-- Destrucción de edificios tras conquista.
-- Ocupación sin batalla cuando no existe defensa militar.
-- Eliminación de civilización al conquistar su Centro Urbano.
-- Al eliminar una civilización se retiran unidades y edificios, pero los recursos permanecen.
-- Victoria FFA cuando queda una sola civilización.
-- Log de acciones de partida.
-- Snapshot serializable del estado.
+- Puntos de entrenamiento alternativos según civilización.
+- Caballero franco desde Castillo.
+- Milicia vikinga desde Castillo.
+- Aldeanos vikingos desde Molino / Campamento según Edad.
+- Descuentos de primera unidad.
+- Conscripción.
+- Flota Tributaria.
+- Herrería.
+- Criad. Reales.
+- Colonización / aparición adyacente.
+- Marcha Disciplinada.
+- Astillero.
+- Ingeniería.
+- Movilización.
 
-### Tests automáticos
+### Tecnología y terreno
 
-`simulator/tests/hito1-smoke.mjs` comprueba actualmente:
+- Investigación según Player Mat.
+- Costes y requisitos de Edad.
+- Avance secuencial de Edad.
+- Irrigar.
+- Drenar.
+- Fortificar.
+- Muralla franca: alternativa de 2 Piedra para Fortificar.
+- Conocimiento Ancestral aplicado a tecnologías.
 
-- que el CU no sea tratado como edificio;
-- que no aparezcan recursos iniciales inexistentes;
-- gasto desde territorios controlados;
-- avance de Edad;
-- producción con múltiples productores;
-- producción extra de Molino;
-- sobreexplotación;
-- bajas de combate;
-- ocupación del territorio;
-- conquista y eliminación por Centro Urbano.
+### Civilizaciones
 
-GitHub Actions ejecuta estos tests antes de publicar GitHub Pages.
+El motor tiene datos independientes para:
 
-## Integración de civilizaciones
-
-Ya existe una capa independiente en `simulator/civs/` para:
-
-- Britones;
-- Francos;
-- Vikingos;
+- Britones.
+- Francos.
+- Vikingos.
 - Persas.
 
-El motor ya consulta esa capa para:
+El motor consulta la civilización para decidir:
 
-- unidades disponibles por civilización y Edad;
-- edificios disponibles por civilización y Edad;
-- costes particulares;
+- unidades;
+- edificios;
+- costes;
+- edades;
+- tecnologías;
 - puntos de entrenamiento;
-- tecnologías y requisitos;
-- tecnologías ya investigadas;
-- cambios de Fuerza;
-- cambios de Movimiento;
-- cambios de capacidad de transporte;
-- modificadores genéricos de producción;
-- terreno permitido para Granjas;
-- bloqueo de unidades/edificios de otras civilizaciones.
+- Fuerza;
+- Movimiento;
+- Alcance;
+- transporte;
+- producción;
+- habilidades y excepciones.
 
-También expone `civilizationState(playerId)`, `availableUnits()`, `availableBuildings()` y `availableTechnologies()`, pensados para la futura interfaz y los bots.
+La lógica central evita depender de `if (civ === ...)` dispersos.
 
-### Efectos ya interpretados automáticamente
+### Combate
 
-La capa de efectos permite modelar una tecnología como datos, sin agregar `if (civ === ...)` al motor. Ya funcionan, entre otros:
+- Fuerza base.
+- Apoyo a distancia.
+- Apuesta de Poder de Pelea.
+- Máximo estándar de apuesta 7.
+- Poder de Pelea máximo 16.
+- Empate para el defensor.
+- Bajas iguales a la diferencia de Fuerzas finales.
+- Selección manual o automática de bajas.
+- Supervivientes derrotados vuelven al CU.
+- Edificios destruidos en una conquista.
+- Ocupación sin combate cuando no existe defensa militar.
+- Eliminación al conquistar el CU.
+- Desglose de Fuerza para depuración.
+- Bonificaciones por parejas.
+- Piquero contra Caballería.
+- Escorpión contra unidades a pie.
+- Ariete / Trebuchet contra edificios.
+- Castillo dando apoyo.
+- Torre según tecnología.
+- Guerrero Vikingo.
+- Hacha de Guerra.
+- Carga.
+- Mahouts.
+- Howdah.
+- Rompemuros.
+- Berserkergang.
+- Fortificación Real.
+- Jefes Guerreros.
+- Saqueo franco.
+- Dominio Naval britón.
 
-- Carretilla;
-- Telar;
-- Hombre de Armas;
-- Doble Filo;
-- Exp. Aurífera / Minería Imperial;
-- Canteros;
-- Ganadería;
-- Qanats para construir Granjas en Desierto;
-- bonificación de Qanats junto a Montaña;
-- Armadura Laminar;
-- Caballería Pesada;
-- Flota Imperial;
-- Criad. Reales.
+### Religiosos
 
-Los efectos más contextuales siguen registrados como datos pero se resolverán en los módulos correspondientes de combate/economía avanzada.
+- Monje y Misionero.
+- Curar después de calcular bajas.
+- Conversión de supervivientes derrotados.
+- Herejía.
+- Lealtad Imperial persa para Elefantes.
+- Encuentro religioso contra religioso: ambos vuelven al CU.
+- Reliquias transportadas únicamente por unidades religiosas.
+- Las Reliquias caen al terreno cuando corresponde.
 
-### Costes provisionales
+### Asedio
 
-Los Player Mats actuales no fijan de forma explícita en el repositorio el coste de algunas unidades habilitadas mediante textos de Castillo, Monasterio o Asedio. Para poder ejecutar el motor, estos costes están marcados como `provisionalCost` y no deben tomarse todavía como balance final:
-
-- Longbow;
-- Misionero;
-- Monje;
-- Ariete;
-- Escorpión;
+- Movimiento 0 propio.
+- Transporte junto con otra unidad.
+- Aldeano operador requerido para aportar en batalla.
+- Ariete.
+- Escorpión.
 - Trebuchet.
 
-## Falta para cerrar Hito 1
+### Torre / Guarnición
 
-### Combate avanzado
+- Guarnición britona.
+- Arquería guarecida continúa aportando al combate.
+- Si la Torre cae, la unidad queda en el hexágono.
+- Zona de Control britona.
 
-Ya implementado:
+### Navegación
 
-- bonificaciones por parejas unidad contra unidad;
-- bonificaciones contra construcciones;
-- apoyo de Castillo a 1 hexágono;
-- efectos de Torre que agregan Fuerza en su propio hexágono;
-- Guerrero Vikingo;
-- Mahouts;
-- Carga;
-- Hacha de Guerra;
-- Rompemuros;
-- Berserkergang y aumento del máximo apostable;
-- Fortificación Real y aumento defensivo del máximo apostable;
-- Jefes Guerreros y recuperación de Poder apostado;
-- desglose detallado de Fuerza de cada combate;
-- máquinas de asedio con Movimiento 0 transportadas por otra unidad;
-- requisito de Aldeano operador para que el asedio participe;
-- Curar: religiosos supervivientes rescatan bajas después de calcularlas.
+- Barco de Transporte.
+- Galera.
+- Embarque desde tierra adyacente.
+- Desembarque en tierra adyacente.
+- Pasajeros acompañan al barco.
+- Drakkar habilita transporte de unidades en Galera.
+- Flota Imperial modifica Movimiento.
+- Combate Naval Optimizado amplía la red de movimiento.
 
-Pendiente:
+### Exploración
 
-- Convertir;
-- Herejía / Lealtad Imperial aplicadas a conversión;
-- encuentros religioso contra religioso;
-- guarecer arquería en Torre;
-- reglas completas de embarque/desembarque;
-- cartas de combate;
-- resolución formal de combates pendientes al cierre del turno.
+Mazo determinista de 16 cartas:
 
-### Mapa y exploración
+- 7 Economía.
+- 3 Tecnología.
+- 6 Militar.
 
-- generador definitivo de mapas Competitivo y FFA;
-- mapa FFA de 48 territorios;
-- elección inicial de Centros Urbanos;
+Implementado:
+
+- una Montaña sólo se explora una vez;
+- robo al abandonar una Montaña;
+- Tesoro;
+- Mercenarios;
+- Reliquia;
+- Alijo;
+- Manos Extra;
+- Guías Locales;
+- Caravana;
+- Caza Abundante;
+- Buena Cosecha;
+- Ingenio;
+- Cartografía;
+- Conocimiento Ancestral;
+- Refuerzos;
+- Marcha Forzada;
+- +1 Poder de Pelea;
+- +2 Poder de Pelea.
+
+### Reliquias y Maravilla
+
+- Reliquias aparecen en Montaña.
+- Carta Reliquia vuelve al mazo y lo remezcla.
+- Transporte religioso.
+- Depósito en Monasterio.
+- Cada Reliquia genera +2 Oro al inicio del turno.
+- Si cae el Monasterio, las Reliquias quedan en el hexágono.
+- Controlar la Maravilla hace INSTRUIR gratis.
+
+### Competitivo
+
+Objetivos oficiales del reglamento:
+
+- 8 Aldeanos: ★ + 5.
+- Todos los edificios: ★ + 5.
+- 5 comercios: ★ + 5.
+- 15 tecnologías: ★ + 20.
+- Imperial: ★ + 10.
+- 15 unidades militares: ★ + 15.
+- Llegar una vez a 16 Poder de Pelea: ★ + 10.
+- Maravilla: ★ + 10, transferible.
+- Cada civilización eliminada: ★ + 10 adicionales.
+
+Puntuación territorial:
+
+- Primario: +2.
+- Secundario: +1.
+- CU: 0.
+- Maravilla ya puntúa mediante su objetivo.
+
+Los logros históricos quedan asegurados. El jugador eliminado conserva su puntuación calculada antes de retirar sus componentes.
+
+## Interfaz manual
+
+La interfaz permite actualmente:
+
+- elegir 2, 3 o 4 civilizaciones;
+- definir `seed`;
+- generar FFA;
+- visualizar terreno, CU, Maravilla, unidades, edificios y recursos;
+- seleccionar hexágonos y unidades;
+- PRODUCIR;
+- MOVER;
+- CONSTRUIR;
+- ENTRENAR;
+- INVESTIGAR;
+- AVANZAR DE EDAD;
+- MODIFICAR TERRENO;
+- INSTRUIR;
+- ATACAR;
+- apostar Poder de Pelea;
+- cerrar fases;
+- ver la mano de Exploración;
+- consultar el log;
+- exportar el estado completo como JSON.
+
+Las acciones especiales más raras siguen accesibles desde el motor aunque todavía no todas tienen un control dedicado en la interfaz.
+
+## Tests automáticos
+
+GitHub Actions ejecuta antes de cada deploy:
+
+- smoke test general;
+- civilizaciones;
+- combate avanzado;
+- asedio y religiosos;
+- conversión / Herejía / Guarnición / navegación;
+- mapa FFA;
+- Exploración / Reliquias / Maravilla;
+- habilidades económicas;
 - cartas de Exploración;
-- exploración de Montañas;
-- Reliquias;
-- reglas completas de Maravilla;
-- cruce/destrucción de empalizadas durante MOVER.
+- scoring Competitivo y comercio;
+- comprobación sintáctica del motor y de la interfaz.
 
-### Otras reglas
+Si un test falla, GitHub Pages no publica esa versión.
 
-- comercio: falta cerrar en qué hexágono quedan físicamente los recursos intercambiados;
-- Puerto: falta formalizar la colocación exacta en el modelo;
-- scoring y estrellas del modo Competitivo;
-- condiciones finales completas de Competitivo.
+## Convenciones de simulación v0.1
 
-## Principio de diseño
+Hay algunos puntos que el reglamento físico aún no define con suficiente precisión. Para poder ejecutar partidas digitales se adoptan estas convenciones, separadas de las reglas oficiales:
 
-Las excepciones de civilización no deben quedar codificadas con `if (civ === ...)` dispersos por el motor. Se implementarán como modificadores/datos de civilización para que una simulación pueda cambiar costes, tecnologías o reglas sin reescribir el motor central.
+1. **Puerto:** el Aldeano se encuentra en tierra adyacente, paga allí el coste y el Puerto se coloca en el hexágono de Agua elegido.
+2. **Comercio:** el simulador exige indicar físicamente hexágono de origen y destino de cada lado del intercambio.
+3. **FFA48:** la forma compacta usa los anillos 1–3 completos y 12 posiciones repartidas en el anillo 4. La composición por defecto del pool de 32 primarios / 16 secundarios es un preset del simulador hasta disponer del diagrama físico definitivo.
+4. **Costes provisionales:** Longbow, Monje, Misionero, Ariete, Escorpión y Trebuchet conservan la marca `provisionalCost`.
+
+## Reglas todavía pendientes de definición externa
+
+No se inventaron estas decisiones porque el propio reglamento / Player Mats no las cierran:
+
+- **Mapa Competitivo:** el reglamento indica expresamente que faltan los diagramas definitivos de 2 y 4 jugadores.
+- **Desarrollo britón:** “recuperar 50%” no define cómo redondear Piedra/Oro cuando el coste contiene cantidades impares.
+- **Levas britonas:** el texto “hasta 2 unidades de rango” entra en conflicto con la regla general actual de ENTRENAR tantas unidades como puedas pagar.
+- **Desembarco franco / Drakkar Mejorado:** hace falta cerrar con precisión cómo se representa una acción adicional de una unidad dentro de un sistema de una sola acción Militar por jugador.
+- **Logística Naval vikinga:** falta fijar la capacidad exacta de recursos de cada barco cuando se cargan directamente desde la costa.
+
+Estas cinco decisiones no impiden ejecutar el núcleo del juego ni correr futuras simulaciones; se mantienen visibles para resolverlas en playtest.
+
+## Siguiente hito
+
+**Hito 2 — Bots.**
+
+El motor ya expone catálogos de acciones disponibles y estado serializable. El siguiente paso es crear agentes capaces de terminar partidas automáticamente y luego ejecutar grandes volúmenes de partidas para estudiar balance.
