@@ -111,3 +111,45 @@ console.log('FFA 48 map tests: OK');
 }
 
 console.log('FFA benchmark start selection tests: OK');
+
+{
+  for (const seed of BENCHMARK_SEEDS.slice(0,5)) {
+    const map=generateFFA48Map({seed});
+    autoPlaceFFAPlayerCUs(map,['P1','P2','P3','P4']);
+
+    const byId=new Map(map.hexes.map(h=>[h.id,h]));
+    const wonder=map.hexes.find(h=>h.special==='wonder');
+
+    const permanentReachable = startId => {
+      const queue=[startId];
+      const seen=new Set(queue);
+
+      while(queue.length){
+        const id=queue.shift();
+        if(id===wonder.id) return true;
+        const current=byId.get(id);
+
+        for(const h of map.hexes){
+          if(
+            h.terrain==='water' ||
+            ['gold','stone'].includes(h.source) ||
+            seen.has(h.id) ||
+            hexDistance(current,h)!==1
+          ) continue;
+          seen.add(h.id);
+          queue.push(h.id);
+        }
+      }
+      return false;
+    };
+
+    ok(
+      map.hexes
+        .filter(h=>h.special==='tc')
+        .every(cu=>permanentReachable(cu.tcAnchorId)),
+      `Seed ${seed}: los CUs automáticos del benchmark de cierre deben conservar una ruta terrestre permanente al centro.`
+    );
+  }
+}
+
+console.log('FFA permanent-corridor start tests: OK');
