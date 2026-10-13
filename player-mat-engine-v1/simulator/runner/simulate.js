@@ -1,5 +1,6 @@
 import { AoEGame } from '../engine/game.js';
 import { BaselineBot } from '../bots/baseline.js';
+import { getBotProfile } from '../bots/profiles.js';
 
 export const DEFAULT_CIVS = ['britanicos','francos','vikingos','persas'];
 
@@ -96,18 +97,24 @@ function snapshotMetrics(game, bots, status) {
 
 export function createFFABots(game, {
   botSeed = 'baseline',
-  aggression = 0.2,
-  maxVillagers = 4
+  profile = 'balanced',
+  profileByPlayer = null,
+  overrides = {}
 } = {}) {
-  return new Map(game.state.players.map(p => [
-    p.id,
-    new BaselineBot({
-      playerId:p.id,
-      seed:`${botSeed}:${game.state.mapMeta?.seed || ''}`,
-      aggression,
-      maxVillagers
-    })
-  ]));
+  return new Map(game.state.players.map(p => {
+    const profileId = profileByPlayer?.[p.id] || profile;
+    const config = getBotProfile(profileId);
+
+    return [
+      p.id,
+      new BaselineBot({
+        playerId:p.id,
+        seed:`${botSeed}:${game.state.mapMeta?.seed || ''}`,
+        ...config,
+        ...overrides
+      })
+    ];
+  }));
 }
 
 export function runFFAGame({
@@ -131,7 +138,12 @@ export function runFFAGame({
   }));
 
   const game = AoEGame.createFFA({ players, seed });
-  const bots = createFFABots(game, { botSeed, aggression, maxVillagers });
+  const bots = createFFABots(game, {
+    botSeed,
+    profile,
+    profileByPlayer,
+    overrides: botOverrides
+  });
 
   let steps = 0;
   let status = 'running';
