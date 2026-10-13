@@ -1339,27 +1339,27 @@
     "priority": [
       {
         "priority": 1,
-        "baseline": 0.242578125,
+        "baseline": 0.25546875,
         "compensated": 0.245703125,
-        "deltaPp": 0.3124999999999989
+        "deltaPp": -0.9765625000000028
       },
       {
         "priority": 2,
-        "baseline": 0.237890625,
+        "baseline": 0.279296875,
         "compensated": 0.2703125,
-        "deltaPp": 3.2421875000000018
+        "deltaPp": -0.8984374999999989
       },
       {
         "priority": 3,
-        "baseline": 0.273046875,
+        "baseline": 0.255078125,
         "compensated": 0.246484375,
-        "deltaPp": -2.6562500000000018
+        "deltaPp": -0.8593749999999983
       },
       {
         "priority": 4,
-        "baseline": 0.166796875,
+        "baseline": 0.21015625,
         "compensated": 0.2375,
-        "deltaPp": 7.070312499999998
+        "deltaPp": 2.734375
       }
     ],
     "perSeed": [
@@ -2204,9 +2204,9 @@
         ]
       }
     ],
-    "oldRangePp": 10.625000000000002,
+    "oldRangePp": 6.914062500000001,
     "newRangePp": 3.281250000000002,
-    "oldMeanAbsoluteDeviationPp": 3.1445312500000004,
+    "oldMeanAbsoluteDeviationPp": 1.9921875000000004,
     "newMeanAbsoluteDeviationPp": 1.0156250000000004
   }
 }
