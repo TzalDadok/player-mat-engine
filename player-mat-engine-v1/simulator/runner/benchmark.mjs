@@ -222,7 +222,8 @@ export function runBenchmark({
   maxRounds = 400,
   cuSelectionOrder = null,
   mapPreset = 'ffa36',
-  startingVillagers = 1
+  startingVillagers = 1,
+  requireTwoAdjacentLand = startingVillagers===3
 } = {}) {
   const games=[];
 
@@ -239,7 +240,8 @@ export function runBenchmark({
           maxRounds,
           cuSelectionOrder,
           mapPreset,
-          startingVillagers
+          startingVillagers,
+          requireTwoAdjacentLand
         });
 
         result.profile=profile;
@@ -267,6 +269,7 @@ export function runBenchmark({
     generatedAt:new Date().toISOString(),
     mapPreset,
     startingVillagers,
+    requireTwoAdjacentLand,
     seeds:[...seeds],
     profiles:[...profiles],
     civOrderBase:[...civs],
