@@ -1246,20 +1246,6 @@ export class AoEGame {
     const attacker = this.playerMap.get(playerId);
     const defender = this.playerMap.get(defenderId);
 
-    if (
-      attackerBid < 0 ||
-      attackerBid > Math.min(attacker.maxMilitaryBid, attacker.militaryPower)
-    ) {
-      throw new RuleError('Apuesta atacante inválida.');
-    }
-
-    if (
-      defenderBid < 0 ||
-      defenderBid > Math.min(defender.maxMilitaryBid, defender.militaryPower)
-    ) {
-      throw new RuleError('Apuesta defensora inválida.');
-    }
-
     const atkParts = this.combatParticipants(
       playerId,
       targetHexId,
@@ -1272,15 +1258,43 @@ export class AoEGame {
       []
     );
 
-    const atkForce = atkParts.reduce(
-      (n, u) => n + this.effectiveUnitSpec(playerId, u.type).force,
-      0
+    const attackerMaxBid = this.maxBidFor(playerId, {
+      role: 'attacker',
+      participants: atkParts,
+      targetHexId
+    });
+    const defenderMaxBid = this.maxBidFor(defenderId, {
+      role: 'defender',
+      participants: defParts,
+      targetHexId
+    });
+
+    if (attackerBid < 0 || attackerBid > attackerMaxBid) {
+      throw new RuleError('Apuesta atacante inválida.');
+    }
+
+    if (defenderBid < 0 || defenderBid > defenderMaxBid) {
+      throw new RuleError('Apuesta defensora inválida.');
+    }
+
+    const atkBreakdown = this.combatForceBreakdown(
+      playerId,
+      atkParts,
+      defParts,
+      targetHexId,
+      { role: 'attacker', directIds: direct.map(u => u.id) }
     );
 
-    const defForce = defParts.reduce(
-      (n, u) => n + this.effectiveUnitSpec(defenderId, u.type).force,
-      0
+    const defBreakdown = this.combatForceBreakdown(
+      defenderId,
+      defParts,
+      atkParts,
+      targetHexId,
+      { role: 'defender', directIds: [] }
     );
+
+    const atkForce = atkBreakdown.total;
+    const defForce = defBreakdown.total;
 
     const atkTotal = atkForce + attackerBid;
     const defTotal = defForce + defenderBid;
@@ -1288,6 +1302,13 @@ export class AoEGame {
 
     attacker.militaryPower -= attackerBid;
     defender.militaryPower -= defenderBid;
+
+    if (attackerWins && this.hasEffect(playerId, 'recoverBidOnWin:1') && attackerBid > 0) {
+      attacker.militaryPower = Math.min(MAX_MILITARY_POWER, attacker.militaryPower + 1);
+    }
+    if (!attackerWins && this.hasEffect(defenderId, 'recoverBidOnWin:1') && defenderBid > 0) {
+      defender.militaryPower = Math.min(MAX_MILITARY_POWER, defender.militaryPower + 1);
+    }
 
     const loserParts = attackerWins ? defParts : atkParts;
     const loserId = attackerWins ? defenderId : playerId;
@@ -1373,8 +1394,12 @@ export class AoEGame {
       targetHexId,
       attackerForce: atkForce,
       defenderForce: defForce,
+      attackerBreakdown: atkBreakdown,
+      defenderBreakdown: defBreakdown,
       attackerBid,
       defenderBid,
+      attackerMaxBid,
+      defenderMaxBid,
       attackerTotal: atkTotal,
       defenderTotal: defTotal,
       difference,
