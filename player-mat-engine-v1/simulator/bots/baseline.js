@@ -268,21 +268,31 @@ export class BaselineBot {
       }
     }
 
-    const needed = this.mostNeededResource(game);
+    const deficits = this.resourceDeficits(game);
+    const resourceOrder = Object.entries(deficits)
+      .filter(([, amount]) => amount > 0)
+      .sort((a,b) => b[1]-a[1])
+      .map(([type]) => type);
 
     for (const villager of villagers) {
       if (villager.cargo?.length) continue;
-      const source = this.nearestSourceFor(game, villager, needed);
-      if (!source || source.h.id === villager.hexId) {
-        this.loadUsefulCargo(game, villager, needed);
-        continue;
+
+      for (const needed of resourceOrder) {
+        const source = this.nearestSourceFor(game, villager, needed);
+        if (!source) continue;
+
+        if (source.h.id === villager.hexId) {
+          this.loadUsefulCargo(game, villager, needed);
+          continue;
+        }
+
+        const step = source.path[1];
+        if (!step) continue;
+        const moved = this.safe(game, 'seek-resource', () =>
+          game.moveUnits(this.playerId, [villager.id], step)
+        );
+        if (moved.ok) return moved;
       }
-      const step = source.path[1];
-      if (!step) continue;
-      const moved = this.safe(game, 'seek-resource', () =>
-        game.moveUnits(this.playerId, [villager.id], step)
-      );
-      if (moved.ok) return moved;
     }
 
     return { ok: false, label: 'logistics-none' };
