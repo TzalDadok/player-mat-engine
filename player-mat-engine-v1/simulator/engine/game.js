@@ -183,6 +183,84 @@ export class AoEGame {
     return AGES.indexOf(player.age) >= AGES.indexOf(requiredAge);
   }
 
+  availableUnits(playerId) {
+    const player = this.playerMap.get(playerId);
+    const civ = this.civFor(playerId);
+
+    return Object.entries(civ.units)
+      .filter(([, rule]) => this.ageAllows(player, rule.age))
+      .map(([type, rule]) => {
+        const base = this.effectiveUnitSpec(playerId, type);
+        const options = [
+          { age: rule.age, building: rule.building, cost: rule.cost },
+          ...(rule.alternateTraining || [])
+        ]
+          .filter(o => this.ageAllows(player, o.age))
+          .map(o => ({
+            ...o,
+            cost: this.effectiveUnitCost(playerId, type, o.cost)
+          }));
+
+        return {
+          type,
+          name: base.name,
+          category: base.category,
+          force: base.force,
+          range: base.range,
+          move: base.move,
+          carry: base.carry || 0,
+          training: options
+        };
+      });
+  }
+
+  availableBuildings(playerId) {
+    const player = this.playerMap.get(playerId);
+    const civ = this.civFor(playerId);
+
+    return Object.entries(civ.buildings)
+      .filter(([, rule]) => this.ageAllows(player, rule.age))
+      .map(([type, rule]) => ({
+        type,
+        name: BUILDING_TYPES[type]?.name || type,
+        category: BUILDING_TYPES[type]?.category || 'other',
+        cost: clone(rule.cost),
+        terrains: rule.terrains ? [...rule.terrains] : null,
+        maxPerHex: rule.maxPerHex || null
+      }));
+  }
+
+  availableTechnologies(playerId) {
+    const player = this.playerMap.get(playerId);
+    const civ = this.civFor(playerId);
+
+    return civ.technologies
+      .filter(t => !player.technologies.includes(t.id))
+      .filter(t => this.ageAllows(player, t.age))
+      .filter(t =>
+        !t.building ||
+        t.building === 'tc' ||
+        t.building === 'other' ||
+        this.state.buildings.some(b => b.ownerId === playerId && b.type === t.building)
+      )
+      .map(t => clone(t));
+  }
+
+  civilizationState(playerId) {
+    const player = this.playerMap.get(playerId);
+    const civ = this.civFor(playerId);
+
+    return {
+      id: civ.id,
+      name: civ.name,
+      age: player.age,
+      technologies: [...player.technologies],
+      units: this.availableUnits(playerId),
+      buildings: this.availableBuildings(playerId),
+      availableTechnologies: this.availableTechnologies(playerId)
+    };
+  }
+
   assertActive(playerId) {
     if (this.state.winnerId) throw new RuleError('La partida ya terminó.');
     if (this.activePlayer.id !== playerId) throw new RuleError('No es el turno de ese jugador.', 'NOT_ACTIVE_PLAYER');
