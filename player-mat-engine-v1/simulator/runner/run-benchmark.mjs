@@ -57,6 +57,17 @@ const lines=[
   ...result.seatSummary.map(s=>
     `| P${s.seat} | ${s.completedAppearances} | ${s.wins} | ${pct(s.winRate)} | ${ci(s.winRateCI95)} | ${fmt(s.avgStartScore)} |`
   ),
+  '',
+  '## Civilization × seat win rates',
+  '',
+  '| Seat | '+result.civOrderBase.map(c=>c).join(' | ')+' |',
+  '|---|'+result.civOrderBase.map(()=> '---:').join('|')+'|',
+  ...result.seatCivSummary.map((seat,idx)=>
+    `| P${idx+1} | ${result.civOrderBase.map(civ=>{
+      const row=seat[civ];
+      return row ? `${pct(row.winRate)} (${row.wins}/${row.completedAppearances})` : '—';
+    }).join(' | ')} |`
+  ),
   ''
 ];
 
