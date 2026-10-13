@@ -10,6 +10,14 @@ import {
 } from '../engine/hex.js';
 import { createRng, pickRandom, shuffle } from './rng.js';
 
+function stableTargetTie(seed, attacker, defender){
+  let h=2166136261;
+  for(const ch of String(seed)+':'+attacker+':'+defender){
+    h=Math.imul(h^ch.charCodeAt(0),16777619);
+  }
+  return h>>>0;
+}
+
 function strategicLandPath(game, fromId, toId) {
   if (fromId === toId) return [fromId];
 
@@ -523,14 +531,14 @@ export class BaselineBot {
         path,
         armyForce,
         score,
-        tieBreak:player.id
+        tieBreak:stableTargetTie(game.state.mapMeta?.seed || '',this.playerId,player.id)
       };
     })
       .filter(x => x.path)
       .sort((a, b) =>
         a.score - b.score ||
         a.path.length - b.path.length ||
-        a.tieBreak.localeCompare(b.tieBreak)
+        a.tieBreak - b.tieBreak
       );
   }
 
