@@ -68,6 +68,14 @@ export function runBatch({
   }
 
   const completed = rows.filter(r => r.status === 'completed');
+  const statusCounts = {};
+  const stallCategories = {};
+  for (const row of rows) {
+    statusCounts[row.status] = (statusCounts[row.status] || 0) + 1;
+    for (const [category, count] of Object.entries(row.stall?.categories || {})) {
+      stallCategories[category] = (stallCategories[category] || 0) + count;
+    }
+  }
 
   return {
     config:{games,civs:[...civs],seedPrefix,maxRounds,aggression,maxVillagers},
@@ -75,6 +83,8 @@ export function runBatch({
     completionRate:games ? completed.length/games : 0,
     avgRounds:mean(completed.map(r => r.rounds)),
     avgCombats:mean(completed.map(r => r.combats)),
+    statusCounts,
+    stallCategories,
     civs:civSummary,
     games:rows
   };
@@ -87,6 +97,8 @@ export function printBatchSummary(summary) {
   console.log(`Completed: ${summary.completed} (${formatPct(summary.completionRate)})`);
   console.log(`Avg rounds: ${summary.avgRounds.toFixed(1)}`);
   console.log(`Avg combats: ${summary.avgCombats.toFixed(1)}`);
+  console.log(`Statuses: ${JSON.stringify(summary.statusCounts)}`);
+  console.log(`Stalls: ${JSON.stringify(summary.stallCategories)}`);
   console.log('');
   console.log('Civilization summary');
   for (const [civ, s] of Object.entries(summary.civs)) {
