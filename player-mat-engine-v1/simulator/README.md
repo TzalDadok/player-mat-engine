@@ -135,12 +135,32 @@ Los Player Mats actuales no fijan de forma explícita en el repositorio el coste
 
 ### Combate avanzado
 
-- bonificaciones unidad contra unidad;
+Ya implementado:
+
+- bonificaciones por parejas unidad contra unidad;
 - bonificaciones contra construcciones;
-- Torre y Castillo;
-- Monjes / Misioneros: Curar y Convertir;
-- Herejía;
-- máquinas de asedio y requisito de Aldeano operador;
+- apoyo de Castillo a 1 hexágono;
+- efectos de Torre que agregan Fuerza en su propio hexágono;
+- Guerrero Vikingo;
+- Mahouts;
+- Carga;
+- Hacha de Guerra;
+- Rompemuros;
+- Berserkergang y aumento del máximo apostable;
+- Fortificación Real y aumento defensivo del máximo apostable;
+- Jefes Guerreros y recuperación de Poder apostado;
+- desglose detallado de Fuerza de cada combate;
+- máquinas de asedio con Movimiento 0 transportadas por otra unidad;
+- requisito de Aldeano operador para que el asedio participe;
+- Curar: religiosos supervivientes rescatan bajas después de calcularlas.
+
+Pendiente:
+
+- Convertir;
+- Herejía / Lealtad Imperial aplicadas a conversión;
+- encuentros religioso contra religioso;
+- guarecer arquería en Torre;
+- reglas completas de embarque/desembarque;
 - cartas de combate;
 - resolución formal de combates pendientes al cierre del turno.
 
