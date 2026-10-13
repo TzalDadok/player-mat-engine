@@ -56,7 +56,15 @@ export class AoEGame {
         technologies: [],
         eliminated: false,
         tcHexId: null,
-        stats: { villagersTrained: 0, militaryTrained: 0, trades: 0 }
+        stats: {
+          villagersTrained: 0,
+          militaryTrained: 0,
+          trades: 0,
+          buildingsConstructed: [],
+          eliminations: 0,
+          reached16MilitaryPower: false
+        },
+        eliminatedScore: null
       })),
       units: [],
       buildings: [],
@@ -345,6 +353,7 @@ export class AoEGame {
   completeAction(type, data = {}) {
     this.state.actionUsed = true;
     this.log(type, data);
+    this.checkCompetitiveEnd();
   }
 
   endPhase() {
@@ -1262,7 +1271,7 @@ export class AoEGame {
     }
 
     if (hex.special === 'tc' && hex.tcOwnerId && hex.tcOwnerId !== attackerId) {
-      this.eliminatePlayer(hex.tcOwnerId);
+      this.eliminatePlayer(hex.tcOwnerId, attackerId);
     }
   }
 
@@ -1522,6 +1531,9 @@ export class AoEGame {
 
     this.spendLocalWithCiv(playerId, paymentHexId, buildCost);
     const building = this.addBuilding(playerId, buildingType, hexId);
+    if (!player.stats.buildingsConstructed.includes(buildingType)) {
+      player.stats.buildingsConstructed.push(buildingType);
+    }
     this.completeAction('build', { buildingId: building.id, buildingType, hexId });
     return building;
   }
@@ -1823,7 +1835,201 @@ export class AoEGame {
       this.spendControlled(playerId, { gold: 1 });
     }
     p.militaryPower++;
+    if (p.militaryPower >= MAX_MILITARY_POWER) {
+      p.stats.reached16MilitaryPower = true;
+    }
     this.completeAction('instruct', { militaryPower: p.militaryPower });
+  }
+
+  trade(playerId, partnerId, { give, receive } = {}) {
+    this.assertActive(playerId);
+    this.assertPhase('economy');
+
+    const partner = this.playerMap.get(partnerId);
+    if (!partner || partner.eliminated || partnerId === playerId) {
+      throw new RuleError('Socio comercial inválido.');
+    }
+
+    const marketExists = this.state.buildings.some(b => b.type === 'market');
+    if (!marketExists) throw new RuleError('Debe existir al menos un Mercado construido.');
+
+    if (!give || !receive) throw new RuleError('El comercio requiere ambos lados del intercambio.');
+
+    const giveGold = Number(give.resources?.gold || 0);
+    const receiveGold = Number(receive.resources?.gold || 0);
+    if (giveGold + receiveGold < 1) {
+      throw new RuleError('Todo comercio debe incluir Oro como pago.');
+    }
+
+    const validateSide = (ownerId, recipientId, side) => {
+      const owner = this.playerMap.get(ownerId);
+      const recipient = this.playerMap.get(recipientId);
+      if (!owner || !recipient) throw new RuleError('Jugador de comercio inexistente.');
+
+      const sourceControlled =
+        this.controllerOf(side.fromHexId) === ownerId ||
+        owner.tcHexId === side.fromHexId;
+
+      const destinationControlled =
+        this.controllerOf(side.toHexId) === recipientId ||
+        recipient.tcHexId === side.toHexId;
+
+      if (!sourceControlled || !destinationControlled) {
+        throw new RuleError('Origen y destino del comercio deben estar controlados por sus respectivos jugadores.');
+      }
+    };
+
+    validateSide(playerId, partnerId, give);
+    validateSide(partnerId, playerId, receive);
+
+    const giveTotal = RESOURCE_TYPES.reduce((n,r)=>n+Number(give.resources?.[r]||0),0);
+    const receiveTotal = RESOURCE_TYPES.reduce((n,r)=>n+Number(receive.resources?.[r]||0),0);
+    if (giveTotal < 1 || receiveTotal < 1) {
+      throw new RuleError('Ambos jugadores deben entregar al menos un recurso.');
+    }
+
+    this.transferResourceTokens(give.fromHexId, give.toHexId, give.resources, giveTotal);
+    this.transferResourceTokens(receive.fromHexId, receive.toHexId, receive.resources, receiveTotal);
+
+    this.playerMap.get(playerId).stats.trades++;
+    partner.stats.trades++;
+
+    this.completeAction('trade', {
+      playerId,
+      partnerId,
+      give: clone(give),
+      receive: clone(receive)
+    });
+
+    return true;
+  }
+
+  competitiveObjectives(playerId) {
+    const player = this.playerMap.get(playerId);
+    const civ = this.civFor(playerId);
+    if (!player) throw new RuleError('Jugador inexistente.');
+
+    const constructed = new Set(player.stats.buildingsConstructed || []);
+    const requiredBuildings = Object.keys(civ.buildings);
+    const allBuildings = requiredBuildings.every(type => constructed.has(type));
+
+    const objectives = [
+      {
+        id: 'villagers8',
+        achieved: player.stats.villagersTrained >= 8,
+        points: 5
+      },
+      {
+        id: 'allBuildings',
+        achieved: allBuildings,
+        points: 5
+      },
+      {
+        id: 'trades5',
+        achieved: player.stats.trades >= 5,
+        points: 5
+      },
+      {
+        id: 'technologies15',
+        achieved: player.technologies.length >= 15,
+        points: 20
+      },
+      {
+        id: 'imperial',
+        achieved: player.age === 'imperial',
+        points: 10
+      },
+      {
+        id: 'military15',
+        achieved: player.stats.militaryTrained >= 15,
+        points: 15
+      },
+      {
+        id: 'militaryPower16',
+        achieved: !!player.stats.reached16MilitaryPower,
+        points: 10
+      }
+    ];
+
+    const wonder = this.state.hexes.find(h => h.special === 'wonder');
+    objectives.push({
+      id: 'wonder',
+      achieved: !!wonder && this.controllerOf(wonder.id) === playerId,
+      points: 10,
+      transferable: true
+    });
+
+    return objectives;
+  }
+
+  competitiveScore(playerId, { useFrozen = true } = {}) {
+    const player = this.playerMap.get(playerId);
+    if (!player) throw new RuleError('Jugador inexistente.');
+
+    if (useFrozen && player.eliminatedScore) return clone(player.eliminatedScore);
+
+    const objectives = this.competitiveObjectives(playerId);
+    const achieved = objectives.filter(o => o.achieved);
+    const objectivePoints = achieved.reduce((n,o)=>n+o.points,0);
+    const objectiveStars = achieved.length;
+
+    let primary = 0;
+    let secondary = 0;
+    let territories = 0;
+
+    for (const hex of this.state.hexes) {
+      if (hex.special) continue;
+      if (this.controllerOf(hex.id) !== playerId) continue;
+
+      territories++;
+      if (SOURCE_TO_RESOURCE[hex.source] || hex.terrain === 'forest') primary++;
+      else secondary++;
+    }
+
+    const eliminationStars = player.stats.eliminations || 0;
+    const eliminationPoints = eliminationStars * 10;
+
+    return {
+      playerId,
+      objectiveStars,
+      eliminationStars,
+      stars: objectiveStars + eliminationStars,
+      objectivePoints,
+      eliminationPoints,
+      primaryTerritories: primary,
+      secondaryTerritories: secondary,
+      territories,
+      territoryPoints: primary * 2 + secondary,
+      militaryPower: player.militaryPower,
+      points: objectivePoints + eliminationPoints + primary * 2 + secondary,
+      objectives: clone(objectives)
+    };
+  }
+
+  competitiveRankings() {
+    return this.state.players
+      .map(p => this.competitiveScore(p.id))
+      .sort((a,b) =>
+        b.points - a.points ||
+        b.territories - a.territories ||
+        b.militaryPower - a.militaryPower
+      );
+  }
+
+  checkCompetitiveEnd() {
+    if (this.state.mode !== 'competitive' || this.state.winnerId) return null;
+
+    const scores = this.state.players.map(p => this.competitiveScore(p.id));
+    if (!scores.some(s => s.stars >= 5)) return null;
+
+    const rankings = this.competitiveRankings();
+    this.state.competitiveFinal = rankings;
+    this.state.winnerId = rankings[0]?.playerId || null;
+    this.log('competitive-game-end', {
+      winnerId: this.state.winnerId,
+      rankings: clone(rankings)
+    });
+    return rankings;
   }
 
   modifiersFor(playerId) {
@@ -2656,7 +2862,7 @@ export class AoEGame {
         target.special === 'tc' &&
         target.tcOwnerId === defenderId
       ) {
-        this.eliminatePlayer(defenderId);
+        this.eliminatePlayer(defenderId, playerId);
       }
     }
 
@@ -2694,9 +2900,17 @@ export class AoEGame {
     return result;
   }
 
-  eliminatePlayer(playerId) {
+  eliminatePlayer(playerId, killerId = null) {
     const p = this.playerMap.get(playerId);
     if (!p || p.eliminated) return;
+
+    if (this.state.mode === 'competitive') {
+      p.eliminatedScore = this.competitiveScore(playerId, { useFrozen: false });
+    }
+
+    if (killerId && this.playerMap.get(killerId)) {
+      this.playerMap.get(killerId).stats.eliminations++;
+    }
 
     p.eliminated = true;
 
@@ -2714,7 +2928,17 @@ export class AoEGame {
     this.state.units = this.state.units.filter(u => u.ownerId !== playerId);
     this.state.buildings = this.state.buildings.filter(b => b.ownerId !== playerId);
 
-    this.log('player-eliminated', { playerId });
+    this.log('player-eliminated', { playerId, killerId });
+
+    if (this.state.mode === 'ffa') {
+      const alive = this.state.players.filter(x => !x.eliminated);
+      if (alive.length === 1) {
+        this.state.winnerId = alive[0].id;
+        this.log('game-end', { winnerId: alive[0].id });
+      }
+    } else {
+      this.checkCompetitiveEnd();
+    }
   }
 
   snapshot() {
