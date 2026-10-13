@@ -2,6 +2,7 @@ import { runFFAGame } from '../runner/simulate.js';
 import { runBatch } from '../runner/batch.mjs';
 import { runBenchmark } from '../runner/benchmark.mjs';
 import { getBotProfile } from '../bots/profiles.js';
+import { runDuelBenchmark } from '../runner/duel-benchmark.mjs';
 
 function ok(v,m){ if(!v) throw new Error(m); }
 
@@ -78,3 +79,15 @@ console.log('Hito 2 bot runner tests: OK');
 }
 
 console.log('Hito 2 benchmark/profile tests: OK');
+
+{
+  const duels=runDuelBenchmark({
+    seeds:['hito2-duel-benchmark'],
+    profiles:['balanced'],
+    maxRounds:20
+  });
+  ok(duels.games===12,'4 civilizaciones deben producir 6 cruces × 2 asientos = 12 duelos.');
+  ok(Object.keys(duels.matchups).length===6,'Debe haber seis matchups únicos entre cuatro civilizaciones.');
+}
+
+console.log('Hito 2 duel benchmark tests: OK');
