@@ -74,19 +74,64 @@ El simulador está separado de la interfaz. El estado completo de una partida vi
 
 GitHub Actions ejecuta estos tests antes de publicar GitHub Pages.
 
-## Falta para cerrar Hito 1
+## Integración de civilizaciones
 
-### Integración de civilizaciones
+Ya existe una capa independiente en `simulator/civs/` para:
 
-El reglamento común ya está modelado. Falta conectar directamente los datos de los Player Mats para que el motor determine automáticamente:
+- Britones;
+- Francos;
+- Vikingos;
+- Persas.
+
+El motor ya consulta esa capa para:
 
 - unidades disponibles por civilización y Edad;
-- edificios disponibles;
+- edificios disponibles por civilización y Edad;
 - costes particulares;
-- tecnologías;
-- mejoras de Fuerza, Movimiento, Alcance y transporte;
-- excepciones de entrenamiento;
-- reglas económicas especiales.
+- puntos de entrenamiento;
+- tecnologías y requisitos;
+- tecnologías ya investigadas;
+- cambios de Fuerza;
+- cambios de Movimiento;
+- cambios de capacidad de transporte;
+- modificadores genéricos de producción;
+- terreno permitido para Granjas;
+- bloqueo de unidades/edificios de otras civilizaciones.
+
+También expone `civilizationState(playerId)`, `availableUnits()`, `availableBuildings()` y `availableTechnologies()`, pensados para la futura interfaz y los bots.
+
+### Efectos ya interpretados automáticamente
+
+La capa de efectos permite modelar una tecnología como datos, sin agregar `if (civ === ...)` al motor. Ya funcionan, entre otros:
+
+- Carretilla;
+- Telar;
+- Hombre de Armas;
+- Doble Filo;
+- Exp. Aurífera / Minería Imperial;
+- Canteros;
+- Ganadería;
+- Qanats para construir Granjas en Desierto;
+- bonificación de Qanats junto a Montaña;
+- Armadura Laminar;
+- Caballería Pesada;
+- Flota Imperial;
+- Criad. Reales.
+
+Los efectos más contextuales siguen registrados como datos pero se resolverán en los módulos correspondientes de combate/economía avanzada.
+
+### Costes provisionales
+
+Los Player Mats actuales no fijan de forma explícita en el repositorio el coste de algunas unidades habilitadas mediante textos de Castillo, Monasterio o Asedio. Para poder ejecutar el motor, estos costes están marcados como `provisionalCost` y no deben tomarse todavía como balance final:
+
+- Longbow;
+- Misionero;
+- Monje;
+- Ariete;
+- Escorpión;
+- Trebuchet.
+
+## Falta para cerrar Hito 1
 
 ### Combate avanzado
 
