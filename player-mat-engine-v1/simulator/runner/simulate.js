@@ -259,7 +259,9 @@ function snapshotMetrics(game, bots, status) {
           ? start.selectionIndex
           : null,
         initialVillagers:game.state.mapMeta?.startAssignments?.find(x=>x.playerId===p.id)?.villagers ?? null,
-        initialMilitaryPower:game.state.mapMeta?.startAssignments?.find(x=>x.playerId===p.id)?.militaryPower ?? null
+        initialMilitaryPower:game.state.mapMeta?.startAssignments?.find(x=>x.playerId===p.id)?.militaryPower ?? null,
+        adjacentHexIds:game.state.mapMeta?.startAssignments?.find(x=>x.playerId===p.id)?.adjacentHexIds ?? [],
+        adjacentOnly:game.state.mapMeta?.startAssignments?.find(x=>x.playerId===p.id)?.adjacentOnly ?? false
       },
       combat:{
         fought:playerCombats.length,
