@@ -49,14 +49,17 @@ Puede:
 
 El reglamento indica que los jugadores eligen su posición de CU después de revelar el mapa para adaptarse a él.
 
-La colocación automática imita una decisión humana básica:
+La colocación automática reproduce esa secuencia de elección:
 
-- exige acceso a la red terrestre central;
-- evita Agua;
-- evita Oro/Piedra como ancla inmediata cuando existen alternativas;
-- en el benchmark de cierre prioriza posiciones con una ruta al centro formada por terrenos que no pueden convertirse en Agua por sobreexplotación.
+- el mapa completo se genera y revela primero;
+- P1 evalúa las posiciones exteriores y elige una;
+- P2 elige entre las restantes;
+- luego P3 y P4;
+- el CU se agrega **fuera** de los 48 terrenos, adyacente al borde; nunca ocupa un hexágono interior ni queda rodeado por el mapa;
+- la valoración prioriza un arranque favorable: comida y Bosque cercanos, variedad de recursos, acceso a Oro/Piedra, conectividad y separación razonable de CUs ya elegidos;
+- posiciones frágiles pueden recibir penalización, pero no quedan prohibidas por una regla artificial.
 
-Esto es una política del bot de preparación, no una modificación de las reglas del mapa. El mapa continúa siendo el mismo; el bot simplemente elige entre las posiciones exteriores disponibles después de verlo.
+Esto es una política de decisión del bot, no una modificación del reglamento: intenta imitar que un jugador real mira el mapa revelado y elige el lugar que le parece más conveniente.
 
 ## Perfiles
 
