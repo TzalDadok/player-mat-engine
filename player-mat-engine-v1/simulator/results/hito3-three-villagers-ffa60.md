@@ -16,4 +16,4 @@ Cada jugador empieza con uno en el CU y dos en hexágonos terrestres distintos a
 
 ## Observación
 
-La heurística que elige el CU y su calidad no se modifican; se cambia solamente la cantidad inicial de aldeanos.
+La fórmula de puntuación del CU no cambia, pero para habilitar dos aldeanos en terrenos distintos se descartan ubicaciones con menos de dos terrenos terrestres adyacentes. Por lo tanto, esta prueba cambia tanto la cantidad inicial de aldeanos como el conjunto de CU elegibles respecto de la baseline de un aldeano. No debe atribuirse toda diferencia respecto de aquella baseline únicamente a los aldeanos extra.
