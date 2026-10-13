@@ -257,7 +257,9 @@ function snapshotMetrics(game, bots, status) {
         score:Number.isFinite(start?.startScore) ? start.startScore : null,
         selectionIndex:Number.isFinite(start?.selectionIndex)
           ? start.selectionIndex
-          : null
+          : null,
+        initialVillagers:game.state.mapMeta?.startAssignments?.find(x=>x.playerId===p.id)?.villagers ?? null,
+        initialMilitaryPower:game.state.mapMeta?.startAssignments?.find(x=>x.playerId===p.id)?.militaryPower ?? null
       },
       combat:{
         fought:playerCombats.length,
@@ -327,7 +329,8 @@ export function runFFAGame({
   cuSelectionOrder = null,
   mapPreset = 'ffa36',
   startingVillagers = 1,
-  requireTwoAdjacentLand = startingVillagers===3,
+  startingSetupByPriority = null,
+  requireTwoAdjacentLand = startingSetupByPriority!==null || startingVillagers===3,
   captureLog = false
 } = {}) {
   if (!Array.isArray(civs) || civs.length < 2 || civs.length > 4) {
@@ -347,20 +350,50 @@ export function runFFAGame({
     mapPreset,
     requireTwoAdjacentLand
   });
-  if(startingVillagers===3){
-    for(const player of game.state.players){
-      const cu=game.hexMap.get(player.tcHexId);
-      const neighbors=game.state.hexes
-        .filter(h=>!h.special && h.terrain!=='water' && hexDistance(h,cu)===1)
-        .sort((a,b)=>a.id.localeCompare(b.id));
-      if(neighbors.length<2){
-        throw new Error(`El CU de ${player.id} tiene solo ${neighbors.length} terrenos terrestres adyacentes; no se pueden ubicar dos aldeanos en hexagonos distintos.`);
-      }
-      for(const hex of neighbors.slice(0,2)) game.addUnit(player.id,'villager',hex.id);
-    }
-  } else if(startingVillagers!==1){
-    throw new Error('startingVillagers debe ser 1 o 3');
+  // The CU-selection priority, not the fixed player seat, determines a
+  // starting compensation. All players still get the default CU villager.
+  if(startingSetupByPriority!==null &&
+     (!Array.isArray(startingSetupByPriority)||startingSetupByPriority.length!==4)) {
+    throw new Error('startingSetupByPriority debe tener cuatro entradas');
   }
+  const startAssignments = [];
+  for(const player of game.state.players){
+    const placement=game.state.mapMeta.startPositions.find(p=>p.playerId===player.id);
+    const priority=placement?.selectionIndex;
+    if(!Number.isInteger(priority)||priority<1||priority>4) {
+      throw new Error('Prioridad inicial de CU inexistente');
+    }
+    const configured=startingSetupByPriority?.[priority-1] ||
+      {villagers:startingVillagers,militaryPower:0};
+    const count=configured.villagers;
+    const power=configured.militaryPower ?? 0;
+    if(!Number.isInteger(count)||count<1||count>3||
+       !Number.isInteger(power)||power<0){
+      throw new Error('Configuracion inicial de aldeanos/poder no valida');
+    }
+    const cu=game.hexMap.get(player.tcHexId);
+    if(game.state.units.filter(u=>u.ownerId===player.id&&u.type==='villager').length!==1||
+       !game.state.units.some(u=>u.ownerId===player.id&&u.type==='villager'&&u.hexId===cu.id)){
+      throw new Error('El motor no creo exactamente un aldeano en el CU');
+    }
+    const neighbors=game.state.hexes
+      .filter(h=>!h.special&&h.terrain!=='water'&&hexDistance(h,cu)===1)
+      .sort((a,b)=>a.id.localeCompare(b.id));
+    if(neighbors.length<count-1){
+      throw new Error(`CU de ${player.id} tiene solo ${neighbors.length} terrenos terrestres adyacentes para ${count-1} aldeanos`);
+    }
+    for(const hex of neighbors.slice(0,count-1)) {
+      game.addUnit(player.id,'villager',hex.id);
+    }
+    player.militaryPower=power;
+    const initial=game.state.units.filter(u=>u.ownerId===player.id&&u.type==='villager');
+    if(initial.length!==count||new Set(initial.map(u=>u.hexId)).size!==count) {
+      throw new Error('Numero o distribucion de aldeanos iniciales incorrecta');
+    }
+    startAssignments.push({playerId:player.id,priority,villagers:count,militaryPower:power,
+      cuHexId:cu.id,adjacentHexIds:initial.filter(u=>u.hexId!==cu.id).map(u=>u.hexId)});
+  }
+  game.state.mapMeta.startAssignments=startAssignments;
   const bots = createFFABots(game, {
     botSeed,
     profile,
