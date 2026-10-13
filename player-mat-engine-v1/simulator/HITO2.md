@@ -1,162 +1,116 @@
-# Hito 2 — Bots y simulación de balance
+# Hito 2 — Bots autónomos
 
 ## Objetivo
 
-Hito 2 no busca crear una versión digital jugable.
+Hito 2 tiene un objetivo concreto: conseguir jugadores automáticos capaces de completar partidas legales sin intervención humana.
 
-El objetivo es ejecutar grandes cantidades de partidas sin interfaz para:
+No busca todavía decidir si una civilización está balanceada. Ese análisis pertenece a Hito 3.
 
-- detectar cuellos de botella;
-- comparar civilizaciones;
-- medir ritmo de desarrollo;
-- medir cuándo aparece el primer ejército;
-- medir frecuencia y resultado de combates;
-- detectar ventajas de posición inicial;
-- comparar cambios de costes/reglas sobre exactamente los mismos mapas;
-- identificar resultados sensibles al estilo de juego;
-- producir evidencia antes de modificar balance.
+## Requisitos de cierre
 
-## Principio metodológico
+Para considerar cerrado Hito 2:
 
-Una diferencia de win rate **no se considera automáticamente un problema de balance**.
+- los bots deben jugar las tres fases del turno sin intervención;
+- deben producir, transportar, construir, entrenar, investigar, avanzar de Edad, mover y combatir;
+- deben elegir posiciones iniciales razonables cuando el reglamento deja esa decisión al jugador;
+- deben poder rearmarse después de pérdidas;
+- deben perseguir y eliminar rivales;
+- deben evitar ciclos evidentes de recursos, movimiento o producción;
+- una misma seed y configuración debe repetir el mismo resultado;
+- deben existir perfiles de comportamiento distintos;
+- la batería automática debe cubrir bots, perfiles y runners;
+- el benchmark corto de control debe terminar prácticamente todas las partidas sin modificar reglas para favorecer a la IA.
 
-Antes de interpretar un resultado hay que controlar:
+## Bot base
 
-1. tasa de partidas terminadas;
-2. posición inicial;
-3. mapa;
-4. seed;
-5. estilo del bot;
-6. número de partidas;
-7. reglas pendientes/provisionales;
-8. comportamiento anómalo del bot.
+`bots/baseline.js`
 
-## Infraestructura actual
+El bot utiliza el mismo `AoEGame` que el resto del simulador. No existe una versión simplificada de las reglas para IA.
 
-### Runner headless
+Puede:
 
-`runner/simulate.js`
+- PRODUCIR;
+- transportar recursos;
+- crear Aldeanos;
+- construir Cuartel;
+- entrenar unidades militares;
+- investigar;
+- avanzar de Edad;
+- mover ejércitos;
+- calcular apuestas de Poder de Pelea;
+- resolver ataques;
+- reconstruir su capacidad militar;
+- cambiar de objetivo cuando un rival no es una buena opción;
+- planificar rutas de varios turnos atravesando Montañas.
 
-Ejecuta una partida FFA completa sin navegador.
+## Elección inicial en FFA
 
-Registra:
+El reglamento indica que los jugadores eligen su posición de CU después de revelar el mapa para adaptarse a él.
 
-- ganador;
-- duración;
-- combates;
-- jugadores eliminados;
-- tecnologías;
-- unidades entrenadas;
-- territorios;
-- recursos;
-- diagnósticos de bloqueo;
-- hitos temporales.
+La colocación automática imita una decisión humana básica:
 
-### Seeds reproducibles
+- exige acceso a la red terrestre central;
+- evita Agua;
+- si existen alternativas suficientes, evita usar Oro/Piedra como ancla inmediata del CU, porque esos territorios pueden agotarse y transformarse en Agua.
 
-Toda partida usa una seed explícita.
+Esto es una política del bot de preparación, no una modificación de las reglas del mapa.
 
-La misma combinación de:
+## Perfiles
 
-- mapa;
-- seed de bot;
-- civilizaciones;
-- asientos;
-- perfil de bot;
+`bots/profiles.js`
 
-debe producir el mismo resultado.
-
-### Benchmark fijo
-
-`runner/benchmark-seeds.js` define 40 mapas de referencia.
-
-El benchmark rota las cuatro civilizaciones por los cuatro asientos, evitando atribuir a una civilización una ventaja que en realidad pertenece a una esquina.
-
-### Perfiles de bot
-
-Actualmente:
+Perfiles disponibles:
 
 - `balanced`;
 - `aggressive`;
 - `economic`;
 - `technological`.
 
-Las civilizaciones se comparan usando el mismo perfil dentro de cada grupo experimental.
+Todos usan el mismo motor. Cambian prioridades, tamaño deseado de ejército, expansión económica, agresividad y preferencia por tecnología.
 
-### Duelos controlados
+## Determinismo
 
-`runner/duel-benchmark.mjs` enfrenta cada par de civilizaciones en ambos asientos y bajo los mismos perfiles/seeds.
+La combinación de:
 
-Esto sirve para detectar matchups particulares sin confundirlos con la dinámica política y multiobjetivo de un FFA.
+- seed del mapa;
+- seed del bot;
+- civilizaciones;
+- asientos;
+- perfil;
 
-No representa el modo Competitivo físico ni resuelve su mapa pendiente.
+produce decisiones reproducibles.
 
-### Métricas temporales
+Esto permite investigar exactamente una partida anómala.
 
-Se registran, entre otras:
+## Problemas de IA corregidos durante Hito 2
 
-- ronda del primer Cuartel;
-- ronda de la primera unidad militar;
-- ronda de la primera tecnología;
-- ronda del primer combate;
-- ronda del primer ataque;
-- primera eliminación causada;
-- llegada a Feudal;
-- llegada a Castillos;
-- llegada a Imperial.
+- CUs automáticos sin acceso terrestre útil.
+- Elección automática de anclas iniciales que podían desaparecer y aislar el CU.
+- Producción repetida de recursos que ya no hacían falta.
+- Incapacidad de planificar rutas de varios turnos a través de Montañas.
+- Recursos acumulados lejos del centro sin ser transportados.
+- Ejércitos gigantes sin presión militar.
+- Ataques que trataban el empate como resultado favorable.
+- Fijación con un único rival.
+- Falta de prioridad de rearme después de pérdidas.
+- Crecimiento militar ilimitado.
 
-Estas métricas son especialmente útiles para detectar problemas de tempo aunque el win rate todavía sea incierto.
+## Infraestructura ya adelantada de Hito 3
 
-## Evolución del bot base
+Durante el desarrollo de los bots se construyeron herramientas que pertenecen formalmente a Hito 3:
 
-Durante el arranque de Hito 2 se detectaron varios errores de IA que contaminaban cualquier lectura de balance:
-
-- CU sin salida terrestre útil;
-- producción infinita de un recurso ya innecesario;
-- incapacidad de planificar rutas multi-turno atravesando Montañas;
-- Aldeanos acumulando recursos lejos del centro sin devolverlos;
-- ejércitos absurdamente grandes sin presión militar;
-- ataques que ignoraban que el empate favorece al defensor;
-- fijación con un único rival bloqueado.
-
-Todos se trataron como errores del simulador/bot, **no como problemas del juego**.
-
-## Primer benchmark de infraestructura
-
-Con 5 mapas fijos, 4 rotaciones de asiento y 4 perfiles:
-
-- 80 partidas;
-- 75 terminaron;
-- tasa de finalización: 93,8%.
-
-Resultado general observado en esa muestra pequeña:
-
-- Britones: 23,8%;
-- Francos: 13,8%;
-- Vikingos: 26,3%;
-- Persas: 30,0%.
-
-No se considera todavía evidencia suficiente para cambiar balance.
-
-La separación por perfil mostró variaciones importantes, confirmando que el estilo del bot puede alterar sustancialmente el resultado.
-
-## Criterio para empezar a tocar balance
-
-Antes de recomendar cambios de costes o habilidades:
-
-- benchmark con alta tasa de finalización;
-- al menos varios perfiles;
+- runner headless;
+- seeds de benchmark;
 - rotación de asientos;
-- mismas seeds antes/después;
-- muestra mucho mayor que 80 partidas;
-- revisar métricas de tempo además de win rate.
+- métricas;
+- benchmarks FFA;
+- duelos controlados;
+- artefactos JSON/Markdown.
 
-## Próximos pasos de Hito 2
+Se mantienen en el repositorio, pero no forman parte del criterio conceptual de Hito 2.
 
-1. estabilizar el benchmark por encima de ~95% de finalización;
-2. medir hitos temporales por civilización y perfil;
-3. aumentar el benchmark a cientos/miles de partidas;
-4. ampliar el benchmark de duelos 1v1 controlados sobre el preset FFA48 (ya existe el runner; no representa el mapa Competitivo oficial);
-5. agregar comparaciones A/B de cambios de reglas/costes;
-6. calcular intervalos de confianza y detectar diferencias estadísticamente débiles;
-7. recién entonces proponer cambios de balance.
+## Reglas pendientes
+
+Las decisiones de diseño aún abiertas permanecen en `PENDIENTES.md`.
+
+Los bots no deben resolverlas inventando reglas.
