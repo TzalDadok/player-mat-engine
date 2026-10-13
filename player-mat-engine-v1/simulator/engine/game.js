@@ -516,6 +516,7 @@ export class AoEGame {
     this.assertPhase('economy');
 
     const player = this.playerMap.get(playerId);
+    const actionMod = this.modifiersFor(playerId);
     const normalized = (selections || []).map(x =>
       typeof x === 'string' ? { hexId: x, mode: 'source' } : { mode: 'source', ...x }
     );
@@ -602,6 +603,23 @@ export class AoEGame {
         }
       }
 
+      if (
+        actionMod.extraProductionUnitId &&
+        this.state.units.some(
+          u =>
+            u.id === actionMod.extraProductionUnitId &&
+            u.ownerId === playerId &&
+            u.type === 'villager' &&
+            u.hexId === hex.id
+        )
+      ) {
+        amount += 1;
+      }
+
+      if (actionMod.productionHexBonus?.[hex.id]) {
+        amount += actionMod.productionHexBonus[hex.id];
+      }
+
       if (amount <= 0) throw new RuleError(`No hay productores elegibles en ${hex.id}.`);
 
       this.addResourceTokens(hex.id, { [type]: amount });
@@ -627,6 +645,8 @@ export class AoEGame {
       }
     }
 
+    delete actionMod.extraProductionUnitId;
+    delete actionMod.productionHexBonus;
     this.completeAction('produce', { results });
     return results;
   }
@@ -680,7 +700,8 @@ export class AoEGame {
     for (const unit of units) {
       const spec = this.effectiveUnitSpec(playerId, unit.type);
       const transportedSiege = spec.tags?.includes('siege');
-      const allowedMove = transportedSiege ? escortMove : spec.move;
+      const forcedMarch = this.modifiersFor(playerId).forcedMarchUnitId === unit.id ? 1 : 0;
+      const allowedMove = transportedSiege ? escortMove : spec.move + forcedMarch;
 
       if (transportedSiege && !escorts.length) {
         throw new RuleError(`${spec.name} necesita otra unidad para ser transportado.`);
@@ -759,6 +780,7 @@ export class AoEGame {
       this.exploreMountain(playerId, originHexId);
     }
 
+    delete this.modifiersFor(playerId).forcedMarchUnitId;
     this.completeAction('move', { unitIds, toHexId });
   }
 
@@ -1035,7 +1057,14 @@ export class AoEGame {
       }
     }
 
-    this.spendAt(hexId, rule.cost);
+    const buildCost = clone(rule.cost);
+    const buildMod = this.modifiersFor(playerId);
+    if (buildMod.buildWoodDiscount) {
+      buildCost.wood = Math.max(0, (buildCost.wood || 0) - buildMod.buildWoodDiscount);
+      delete buildMod.buildWoodDiscount;
+    }
+
+    this.spendAt(hexId, buildCost);
     const building = this.addBuilding(playerId, buildingType, hexId);
     this.completeAction('build', { buildingId: building.id, buildingType, hexId });
     return building;
@@ -1147,7 +1176,15 @@ export class AoEGame {
       throw new RuleError(`Se requiere ${BUILDING_TYPES[rule.building]?.name || rule.building} para investigar esta tecnología.`);
     }
 
-    this.spendControlled(playerId, rule.cost);
+    const techCost = clone(rule.cost);
+    const techMod = this.modifiersFor(playerId);
+    if (techMod.nextTechDiscount) {
+      const { resourceType, amount } = techMod.nextTechDiscount;
+      techCost[resourceType] = Math.max(0, (techCost[resourceType] || 0) - amount);
+      delete techMod.nextTechDiscount;
+    }
+
+    this.spendControlled(playerId, techCost);
     player.technologies.push(id);
     this.completeAction('research', { id, name: rule.name, effects: rule.effects });
     return rule;
@@ -1634,6 +1671,15 @@ export class AoEGame {
     let contextual = 0;
     const contextDetails = [];
     const effects = this.activeEffects(playerId);
+    const combatMod = this.modifiersFor(playerId);
+
+    if (
+      combatMod.reinforcementUnitId &&
+      participants.some(u => u.id === combatMod.reinforcementUnitId)
+    ) {
+      contextual += 1;
+      contextDetails.push({ effect: 'exploration:reinforcements', value: 1 });
+    }
 
     for (const effect of effects) {
       let m = effect.match(/^militiaGroupForce:(\d+):([+-]?\d+)$/);
@@ -1871,8 +1917,10 @@ export class AoEGame {
     const atkForce = atkBreakdown.total;
     const defForce = defBreakdown.total;
 
-    const atkTotal = atkForce + attackerBid;
-    const defTotal = defForce + defenderBid;
+    const attackerCardPower = this.modifiersFor(playerId).combatCardPower || 0;
+    const defenderCardPower = this.modifiersFor(defenderId).combatCardPower || 0;
+    const atkTotal = atkForce + attackerBid + attackerCardPower;
+    const defTotal = defForce + defenderBid + defenderCardPower;
     const attackerWins = atkTotal > defTotal;
 
     attacker.militaryPower -= attackerBid;
@@ -2082,6 +2130,8 @@ export class AoEGame {
       defenderBreakdown: defBreakdown,
       attackerBid,
       defenderBid,
+      attackerCardPower,
+      defenderCardPower,
       attackerMaxBid,
       defenderMaxBid,
       attackerTotal: atkTotal,
@@ -2094,6 +2144,11 @@ export class AoEGame {
       heresyKilled,
       winnerId
     };
+
+    delete this.modifiersFor(playerId).reinforcementUnitId;
+    delete this.modifiersFor(playerId).combatCardPower;
+    delete this.modifiersFor(defenderId).reinforcementUnitId;
+    delete this.modifiersFor(defenderId).combatCardPower;
 
     this.completeAction('combat', result);
     return result;
