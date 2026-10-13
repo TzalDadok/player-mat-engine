@@ -1249,10 +1249,142 @@ export class AoEGame {
     this.completeAction('instruct', { militaryPower: p.militaryPower });
   }
 
+  modifiersFor(playerId) {
+    this.state.turnModifiers[playerId] = this.state.turnModifiers[playerId] || {};
+    return this.state.turnModifiers[playerId];
+  }
+
   explorationHand(playerId) {
     const exp = this.state.exploration;
     exp.hands[playerId] = exp.hands[playerId] || [];
     return exp.hands[playerId];
+  }
+
+  consumeExplorationCard(playerId, cardId) {
+    const hand = this.explorationHand(playerId);
+    const i = hand.indexOf(cardId);
+    if (i < 0) throw new RuleError('Esa carta no está en la mano del jugador.');
+    hand.splice(i, 1);
+    this.state.exploration.discard.push(cardId);
+  }
+
+  playExplorationCard(playerId, cardId, payload = {}) {
+    const card = cardById(cardId);
+    if (!card || card.immediate) throw new RuleError('Carta no jugable desde la mano.');
+    if (!this.explorationHand(playerId).includes(cardId)) {
+      throw new RuleError('Esa carta no está en la mano del jugador.');
+    }
+
+    const mod = this.modifiersFor(playerId);
+
+    if (cardId === 'stash') {
+      const hex = this.hexMap.get(payload.hexId);
+      const hasVillager = this.state.units.some(
+        u => u.ownerId === playerId && u.type === 'villager' && u.hexId === payload.hexId
+      );
+      const resources = payload.resources || {};
+      const total = RESOURCE_TYPES.reduce((n, r) => n + Math.max(0, Number(resources[r] || 0)), 0);
+      if (!hex || !hasVillager || total !== 2) {
+        throw new RuleError('Alijo requiere un hexágono con Aldeano propio y exactamente 2 recursos.');
+      }
+      this.addResourceTokens(hex.id, resources);
+    } else if (cardId === 'extra_hands') {
+      const unit = this.state.units.find(u => u.id === payload.unitId && u.ownerId === playerId && u.type === 'villager');
+      if (!unit) throw new RuleError('Manos Extra requiere un Aldeano propio.');
+      mod.extraProductionUnitId = unit.id;
+    } else if (cardId === 'local_guides') {
+      this.cardMoveEconomicUnit(playerId, payload.unitId, payload.toHexId);
+    } else if (cardId === 'caravan') {
+      this.cardMoveResources(playerId, payload.fromHexId, payload.toHexId, payload.resources);
+    } else if (cardId === 'abundant_hunt' || cardId === 'good_harvest') {
+      const hex = this.hexMap.get(payload.hexId);
+      const required = cardId === 'abundant_hunt' ? 'animals' : 'berries';
+      if (!hex || hex.source !== required) {
+        throw new RuleError('La carta debe aplicarse al tipo de recurso indicado.');
+      }
+      mod.productionHexBonus = mod.productionHexBonus || {};
+      mod.productionHexBonus[hex.id] = (mod.productionHexBonus[hex.id] || 0) + 1;
+    } else if (cardId === 'ingenuity') {
+      mod.buildWoodDiscount = (mod.buildWoodDiscount || 0) + 1;
+    } else if (cardId === 'cartography') {
+      const top = this.state.exploration.deck.slice(0, 2);
+      if (payload.order) {
+        if (
+          payload.order.length !== top.length ||
+          [...payload.order].sort().join('|') !== [...top].sort().join('|')
+        ) throw new RuleError('El nuevo orden debe contener exactamente las dos cartas superiores.');
+        this.state.exploration.deck.splice(0, top.length, ...payload.order);
+      }
+      payload.peek = top;
+    } else if (cardId === 'ancestral_knowledge') {
+      if (!RESOURCE_TYPES.includes(payload.resourceType)) {
+        throw new RuleError('Elegí qué recurso descontará Conocimiento Ancestral.');
+      }
+      mod.nextTechDiscount = { resourceType: payload.resourceType, amount: 1 };
+    } else if (cardId === 'reinforcements') {
+      const unit = this.state.units.find(u => u.id === payload.unitId && u.ownerId === playerId);
+      if (!unit || !this.isCombatParticipant(playerId, unit)) {
+        throw new RuleError('Refuerzos requiere una unidad propia capaz de combatir.');
+      }
+      mod.reinforcementUnitId = unit.id;
+    } else if (cardId === 'forced_march') {
+      const unit = this.state.units.find(u => u.id === payload.unitId && u.ownerId === playerId);
+      if (!unit || this.effectiveUnitSpec(playerId, unit.type).category !== 'military') {
+        throw new RuleError('Marcha Forzada requiere una unidad militar propia.');
+      }
+      mod.forcedMarchUnitId = unit.id;
+    } else if (cardId === 'combat_power_1' || cardId === 'combat_power_2') {
+      mod.combatCardPower = (mod.combatCardPower || 0) + (cardId === 'combat_power_1' ? 1 : 2);
+    } else {
+      throw new RuleError('Efecto de carta todavía no implementado.');
+    }
+
+    this.consumeExplorationCard(playerId, cardId);
+    this.log('exploration-card-played', { playerId, cardId, payload: clone(payload) });
+    return clone(card);
+  }
+
+  cardMoveEconomicUnit(playerId, unitId, toHexId) {
+    const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
+    const target = this.hexMap.get(toHexId);
+    if (!unit || !target || unit.embarkedIn || unit.garrisonedIn) {
+      throw new RuleError('Unidad o destino inválido para Guías Locales.');
+    }
+    if (this.effectiveUnitSpec(playerId, unit.type).category !== 'economic') {
+      throw new RuleError('Guías Locales sólo mueve una unidad económica.');
+    }
+    const from = this.hexMap.get(unit.hexId);
+    if (!from || hexDistance(from, target) !== 1 || target.terrain === 'water') {
+      throw new RuleError('Guías Locales mueve exactamente 1 hexágono terrestre.');
+    }
+    if (this.state.units.some(u => u.hexId === toHexId && u.ownerId !== playerId && this.isCombatParticipant(u.ownerId, u))) {
+      throw new RuleError('Guías Locales no puede entrar en defensa militar enemiga.');
+    }
+    unit.hexId = toHexId;
+  }
+
+  cardMoveResources(playerId, fromHexId, toHexId, resources = {}) {
+    const from = this.hexMap.get(fromHexId);
+    const to = this.hexMap.get(toHexId);
+    if (!from || !to || hexDistance(from, to) !== 1) {
+      throw new RuleError('Caravana mueve recursos exactamente 1 hexágono.');
+    }
+    if (this.controllerOf(fromHexId) !== playerId) {
+      throw new RuleError('Caravana debe partir de un territorio controlado.');
+    }
+    const total = RESOURCE_TYPES.reduce((n, r) => n + Math.max(0, Number(resources[r] || 0)), 0);
+    if (total < 1 || total > 3) throw new RuleError('Caravana mueve entre 1 y 3 recursos.');
+
+    const requested = [];
+    for (const type of RESOURCE_TYPES) {
+      const amount = Math.max(0, Number(resources[type] || 0));
+      const available = from.looseResources.filter(x => x.type === type).slice(0, amount);
+      if (available.length !== amount) throw new RuleError('No hay suficientes recursos para Caravana.');
+      requested.push(...available);
+    }
+    const ids = new Set(requested.map(x => x.id));
+    from.looseResources = from.looseResources.filter(x => !ids.has(x.id));
+    to.looseResources.push(...requested);
   }
 
   drawExplorationCard(playerId, mountainHexId) {
