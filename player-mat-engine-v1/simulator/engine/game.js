@@ -403,6 +403,14 @@ export class AoEGame {
         if (farms) {
           type = 'food';
           amount = Math.min(farms, villagers);
+
+          if (
+            amount > 0 &&
+            this.hasEffect(playerId, 'farmMountainBonus:+1') &&
+            physicalNeighbors(this.state.hexes, hex.id).some(h => h.terrain === 'mountain')
+          ) {
+            amount += 1;
+          }
         } else {
           type = SOURCE_TO_RESOURCE[hex.source];
           primary = !!type;
@@ -411,17 +419,32 @@ export class AoEGame {
 
           amount = villagers;
 
+          for (const effect of this.activeEffects(playerId)) {
+            const m = effect.match(/^production:([^:]+):([+-]?\d+)$/);
+            if (m && m[1] === hex.source) {
+              amount += villagers * Number(m[2]);
+            }
+          }
+
+          let productiveBuilding = false;
+
           if (
             ['animals', 'berries'].includes(hex.source) &&
             this.state.buildings.some(b => b.ownerId === playerId && b.hexId === hex.id && b.type === 'mill')
           ) {
             amount += 1;
+            productiveBuilding = true;
           }
 
           if (
             ['forest', 'gold', 'stone'].includes(hex.source) &&
             this.state.buildings.some(b => b.ownerId === playerId && b.hexId === hex.id && b.type === 'camp')
           ) {
+            amount += 1;
+            productiveBuilding = true;
+          }
+
+          if (productiveBuilding && this.hasEffect(playerId, 'buildingProduction:+1')) {
             amount += 1;
           }
         }
@@ -437,7 +460,11 @@ export class AoEGame {
         const exhaust = hist.lastRound === this.state.round - 1;
         hex.productionHistory[playerId] = { lastRound: this.state.round };
 
-        if (exhaust && EXHAUSTED_TO[hex.source]) {
+        if (
+          exhaust &&
+          EXHAUSTED_TO[hex.source] &&
+          !this.hasEffect(playerId, `noExhaustion:${hex.source}`)
+        ) {
           const oldSource = hex.source;
           const change = EXHAUSTED_TO[oldSource];
           hex.terrain = change.terrain;
