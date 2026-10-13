@@ -29,6 +29,14 @@ export const francos = {
     monastery: entry('castles', null, { wood: 3, stone: 2 }),
     siege: entry('castles', null, { wood: 4, stone: 2, gold: 2 })
   },
+  combatBonuses: [
+    { source: 'spearman', targetTag: 'cavalry', amount: 1 },
+    { source: 'scorpion', targetTag: 'foot', amount: 1 },
+    { source: 'trebuchet', target: 'building', amount: 2 }
+  ],
+  buildingSupport: {
+    castle: { range: 1, force: 1 }
+  },
   technologies: [
     tech('man_at_arms','Hombre de Armas','dark','barracks',{food:2,gold:1},'Milicia +1 Fuerza.',['unitForce:militia:+1']),
     tech('watch','Vigía','dark','tower',{wood:1,stone:1},'Torre +1 Fuerza en su hexágono.',['towerOwnHex:+1']),
