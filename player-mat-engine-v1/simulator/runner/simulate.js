@@ -1,4 +1,5 @@
 import { AoEGame } from '../engine/game.js';
+import { hexDistance } from '../engine/hex.js';
 import { BaselineBot } from '../bots/baseline.js';
 import { getBotProfile } from '../bots/profiles.js';
 
@@ -325,6 +326,7 @@ export function runFFAGame({
   botOverrides = {},
   cuSelectionOrder = null,
   mapPreset = 'ffa36',
+  startingVillagers = 1,
   captureLog = false
 } = {}) {
   if (!Array.isArray(civs) || civs.length < 2 || civs.length > 4) {
@@ -343,6 +345,20 @@ export function runFFAGame({
     cuSelectionOrder,
     mapPreset
   });
+  if(startingVillagers===3){
+    for(const player of game.state.players){
+      const cu=game.hexMap.get(player.tcHexId);
+      const neighbors=game.state.hexes
+        .filter(h=>!h.special && h.terrain!=='water' && hexDistance(h,cu)===1)
+        .sort((a,b)=>a.id.localeCompare(b.id));
+      if(neighbors.length<2){
+        throw new Error(`El CU de ${player.id} tiene solo ${neighbors.length} terrenos terrestres adyacentes; no se pueden ubicar dos aldeanos en hexagonos distintos.`);
+      }
+      for(const hex of neighbors.slice(0,2)) game.addUnit(player.id,'villager',hex.id);
+    }
+  } else if(startingVillagers!==1){
+    throw new Error('startingVillagers debe ser 1 o 3');
+  }
   const bots = createFFABots(game, {
     botSeed,
     profile,
