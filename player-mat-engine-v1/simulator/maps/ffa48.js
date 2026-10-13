@@ -136,10 +136,14 @@ export function generateFFA48Map({
 
 function freeOuterNeighbor(hexes, anchor){
   const occupied=new Set(hexes.map(h=>key(h.q,h.r)));
+  const existingCUs=hexes.filter(h=>h.special==='tc');
+
   const candidates=DIRS
     .map(([dq,dr])=>({q:anchor.q+dq,r:anchor.r+dr}))
     .filter(c=>!occupied.has(key(c.q,c.r)))
+    .filter(c=>existingCUs.every(cu=>hexDistance(c,cu)>=2))
     .sort((a,b)=>hexDistance(b,{q:0,r:0})-hexDistance(a,{q:0,r:0}));
+
   return candidates[0] || null;
 }
 
@@ -153,7 +157,9 @@ export function placeFFAPlayerCU(map, playerId, anchorTerrainId){
   }
 
   const pos=freeOuterNeighbor(map.hexes,anchor);
-  if(!pos) throw new Error('No hay posición exterior libre para el CU.');
+  if(!pos) {
+    throw new Error('No hay una posición exterior legal para el CU: debe quedar fuera del mapa y a distancia mínima 2 de cualquier otro CU.');
+  }
 
   const cu=emptyHex(`CU-${playerId}`,pos.q,pos.r);
   cu.special='tc';
@@ -258,7 +264,8 @@ export function scoreFFAStartAnchor(map, anchorId, chosenAnchorIds=[]){
     !anchor ||
     !map.perimeterIds.includes(anchorId) ||
     anchor.terrain==='water' ||
-    !hasLandPathToWonder(map,anchorId)
+    !hasLandPathToWonder(map,anchorId) ||
+    !freeOuterNeighbor(map.hexes,anchor)
   ) return -Infinity;
 
   let score=0;
