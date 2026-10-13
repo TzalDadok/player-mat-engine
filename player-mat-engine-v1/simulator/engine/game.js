@@ -640,6 +640,187 @@ export class AoEGame {
     }
   }
 
+  transferResourceTokens(fromHexId, toHexId, resources = {}, maxAmount = Infinity) {
+    const from = this.hexMap.get(fromHexId);
+    const to = this.hexMap.get(toHexId);
+    if (!from || !to) throw new RuleError('Hexágono de origen o destino inexistente.');
+
+    const total = RESOURCE_TYPES.reduce(
+      (n, r) => n + Math.max(0, Number(resources[r] || 0)),
+      0
+    );
+    if (total < 1 || total > maxAmount) {
+      throw new RuleError(`La transferencia admite entre 1 y ${maxAmount} recursos.`);
+    }
+
+    const selected = [];
+    for (const type of RESOURCE_TYPES) {
+      const amount = Math.max(0, Number(resources[type] || 0));
+      const tokens = from.looseResources.filter(t => t.type === type).slice(0, amount);
+      if (tokens.length !== amount) {
+        throw new RuleError('No hay suficientes recursos en el origen.');
+      }
+      selected.push(...tokens);
+    }
+
+    const ids = new Set(selected.map(t => t.id));
+    from.looseResources = from.looseResources.filter(t => !ids.has(t.id));
+    to.looseResources.push(...selected);
+    return total;
+  }
+
+  useTradeWagon(playerId, fromHexId, toHexId, resources) {
+    this.assertActive(playerId);
+    this.assertPhase('economy');
+
+    if (!this.hasEffect(playerId, 'tradeWagon:6')) {
+      throw new RuleError('Carreta Mercante no está habilitada.');
+    }
+
+    const destinationHasOwnBuilding = this.state.buildings.some(
+      b => b.ownerId === playerId && b.hexId === toHexId
+    ) || this.playerMap.get(playerId).tcHexId === toHexId;
+
+    if (!destinationHasOwnBuilding) {
+      throw new RuleError('Carreta Mercante requiere una construcción propia en destino.');
+    }
+    if (this.controllerOf(fromHexId) !== playerId && this.playerMap.get(playerId).tcHexId !== fromHexId) {
+      throw new RuleError('El origen debe estar controlado.');
+    }
+
+    const moved = this.transferResourceTokens(fromHexId, toHexId, resources, 6);
+    this.completeAction('trade-wagon', { fromHexId, toHexId, resources: clone(resources), moved });
+    return moved;
+  }
+
+  dismantleBuilding(playerId, buildingId, recoveredResources = {}) {
+    this.assertActive(playerId);
+    this.assertPhase('economy');
+
+    if (!this.hasEffect(playerId, 'dismantle:2')) {
+      throw new RuleError('Desmantelar no está habilitado.');
+    }
+
+    const building = this.state.buildings.find(
+      b => b.id === buildingId && b.ownerId === playerId
+    );
+    if (!building) throw new RuleError('Edificio propio inexistente.');
+    if (building.type === 'farm') {
+      // Es válido, pero sigue respetando el mismo máximo de recuperación.
+    }
+
+    const total = RESOURCE_TYPES.reduce(
+      (n, r) => n + Math.max(0, Number(recoveredResources[r] || 0)),
+      0
+    );
+    if (total !== 2) {
+      throw new RuleError('Desmantelar recupera exactamente 2 recursos.');
+    }
+
+    const rule = this.buildingRule(playerId, building.type);
+    const original = rule?.cost || {};
+
+    for (const type of RESOURCE_TYPES) {
+      if ((recoveredResources[type] || 0) > (original[type] || 0)) {
+        throw new RuleError('No podés recuperar más de un material que el coste original.');
+      }
+    }
+
+    const hex = this.hexMap.get(building.hexId);
+    if (building.type === 'monastery' && building.relics && hex) {
+      hex.relics = (hex.relics || 0) + building.relics;
+    }
+
+    this.state.buildings = this.state.buildings.filter(b => b.id !== building.id);
+    for (const unit of this.state.units) {
+      if (unit.garrisonedIn === building.id) unit.garrisonedIn = null;
+    }
+
+    this.addResourceTokens(building.hexId, recoveredResources);
+    this.completeAction('dismantle', {
+      buildingId,
+      hexId: building.hexId,
+      recoveredResources: clone(recoveredResources)
+    });
+    return clone(recoveredResources);
+  }
+
+  exchangeSurplus(playerId, hexId) {
+    this.assertActive(playerId);
+    if (!this.hasEffect(playerId, 'exchange:food:gold:1')) {
+      throw new RuleError('Excedentes no está habilitado.');
+    }
+    const hex = this.hexMap.get(hexId);
+    if (!hex || this.controllerOf(hexId) !== playerId) {
+      throw new RuleError('Excedentes requiere un territorio controlado.');
+    }
+    this.spendAt(hexId, { food: 1 });
+    this.addResourceTokens(hexId, { gold: 1 });
+    this.log('surplus-exchange', { playerId, hexId });
+    return true;
+  }
+
+  useSatrapies(playerId, fromHexId, toHexId, resources) {
+    this.assertActive(playerId);
+    if (!this.hasEffect(playerId, 'postProductionTransfer:2')) {
+      throw new RuleError('Satrapías no está habilitada.');
+    }
+
+    const mod = this.modifiersFor(playerId);
+    if (!mod.justProduced) {
+      throw new RuleError('Satrapías sólo puede usarse inmediatamente después de PRODUCIR.');
+    }
+    if (mod.satrapiesUsed) throw new RuleError('Satrapías ya fue utilizada este turno.');
+
+    const hasOriginBuilding = this.state.buildings.some(
+      b => b.ownerId === playerId && b.hexId === fromHexId
+    );
+    const hasDestinationBuilding = this.state.buildings.some(
+      b => b.ownerId === playerId && b.hexId === toHexId
+    );
+
+    if (!hasOriginBuilding || !hasDestinationBuilding) {
+      throw new RuleError('Satrapías requiere construcciones propias en origen y destino.');
+    }
+
+    const moved = this.transferResourceTokens(fromHexId, toHexId, resources, 2);
+    mod.satrapiesUsed = true;
+    this.log('satrapies-transfer', { playerId, fromHexId, toHexId, moved });
+    return moved;
+  }
+
+  moveFarmNorth(playerId, farmId, villagerId, toHexId) {
+    this.assertActive(playerId);
+    this.assertPhase('economy');
+
+    if (!this.hasEffect(playerId, 'moveFarm')) {
+      throw new RuleError('Colonos del Norte no está habilitado.');
+    }
+
+    const farm = this.state.buildings.find(
+      b => b.id === farmId && b.ownerId === playerId && b.type === 'farm'
+    );
+    const villager = this.state.units.find(
+      u => u.id === villagerId && u.ownerId === playerId && u.type === 'villager'
+    );
+    const target = this.hexMap.get(toHexId);
+
+    if (!farm || !villager || villager.hexId !== farm.hexId || !target) {
+      throw new RuleError('La Granja y el Aldeano deben partir juntos.');
+    }
+    if (!['plain','desert'].includes(target.terrain)) {
+      throw new RuleError('La Granja sólo puede trasladarse a Llanura o Desierto.');
+    }
+    if (this.state.buildings.filter(b => b.type === 'farm' && b.hexId === toHexId).length >= 2) {
+      throw new RuleError('El destino ya tiene el máximo de Granjas.');
+    }
+
+    farm.hexId = toHexId;
+    villager.hexId = toHexId;
+    this.completeAction('move-farm', { farmId, villagerId, toHexId });
+    return farm;
+  }
+
   produce(playerId, selections) {
     this.assertActive(playerId);
     this.assertPhase('economy');
@@ -834,6 +1015,7 @@ export class AoEGame {
 
     delete actionMod.extraProductionUnitId;
     delete actionMod.productionHexBonus;
+    actionMod.justProduced = true;
     this.completeAction('produce', { results });
     return results;
   }
