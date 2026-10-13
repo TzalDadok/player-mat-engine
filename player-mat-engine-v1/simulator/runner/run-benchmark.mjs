@@ -19,6 +19,8 @@ writeFileSync(
   'utf8'
 );
 
+const fmt = v => v == null ? '—' : Number(v).toFixed(1);
+
 const lines = [
   '# AoE BoardGame — Fixed Balance Benchmark',
   '',
@@ -31,10 +33,10 @@ const lines = [
   '',
   '## Overall civilization results',
   '',
-  '| Civilization | Appearances | Wins | Win rate |',
-  '|---|---:|---:|---:|',
+  '| Civilization | Apps | Wins | Win rate | 1st Barracks | 1st Military | 1st Combat | Avg military | Avg tech |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---:|',
   ...Object.entries(result.civs).map(([civ,s]) =>
-    `| ${civ} | ${s.appearances} | ${s.wins} | ${(s.winRate*100).toFixed(1)}% |`
+    `| ${civ} | ${s.appearances} | ${s.wins} | ${(s.winRate*100).toFixed(1)}% | ${fmt(s.avgFirstBarracks)} | ${fmt(s.avgFirstMilitary)} | ${fmt(s.avgFirstCombat)} | ${fmt(s.avgMilitaryTrained)} | ${fmt(s.avgTechnologies)} |`
   ),
   '',
   `Seat wins: ${result.seatWins.map((n,i)=>`P${i+1}=${n}`).join(', ')}`,
@@ -49,10 +51,10 @@ for (const profile of result.profiles) {
     '',
     `Completed: ${summary.completed}/${summary.games} (${(summary.completionRate*100).toFixed(1)}%)`,
     '',
-    '| Civilization | Wins | Win rate |',
-    '|---|---:|---:|',
+    '| Civilization | Wins | Win rate | 1st Barracks | 1st Military | 1st Combat | Avg military | Avg tech |',
+    '|---|---:|---:|---:|---:|---:|---:|---:|',
     ...Object.entries(summary.civs).map(([civ,s]) =>
-      `| ${civ} | ${s.wins} | ${(s.winRate*100).toFixed(1)}% |`
+      `| ${civ} | ${s.wins} | ${(s.winRate*100).toFixed(1)}% | ${fmt(s.avgFirstBarracks)} | ${fmt(s.avgFirstMilitary)} | ${fmt(s.avgFirstCombat)} | ${fmt(s.avgMilitaryTrained)} | ${fmt(s.avgTechnologies)} |`
     ),
     '',
     `Seat wins: ${summary.seatWins.map((n,i)=>`P${i+1}=${n}`).join(', ')}`,
