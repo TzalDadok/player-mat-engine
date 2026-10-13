@@ -116,19 +116,35 @@ export class BaselineBot {
   }
 
   hub(game) {
-    if (this.memory.hubHexId && game.hexMap.get(this.memory.hubHexId)) {
-      return game.hexMap.get(this.memory.hubHexId);
+    const remembered = this.memory.hubHexId
+      ? game.hexMap.get(this.memory.hubHexId)
+      : null;
+
+    if (remembered && remembered.terrain !== 'water') {
+      return remembered;
     }
 
     const player = this.player(game);
     const tc = game.hexMap.get(player.tcHexId);
-    const neighbors = physicalNeighbors(game.state.hexes, tc.id)
-      .filter(h => h.terrain !== 'water' && h.special !== 'wonder');
+    const anchor = tc?.tcAnchorId ? game.hexMap.get(tc.tcAnchorId) : null;
 
-    const anchor = tc.tcAnchorId ? game.hexMap.get(tc.tcAnchorId) : null;
+    const controlledLand = game.controlledHexIds(this.playerId)
+      .map(id => game.hexMap.get(id))
+      .filter(h => h && h.terrain !== 'water' && !h.special)
+      .sort((a,b) => {
+        const da = tc ? hexDistance(a,tc) : 0;
+        const db = tc ? hexDistance(b,tc) : 0;
+        return da-db;
+      });
+
+    const neighbors = tc
+      ? physicalNeighbors(game.state.hexes, tc.id)
+          .filter(h => h.terrain !== 'water' && h.special !== 'wonder')
+      : [];
+
     const chosen =
       (anchor && anchor.terrain !== 'water' ? anchor : null) ||
-      neighbors.find(h => h.source) ||
+      controlledLand[0] ||
       neighbors[0] ||
       game.state.hexes.find(h => h.terrain !== 'water' && !h.special);
 
