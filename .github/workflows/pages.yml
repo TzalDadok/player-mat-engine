@@ -37,7 +37,7 @@ jobs:
           node player-mat-engine-v1/simulator/tests/combat-advanced-smoke.mjs
           node player-mat-engine-v1/simulator/tests/special-units-smoke.mjs
           node player-mat-engine-v1/simulator/tests/conversion-garrison-naval-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/ffa48-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/ffa36-smoke.mjs
           node player-mat-engine-v1/simulator/tests/exploration-relic-smoke.mjs
           node player-mat-engine-v1/simulator/tests/economic-special-smoke.mjs
           node player-mat-engine-v1/simulator/tests/exploration-cards-smoke.mjs
@@ -51,6 +51,7 @@ jobs:
           node --check player-mat-engine-v1/simulator/runner/batch.mjs
           node --check player-mat-engine-v1/simulator/runner/benchmark.mjs
           node --check player-mat-engine-v1/simulator/runner/benchmark-seeds.js
+          node --check player-mat-engine-v1/simulator/maps/ffa36.js
           node --check player-mat-engine-v1/simulator/runner/run-benchmark.mjs
           node --check player-mat-engine-v1/simulator/runner/duel-benchmark.mjs
 
