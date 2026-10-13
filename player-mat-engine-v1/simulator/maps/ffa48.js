@@ -223,39 +223,126 @@ function hasLandPathToWonder(map, startId){
   return false;
 }
 
-export function autoPlaceFFAPlayerCUs(map, playerIds){
-  const connected=map.perimeterIds.filter(id => {
-    const h = map.hexes.find(x => x.id === id);
-    return h && h.terrain !== 'water' && hasLandPathToWonder(map,id);
+function startResourceValue(hex, distance){
+  if(!hex) return 0;
+
+  const base = {
+    forest: 5,
+    animals: 5,
+    berries: 4,
+    gold: 2.5,
+    stone: 2
+  }[hex.source] || 0;
+
+  const terrain =
+    hex.terrain === 'water' ? 0.5 :
+    hex.terrain === 'mountain' ? -0.5 :
+    hex.terrain === 'desert' ? -0.25 :
+    0;
+
+  const factor = distance === 0 ? 1.35 : distance === 1 ? 1 : 0.45;
+  return (base + terrain) * factor;
+}
+
+function startArea(map, anchor){
+  return map.hexes.filter(h => {
+    if(h.special) return false;
+    const d=hexDistance(anchor,h);
+    return d<=2;
   });
-  if(playerIds.length<2 || playerIds.length>4) throw new Error('FFA admite 2 a 4 jugadores.');
-  if(connected.length < playerIds.length) throw new Error('No hay suficientes posiciones terrestres para los CU.');
+}
 
-  // En FFA los jugadores eligen su CU después de revelar el mapa.
-  // La colocación automática imita una decisión humana mínima: evitar
-  // Oro/Piedra como ancla si hay alternativas, porque pueden agotarse y
-  // transformarse en Agua, aislando el CU.
-  const stable=connected.filter(id => {
-    const h=map.hexes.find(x=>x.id===id);
-    return h && !['gold','stone'].includes(h.source);
-  });
+export function scoreFFAStartAnchor(map, anchorId, chosenAnchorIds=[]){
+  const anchor=map.hexes.find(h=>h.id===anchorId);
+  if(
+    !anchor ||
+    !map.perimeterIds.includes(anchorId) ||
+    anchor.terrain==='water' ||
+    !hasLandPathToWonder(map,anchorId)
+  ) return -Infinity;
 
-  const permanent=stable.filter(id => hasPermanentLandPathToWonder(map,id));
+  let score=0;
+  const area=startArea(map,anchor);
+  const nearbyResources=new Set();
 
-  const perimeter=
-    permanent.length >= playerIds.length
-      ? permanent
-      : stable.length >= playerIds.length
-        ? stable
-        : connected;
-
-  const chosen=[];
-  const step=perimeter.length/playerIds.length;
-  for(let i=0;i<playerIds.length;i++){
-    let index=Math.round(i*step)%perimeter.length;
-    while(chosen.includes(perimeter[index])) index=(index+1)%perimeter.length;
-    chosen.push(perimeter[index]);
+  for(const h of area){
+    const d=hexDistance(anchor,h);
+    score+=startResourceValue(h,d);
+    if(h.source) nearbyResources.add(h.source);
   }
 
-  return playerIds.map((id,i)=>placeFFAPlayerCU(map,id,chosen[i]));
+  // Un comienzo con comida + madera suele permitir decisiones reales desde
+  // los primeros turnos. Oro/Piedra cercanos agregan flexibilidad posterior.
+  const hasFood=nearbyResources.has('animals') || nearbyResources.has('berries');
+  const hasWood=nearbyResources.has('forest');
+  if(hasFood && hasWood) score+=7;
+  if(nearbyResources.has('gold')) score+=1.5;
+  if(nearbyResources.has('stone')) score+=1.5;
+  score+=nearbyResources.size*0.75;
+
+  // Oro/Piedra pueden agotarse y transformarse en Agua: no se prohíben como
+  // elección humana, pero son una ancla inicial más riesgosa.
+  if(['gold','stone'].includes(anchor.source)) score-=5;
+
+  if(hasPermanentLandPathToWonder(map,anchorId)) score+=3;
+
+  // Los jugadores posteriores ven los CUs ya elegidos. Evitar arrancar
+  // inmediatamente encima de otro jugador suele ser una elección razonable,
+  // pero no se convierte en una prohibición.
+  for(const otherId of chosenAnchorIds){
+    const other=map.hexes.find(h=>h.id===otherId);
+    if(!other) continue;
+    const d=hexDistance(anchor,other);
+    if(d<=2) score-=8;
+    else if(d===3) score-=3;
+  }
+
+  return score;
+}
+
+function startTieBreak(map, playerId, anchorId){
+  return hashSeed(`${map.seed}:start:${playerId}:${anchorId}`) / 0xffffffff;
+}
+
+export function chooseFFAStartAnchor(map, playerId, chosenAnchorIds=[]){
+  const candidates=map.perimeterIds
+    .filter(id => !chosenAnchorIds.includes(id))
+    .map(id => ({
+      id,
+      score:scoreFFAStartAnchor(map,id,chosenAnchorIds),
+      tie:startTieBreak(map,playerId,id)
+    }))
+    .filter(x => Number.isFinite(x.score))
+    .sort((a,b) => b.score-a.score || b.tie-a.tie);
+
+  if(!candidates.length){
+    throw new Error('No hay una posición exterior válida para el Centro Urbano.');
+  }
+
+  return candidates[0];
+}
+
+export function autoPlaceFFAPlayerCUs(map, players){
+  const normalized=(players || []).map((player,i) =>
+    typeof player === 'string'
+      ? { id:player, order:i }
+      : { id:player.id || `P${i+1}`, ...player, order:i }
+  );
+
+  if(normalized.length<2 || normalized.length>4){
+    throw new Error('FFA admite 2 a 4 jugadores.');
+  }
+
+  const chosen=[];
+  const placements=[];
+
+  for(const player of normalized){
+    const choice=chooseFFAStartAnchor(map,player.id,chosen);
+    chosen.push(choice.id);
+    const cu=placeFFAPlayerCU(map,player.id,choice.id);
+    cu.startScore=choice.score;
+    placements.push(cu);
+  }
+
+  return placements;
 }
