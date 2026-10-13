@@ -43,6 +43,7 @@ jobs:
           node player-mat-engine-v1/simulator/tests/exploration-cards-smoke.mjs
           node player-mat-engine-v1/simulator/tests/competitive-scoring-smoke.mjs
           node player-mat-engine-v1/simulator/tests/hito2-bots-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/hito3-balance-smoke.mjs
           node --check player-mat-engine-v1/simulator/app.js
           node --check player-mat-engine-v1/simulator/engine/game.js
           node --check player-mat-engine-v1/simulator/bots/baseline.js
@@ -53,6 +54,7 @@ jobs:
           node --check player-mat-engine-v1/simulator/runner/benchmark-seeds.js
           node --check player-mat-engine-v1/simulator/maps/ffa36.js
           node --check player-mat-engine-v1/simulator/runner/run-benchmark.mjs
+          node --check player-mat-engine-v1/simulator/runner/compare-benchmarks.mjs
           node --check player-mat-engine-v1/simulator/runner/duel-benchmark.mjs
 
       - name: Build playtest data
