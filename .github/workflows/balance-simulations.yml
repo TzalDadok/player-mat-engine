@@ -1,0 +1,64 @@
+name: Balance Simulations
+
+on:
+  workflow_dispatch:
+    inputs:
+      games:
+        description: Number of FFA games
+        required: false
+        default: "100"
+      seed:
+        description: Seed prefix
+        required: false
+        default: "manual"
+      max_rounds:
+        description: Maximum rounds per game
+        required: false
+        default: "250"
+  push:
+    branches:
+      - main
+    paths:
+      - "player-mat-engine-v1/simulator/bots/**"
+      - "player-mat-engine-v1/simulator/runner/**"
+      - ".github/workflows/balance-simulations.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run balance batch
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_GAMES: ${{ github.event.inputs.games }}
+          INPUT_SEED: ${{ github.event.inputs.seed }}
+          INPUT_MAX_ROUNDS: ${{ github.event.inputs.max_rounds }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            GAMES="${INPUT_GAMES:-100}"
+            SEED="${INPUT_SEED:-manual}"
+            MAX_ROUNDS="${INPUT_MAX_ROUNDS:-250}"
+          else
+            GAMES="20"
+            SEED="push-${GITHUB_RUN_NUMBER}"
+            MAX_ROUNDS="200"
+          fi
+
+          node player-mat-engine-v1/simulator/runner/run-batch.mjs "$GAMES" "$SEED" "$MAX_ROUNDS"
+
+      - name: Upload simulation results
+        uses: actions/upload-artifact@v4
+        with:
+          name: balance-simulation-${{ github.run_number }}
+          path: |
+            simulation-results.json
+            simulation-summary.md
+          retention-days: 30
