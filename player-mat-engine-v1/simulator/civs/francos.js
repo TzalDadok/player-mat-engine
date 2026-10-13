@@ -13,9 +13,9 @@ export const francos = {
     rider: entry('castles', 'barracks', { food: 2, gold: 3 }),
     knight: entry('castles', 'barracks', { food: 3, gold: 4 }),
     galley: entry('castles', 'port', { wood: 3, gold: 1 }),
-    monk: entry('castles', 'monastery', { food: 2, gold: 2 }),
-    scorpion: entry('castles', 'siege', { wood: 3, gold: 2 }),
-    trebuchet: entry('castles', 'siege', { wood: 4, gold: 3 })
+    monk: entry('castles', 'monastery', { food: 2, gold: 2 }, { provisionalCost: true }),
+    scorpion: entry('castles', 'siege', { wood: 3, gold: 2 }, { provisionalCost: true }),
+    trebuchet: entry('castles', 'siege', { wood: 4, gold: 3 }, { provisionalCost: true })
   },
   buildings: {
     mill: entry('dark', null, { wood: 3 }),
