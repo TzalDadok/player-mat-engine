@@ -25,6 +25,13 @@ export const vikingos = {
     castle: entry('castles', null, { stone: 4, gold: 2 }),
     siege: entry('castles', null, { wood: 4, stone: 2, gold: 2 })
   },
+  combatBonuses: [
+    { source: 'scorpion', targetTag: 'foot', amount: 1 },
+    { source: 'trebuchet', target: 'building', amount: 2 }
+  ],
+  buildingSupport: {
+    castle: { range: 1, force: 1 }
+  },
   technologies: [
     tech('loom','Telar','dark','tc',{food:1,wood:1},'Aldeanos +1 Fuerza.',['unitForce:villager:+1']),
     tech('viking_settlement','Asent. Vikingo','dark','mill',{food:1,wood:2},'Captura Granjas indefensas.',['captureFarms']),
