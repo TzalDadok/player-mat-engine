@@ -345,6 +345,28 @@ export class BaselineBot {
     for (const villager of villagers) {
       if (villager.cargo?.length) continue;
 
+      const currentHex = game.hexMap.get(villager.hexId);
+      const currentResource = SOURCE_TO_RESOURCE[currentHex?.source];
+
+      if (currentResource && deficits[currentResource] > 0) {
+        this.loadUsefulCargo(game, villager, currentResource);
+
+        if (villager.cargo?.length) {
+          const step = this.nextLandStep(game, villager.hexId, hub.id);
+          if (step) {
+            const moved = this.safe(game, 'return-loaded-resource', () =>
+              game.moveUnits(this.playerId, [villager.id], step)
+            );
+            if (moved.ok) return moved;
+          }
+        }
+
+        // Si acaba de llegar a un recurso sin fichas producidas todavía,
+        // no lo saques durante la fase Militar: debe esperar a la próxima
+        // Economía para poder PRODUCIR.
+        continue;
+      }
+
       for (const needed of resourceOrder) {
         const source = this.nearestSourceFor(game, villager, needed);
         if (!source) continue;
