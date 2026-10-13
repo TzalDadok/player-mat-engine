@@ -327,6 +327,7 @@ export function runFFAGame({
   cuSelectionOrder = null,
   mapPreset = 'ffa36',
   startingVillagers = 1,
+  requireTwoAdjacentLand = startingVillagers===3,
   captureLog = false
 } = {}) {
   if (!Array.isArray(civs) || civs.length < 2 || civs.length > 4) {
@@ -344,7 +345,7 @@ export function runFFAGame({
     seed,
     cuSelectionOrder,
     mapPreset,
-    requireTwoAdjacentLand: startingVillagers===3
+    requireTwoAdjacentLand
   });
   if(startingVillagers===3){
     for(const player of game.state.players){
