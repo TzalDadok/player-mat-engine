@@ -253,7 +253,10 @@ function snapshotMetrics(game, bots, status) {
         anchorTerrainId:start?.anchorTerrainId || null,
         anchorTerrain:anchor?.terrain || null,
         anchorSource:anchor?.source || null,
-        score:Number.isFinite(start?.startScore) ? start.startScore : null
+        score:Number.isFinite(start?.startScore) ? start.startScore : null,
+        selectionIndex:Number.isFinite(start?.selectionIndex)
+          ? start.selectionIndex
+          : null
       },
       combat:{
         fought:playerCombats.length,
