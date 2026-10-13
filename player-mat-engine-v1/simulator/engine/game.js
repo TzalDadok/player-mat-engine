@@ -852,6 +852,17 @@ export class AoEGame {
       const hex = this.hexMap.get(sel.hexId);
       if (!hex) throw new RuleError(`Hexágono inexistente: ${sel.hexId}`);
 
+      const suppressingGalley = this.state.units.find(
+        u =>
+          u.hexId === hex.id &&
+          u.ownerId !== playerId &&
+          u.type === 'galley' &&
+          this.hasEffect(u.ownerId, 'galleySuppressProduction')
+      );
+      if (suppressingGalley) {
+        throw new RuleError('Dominio Naval enemigo suspende la producción de este hexágono.');
+      }
+
       const villagers = this.state.units.filter(
         u => u.ownerId === playerId && u.hexId === hex.id && u.type === 'villager'
       ).length;
@@ -887,7 +898,12 @@ export class AoEGame {
 
         if (farms) {
           type = 'food';
-          amount = Math.min(farms, villagers);
+          const activeFarms = Math.min(farms, villagers);
+          amount = activeFarms;
+
+          if (activeFarms > 0 && this.hasEffect(playerId, 'buildingProduction:+1')) {
+            amount += activeFarms;
+          }
 
           if (
             amount > 0 &&
@@ -1806,7 +1822,15 @@ export class AoEGame {
         throw new RuleError('Elegí un lado adyacente válido.');
       }
 
-      this.spendControlled(playerId, { wood: 3 });
+      if (
+        this.hasEffect(playerId, 'fortifyAlternative:stone:2') &&
+        !this.canAffordControlled(playerId, { wood: 3 }) &&
+        this.canAffordControlled(playerId, { stone: 2 })
+      ) {
+        this.spendControlled(playerId, { stone: 2 });
+      } else {
+        this.spendControlled(playerId, { wood: 3 });
+      }
 
       if (!hex.palisades.includes(neighbor.id)) {
         hex.palisades.push(neighbor.id);
@@ -2307,6 +2331,35 @@ export class AoEGame {
       });
     }
     return relicCount * 2;
+  }
+
+  plunderAfterCombat(playerId, fromHexId, toHexId, resources) {
+    this.assertActive(playerId);
+
+    if (!this.hasEffect(playerId, 'plunder:2')) {
+      throw new RuleError('Saqueo no está habilitado.');
+    }
+
+    const lastCombat = [...this.state.log].reverse().find(x => x.type === 'combat');
+    if (
+      !lastCombat ||
+      lastCombat.playerId !== playerId ||
+      lastCombat.data?.winnerId !== playerId ||
+      lastCombat.data?.targetHexId !== fromHexId
+    ) {
+      throw new RuleError('Saqueo requiere haber ganado la batalla más reciente en ese hexágono.');
+    }
+
+    const destinationHasArmy = this.state.units.some(
+      u => u.ownerId === playerId && u.hexId === toHexId && this.isCombatParticipant(playerId, u)
+    );
+    if (!destinationHasArmy && toHexId !== fromHexId) {
+      throw new RuleError('Los recursos saqueados deben acompañar al ejército vencedor.');
+    }
+
+    const moved = this.transferResourceTokens(fromHexId, toHexId, resources, 2);
+    this.log('plunder', { playerId, fromHexId, toHexId, resources: clone(resources), moved });
+    return moved;
   }
 
   combatParticipants(playerId, targetHexId, directIds = []) {
