@@ -4,7 +4,7 @@ import {
 } from './constants.js';
 import { generateHexRadius, hexDistance, physicalNeighbors, shortestMovementPath } from './hex.js';
 import { getCivilization } from '../civs/index.js';
-import { generateFFA48Map, autoPlaceFFAPlayerCUs } from '../maps/ffa48.js';
+import { generateFFA36Map, autoPlaceFFAPlayerCUs } from '../maps/ffa36.js';
 import { createExplorationState, cardById, shuffleCards } from './exploration.js';
 
 const clone = v => structuredClone(v);
@@ -84,11 +84,11 @@ export class AoEGame {
       throw new RuleError('FFA requiere entre 2 y 4 jugadores.');
     }
 
-    const map = generateFFA48Map({ seed });
     const normalizedPlayers = players.map((p, i) => ({
       ...p,
       id: p.id || `P${i + 1}`
     }));
+    const map = generateFFA36Map({ seed, players: normalizedPlayers });
     const placements = autoPlaceFFAPlayerCUs(map, normalizedPlayers);
 
     const game = AoEGame.create({
@@ -100,7 +100,7 @@ export class AoEGame {
     });
 
     game.state.mapMeta = {
-      preset: 'ffa48',
+      preset: 'ffa36',
       seed: map.seed,
       terrainIds: [...map.terrainIds],
       perimeterIds: [...map.perimeterIds],
@@ -115,7 +115,8 @@ export class AoEGame {
     game.log('ffa-map-created', {
       seed: map.seed,
       terrainCount: map.terrainIds.length,
-      perimeterCount: map.perimeterIds.length
+      perimeterCount: map.perimeterIds.length,
+      placements: map.placementHistory.length
     });
 
     return game;
