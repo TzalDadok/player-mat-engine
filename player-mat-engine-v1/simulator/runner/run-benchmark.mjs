@@ -44,10 +44,10 @@ const lines=[
   '',
   '## Overall civilization results',
   '',
-  '| Civilization | Completed apps | Wins | Win rate | 95% CI | Start score | 1st Barracks | 1st Military | 1st Combat | Combats | Combat wins |',
-  '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+  '| Civilization | Completed apps | Wins | Win rate | 95% CI | Start score | Produced | Spent | 1st Barracks | 1st Military | 1st Combat | Combats | Combat wins |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
   ...Object.entries(result.civs).map(([civ,s])=>
-    `| ${civ} | ${s.completedAppearances} | ${s.wins} | ${pct(s.winRate)} | ${ci(s.winRateCI95)} | ${fmt(s.avgStartScore)} | ${fmt(s.avgFirstBarracks)} | ${fmt(s.avgFirstMilitary)} | ${fmt(s.avgFirstCombat)} | ${fmt(s.avgCombats)} | ${fmt(s.avgCombatWins)} |`
+    `| ${civ} | ${s.completedAppearances} | ${s.wins} | ${pct(s.winRate)} | ${ci(s.winRateCI95)} | ${fmt(s.avgStartScore)} | ${fmt(s.avgProduced)} | ${fmt(s.avgSpent)} | ${fmt(s.avgFirstBarracks)} | ${fmt(s.avgFirstMilitary)} | ${fmt(s.avgFirstCombat)} | ${fmt(s.avgCombats)} | ${fmt(s.avgCombatWins)} |`
   ),
   '',
   '## Seat results',
@@ -79,10 +79,10 @@ for(const profile of result.profiles){
     '',
     `Completed: ${summary.completed}/${summary.games} (${pct(summary.completionRate)})`,
     '',
-    '| Civilization | Completed apps | Wins | Win rate | 95% CI | Start score | 1st Military | 1st Combat | Avg military | Avg tech |',
-    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    '| Civilization | Completed apps | Wins | Win rate | 95% CI | Produced | Spent | 1st Military | 1st Combat | Avg military | Avg tech |',
+    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
     ...Object.entries(summary.civs).map(([civ,s])=>
-      `| ${civ} | ${s.completedAppearances} | ${s.wins} | ${pct(s.winRate)} | ${ci(s.winRateCI95)} | ${fmt(s.avgStartScore)} | ${fmt(s.avgFirstMilitary)} | ${fmt(s.avgFirstCombat)} | ${fmt(s.avgMilitaryTrained)} | ${fmt(s.avgTechnologies)} |`
+      `| ${civ} | ${s.completedAppearances} | ${s.wins} | ${pct(s.winRate)} | ${ci(s.winRateCI95)} | ${fmt(s.avgProduced)} | ${fmt(s.avgSpent)} | ${fmt(s.avgFirstMilitary)} | ${fmt(s.avgFirstCombat)} | ${fmt(s.avgMilitaryTrained)} | ${fmt(s.avgTechnologies)} |`
     ),
     '',
     'Seat win rates: '+summary.seatSummary.map(s=>`P${s.seat}=${pct(s.winRate)}`).join(', '),
