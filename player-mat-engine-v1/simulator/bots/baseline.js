@@ -6,10 +6,51 @@ import {
 } from '../engine/constants.js';
 import {
   hexDistance,
-  physicalNeighbors,
-  shortestMovementPath
+  physicalNeighbors
 } from '../engine/hex.js';
 import { createRng, pickRandom, shuffle } from './rng.js';
+
+function strategicLandPath(game, fromId, toId) {
+  if (fromId === toId) return [fromId];
+
+  const byId = game.hexMap;
+  const start = byId.get(fromId);
+  const goal = byId.get(toId);
+  if (!start || !goal || goal.terrain === 'water') return null;
+
+  const queue = [fromId];
+  const prev = new Map([[fromId, null]]);
+
+  while (queue.length) {
+    const currentId = queue.shift();
+    const current = byId.get(currentId);
+
+    for (const candidate of game.state.hexes) {
+      if (
+        candidate.terrain === 'water' ||
+        prev.has(candidate.id) ||
+        hexDistance(current, candidate) !== 1 ||
+        game.edgeBlocked(currentId, candidate.id)
+      ) continue;
+
+      prev.set(candidate.id, currentId);
+
+      if (candidate.id === toId) {
+        const path = [];
+        let cursor = toId;
+        while (cursor) {
+          path.push(cursor);
+          cursor = prev.get(cursor);
+        }
+        return path.reverse();
+      }
+
+      queue.push(candidate.id);
+    }
+  }
+
+  return null;
+}
 
 const MILITARY_PRIORITY = [
   'knight','elephant','rider','longbow','militia','spearman','archer','skirmisher','galley'
@@ -151,10 +192,7 @@ export class BaselineBot {
   }
 
   nextLandStep(game, fromHexId, toHexId) {
-    const path = shortestMovementPath(game.state.hexes, fromHexId, toHexId, {
-      water: false,
-      blockedEdge: (a, b) => game.edgeBlocked(a, b)
-    });
+    const path = strategicLandPath(game, fromHexId, toHexId);
     return path?.[1] || null;
   }
 
@@ -186,10 +224,7 @@ export class BaselineBot {
   nearestSourceFor(game, unit, resourceType) {
     const candidates = this.sourceCandidates(game, resourceType)
       .map(h => {
-        const path = shortestMovementPath(game.state.hexes, unit.hexId, h.id, {
-          water: false,
-          blockedEdge: (a, b) => game.edgeBlocked(a, b)
-        });
+        const path = strategicLandPath(game, unit.hexId, h.id);
         return { h, path };
       })
       .filter(x => x.path)
@@ -405,10 +440,7 @@ export class BaselineBot {
     const alive = game.state.players.filter(p => !p.eliminated && p.id !== this.playerId);
     return alive.map(player => {
       const target = game.hexMap.get(player.tcHexId);
-      const path = shortestMovementPath(game.state.hexes, fromHexId, target.id, {
-        water: false,
-        blockedEdge: (a, b) => game.edgeBlocked(a, b)
-      });
+      const path = strategicLandPath(game, fromHexId, target.id);
       return { player, target, path };
     }).filter(x => x.path)
       .sort((a, b) => a.path.length - b.path.length);
