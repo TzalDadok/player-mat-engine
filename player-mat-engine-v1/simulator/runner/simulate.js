@@ -145,6 +145,66 @@ function playerMilestones(game, playerId) {
   };
 }
 
+const ECON_RESOURCES = ['food','wood','stone','gold'];
+
+function emptyResourceTotals(){
+  return Object.fromEntries(ECON_RESOURCES.map(r=>[r,0]));
+}
+
+function addCost(target,cost={}){
+  for(const r of ECON_RESOURCES){
+    target[r]+=Math.max(0,Number(cost?.[r]||0));
+  }
+}
+
+function economyMetrics(game,playerId){
+  const produced=emptyResourceTotals();
+  const spent=emptyResourceTotals();
+  const raidedIn=emptyResourceTotals();
+  const raidedOut=emptyResourceTotals();
+
+  for(const entry of game.state.log){
+    if(entry.type==='produce'){
+      for(const result of entry.data?.results||[]){
+        const resource=result.resourceType;
+        if(entry.playerId===playerId && resource in produced){
+          produced[resource]+=Number(result.amount||0);
+          if(result.raidedBy){
+            raidedOut[resource]+=Number(result.raidedAmount||0);
+          }
+        }
+        if(result.raidedBy===playerId && resource in raidedIn){
+          raidedIn[resource]+=Number(result.raidedAmount||0);
+        }
+      }
+    }
+
+    if(entry.playerId!==playerId) continue;
+
+    if(entry.type==='train'){
+      for(const unit of entry.data?.units||[]){
+        addCost(spent,unit.paidCost);
+      }
+    } else if(
+      ['build','research','advance-age','instruct'].includes(entry.type)
+    ){
+      addCost(spent,entry.data?.paidCost);
+    }
+  }
+
+  const totalProduced=Object.values(produced).reduce((a,b)=>a+b,0);
+  const totalSpent=Object.values(spent).reduce((a,b)=>a+b,0);
+
+  return {
+    produced,
+    spent,
+    raidedIn,
+    raidedOut,
+    totalProduced,
+    totalSpent
+  };
+}
+
 function snapshotMetrics(game, bots, status) {
   const winner = game.state.winnerId ? game.playerMap.get(game.state.winnerId) : null;
 
@@ -187,6 +247,7 @@ function snapshotMetrics(game, bots, status) {
       buildingsAlive:game.state.buildings.filter(b=>b.ownerId===p.id).length,
       controlledTerritories:controlled.filter(id=>!game.hexMap.get(id)?.special).length,
       resources,
+      economy:economyMetrics(game,p.id),
       start:{
         cuHexId:start?.cuHexId || p.tcHexId,
         anchorTerrainId:start?.anchorTerrainId || null,
