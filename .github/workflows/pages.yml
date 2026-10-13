@@ -34,6 +34,7 @@ jobs:
         run: |
           node player-mat-engine-v1/simulator/tests/hito1-smoke.mjs
           node player-mat-engine-v1/simulator/tests/civilizations-smoke.mjs
+          node player-mat-engine-v1/simulator/tests/combat-advanced-smoke.mjs
 
       - name: Build playtest data
         shell: bash
