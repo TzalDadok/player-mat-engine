@@ -164,4 +164,14 @@ function emptyLand(game) {
   ok(farm.type === 'farm', 'Qanats debe permitir Granja en Desierto.');
 }
 
+// Catálogo disponible para futura interfaz/bots.
+{
+  const g = game('vikingos');
+  const dark = g.civilizationState('P1');
+  ok(dark.units.some(u => u.type === 'galley'), 'El catálogo vikingo debe mostrar Galera en Dark.');
+  ok(!dark.units.some(u => u.type === 'archer'), 'El catálogo vikingo no debe mostrar Arquero en Dark.');
+  ok(dark.buildings.some(b => b.type === 'market'), 'El catálogo vikingo debe mostrar Mercado en Dark.');
+  ok(!dark.buildings.some(b => b.type === 'tower'), 'El catálogo vikingo no debe mostrar Torre.');
+}
+
 console.log('Civilization integration tests: OK');
