@@ -1,4 +1,4 @@
-name: Hito 4 FFA60 adjacent villager starts (validated)
+name: Hito 4 FFA60 adjacent starts with stalled games reported
 on:
   push:
     paths:
