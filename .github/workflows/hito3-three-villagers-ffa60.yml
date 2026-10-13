@@ -1,4 +1,4 @@
-name: Hito 3 FFA60 three villagers
+name: Hito 3 FFA60 three villagers verified
 on:
   push:
     paths:
