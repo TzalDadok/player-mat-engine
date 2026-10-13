@@ -25,12 +25,13 @@ function pair(g){
   const [a,b]=pair(g);
   const mil1=g.addUnit('P1','militia',a.id);
   const mil2=g.addUnit('P1','militia',a.id);
+  const mil3=g.addUnit('P1','militia',a.id);
   const mis=g.addUnit('P1','missionary',a.id);
   const d1=g.addUnit('P2','militia',b.id);
   const d2=g.addUnit('P2','militia',b.id);
 
   const r=g.attack('P1',{
-    unitIds:[mil1.id,mil2.id,mis.id],
+    unitIds:[mil1.id,mil2.id,mil3.id,mis.id],
     targetHexId:b.id,
     loserCasualtyIds:[d1.id],
     convertedUnitIds:[d2.id]
@@ -49,12 +50,13 @@ function pair(g){
   const [a,b]=pair(g);
   const m1=g.addUnit('P1','militia',a.id);
   const m2=g.addUnit('P1','militia',a.id);
+  const m3=g.addUnit('P1','militia',a.id);
   const mis=g.addUnit('P1','missionary',a.id);
   const d1=g.addUnit('P2','militia',b.id);
   const d2=g.addUnit('P2','militia',b.id);
 
   const r=g.attack('P1',{
-    unitIds:[m1.id,m2.id,mis.id],
+    unitIds:[m1.id,m2.id,m3.id,mis.id],
     targetHexId:b.id,
     loserCasualtyIds:[d1.id],
     convertedUnitIds:[d2.id]
