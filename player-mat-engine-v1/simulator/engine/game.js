@@ -85,11 +85,14 @@ export class AoEGame {
     }
 
     const map = generateFFA48Map({ seed });
-    const ids = players.map((p, i) => p.id || `P${i + 1}`);
-    autoPlaceFFAPlayerCUs(map, ids);
+    const normalizedPlayers = players.map((p, i) => ({
+      ...p,
+      id: p.id || `P${i + 1}`
+    }));
+    const placements = autoPlaceFFAPlayerCUs(map, normalizedPlayers);
 
     const game = AoEGame.create({
-      players,
+      players: normalizedPlayers,
       seedMap: false,
       mode: 'ffa',
       mapHexes: map.hexes,
@@ -100,7 +103,13 @@ export class AoEGame {
       preset: 'ffa48',
       seed: map.seed,
       terrainIds: [...map.terrainIds],
-      perimeterIds: [...map.perimeterIds]
+      perimeterIds: [...map.perimeterIds],
+      startPositions: placements.map(cu => ({
+        playerId: cu.tcOwnerId,
+        cuHexId: cu.id,
+        anchorTerrainId: cu.tcAnchorId,
+        startScore: cu.startScore
+      }))
     };
 
     game.log('ffa-map-created', {
