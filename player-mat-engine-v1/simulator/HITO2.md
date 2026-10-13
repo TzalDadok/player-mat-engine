@@ -1,5 +1,7 @@
 # Hito 2 — Bots autónomos
 
+**Estado: cerrado.**
+
 ## Objetivo
 
 Hito 2 tiene un objetivo concreto: conseguir jugadores automáticos capaces de completar partidas legales sin intervención humana.
@@ -51,9 +53,10 @@ La colocación automática imita una decisión humana básica:
 
 - exige acceso a la red terrestre central;
 - evita Agua;
-- si existen alternativas suficientes, evita usar Oro/Piedra como ancla inmediata del CU, porque esos territorios pueden agotarse y transformarse en Agua.
+- evita Oro/Piedra como ancla inmediata cuando existen alternativas;
+- en el benchmark de cierre prioriza posiciones con una ruta al centro formada por terrenos que no pueden convertirse en Agua por sobreexplotación.
 
-Esto es una política del bot de preparación, no una modificación de las reglas del mapa.
+Esto es una política del bot de preparación, no una modificación de las reglas del mapa. El mapa continúa siendo el mismo; el bot simplemente elige entre las posiciones exteriores disponibles después de verlo.
 
 ## Perfiles
 
@@ -114,3 +117,28 @@ Se mantienen en el repositorio, pero no forman parte del criterio conceptual de 
 Las decisiones de diseño aún abiertas permanecen en `PENDIENTES.md`.
 
 Los bots no deben resolverlas inventando reglas.
+
+
+## Cierre de Hito 2
+
+Benchmark de cierre:
+
+- 5 mapas fijos;
+- 4 rotaciones de asiento por mapa;
+- 4 perfiles de bot;
+- 80 partidas totales;
+- límite de seguridad de 400 rondas;
+- **80 partidas terminadas / 80 = 100%**.
+
+Por perfil:
+
+- balanced: 20/20;
+- aggressive: 20/20;
+- economic: 20/20;
+- technological: 20/20.
+
+La batería automática del motor también pasa con éxito.
+
+Este resultado no significa que los bots jueguen óptimamente ni que el juego esté balanceado. Significa que son suficientemente autónomos y estables para convertirse en agentes de prueba de Hito 3.
+
+El sesgo de asientos, las diferencias de win rate, el tamaño de muestra y la calidad estadística se consideran problemas de **Hito 3**, no criterios pendientes de Hito 2.
