@@ -1,5 +1,6 @@
 import { AoEGame } from '../engine/game.js';
 import { generateFFA48Map } from '../maps/ffa48.js';
+import { shortestMovementPath } from '../engine/hex.js';
 
 function ok(v,m){ if(!v) throw new Error(m); }
 
@@ -41,6 +42,16 @@ function ok(v,m){ if(!v) throw new Error(m); }
       return anchor && anchor.terrain !== 'water';
     }),
     'Cada CU del FFA debe tener acceso terrestre inicial.'
+  );
+
+  const wonder=g.state.hexes.find(h=>h.special==='wonder');
+  ok(
+    g.state.players.every(p => {
+      const tc=g.hexMap.get(p.tcHexId);
+      const anchor=g.hexMap.get(tc.tcAnchorId);
+      return !!shortestMovementPath(g.state.hexes,anchor.id,wonder.id,{water:false});
+    }),
+    'Cada posición inicial debe pertenecer a la red terrestre conectada a la Maravilla.'
   );
   ok(
     g.state.players.every(p=>g.state.units.some(u=>u.ownerId===p.id&&u.type==='villager'&&u.hexId===p.tcHexId)),
