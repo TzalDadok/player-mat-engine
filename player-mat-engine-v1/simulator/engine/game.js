@@ -331,7 +331,7 @@ export class AoEGame {
 
   addUnit(ownerId, type, hexId) {
     if (!UNIT_TYPES[type]) throw new RuleError(`Unidad desconocida: ${type}`);
-    const u = { id: uid('U'), ownerId, type, hexId, cargo: [] };
+    const u = { id: uid('U'), ownerId, type, hexId, cargo: [], embarkedIn: null, garrisonedIn: null };
     this.state.units.push(u);
     return u;
   }
@@ -361,7 +361,11 @@ export class AoEGame {
   }
 
   controllerOf(hexId) {
-    const unitOwners = [...new Set(this.state.units.filter(u => u.hexId === hexId).map(u => u.ownerId))];
+    const unitOwners = [...new Set(
+      this.state.units
+        .filter(u => u.hexId === hexId && !u.embarkedIn)
+        .map(u => u.ownerId)
+    )];
     if (unitOwners.length === 1) return unitOwners[0];
     if (unitOwners.length > 1) return null;
 
@@ -664,6 +668,145 @@ export class AoEGame {
     if (hex.special === 'tc' && hex.tcOwnerId && hex.tcOwnerId !== attackerId) {
       this.eliminatePlayer(hex.tcOwnerId);
     }
+  }
+
+  garrisonUnit(playerId, unitId, towerId) {
+    const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
+    const tower = this.state.buildings.find(
+      b => b.id === towerId && b.ownerId === playerId && b.type === 'tower'
+    );
+
+    if (!unit || !tower) throw new RuleError('Unidad o Torre inválida.');
+    if (!this.hasEffect(playerId, 'garrison:ranged')) {
+      throw new RuleError('La civilización no tiene Guarnición habilitada.');
+    }
+
+    const spec = this.effectiveUnitSpec(playerId, unit.type);
+    if (!spec.tags?.includes('ranged')) {
+      throw new RuleError('Sólo unidades de arquería pueden guarecerse con esta habilidad.');
+    }
+    if (unit.hexId !== tower.hexId || unit.embarkedIn) {
+      throw new RuleError('La unidad debe estar en el mismo hexágono que la Torre.');
+    }
+
+    unit.garrisonedIn = tower.id;
+    this.log('garrison', { playerId, unitId, towerId });
+    return unit;
+  }
+
+  ungarrisonUnit(playerId, unitId) {
+    const unit = this.state.units.find(u => u.id === unitId && u.ownerId === playerId);
+    if (!unit) throw new RuleError('Unidad inválida.');
+    const oldTowerId = unit.garrisonedIn;
+    unit.garrisonedIn = null;
+    this.log('ungarrison', { playerId, unitId, towerId: oldTowerId });
+    return unit;
+  }
+
+  transportCapacity(playerId, ship) {
+    if (!ship) return 0;
+    if (ship.type === 'transportShip') return 6;
+    if (ship.type === 'galley' && this.hasEffect(playerId, 'galleyTransport:6')) return 6;
+    return 0;
+  }
+
+  embarkUnits(playerId, shipId, unitIds) {
+    const ship = this.state.units.find(
+      u => u.id === shipId && u.ownerId === playerId && ['transportShip','galley'].includes(u.type)
+    );
+    if (!ship) throw new RuleError('Barco de transporte inválido.');
+
+    const capacity = this.transportCapacity(playerId, ship);
+    if (!capacity) throw new RuleError('Ese barco no puede transportar unidades.');
+
+    const shipHex = this.hexMap.get(ship.hexId);
+    if (!shipHex || shipHex.terrain !== 'water') {
+      throw new RuleError('El barco debe estar en Agua.');
+    }
+
+    const passengers = this.state.units.filter(u => u.embarkedIn === ship.id);
+    const units = (unitIds || []).map(id => this.state.units.find(u => u.id === id));
+
+    if (!units.length || units.some(u => !u || u.ownerId !== playerId || u.id === ship.id)) {
+      throw new RuleError('Pasajeros inválidos.');
+    }
+    if (passengers.length + units.length > capacity) {
+      throw new RuleError('Se supera la capacidad del barco.');
+    }
+
+    for (const unit of units) {
+      const source = this.hexMap.get(unit.hexId);
+      if (
+        unit.embarkedIn ||
+        unit.garrisonedIn ||
+        !source ||
+        source.terrain === 'water' ||
+        hexDistance(source, shipHex) !== 1
+      ) {
+        throw new RuleError('Cada pasajero debe estar en tierra adyacente al barco.');
+      }
+    }
+
+    for (const unit of units) {
+      unit.embarkedIn = ship.id;
+      unit.hexId = ship.hexId;
+    }
+
+    this.log('embark', { playerId, shipId, unitIds: units.map(u => u.id) });
+    return units;
+  }
+
+  disembarkUnits(playerId, shipId, unitIds, landHexId) {
+    const ship = this.state.units.find(u => u.id === shipId && u.ownerId === playerId);
+    const land = this.hexMap.get(landHexId);
+
+    if (!ship || !land || land.terrain === 'water') {
+      throw new RuleError('Barco o destino de desembarco inválido.');
+    }
+
+    const shipHex = this.hexMap.get(ship.hexId);
+    if (!shipHex || hexDistance(shipHex, land) !== 1) {
+      throw new RuleError('El desembarco debe hacerse en tierra adyacente.');
+    }
+
+    const ids = new Set(unitIds || []);
+    const units = this.state.units.filter(
+      u => u.ownerId === playerId && u.embarkedIn === shipId && ids.has(u.id)
+    );
+
+    if (!units.length || units.length !== ids.size) {
+      throw new RuleError('Pasajeros de desembarco inválidos.');
+    }
+
+    for (const unit of units) {
+      unit.embarkedIn = null;
+      unit.hexId = landHexId;
+    }
+
+    this.resolveReligiousEncounterAtHex(landHexId);
+    this.log('disembark', { playerId, shipId, unitIds: units.map(u => u.id), landHexId });
+    return units;
+  }
+
+  resolveReligiousEncounterAtHex(hexId) {
+    const religious = this.state.units.filter(
+      u =>
+        u.hexId === hexId &&
+        !u.embarkedIn &&
+        this.effectiveUnitSpec(u.ownerId, u.type).category === 'religious'
+    );
+    const owners = [...new Set(religious.map(u => u.ownerId))];
+    if (owners.length < 2) return [];
+
+    const returned = [];
+    for (const unit of religious) {
+      unit.garrisonedIn = null;
+      unit.hexId = this.playerMap.get(unit.ownerId).tcHexId;
+      returned.push(unit.id);
+    }
+
+    this.log('religious-encounter', { hexId, unitIds: returned });
+    return returned;
   }
 
   loadResource(playerId, unitId, resourceType, amount = 1) {
