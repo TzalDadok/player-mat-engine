@@ -415,9 +415,16 @@ function startTieBreak(map,playerId,anchorId){
   return hashSeed(`${map.seed}:start:${playerId}:${anchorId}`)/0xffffffff;
 }
 
-export function chooseFFAStartAnchor(map,playerId,chosenAnchorIds=[]){
+export function chooseFFAStartAnchor(map,playerId,chosenAnchorIds=[],minAdjacentLand=0){
   const candidates=map.perimeterIds
     .filter(id=>!chosenAnchorIds.includes(id))
+    .filter(id=>{
+      if(!minAdjacentLand) return true;
+      const anchor=map.hexes.find(h=>h.id===id);
+      const pos=freeOuterNeighbor(map.hexes,anchor);
+      if(!pos) return false;
+      return map.hexes.filter(h=>!h.special && h.terrain!=='water' && hexDistance(h,pos)===1).length>=minAdjacentLand;
+    })
     .map(id=>({
       id,
       score:scoreFFAStartAnchor(map,id,chosenAnchorIds),
@@ -436,7 +443,7 @@ export function chooseFFAStartAnchor(map,playerId,chosenAnchorIds=[]){
 export function autoPlaceFFAPlayerCUs(
   map,
   players,
-  { selectionOrder = null } = {}
+  { selectionOrder = null, minAdjacentLand = 0 } = {}
 ){
   const normalized=(players||[]).map((player,i)=>
     typeof player==='string'
@@ -464,7 +471,7 @@ export function autoPlaceFFAPlayerCUs(
 
   for(const playerId of orderIds){
     const player=byId.get(playerId);
-    const choice=chooseFFAStartAnchor(map,player.id,chosen);
+    const choice=chooseFFAStartAnchor(map,player.id,chosen,minAdjacentLand);
     chosen.push(choice.id);
     const cu=placeFFAPlayerCU(map,player.id,choice.id);
     cu.startScore=choice.score;
