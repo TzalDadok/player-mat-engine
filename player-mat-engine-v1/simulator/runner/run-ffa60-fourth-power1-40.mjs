@@ -88,7 +88,7 @@ const lines=['# Hito 4 — Experimento L: cuarto elector recibe +1 Poder Militar
  ...seats.map((_,i)=>`| P${i+1} | ${v.seatPriority[i].map(b=>b.appearances).join(' | ')} |`),
  '', 'El JSON incluye resultados por semilla y asiento. IC Wilson descriptivos: las partidas reutilizan mapas.',
  ''];
-const baseline=JSON.parse(readFileSync('results/hito4-ffa60-adjacent-start-40.json','utf8')).variants.staggered;
+const baseline=JSON.parse(readFileSync('results/hito4-ffa60-fixed-hub-40.json','utf8')).variants.staggered;
 const comparison=v.priority.map((p,i)=>({priority:i+1,baseline:baseline.priority[i].winRate,compensated:p.winRate,deltaPp:100*(p.winRate-baseline.priority[i].winRate)}));
 results.comparison={against:'experiment K with same bot, maps and rules; only fourth priority gets one military power',priority:comparison};
 lines.push('', '## Comparación con Experimento K', '',
@@ -113,12 +113,12 @@ const meanAbsoluteDeviation=rows=>rows.reduce((sum,row)=>sum+Math.abs(row.winRat
 results.comparison.oldMeanAbsoluteDeviationPp=meanAbsoluteDeviation(baseline.priority);
 results.comparison.newMeanAbsoluteDeviationPp=meanAbsoluteDeviation(v.priority);
 lines.push('', '## Desviación media frente al 25% ideal', '',
-  `Experimento J: ${results.comparison.oldMeanAbsoluteDeviationPp.toFixed(2)} puntos porcentuales.`,
+  `Experimento K: ${results.comparison.oldMeanAbsoluteDeviationPp.toFixed(2)} puntos porcentuales.`,
   `Experimento L: ${results.comparison.newMeanAbsoluteDeviationPp.toFixed(2)} puntos porcentuales.`);
 lines.push('',
  '## Diferencia entre la mejor y la peor prioridad',
  '',
- `Experimento J: ${oldRange.toFixed(2)} puntos porcentuales.`,
+ `Experimento K: ${oldRange.toFixed(2)} puntos porcentuales.`,
  `Experimento L: ${newRange.toFixed(2)} puntos porcentuales.`,
  '',
  'Las diferencias por cada uno de los 40 mapas están incluidas en el JSON. Las rotaciones no equivalen a mapas independientes.');
