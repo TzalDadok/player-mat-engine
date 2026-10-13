@@ -678,55 +678,65 @@ export class AoEGame {
       throw new RuleError('No hay unidades para entrenar.');
     }
 
-    const specs = requests.map(r => ({ r, spec: UNIT_TYPES[r.type] }));
+    const player = this.playerMap.get(playerId);
+    const items = requests.map(r => {
+      const base = UNIT_TYPES[r.type];
+      const rule = this.unitRule(playerId, r.type);
+      if (!base || !rule) {
+        throw new RuleError(`Unidad no disponible para ${this.civFor(playerId).name}: ${r.type}`, 'UNIT_UNAVAILABLE');
+      }
+      return { r, base, rule };
+    });
 
-    if (specs.some(x => !x.spec)) throw new RuleError('Unidad desconocida.');
+    const actionCategory = items[0].base.category === 'economic' ? 'economy' : 'military';
 
-    const category = specs[0].spec.category;
-
-    if (specs.some(x => x.spec.category !== category)) {
-      throw new RuleError('No se mezclan unidades económicas y militares en una misma acción.');
+    if (items.some(x => (x.base.category === 'economic' ? 'economy' : 'military') !== actionCategory)) {
+      throw new RuleError('No se mezclan unidades económicas con militares/religiosas en una misma acción.');
     }
 
-    this.assertPhase(category === 'military' ? 'military' : 'economy');
+    this.assertPhase(actionCategory);
 
-    const player = this.playerMap.get(playerId);
     const created = [];
 
-    for (const { r, spec } of specs) {
-      if (AGES.indexOf(player.age) < AGES.indexOf(spec.age)) {
-        throw new RuleError('La Edad actual no permite entrenar una unidad solicitada.');
+    for (const { r, base, rule } of items) {
+      if (!this.ageAllows(player, rule.age)) {
+        throw new RuleError(`${base.name} todavía no está disponible en esta Edad.`);
       }
 
-      let spawnHexId;
+      const options = [
+        { age: rule.age, building: rule.building, cost: rule.cost },
+        ...(rule.alternateTraining || [])
+      ].filter(o => this.ageAllows(player, o.age));
 
-      if (r.type === 'villager') {
-        spawnHexId = r.hexId || player.tcHexId;
+      let option = null;
+      let spawnHexId = null;
 
-        if (
-          spawnHexId !== player.tcHexId &&
-          !this.state.buildings.some(
-            b => b.ownerId === playerId && b.hexId === spawnHexId
-          )
-        ) {
-          throw new RuleError('Ese punto no puede entrenar Aldeanos.');
-        }
-
-        this.spendControlled(playerId, spec.cost);
-        player.stats.villagersTrained++;
+      if (!r.buildingId) {
+        option = options.find(o => o.building === 'tc');
+        if (option) spawnHexId = player.tcHexId;
       } else {
-        const b = this.state.buildings.find(
-          x => x.id === r.buildingId && x.ownerId === playerId
+        const building = this.state.buildings.find(
+          b => b.id === r.buildingId && b.ownerId === playerId
         );
 
-        if (!b || b.type !== spec.building) {
-          throw new RuleError('Edificio de entrenamiento inválido.');
-        }
+        if (!building) throw new RuleError('Edificio de entrenamiento inválido.');
 
-        spawnHexId = b.hexId;
-        this.spendAt(spawnHexId, spec.cost);
+        option = options.find(o => o.building === building.type);
+        if (option) spawnHexId = building.hexId;
+      }
 
-        if (category === 'military') player.stats.militaryTrained++;
+      if (!option || !spawnHexId) {
+        throw new RuleError(`No hay un punto válido para entrenar ${base.name}.`);
+      }
+
+      const cost = this.effectiveUnitCost(playerId, r.type, option.cost);
+
+      if (r.type === 'villager') {
+        this.spendControlled(playerId, cost);
+        player.stats.villagersTrained++;
+      } else {
+        this.spendAt(spawnHexId, cost);
+        if (base.category === 'military') player.stats.militaryTrained++;
       }
 
       created.push(this.addUnit(playerId, r.type, spawnHexId));
