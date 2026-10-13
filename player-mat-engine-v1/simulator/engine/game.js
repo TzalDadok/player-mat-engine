@@ -959,28 +959,196 @@ export class AoEGame {
     const out = [];
 
     for (const u of this.state.units) {
-      if (
-        u.ownerId !== playerId ||
-        !this.isCombatParticipant(playerId, u)
-      ) {
-        continue;
-      }
+      if (u.ownerId !== playerId || !this.isCombatParticipant(playerId, u)) continue;
 
       const spec = this.effectiveUnitSpec(playerId, u.type);
 
       if (
+        spec.tags?.includes('siege') &&
+        !this.state.units.some(v => v.ownerId === playerId && v.type === 'villager' && v.hexId === u.hexId)
+      ) {
+        continue;
+      }
+
+      let range = spec.range;
+
+      if (
+        u.type === 'archer' &&
+        this.hasEffect(playerId, 'howdah:+1') &&
+        this.state.units.some(e => e.ownerId === playerId && e.type === 'elephant' && e.hexId === u.hexId)
+      ) {
+        range += 1;
+      }
+
+      if (
         ids.has(u.id) ||
         u.hexId === targetHexId ||
-        (
-          spec.range > 0 &&
-          hexDistance(this.hexMap.get(u.hexId), target) <= spec.range
-        )
+        (range > 0 && hexDistance(this.hexMap.get(u.hexId), target) <= range)
       ) {
         out.push(u);
       }
     }
 
     return [...new Map(out.map(u => [u.id, u])).values()];
+  }
+
+  combatForceBreakdown(playerId, participants, enemyParticipants, targetHexId, { role = 'attacker', directIds = [] } = {}) {
+    const civ = this.civFor(playerId);
+    const target = this.hexMap.get(targetHexId);
+    const direct = new Set(directIds);
+    const enemyBuildings = this.state.buildings.filter(b => b.hexId === targetHexId && b.ownerId !== playerId);
+
+    const base = participants.reduce(
+      (n, u) => n + this.effectiveUnitSpec(playerId, u.type).force,
+      0
+    );
+
+    const ruleMap = new Map();
+    for (const rule of civ.combatBonuses || []) {
+      const targetKey = rule.target || rule.targetType || rule.targetTag || '';
+      ruleMap.set(`${rule.source}|${targetKey}`, { ...rule });
+    }
+
+    for (const effect of this.activeEffects(playerId)) {
+      const m = effect.match(/^bonus:([^:]+):([^:]+):([+-]?\d+)$/);
+      if (!m) continue;
+      const source = m[1];
+      const targetName = m[2];
+      const amount = Number(m[3]);
+      let rule;
+      if (targetName === 'building' || targetName === 'attackingBuilding') {
+        rule = { source, target: 'building', amount, attackingOnly: targetName === 'attackingBuilding' };
+      } else if (targetName === 'shipsNoRange') {
+        rule = { source, targetTag: 'shipNoRange', amount };
+      } else {
+        rule = { source, targetType: targetName, amount };
+      }
+      const targetKey = rule.target || rule.targetType || rule.targetTag || '';
+      ruleMap.set(`${source}|${targetKey}`, rule);
+    }
+
+    let pairBonuses = 0;
+    const pairDetails = [];
+
+    for (const rule of ruleMap.values()) {
+      if (rule.attackingOnly && role !== 'attacker') continue;
+
+      const sources = participants.filter(u => u.type === rule.source);
+      if (!sources.length) continue;
+
+      let targets = 0;
+      if (rule.target === 'building') {
+        targets = enemyBuildings.length;
+      } else if (rule.targetType) {
+        targets = enemyParticipants.filter(u => u.type === rule.targetType).length;
+      } else if (rule.targetTag === 'shipNoRange') {
+        targets = enemyParticipants.filter(u => {
+          const s = this.effectiveUnitSpec(u.ownerId, u.type);
+          return s.tags?.includes('ship') && s.range === 0;
+        }).length;
+      } else if (rule.targetTag) {
+        targets = enemyParticipants.filter(u => this.effectiveUnitSpec(u.ownerId, u.type).tags?.includes(rule.targetTag)).length;
+      }
+
+      const pairs = Math.min(sources.length, targets);
+      if (pairs > 0) {
+        const value = pairs * rule.amount;
+        pairBonuses += value;
+        pairDetails.push({ source: rule.source, target: rule.target || rule.targetType || rule.targetTag, pairs, amount: rule.amount, value });
+      }
+    }
+
+    let contextual = 0;
+    const contextDetails = [];
+    const effects = this.activeEffects(playerId);
+
+    for (const effect of effects) {
+      let m = effect.match(/^militiaGroupForce:(\d+):([+-]?\d+)$/);
+      if (m) {
+        const count = participants.filter(u => u.type === 'militia').length;
+        if (count >= Number(m[1])) {
+          contextual += Number(m[2]);
+          contextDetails.push({ effect, value: Number(m[2]) });
+        }
+      }
+
+      m = effect.match(/^charge:([+-]?\d+)$/);
+      if (m && role === 'attacker') {
+        const count = participants.filter(u => {
+          const spec = this.effectiveUnitSpec(playerId, u.type);
+          return direct.has(u.id) && spec.tags?.includes('mounted');
+        }).length;
+        if (count) {
+          const value = count * Number(m[1]);
+          contextual += value;
+          contextDetails.push({ effect, value });
+        }
+      }
+
+      m = effect.match(/^mahouts:([+-]?\d+)$/);
+      if (m) {
+        const hasElephant = participants.some(u => u.type === 'elephant');
+        const hasFoot = participants.some(u => this.effectiveUnitSpec(playerId, u.type).tags?.includes('foot'));
+        if (hasElephant && hasFoot) {
+          contextual += Number(m[1]);
+          contextDetails.push({ effect, value: Number(m[1]) });
+        }
+      }
+    }
+
+    let buildingSupport = 0;
+    const buildingDetails = [];
+
+    for (const [type, support] of Object.entries(civ.buildingSupport || {})) {
+      for (const building of this.state.buildings.filter(b => b.ownerId === playerId && b.type === type)) {
+        const h = this.hexMap.get(building.hexId);
+        if (h && hexDistance(h, target) <= support.range) {
+          buildingSupport += support.force;
+          buildingDetails.push({ type, buildingId: building.id, value: support.force });
+        }
+      }
+    }
+
+    if (
+      this.hasEffect(playerId, 'towerOwnHex:+1') &&
+      this.state.buildings.some(b => b.ownerId === playerId && b.type === 'tower' && b.hexId === targetHexId)
+    ) {
+      buildingSupport += 1;
+      buildingDetails.push({ type: 'tower', value: 1 });
+    }
+
+    return {
+      base,
+      pairBonuses,
+      contextual,
+      buildingSupport,
+      total: base + pairBonuses + contextual + buildingSupport,
+      details: { pairs: pairDetails, contextual: contextDetails, buildings: buildingDetails }
+    };
+  }
+
+  maxBidFor(playerId, { role, participants, targetHexId }) {
+    const player = this.playerMap.get(playerId);
+    let max = player.maxMilitaryBid;
+
+    if (role === 'attacker') {
+      for (const effect of this.activeEffects(playerId)) {
+        const m = effect.match(/^maxBidWhenAttacking:([^:]+):(\d+):([+-]?\d+)$/);
+        if (m && participants.filter(u => u.type === m[1]).length >= Number(m[2])) {
+          max += Number(m[3]);
+        }
+      }
+    }
+
+    if (
+      role === 'defender' &&
+      this.hasEffect(playerId, 'towerDefenseMaxBid:+1') &&
+      this.state.buildings.some(b => b.ownerId === playerId && b.type === 'tower' && b.hexId === targetHexId)
+    ) {
+      max += 1;
+    }
+
+    return Math.min(max, player.militaryPower);
   }
 
   attack(
