@@ -29,7 +29,7 @@ for(const villagers of ['staggered']){
             if(!expected || p.start.initialVillagers!==expected.villagers || p.start.initialMilitaryPower!==expected.militaryPower || p.start.adjacentHexIds?.length!==expected.villagers)
               throw Error('Inicio incorrecto para '+p.id+' prioridad '+p.start.selectionIndex);
           }
-          if(g.status!=='completed') throw Error(`Incomplete game: ${seed}/${profile}/${rotation}/${orderRotation}/${villagers}: ${g.status}`);
+          if(g.status!=='completed') console.warn(`Partida sin eliminar a todos: ${seed}/${profile}/${rotation}/${orderRotation}: ${g.status}`);
           for(const p of g.players){
             const priority=p.start.selectionIndex-1,seat=p.seat-1;
             if(!Number.isInteger(priority)||priority<0||priority>3) throw Error('Invalid selection priority');
@@ -59,7 +59,7 @@ for(const villagers of ['staggered']){
     b.winRate=b.wins/b.appearances;b.ci95=wilsonInterval(b.wins,b.appearances);
     if(b.appearances!==count*64)throw Error('Unbalanced aggregation');
   }
-  variants[`${villagers}`]={...summarizeGames(games,DEFAULT_CIVS),priority,seat,seatPriority,perSeed};
+  variants[`${villagers}`]={...summarizeGames(games,DEFAULT_CIVS),priority,seat,seatPriority,perSeed,incomplete:games.filter(g=>g.status!=='completed').map(g=>({seed:g.seed,profile:g.profile,seatRotation:g.seatRotation,cuOrderRotation:g.cuOrderRotation,status:g.status}))};
   console.log(`Completed ${games.length} games with ${villagers} villagers`);
 }
 const results={experiment:'FFA60 adjacent-only 1 villager + 1 PM vs 2 villagers + 0 PM',mapPreset:'ffa60',seeds,setup,
@@ -73,6 +73,7 @@ const lines=['# Hito 4 — Experimento J: Aldeanos únicamente adyacentes al CU'
  `Cada asiento tuvo cada prioridad ${count*16} veces. Se exige dos terrenos terrestres adyacentes para todos los CU.`,
  'Primero y segundo: 1 aldeano adyacente + 1 PM. Tercero y cuarto: 2 aldeanos adyacentes + 0 PM. Ningún aldeano dentro del CU.',
  '',`Partidas terminadas: ${v.completed}/${v.games}.`,`Rondas promedio: ${v.avgRoundsCompleted?.toFixed(1)}.`,
+ `Partidas inconclusas sin ganador: ${v.incomplete.length}. Las victorias se dividen por todas las partidas; una inconclusa no se cuenta como victoria de ningún puesto.`,
  '', '## Victorias por prioridad de CU',
  '| Prioridad | Victorias | IC Wilson 95% | Calidad inicial |',
  '|---|---:|---:|---:|',
