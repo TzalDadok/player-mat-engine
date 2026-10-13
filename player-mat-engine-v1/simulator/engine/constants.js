@@ -6,24 +6,41 @@ export const MAX_MILITARY_POWER = 16;
 export const MAX_MILITARY_BID = 7;
 
 export const UNIT_TYPES = {
-  villager: { name: 'Aldeano', category: 'economic', force: 0, range: 0, move: 1, carry: 2, age: 'dark', cost: { food: 1 } },
-  fishingBoat: { name: 'Pesquero', category: 'economic', force: 0, range: 0, move: 1, carry: 0, age: 'dark', cost: { wood: 2 }, building: 'port', water: true },
-  transportShip: { name: 'Barco de Transporte', category: 'economic', force: 0, range: 0, move: 2, carry: 6, age: 'dark', cost: { wood: 3 }, building: 'port', water: true },
-  militia: { name: 'Milicia', category: 'military', force: 2, range: 0, move: 1, age: 'dark', cost: { food: 1, gold: 1 }, building: 'barracks' },
-  archer: { name: 'Arquero', category: 'military', force: 1, range: 1, move: 1, age: 'dark', cost: { food: 1, wood: 2, gold: 1 }, building: 'barracks' },
-  skirmisher: { name: 'Escaramuzador', category: 'military', force: 1, range: 1, move: 1, age: 'feudal', cost: { food: 2, wood: 2 }, building: 'barracks' },
-  spearman: { name: 'Piquero', category: 'military', force: 1, range: 0, move: 1, age: 'feudal', cost: { food: 2, wood: 1 }, building: 'barracks' },
-  rider: { name: 'Jinete', category: 'military', force: 2, range: 0, move: 2, age: 'castles', cost: { food: 2, gold: 3 }, building: 'barracks' },
-  galley: { name: 'Galera', category: 'military', force: 2, range: 0, move: 1, age: 'castles', cost: { wood: 3, gold: 1 }, building: 'port', water: true }
+  villager: { name: 'Aldeano', category: 'economic', force: 0, range: 0, move: 1, carry: 2 },
+  fishingBoat: { name: 'Pesquero', category: 'economic', force: 0, range: 0, move: 1, carry: 0, water: true },
+  transportShip: { name: 'Barco de Transporte', category: 'economic', force: 0, range: 0, move: 2, carry: 6, water: true },
+
+  militia: { name: 'Milicia', category: 'military', force: 2, range: 0, move: 1, tags: ['infantry','foot'] },
+  archer: { name: 'Arquero', category: 'military', force: 1, range: 1, move: 1, tags: ['ranged','foot'] },
+  skirmisher: { name: 'Escaramuzador', category: 'military', force: 1, range: 1, move: 1, tags: ['ranged','foot'] },
+  spearman: { name: 'Piquero', category: 'military', force: 1, range: 0, move: 1, tags: ['infantry','foot'] },
+  rider: { name: 'Jinete', category: 'military', force: 2, range: 0, move: 2, tags: ['cavalry','mounted'] },
+  knight: { name: 'Caballero', category: 'military', force: 3, range: 0, move: 2, tags: ['cavalry','mounted'] },
+  longbow: { name: 'Arquero de Tiro Largo', category: 'military', force: 2, range: 2, move: 1, tags: ['ranged','foot'] },
+  elephant: { name: 'Elefante de Guerra', category: 'military', force: 3, range: 0, move: 1, tags: ['elephant','mounted'] },
+
+  galley: { name: 'Galera', category: 'military', force: 2, range: 0, move: 1, water: true, tags: ['ship'] },
+
+  ram: { name: 'Ariete', category: 'military', force: 1, range: 0, move: 0, tags: ['siege'] },
+  scorpion: { name: 'Escorpión', category: 'military', force: 1, range: 1, move: 0, tags: ['siege'] },
+  trebuchet: { name: 'Trebuchet', category: 'military', force: 1, range: 3, move: 0, tags: ['siege'] },
+
+  monk: { name: 'Monje', category: 'religious', force: 0, range: 1, move: 1, tags: ['religious'] },
+  missionary: { name: 'Misionero', category: 'religious', force: 0, range: 1, move: 2, tags: ['religious'] }
 };
 
 export const BUILDING_TYPES = {
-  mill: { name: 'Molino', category: 'economic', cost: { wood: 3 } },
-  camp: { name: 'Camp. de Recursos', category: 'economic', cost: { wood: 2 } },
-  port: { name: 'Puerto', category: 'economic', cost: { wood: 4, stone: 2 } },
-  barracks: { name: 'Cuartel', category: 'military', cost: { wood: 1, stone: 3, gold: 1 } },
-  tower: { name: 'Torre', category: 'military', cost: { stone: 3, wood: 2 } },
-  farm: { name: 'Granja', category: 'economic', cost: { wood: 2 }, multiple: true }
+  mill: { name: 'Molino', category: 'economic' },
+  camp: { name: 'Camp. de Recursos', category: 'economic' },
+  port: { name: 'Puerto', category: 'economic' },
+  market: { name: 'Mercado', category: 'economic' },
+  farm: { name: 'Granja', category: 'economic', multiple: true },
+
+  barracks: { name: 'Cuartel', category: 'military' },
+  tower: { name: 'Torre', category: 'military' },
+  castle: { name: 'Castillo', category: 'military' },
+  monastery: { name: 'Monasterio', category: 'military' },
+  siege: { name: 'Asedio', category: 'military' }
 };
 
 export const AGE_COSTS = {
@@ -33,7 +50,11 @@ export const AGE_COSTS = {
 };
 
 export const SOURCE_TO_RESOURCE = {
-  animals: 'food', berries: 'food', forest: 'wood', gold: 'gold', stone: 'stone'
+  animals: 'food',
+  berries: 'food',
+  forest: 'wood',
+  gold: 'gold',
+  stone: 'stone'
 };
 
 export const EXHAUSTED_TO = {
