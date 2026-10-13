@@ -221,7 +221,8 @@ export function runBenchmark({
   profiles = DEFAULT_PROFILES,
   maxRounds = 400,
   cuSelectionOrder = null,
-  mapPreset = 'ffa36'
+  mapPreset = 'ffa36',
+  startingVillagers = 1
 } = {}) {
   const games=[];
 
@@ -237,7 +238,8 @@ export function runBenchmark({
           profile,
           maxRounds,
           cuSelectionOrder,
-          mapPreset
+          mapPreset,
+          startingVillagers
         });
 
         result.profile=profile;
@@ -264,6 +266,7 @@ export function runBenchmark({
     revision:process.env.GITHUB_SHA || null,
     generatedAt:new Date().toISOString(),
     mapPreset,
+    startingVillagers,
     seeds:[...seeds],
     profiles:[...profiles],
     civOrderBase:[...civs],
