@@ -4,6 +4,7 @@ import {
 } from './constants.js';
 import { generateHexRadius, hexDistance, physicalNeighbors, shortestMovementPath } from './hex.js';
 import { getCivilization } from '../civs/index.js';
+import { generateFFA48Map, autoPlaceFFAPlayerCUs } from '../maps/ffa48.js';
 
 const clone = v => structuredClone(v);
 let seq = 1;
@@ -20,13 +21,13 @@ export class RuleError extends Error {
 export class AoEGame {
   constructor(state) { this.state = state; }
 
-  static create({ players, radius = 2, seedMap = true, mode = 'ffa' } = {}) {
+  static create({ players, radius = 2, seedMap = true, mode = 'ffa', mapHexes = null } = {}) {
     if (!Array.isArray(players) || players.length < 2 || players.length > 4) {
       throw new RuleError('La partida requiere entre 2 y 4 jugadores.');
     }
 
-    const hexes = generateHexRadius(radius);
-    if (seedMap) AoEGame.seedDemoMap(hexes);
+    const hexes = mapHexes ? clone(mapHexes) : generateHexRadius(radius);
+    if (seedMap && !mapHexes) AoEGame.seedDemoMap(hexes);
 
     const state = {
       version: 2,
@@ -60,6 +61,38 @@ export class AoEGame {
     return game;
   }
 
+  static createFFA({ players, seed = 'aevum-ffa' } = {}) {
+    if (!Array.isArray(players) || players.length < 2 || players.length > 4) {
+      throw new RuleError('FFA requiere entre 2 y 4 jugadores.');
+    }
+
+    const map = generateFFA48Map({ seed });
+    const ids = players.map((p, i) => p.id || `P${i + 1}`);
+    autoPlaceFFAPlayerCUs(map, ids);
+
+    const game = AoEGame.create({
+      players,
+      seedMap: false,
+      mode: 'ffa',
+      mapHexes: map.hexes
+    });
+
+    game.state.mapMeta = {
+      preset: 'ffa48',
+      seed: map.seed,
+      terrainIds: [...map.terrainIds],
+      perimeterIds: [...map.perimeterIds]
+    };
+
+    game.log('ffa-map-created', {
+      seed: map.seed,
+      terrainCount: map.terrainIds.length,
+      perimeterCount: map.perimeterIds.length
+    });
+
+    return game;
+  }
+
   static seedDemoMap(hexes) {
     const sources = ['forest', 'animals', 'stone', 'gold', 'berries', 'forest', 'animals', 'gold', 'stone'];
     let waterN = 0;
@@ -89,7 +122,9 @@ export class AoEGame {
   }
 
   setupPlayers() {
-    const land = this.state.hexes.filter(h => h.terrain !== 'water' && h.special !== 'wonder');
+    const land = this.state.hexes.filter(
+      h => h.terrain !== 'water' && h.special !== 'wonder' && h.special !== 'tc'
+    );
     const starts = [
       land[0],
       land[land.length - 1],
@@ -98,12 +133,24 @@ export class AoEGame {
     ];
 
     this.state.players.forEach((p, i) => {
-      const hex = starts[i];
+      let hex = this.state.hexes.find(
+        h => h.special === 'tc' && h.tcOwnerId === p.id
+      );
+
+      if (!hex) {
+        hex = starts[i];
+        if (!hex) throw new RuleError('No hay posición válida para Centro Urbano.');
+        hex.special = 'tc';
+        hex.category = 'special';
+        hex.tcOwnerId = p.id;
+        hex.source = null;
+      }
+
       p.tcHexId = hex.id;
-      hex.special = 'tc';
-      hex.tcOwnerId = p.id;
-      hex.source = null;
-      this.addUnit(p.id, 'villager', hex.id);
+
+      if (!this.state.units.some(u => u.ownerId === p.id && u.type === 'villager')) {
+        this.addUnit(p.id, 'villager', hex.id);
+      }
     });
   }
 
