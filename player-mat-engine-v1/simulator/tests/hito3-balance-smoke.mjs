@@ -1,5 +1,9 @@
 import { runBenchmark, summarizeGames, wilsonInterval } from '../runner/benchmark.mjs';
 import { compareBenchmarks } from '../runner/compare-benchmarks.mjs';
+import {
+  balancedRandomCuOrders,
+  runBalancedCuOrderExperiment
+} from '../runner/run-cu-balanced-experiment.mjs';
 
 function ok(v,m){ if(!v) throw new Error(m); }
 
@@ -166,3 +170,33 @@ console.log('Hito 3 bench-006 logistics regression: OK');
 }
 
 console.log('Hito 3 CU-order experiment tests: OK');
+
+
+{
+  const orders=balancedRandomCuOrders('test-balanced-order');
+  ok(orders.length===4,'El experimento balanceado debe generar cuatro órdenes.');
+
+  for(const playerId of ['P1','P2','P3','P4']){
+    const positions=orders.map(order=>order.indexOf(playerId)+1).sort();
+    ok(
+      JSON.stringify(positions)===JSON.stringify([1,2,3,4]),
+      `${playerId} debe ocupar exactamente una vez cada prioridad de CU.`
+    );
+  }
+
+  const experiment=runBalancedCuOrderExperiment({
+    seeds:['hito3-cu-balanced'],
+    profiles:['balanced'],
+    maxRounds:50
+  });
+
+  ok(experiment.games===16,'Una seed debe generar 16 partidas balanceadas.');
+  for(const seat of experiment.seatPriority){
+    ok(
+      seat.every(row=>row.appearances===4),
+      'Cada asiento debe ocupar cada prioridad cuatro veces con una seed y cuatro rotaciones de civ.'
+    );
+  }
+}
+
+console.log('Hito 3 balanced CU-priority experiment tests: OK');
