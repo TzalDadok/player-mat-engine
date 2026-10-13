@@ -203,6 +203,7 @@ export class BaselineBot {
   productiveSelections(game) {
     const player = this.player(game);
     const occupied = new Set(this.villagers(game).map(v => v.hexId));
+    const deficits = this.resourceDeficits(game);
     const options = [];
 
     for (const id of occupied) {
@@ -211,9 +212,13 @@ export class BaselineBot {
       const farms = game.state.buildings.some(
         b => b.ownerId === this.playerId && b.type === 'farm' && b.hexId === id
       );
-      if (SOURCE_TO_RESOURCE[h.source] || farms) {
+      const sourceResource = SOURCE_TO_RESOURCE[h.source];
+      if (sourceResource && deficits[sourceResource] > 0) {
+        options.push({ hexId: id, mode: 'source' });
+      } else if (farms && deficits.food > 0) {
         options.push({ hexId: id, mode: 'source' });
       } else if (
+        deficits.food > 0 &&
         physicalNeighbors(game.state.hexes, id).some(n => n.terrain === 'water')
       ) {
         options.push({ hexId: id, mode: 'coast' });
