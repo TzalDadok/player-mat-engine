@@ -119,3 +119,30 @@ Resultado principal:
 Conclusión: el orden de elección de CU explica una parte importante del sesgo, pero invertirlo sólo desplaza la desventaja. No se adopta como regla definitiva por ahora.
 
 Ver `results/hito3-experiment-b-cu-order.md`.
+
+
+## Experimento C — Prioridad de CU desacoplada
+
+Se mantuvo el orden de turno P1 → P2 → P3 → P4, pero cada asiento ocupó exactamente la misma cantidad de veces las cuatro prioridades de elección de CU.
+
+640 partidas, 100% completadas.
+
+Resultado por asiento:
+
+- P1: 27.3%;
+- P2: 23.8%;
+- P3: 25.3%;
+- P4: 23.6%.
+
+El rango entre mejor y peor asiento cayó de **29.4 pp** en la baseline a **3.8 pp**.
+
+Resultado por prioridad de CU:
+
+- 1.º: 32.8%;
+- 2.º: 26.3%;
+- 3.º: 32.5%;
+- 4.º: 8.4%.
+
+Conclusión: el sesgo original es principalmente de **prioridad de elección de CU**, no de orden de turno. Sin embargo, sortear la prioridad no elimina la desventaja del jugador que elige cuarto en una partida concreta.
+
+Ver `results/hito3-experiment-c-balanced-cu-priority.md`.
