@@ -164,10 +164,35 @@ export function placeFFAPlayerCU(map, playerId, anchorTerrainId){
   return cu;
 }
 
+function hasLandPathToWonder(map, startId){
+  const start=map.hexes.find(h=>h.id===startId);
+  const wonder=map.hexes.find(h=>h.special==='wonder');
+  if(!start||!wonder||start.terrain==='water') return false;
+
+  const queue=[start.id];
+  const seen=new Set(queue);
+
+  while(queue.length){
+    const id=queue.shift();
+    if(id===wonder.id) return true;
+    const current=map.hexes.find(h=>h.id===id);
+    for(const candidate of map.hexes){
+      if(
+        candidate.terrain==='water' ||
+        seen.has(candidate.id) ||
+        hexDistance(current,candidate)!==1
+      ) continue;
+      seen.add(candidate.id);
+      queue.push(candidate.id);
+    }
+  }
+  return false;
+}
+
 export function autoPlaceFFAPlayerCUs(map, playerIds){
   const perimeter=map.perimeterIds.filter(id => {
     const h = map.hexes.find(x => x.id === id);
-    return h && h.terrain !== 'water';
+    return h && h.terrain !== 'water' && hasLandPathToWonder(map,id);
   });
   if(playerIds.length<2 || playerIds.length>4) throw new Error('FFA admite 2 a 4 jugadores.');
   if(perimeter.length < playerIds.length) throw new Error('No hay suficientes posiciones terrestres para los CU.');
