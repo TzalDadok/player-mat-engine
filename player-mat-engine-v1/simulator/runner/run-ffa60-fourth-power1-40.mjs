@@ -62,7 +62,7 @@ for(const villagers of ['staggered']){
   variants[`${villagers}`]={...summarizeGames(games,DEFAULT_CIVS),priority,seat,seatPriority,perSeed,incomplete:games.filter(g=>g.status!=='completed').map(g=>({seed:g.seed,profile:g.profile,seatRotation:g.seatRotation,cuOrderRotation:g.cuOrderRotation,status:g.status}))};
   console.log(`Completed ${games.length} games with ${villagers} villagers`);
 }
-const results={experiment:'FFA60 with buildable bot logistics hub and adjacent-only starts',mapPreset:'ffa60',seeds,setup,
+const results={experiment:'FFA60 adjacent-only start, fourth CU selector receives 1 PM',mapPreset:'ffa60',seeds,setup,
   profiles:DEFAULT_PROFILES,startingPositions:'Require two adjacent land hexes for both variants',
   notes:'40 seeds, four bot profiles, four civ rotations, four balanced CU order rotations; same CU legality as experiment H; priority 3 +1 military power and priority 4 0',
   variants};
@@ -90,7 +90,7 @@ const lines=['# Hito 4 — Experimento L: cuarto elector recibe +1 Poder Militar
  ''];
 const baseline=JSON.parse(readFileSync('results/hito4-ffa60-adjacent-start-40.json','utf8')).variants.staggered;
 const comparison=v.priority.map((p,i)=>({priority:i+1,baseline:baseline.priority[i].winRate,compensated:p.winRate,deltaPp:100*(p.winRate-baseline.priority[i].winRate)}));
-results.comparison={against:'experiment J with previous bot hub, same rules, starts, seeds and bot profiles',priority:comparison};
+results.comparison={against:'experiment K with same bot, maps and rules; only fourth priority gets one military power',priority:comparison};
 lines.push('', '## Comparación con Experimento K', '',
  '| Prioridad | Experimento K | Experimento L | Cambio (pp) |',
  '|---|---:|---:|---:|',
