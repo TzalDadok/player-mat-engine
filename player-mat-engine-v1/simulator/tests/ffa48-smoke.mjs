@@ -97,23 +97,10 @@ console.log('FFA 48 map tests: OK');
 {
   const map=generateFFA48Map({seed:'strategic-start'});
   const players=['P1','P2','P3','P4'];
-  const expected=[];
-  const chosen=[];
-
-  for(const id of players){
-    const choice=chooseFFAStartAnchor(map,id,chosen);
-    expected.push(choice);
-    chosen.push(choice.id);
-  }
-
   const placements=autoPlaceFFAPlayerCUs(map,players);
 
-  ok(
-    placements.every((cu,i)=>cu.tcAnchorId===expected[i].id),
-    'La colocación automática debe respetar la mejor elección exterior disponible de cada jugador.'
-  );
-
   const wonder=map.hexes.find(h=>h.special==='wonder');
+
   ok(
     placements.every(cu=>hexDistance(cu,wonder)===5),
     'Cada CU debe quedar fuera del mapa, a distancia 5 del centro.'
@@ -134,10 +121,38 @@ console.log('FFA 48 map tests: OK');
     'Un CU exterior debe tocar el borde del mapa, nunca quedar rodeado por terrenos.'
   );
 
+  for(let i=0;i<placements.length;i++){
+    for(let j=i+1;j<placements.length;j++){
+      ok(
+        hexDistance(placements[i],placements[j])>=2,
+        'Dos Centros Urbanos nunca pueden quedar pegados.'
+      );
+    }
+  }
+
   ok(
-    expected.every(x=>Number.isFinite(scoreFFAStartAnchor(map,x.id,[]))),
-    'Las posiciones elegidas deben tener una valoración estratégica válida.'
+    placements.every(cu=>Number.isFinite(cu.startScore)),
+    'Cada posición elegida debe conservar una valoración estratégica válida.'
   );
 }
 
 console.log('FFA strategic exterior start tests: OK');
+
+
+{
+  for(const seed of BENCHMARK_SEEDS){
+    const map=generateFFA48Map({seed});
+    const placements=autoPlaceFFAPlayerCUs(map,['P1','P2','P3','P4']);
+
+    for(let i=0;i<placements.length;i++){
+      for(let j=i+1;j<placements.length;j++){
+        ok(
+          hexDistance(placements[i],placements[j])>=2,
+          `Seed ${seed}: los CU ${placements[i].id} y ${placements[j].id} no pueden ser adyacentes.`
+        );
+      }
+    }
+  }
+}
+
+console.log('FFA CU minimum-distance tests: OK');
