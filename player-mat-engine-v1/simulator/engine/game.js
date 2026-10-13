@@ -1208,19 +1208,33 @@ export class AoEGame {
 
     const hex = this.hexMap.get(hexId);
     const villager = this.state.units.find(
-      u =>
-        u.id === villagerId &&
-        u.ownerId === playerId &&
-        u.type === 'villager' &&
-        u.hexId === hexId
+      u => u.id === villagerId && u.ownerId === playerId && u.type === 'villager'
     );
 
     if (!hex || !villager) {
-      throw new RuleError('Se requiere un Aldeano propio en el hexágono.');
+      throw new RuleError('Se requiere un Aldeano propio.');
     }
 
-    if (hex.terrain === 'water' && buildingType !== 'port') {
-      throw new RuleError('No se puede construir ahí.');
+    let paymentHexId = hexId;
+
+    if (buildingType === 'port') {
+      const builderHex = this.hexMap.get(villager.hexId);
+      if (
+        hex.terrain !== 'water' ||
+        !builderHex ||
+        builderHex.terrain === 'water' ||
+        hexDistance(builderHex, hex) !== 1
+      ) {
+        throw new RuleError('El Puerto se construye en Agua adyacente al Aldeano.');
+      }
+      paymentHexId = builderHex.id;
+    } else {
+      if (villager.hexId !== hexId) {
+        throw new RuleError('El Aldeano debe estar en el hexágono donde construye.');
+      }
+      if (hex.terrain === 'water') {
+        throw new RuleError('No se puede construir ahí.');
+      }
     }
 
     if (
@@ -1251,7 +1265,7 @@ export class AoEGame {
       delete buildMod.buildWoodDiscount;
     }
 
-    this.spendLocalWithCiv(playerId, hexId, buildCost);
+    this.spendLocalWithCiv(playerId, paymentHexId, buildCost);
     const building = this.addBuilding(playerId, buildingType, hexId);
     this.completeAction('build', { buildingId: building.id, buildingType, hexId });
     return building;
