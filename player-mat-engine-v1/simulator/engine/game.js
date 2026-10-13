@@ -1558,12 +1558,17 @@ export class AoEGame {
       delete buildMod.buildWoodDiscount;
     }
 
-    this.spendLocalWithCiv(playerId, paymentHexId, buildCost);
+    const buildPayment = this.spendLocalWithCiv(playerId, paymentHexId, buildCost);
     const building = this.addBuilding(playerId, buildingType, hexId);
     if (!player.stats.buildingsConstructed.includes(buildingType)) {
       player.stats.buildingsConstructed.push(buildingType);
     }
-    this.completeAction('build', { buildingId: building.id, buildingType, hexId });
+    this.completeAction('build', {
+      buildingId: building.id,
+      buildingType,
+      hexId,
+      paidCost: clone(buildPayment.paidCost)
+    });
     return building;
   }
 
@@ -1593,6 +1598,7 @@ export class AoEGame {
     this.assertPhase(actionCategory);
 
     const created = [];
+    const trainingLog = [];
 
     for (const { r, base, rule } of items) {
       if (!this.ageAllows(player, rule.age)) {
@@ -1653,12 +1659,19 @@ export class AoEGame {
       }
 
       const cost = this.trainingCostFor(playerId, r.type, option.cost);
+      let paidCost = clone(cost);
 
       if (r.type === 'villager') {
         this.spendControlled(playerId, cost);
         player.stats.villagersTrained++;
       } else {
-        this.spendLocalWithCiv(playerId, spawnHexId, cost, { unitType: r.type });
+        const payment = this.spendLocalWithCiv(
+          playerId,
+          spawnHexId,
+          cost,
+          { unitType: r.type }
+        );
+        paidCost = clone(payment.paidCost);
         if (base.category === 'military') player.stats.militaryTrained++;
       }
 
@@ -1718,13 +1731,18 @@ export class AoEGame {
         finalSpawnHexId = r.spawnHexId;
       }
 
-      created.push(this.addUnit(playerId, r.type, finalSpawnHexId));
+      const createdUnit = this.addUnit(playerId, r.type, finalSpawnHexId);
+      created.push(createdUnit);
+      trainingLog.push({
+        id:createdUnit.id,
+        type:createdUnit.type,
+        hexId:createdUnit.hexId,
+        paidCost
+      });
       this.recordTraining(playerId, r.type);
     }
 
-    this.completeAction('train', {
-      units: created.map(u => ({ id: u.id, type: u.type, hexId: u.hexId }))
-    });
+    this.completeAction('train', { units: trainingLog });
 
     return created;
   }
@@ -1767,7 +1785,12 @@ export class AoEGame {
 
     this.spendControlled(playerId, techCost);
     player.technologies.push(id);
-    this.completeAction('research', { id, name: rule.name, effects: rule.effects });
+    this.completeAction('research', {
+      id,
+      name: rule.name,
+      effects: rule.effects,
+      paidCost: clone(techCost)
+    });
     return rule;
   }
 
@@ -1781,9 +1804,13 @@ export class AoEGame {
     if (i >= AGES.length - 1) throw new RuleError('Ya está en Edad Imperial.');
 
     const next = AGES[i + 1];
-    this.spendControlled(playerId, AGE_COSTS[next]);
+    const ageCost = clone(AGE_COSTS[next]);
+    this.spendControlled(playerId, ageCost);
     p.age = next;
-    this.completeAction('advance-age', { age: next });
+    this.completeAction('advance-age', {
+      age: next,
+      paidCost: ageCost
+    });
   }
 
   modifyTerrain(playerId, action, hexId, extra = {}) {
@@ -1868,14 +1895,18 @@ export class AoEGame {
     const wonder = this.state.hexes.find(h => h.special === 'wonder');
     const controlsWonder = wonder && this.controllerOf(wonder.id) === playerId;
 
+    const instructCost = controlsWonder ? {} : { gold: 1 };
     if (!controlsWonder) {
-      this.spendControlled(playerId, { gold: 1 });
+      this.spendControlled(playerId, instructCost);
     }
     p.militaryPower++;
     if (p.militaryPower >= MAX_MILITARY_POWER) {
       p.stats.reached16MilitaryPower = true;
     }
-    this.completeAction('instruct', { militaryPower: p.militaryPower });
+    this.completeAction('instruct', {
+      militaryPower: p.militaryPower,
+      paidCost: clone(instructCost)
+    });
   }
 
   trade(playerId, partnerId, { give, receive } = {}) {
