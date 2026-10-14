@@ -660,7 +660,7 @@ export class AoEGame {
   canAffordControlled(playerId, cost = {}) {
     const totals = Object.fromEntries(RESOURCE_TYPES.map(r => [r, 0]));
 
-    for (const id of this.controlledHexIds(playerId)) {
+    for (const id of (this.state.logisticsNetworkEnabled ? this.logisticsConnectedHexIds(playerId) : this.controlledHexIds(playerId))) {
       const x = this.resourcesAt(id);
       for (const r of RESOURCE_TYPES) totals[r] += x[r];
     }
