@@ -10,5 +10,11 @@
     "text": "Simulador\n\nHito 1 — Motor jugable: reglas + mapa + economía + combate.\nHito 2 — Bots: que puedan terminar partidas solos.\nHito 3 — Simulación: miles de partidas y estadísticas.\nHito 4 — Interfaz: tablero visual y herramientas de análisis.",
     "createdAt": "2026-10-13T00:16:30.255Z",
     "implementedAt": "2026-10-13T17:28:00.586Z"
+  },
+  {
+    "id": "a95af2e2-90f8-4769-9223-bf2937f552ef",
+    "text": "Arranque 4 jugadores:\n1.º\t1 aldeano +1 PM\n2.º\t1 aldeano +1 PM\n3.º\t2 aldeanos\n4.º\t2 aldeanos +1 PM\n\nArranque 3 jugadores:\n1 aldeano +1 PM\n2 aldeanos\n2 aldeanos +1 PM\n\nArranque 2 jugadores:\n1 aldeano +1 PM\n2 aldeanos",
+    "createdAt": "2026-10-14T00:13:31.273Z",
+    "implementedAt": "2026-10-14T00:13:33.837Z"
   }
 ]
