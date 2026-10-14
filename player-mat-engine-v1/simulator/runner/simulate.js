@@ -333,7 +333,8 @@ export function runFFAGame({
   startingVillagers = 1,
   startingSetupByPriority = null,
   requireTwoAdjacentLand = startingSetupByPriority!==null || startingVillagers===3,
-  captureLog = false
+  captureLog = false,
+  onRoundSnapshot = null
 } = {}) {
   if (!Array.isArray(civs) || civs.length < 2 || civs.length > 4) {
     throw new Error('runFFAGame requiere entre 2 y 4 civilizaciones.');
@@ -423,7 +424,11 @@ export function runFFAGame({
 
     if (game.state.winnerId) break;
 
+    const previousRound=game.state.round;
     game.endPhase();
+    if (onRoundSnapshot && game.state.round!==previousRound) {
+      onRoundSnapshot(game,previousRound);
+    }
     steps++;
   }
 
