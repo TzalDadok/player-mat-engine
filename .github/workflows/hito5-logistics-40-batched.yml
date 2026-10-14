@@ -1,0 +1,53 @@
+name: Hito 5 Logistics 40 maps batched
+on:
+  push:
+    paths:
+      - '.github/workflows/hito5-logistics-40-batched.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  simulate:
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        map: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: player-mat-engine-v1/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simulate map
+        run: node runner/compare-manual-full-logistics-40.mjs ${{ matrix.map }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: logistics-map-${{ matrix.map }}
+          path: |
+            player-mat-engine-v1/simulator/results/hito5-manual-full-logistics-40-seed-*.json
+            player-mat-engine-v1/simulator/results/hito5-manual-full-logistics-40-seed-*.md
+  aggregate:
+    needs: simulate
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: logistics-map-*
+          path: collected
+          merge-multiple: false
+      - name: Aggregate all 40 maps
+        run: python player-mat-engine-v1/simulator/runner/aggregate-logistics-40.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logistics-40-final-report
+          path: |
+            hito5-logistics-40-consolidated.json
+            hito5-logistics-40-consolidated.md
