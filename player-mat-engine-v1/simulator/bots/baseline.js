@@ -39,6 +39,9 @@ function strategicLandPath(game, fromId, toId) {
   if(!goal||goal.terrain==='water'||!cache.byId.has(fromId))return null;
   const queue=[fromId],prev=new Map([[fromId,null]]);
   for(let index=0;index<queue.length;index++){
+    if((index&15)===0&&game._botDeadline&&performance.now()>game._botDeadline){
+      const e=new Error('Decision budget exceeded');e.code='BOT_BUDGET_EXCEEDED';throw e;
+    }
     const id=queue[index];
     for(const next of cache.neighbors.get(id)||[]){
       if(prev.has(next)||game.edgeBlocked(id,next))continue;
@@ -849,6 +852,7 @@ export class BaselineBot {
     }
 
     const start=performance.now();
+    game._botDeadline=start+this.decisionBudgetMs;
     let result = { ok: false };
     try {
       if (game.state.phase === 'economy') result = this.takeEconomy(game);
@@ -858,6 +862,7 @@ export class BaselineBot {
       if(error?.code!=='BOT_BUDGET_EXCEEDED')throw error;
       result={ok:false};
     }
+    game._botDeadline=null;
     if(performance.now()-start>this.decisionBudgetMs) this.memory.slowDecisions=(this.memory.slowDecisions||0)+1;
     if(!result.ok&&!game.state.actionUsed){
       // Cheap deterministic-seed random legal fallback, avoiding another
