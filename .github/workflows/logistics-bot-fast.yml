@@ -1,0 +1,20 @@
+name: Fast logistics bot validation
+on:
+  push:
+    paths:
+      - '.github/workflows/logistics-bot-fast.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: player-mat-engine-v1/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check bots/baseline.js
+      - run: node runner/validate-logistics-bot-fast.mjs
