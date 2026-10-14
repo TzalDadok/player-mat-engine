@@ -1,0 +1,40 @@
+name: Hito 5 automatic production and logistics variants
+on:
+  push:
+    paths:
+      - '.github/workflows/hito5-auto-logistics.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: player-mat-engine-v1/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test three variants on one map
+        run: node runner/compare-auto-production-logistics.mjs 1
+      - name: Compare three variants on ten maps
+        run: node runner/compare-auto-production-logistics.mjs 10
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hito5-auto-logistics
+          path: |
+            player-mat-engine-v1/simulator/results/hito5-auto-production-logistics.md
+            player-mat-engine-v1/simulator/results/hito5-auto-production-logistics.json
+      - name: Save report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/hito5-auto-production-logistics.md results/hito5-auto-production-logistics.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record auto production and logistics variants [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
