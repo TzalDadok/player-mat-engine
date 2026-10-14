@@ -532,6 +532,23 @@ export class AoEGame {
     const hex = this.hexMap.get(hexId);
     if (!hex) throw new RuleError('Hexágono inexistente.');
 
+    // En una red logística conectada, cualquier edificio/obra situada
+    // dentro de la red puede pagar con todas las fichas de esa red.
+    // Una casilla desconectada conserva la posibilidad de pagar localmente.
+    if (this.state.logisticsNetworkEnabled &&
+        this.logisticsConnectedHexIds(playerId).includes(hexId)) {
+      let adjusted = clone(cost);
+      if (!this.canAffordControlled(playerId, adjusted) &&
+          this.hasEffect(playerId, 'stoneSubstitution') && (adjusted.stone || 0) > 0) {
+        const alt=clone(adjusted);
+        alt.stone=Math.max(0,alt.stone-1);
+        alt.wood=(alt.wood||0)+2;
+        if (this.canAffordControlled(playerId,alt)) adjusted=alt;
+      }
+      this.spendControlled(playerId,adjusted);
+      return {paidCost:adjusted,remoteFood:0};
+    }
+
     const tryPlan = candidate => {
       const local = this.resourcesAt(hexId);
       const remoteFoodSources = [];
