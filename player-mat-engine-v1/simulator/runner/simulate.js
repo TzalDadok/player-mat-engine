@@ -1,9 +1,37 @@
 import { AoEGame } from '../engine/game.js';
-import { hexDistance } from '../engine/hex.js';
+import { hexDistance, physicalNeighbors } from '../engine/hex.js';
+import { SOURCE_TO_RESOURCE, AGE_PRODUCTION_LIMIT } from '../engine/constants.js';
 import { BaselineBot } from '../bots/baseline.js';
 import { getBotProfile } from '../bots/profiles.js';
 
 export const DEFAULT_CIVS = ['britanicos','francos','vikingos','persas'];
+
+function automaticProductionSelections(game,playerId){
+  const counts=new Map();
+  for(const u of game.state.units){
+    if(u.ownerId!==playerId||u.embarkedIn||u.garrisonedIn)continue;
+    if(u.type!=='villager'&&u.type!=='fishingBoat')continue;
+    counts.set(u.hexId,(counts.get(u.hexId)||0)+1);
+  }
+  const options=[];
+  for(const [hexId,workers] of counts){
+    const h=game.hexMap.get(hexId);
+    if(!h)continue;
+    const farms=game.state.buildings.some(b=>b.ownerId===playerId&&b.hexId===hexId&&b.type==='farm');
+    if(h.terrain==='water'){
+      if(game.state.units.some(u=>u.ownerId===playerId&&u.type==='fishingBoat'&&u.hexId===hexId&&!u.embarkedIn))
+        options.push({hexId,mode:'source',workers});
+    }else if(farms || SOURCE_TO_RESOURCE[h.source]){
+      options.push({hexId,mode:'source',workers});
+    }else if(physicalNeighbors(game.state.hexes,hexId).some(n=>n.terrain==='water')){
+      options.push({hexId,mode:'coast',workers});
+    }
+  }
+  const limit=AGE_PRODUCTION_LIMIT[game.playerMap.get(playerId).age]||2;
+  return options.sort((a,b)=>b.workers-a.workers||a.hexId.localeCompare(b.hexId))
+    .slice(0,limit).map(({hexId,mode})=>({hexId,mode}));
+}
+
 
 function stallDiagnostics(game, bots) {
   const alive = game.state.players.filter(p => !p.eliminated);
@@ -427,7 +455,7 @@ export function runFFAGame({
     // Auto-production uses the normal production implementation (bonuses,
     // raiding and exhaustion), but never consumes the economy action.
     if (autoProduction && game.state.phase==='economy') {
-      const choices=bot.productiveSelections(game);
+      const choices=automaticProductionSelections(game,activeId);
       if (choices.length) {
         try {
           game.produce(activeId, choices);
