@@ -542,8 +542,30 @@ export class BaselineBot {
     );
   }
 
+  tryConsolidateResource(game) {
+    if(!game.state.logisticsNetworkEnabled)return {ok:false};
+    const linked=new Set(this.connectedIds(game));
+    const owned=game.state.buildings.filter(b=>b.ownerId===this.playerId);
+    for(const v of this.villagers(game)){
+      if(!linked.has(v.hexId))continue;
+      const h=game.hexMap.get(v.hexId);
+      const type=['animals','berries'].includes(h?.source)?'mill':
+        ['forest','stone','gold'].includes(h?.source)?'camp':null;
+      if(!type||owned.some(b=>b.type===type))continue;
+      const rule=game.buildingRule(this.playerId,type);
+      if(!rule||!game.ageAllows(this.player(game),rule.age))continue;
+      if(!canPay(this.localResources(game,h.id),rule.cost))continue;
+      const built=this.safe(game,'consolidate-resource',()=>
+        game.build(this.playerId,type,h.id,v.id));
+      if(built.ok)return built;
+    }
+    return {ok:false};
+  }
+
   takeEconomy(game) {
     this.ensureFreeCargoOps(game);
+    const consolidated=this.tryConsolidateResource(game);
+    if(consolidated.ok)return consolidated;
 
     const hub = this.hub(game);
     const hasCargoAway = this.villagers(game).some(
