@@ -206,6 +206,40 @@ export class BaselineBot {
   }
 
   // Try restoring an isolated productive territory from the existing network.
+  safeToVacate(game,unit) {
+    if(!game.state.logisticsNetworkEnabled)return true;
+    const other=this.ownUnits(game,u=>u.id!==unit.id&&u.hexId===unit.hexId).length;
+    if(other||game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===unit.hexId))return true;
+    // Never abandon the only anchor of an active network segment.
+    return !this.connectedIds(game).includes(unit.hexId) ||
+      this.corridorValue(game,unit.hexId,this.playerId)===0;
+  }
+
+  networkExpansion(game) {
+    if(!game.state.logisticsNetworkEnabled)return {ok:false};
+    const linked=new Set(this.connectedIds(game));
+    const candidates=[];
+    for(const v of this.villagers(game)){
+      if(!this.safeToVacate(game,v))continue;
+      const occupied=linked.has(v.hexId);
+      for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
+        if(h.terrain==='water'||game.controllerOf(h.id)===this.playerId)continue;
+        const adjacent=physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id));
+        if(!adjacent)continue;
+        const resource=SOURCE_TO_RESOURCE[h.source]?1:0;
+        const hub=this.memory.hubHexId===h.id?1:0;
+        const score=resource*3+hub*2+(occupied?1:0);
+        candidates.push({v,h,score});
+      }
+    }
+    candidates.sort((a,b)=>b.score-a.score||a.h.id.localeCompare(b.h.id));
+    for(const {v,h} of candidates.slice(0,8)){
+      const result=this.safe(game,'expand-network',()=>game.moveUnits(this.playerId,[v.id],h.id));
+      if(result.ok)return result;
+    }
+    return {ok:false};
+  }
+
   reconnectNetwork(game) {
     if(!game.state.logisticsNetworkEnabled)return {ok:false};
     const linked=new Set(this.connectedIds(game));
@@ -221,9 +255,7 @@ export class BaselineBot {
       if(!step)continue;
       // Moving a unit off an occupied bottleneck can disconnect it; do not
       // abandon a corridor without a remaining building or unit there.
-      if(this.corridorValue(game,c.v.hexId,this.playerId)>0 &&
-         !game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===c.v.hexId) &&
-         this.ownUnits(game,u=>u.hexId===c.v.hexId).length===1)continue;
+      if(!this.safeToVacate(game,c.v))continue;
       const result=this.safe(game,'reconnect-network',()=>game.moveUnits(this.playerId,[c.v.id],step));
       if(result.ok)return result;
     }
@@ -381,13 +413,15 @@ export class BaselineBot {
     if(game.state.logisticsNetworkEnabled){
       const repaired=this.reconnectNetwork(game);
       if(repaired.ok)return repaired;
+      const expanded=this.networkExpansion(game);
+      if(expanded.ok)return expanded;
     }
     const hub = this.hub(game);
     const villagers = shuffle(this.villagers(game), this.random);
 
     for (const villager of villagers) {
       if (game.state.logisticsNetworkEnabled &&
-          this.connectedIds(game).includes(villager.hexId))continue;
+          !this.safeToVacate(game,villager))continue;
       if (villager.cargo?.length && villager.hexId !== hub.id) {
         const step = this.nextLandStep(game, villager.hexId, hub.id);
         if (!step) continue;
@@ -408,7 +442,7 @@ export class BaselineBot {
       .map(([type]) => type);
 
     for (const villager of villagers) {
-      if (villager.cargo?.length) continue;
+      if (villager.cargo?.length || !this.safeToVacate(game,villager)) continue;
 
       const currentHex = game.hexMap.get(villager.hexId);
       const currentResource = SOURCE_TO_RESOURCE[currentHex?.source];
@@ -867,7 +901,7 @@ export class BaselineBot {
     if(!result.ok&&!game.state.actionUsed){
       // Cheap deterministic-seed random legal fallback, avoiding another
       // expensive strategic search. Passing is always legal.
-      const units=this.ownUnits(game,u=>u.type==='villager');
+      const units=this.ownUnits(game,u=>u.type==='villager'&&this.safeToVacate(game,u));
       if(units.length&&game.state.phase!=='technology'){
         const u=pickRandom(units,this.random);
         const near=shuffle(physicalNeighbors(game.state.hexes,u.hexId)
