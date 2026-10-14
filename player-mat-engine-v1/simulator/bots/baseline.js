@@ -140,7 +140,10 @@ export class BaselineBot {
       const tcDistance=tc?hexDistance(h,tc):0;
       const sources=physicalNeighbors(game.state.hexes,h.id)
         .filter(n=>SOURCE_TO_RESOURCE[n.source]).length;
-      return {h,score:distance*5+tcDistance*2-sources*2+(linked&&!linked.has(h.id)?100:0)};
+      const secured=linked?.has(h.id);
+      const occupier=villagers.some(v=>v.hexId===h.id);
+      const adjacentToNetwork=linked&&physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id));
+      return {h,score:distance*5+tcDistance*2-sources*2+(linked?(secured?-200:adjacentToNetwork?-70:150):0)-(occupier?30:0)};
     }).filter(Boolean).sort((a,b)=>a.score-b.score||a.h.id.localeCompare(b.h.id));
     const chosen=locations[0]?.h || null;
     if(chosen) this.memory.hubHexId=chosen.id;
@@ -211,6 +214,8 @@ export class BaselineBot {
     const other=this.ownUnits(game,u=>u.id!==unit.id&&u.hexId===unit.hexId).length;
     if(other||game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===unit.hexId))return true;
     // Never abandon the only anchor of an active network segment.
+    const hex=game.hexMap.get(unit.hexId);
+    if(SOURCE_TO_RESOURCE[hex?.source]&&this.connectedIds(game).includes(unit.hexId))return false;
     return !this.connectedIds(game).includes(unit.hexId) ||
       this.corridorValue(game,unit.hexId,this.playerId)===0;
   }
