@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - milestone diagnostics
+name: Fast logistics bot validation - resource consolidation diagnostics
 on:
   push:
     paths:
