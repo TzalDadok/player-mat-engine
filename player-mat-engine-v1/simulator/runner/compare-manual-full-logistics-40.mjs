@@ -2,7 +2,8 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {runFFAGame,DEFAULT_CIVS} from './simulate.js';
 import {BENCHMARK_SEEDS} from './benchmark-seeds.js';
 import {balancedRandomCuOrders} from './run-cu-balanced-experiment.mjs';
-const max=Math.max(1,Math.min(40,Number(process.argv[2]||40)));
+const seedIndex=Math.max(1,Math.min(40,Number(process.argv[2]||1)));
+const max=1;
 const variants=[
  {id:'actual',autoProduction:false,logisticsNetwork:false},
  {id:'red_completa_manual',autoProduction:false,logisticsNetwork:true}
@@ -21,7 +22,7 @@ function strength(game,id){
  game.state.buildings.filter(b=>b.ownerId===id).length*3+
  p.technologies.length*2+game.controlledHexIds(id).length+resources*.35+p.militaryPower*.5;
 }
-for(const seed of BENCHMARK_SEEDS.slice(0,max)){
+for(const seed of BENCHMARK_SEEDS.slice(seedIndex-1,seedIndex)){
  for(let rotation=0;rotation<4;rotation++){
   const civs=rotate(DEFAULT_CIVS,rotation),orders=balancedRandomCuOrders(`balanced:${seed}:${rotation}`);
   for(const [orderIndex,cuSelectionOrder] of orders.entries()){
@@ -63,7 +64,7 @@ const summary=variants.map(v=>{
 });
 const f=x=>x===null?'—':x.toFixed(2);
 const lines=['# Hito 5 — Red logística completa sin producción automática','',
- `Muestra: ${max} mapas de 60 hexágonos, cuatro rotaciones y cuatro órdenes de elección por mapa; ${observations.length} ejecuciones (perfil balanced). Todas conservan los beneficios iniciales del Experimento L.`,
+ `Muestra: mapa ${seedIndex} de 40 de 60 hexágonos, cuatro rotaciones y cuatro órdenes de elección por mapa; ${observations.length} ejecuciones (perfil balanced). Todas conservan los beneficios iniciales del Experimento L.`,
  'Variantes: **Actual** y **Red logística completa**. Ambas requieren PRODUCIR como acción económica. En la red, toda construcción, entrenamiento y avance pagado en un hex conectado puede gastar fichas situadas en cualquier otro hex controlado y conectado al CU.',
  'No hay producción automática en ninguna variante: agotamiento, bonificaciones y límites de producción son los actuales.',
  'La red habilita gastos de construcciones y unidades conectadas, además de tecnología y edad. Un destino aislado solo puede gastar sus recursos locales; los recursos fuera de la red no sirven para pagos conectados. El bot tiene acceso a los mismos cálculos de disponibilidad.',
@@ -78,6 +79,6 @@ const lines=['# Hito 5 — Red logística completa sin producción automática',
  '', 'Interpretación: los resultados comparan el comportamiento de un perfil de bot concreto, no demuestran balance entre jugadores humanos. El indicador de último usa una puntuación compuesta de ejército, aldeanos, edificios, tecnologías, control territorial, fichas y poder militar. Rotaciones de un mismo mapa no son observaciones independientes.',
  ''];
 mkdirSync('results',{recursive:true});
-writeFileSync('results/hito5-manual-full-logistics-40.md',lines.join('\n')+'\n');
-writeFileSync('results/hito5-manual-full-logistics-40.json',JSON.stringify({setup,summary,observations},null,2)+'\n');
+writeFileSync(`results/hito5-manual-full-logistics-40-seed-${String(seedIndex).padStart(2,'0')}.md`,lines.join('\n')+'\n');
+writeFileSync(`results/hito5-manual-full-logistics-40-seed-${String(seedIndex).padStart(2,'0')}.json`,JSON.stringify({setup,summary,observations},null,2)+'\n');
 console.log(lines.join('\n'));
