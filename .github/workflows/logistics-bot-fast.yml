@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - corridor preservation
+name: Fast logistics bot validation - connected barracks
 on:
   push:
     paths:
