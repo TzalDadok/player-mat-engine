@@ -334,7 +334,9 @@ export function runFFAGame({
   startingSetupByPriority = null,
   requireTwoAdjacentLand = startingSetupByPriority!==null || startingVillagers===3,
   captureLog = false,
-  onRoundSnapshot = null
+  onRoundSnapshot = null,
+  autoProduction = false,
+  logisticsNetwork = false
 } = {}) {
   if (!Array.isArray(civs) || civs.length < 2 || civs.length > 4) {
     throw new Error('runFFAGame requiere entre 2 y 4 civilizaciones.');
@@ -353,6 +355,8 @@ export function runFFAGame({
     mapPreset,
     requireTwoAdjacentLand
   });
+  game.state.autoProductionEnabled=autoProduction;
+  game.state.logisticsNetworkEnabled=logisticsNetwork;
   // The CU-selection priority, not the fixed player seat, determines a
   // starting compensation. All players still get the default CU villager.
   if(startingSetupByPriority!==null &&
@@ -420,6 +424,19 @@ export function runFFAGame({
 
     if (!bot) throw new Error(`No existe bot para ${activeId}.`);
 
+    // Auto-production uses the normal production implementation (bonuses,
+    // raiding and exhaustion), but never consumes the economy action.
+    if (autoProduction && game.state.phase==='economy') {
+      const choices=bot.productiveSelections(game);
+      if (choices.length) {
+        try {
+          game.produce(activeId, choices);
+          game.state.actionUsed=false;
+        } catch (e) {
+          if(e?.name!=='RuleError')throw e;
+        }
+      }
+    }
     bot.takePhase(game);
 
     if (game.state.winnerId) break;
