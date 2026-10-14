@@ -1,0 +1,40 @@
+name: Hito 5 comeback audit
+on:
+  push:
+    paths:
+      - '.github/workflows/hito5-comeback.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  comeback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: player-mat-engine-v1/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Smoke test
+        run: node runner/audit-comebacks.mjs 1
+      - name: Audit comeback across forty maps
+        run: node runner/audit-comebacks.mjs 40
+      - uses: actions/upload-artifact@v4
+        with:
+          name: comeback-audit
+          path: |
+            player-mat-engine-v1/simulator/results/hito5-comeback-audit.md
+            player-mat-engine-v1/simulator/results/hito5-comeback-audit.json
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/hito5-comeback-audit.md results/hito5-comeback-audit.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record FFA comeback audit [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
