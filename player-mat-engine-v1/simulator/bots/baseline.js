@@ -416,7 +416,7 @@ export class BaselineBot {
       if (trained.ok) return trained;
     }
 
-    const selections = this.productiveSelections(game);
+    const selections = game.state.autoProductionEnabled ? [] : this.productiveSelections(game);
     if (selections.length) {
       const produced = this.safe(game, 'produce', () =>
         game.produce(this.playerId, selections)
