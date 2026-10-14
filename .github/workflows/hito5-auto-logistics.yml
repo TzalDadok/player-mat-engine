@@ -1,4 +1,4 @@
-name: Hito 5 automatic production and logistics variants
+name: Hito 5 unconditional auto-production and logistics variants
 on:
   push:
     paths:
