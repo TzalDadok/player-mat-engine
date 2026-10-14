@@ -1,0 +1,19 @@
+name: Logistics bot smoke validation
+on:
+  push:
+    paths:
+      - '.github/workflows/logistics-bot-smoke.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: player-mat-engine-v1/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run one matched map with adapted bots
+        run: node runner/compare-manual-full-logistics.mjs 1
