@@ -18,45 +18,39 @@ function stableTargetTie(seed, attacker, defender){
   return h>>>0;
 }
 
+// The terrain graph is constant throughout most bot decisions; building it once
+// avoids repeated full-map scans and sorting during every BFS expansion.
+const routeGraphs=new WeakMap();
 function strategicLandPath(game, fromId, toId) {
-  if (fromId === toId) return [fromId];
-
-  const byId = game.hexMap;
-  const start = byId.get(fromId);
-  const goal = byId.get(toId);
-  if (!start || !goal || goal.terrain === 'water') return null;
-
-  const queue = [fromId];
-  const prev = new Map([[fromId, null]]);
-
-  while (queue.length) {
-    const currentId = queue.shift();
-    const current = byId.get(currentId);
-
-    for (const candidate of [...game.state.hexes].sort((a,b)=>a.q-b.q || a.r-b.r)) {
-      if (
-        candidate.terrain === 'water' ||
-        prev.has(candidate.id) ||
-        hexDistance(current, candidate) !== 1 ||
-        game.edgeBlocked(currentId, candidate.id)
-      ) continue;
-
-      prev.set(candidate.id, currentId);
-
-      if (candidate.id === toId) {
-        const path = [];
-        let cursor = toId;
-        while (cursor) {
-          path.push(cursor);
-          cursor = prev.get(cursor);
-        }
+  if(fromId===toId)return [fromId];
+  let cache=routeGraphs.get(game.state.hexes);
+  if(!cache){
+    const byId=new Map(game.state.hexes.map(h=>[h.id,h]));
+    const neighbors=new Map();
+    for(const h of game.state.hexes){
+      neighbors.set(h.id,physicalNeighbors(game.state.hexes,h.id)
+        .filter(n=>n.terrain!=='water')
+        .sort((a,b)=>a.q-b.q||a.r-b.r).map(n=>n.id));
+    }
+    cache={byId,neighbors};
+    routeGraphs.set(game.state.hexes,cache);
+  }
+  const goal=cache.byId.get(toId);
+  if(!goal||goal.terrain==='water'||!cache.byId.has(fromId))return null;
+  const queue=[fromId],prev=new Map([[fromId,null]]);
+  for(let index=0;index<queue.length;index++){
+    const id=queue[index];
+    for(const next of cache.neighbors.get(id)||[]){
+      if(prev.has(next)||game.edgeBlocked(id,next))continue;
+      prev.set(next,id);
+      if(next===toId){
+        const path=[];let cur=next;
+        while(cur!==null){path.push(cur);cur=prev.get(cur)}
         return path.reverse();
       }
-
-      queue.push(candidate.id);
+      queue.push(next);
     }
   }
-
   return null;
 }
 
@@ -111,6 +105,7 @@ export class BaselineBot {
     this.ageArmyThreshold = ageArmyThreshold;
     this.researchArmyThreshold = researchArmyThreshold;
     this.researchFirst = researchFirst;
+    this.decisionBudgetMs = 80;
     this.memory = {
       hubHexId: null,
       rejectedActions: 0,
@@ -179,6 +174,21 @@ export class BaselineBot {
   }
 
   // A valuable corridor is one whose loss disconnects several owned hexes.
+  enemyCorridors(game,enemyId) {
+    const signature=game.state.round+':'+game.state.log.length+':'+enemyId;
+    if(!this._corridorCache)this._corridorCache=new Map();
+    if(this._corridorCache.has(signature))return this._corridorCache.get(signature);
+    if(this._corridorCache.size>30)this._corridorCache.clear();
+    const connected=game.logisticsConnectedHexIds(enemyId);
+    // Only evaluate owned hexes with 2+ connected neighbors (possible choke points).
+    const set=new Set(connected);
+    const candidates=connected.filter(id=>id!==game.playerMap.get(enemyId).tcHexId&&
+      physicalNeighbors(game.state.hexes,id).filter(n=>set.has(n.id)).length>=2);
+    const result=candidates.filter(id=>this.corridorValue(game,id,enemyId)>0);
+    this._corridorCache.set(signature,result);
+    return result;
+  }
+
   corridorValue(game, hexId, ownerId) {
     const connected=new Set(game.logisticsConnectedHexIds(ownerId));
     if(!connected.has(hexId)||hexId===game.playerMap.get(ownerId)?.tcHexId) return 0;
@@ -570,9 +580,10 @@ export class BaselineBot {
       );
       const armyForce = forceOf(game, player.id, enemyMilitary);
       const structures = game.state.buildings.filter(b => b.ownerId === player.id).length;
+      // Cache articulation points once per enemy and round, rather than
+      // recomputing a flood-fill for every candidate, stack and action.
       const tacticalCorridors=game.state.logisticsNetworkEnabled
-        ? game.logisticsConnectedHexIds(player.id).filter(id=>this.corridorValue(game,id,player.id)>0)
-        : [];
+        ? this.enemyCorridors(game,player.id) : [];
       const corridorPaths=tacticalCorridors.map(id=>({id,path:strategicLandPath(game,fromHexId,id)}))
         .filter(x=>x.path).sort((a,b)=>a.path.length-b.path.length);
       const strategic=corridorPaths[0];
@@ -837,10 +848,33 @@ export class BaselineBot {
       return { ok: false, label: 'not-active' };
     }
 
+    const start=performance.now();
     let result = { ok: false };
-    if (game.state.phase === 'economy') result = this.takeEconomy(game);
-    else if (game.state.phase === 'technology') result = this.takeTechnology(game);
-    else if (game.state.phase === 'military') result = this.takeMilitary(game);
+    try {
+      if (game.state.phase === 'economy') result = this.takeEconomy(game);
+      else if (game.state.phase === 'technology') result = this.takeTechnology(game);
+      else if (game.state.phase === 'military') result = this.takeMilitary(game);
+    } catch (error) {
+      if(error?.code!=='BOT_BUDGET_EXCEEDED')throw error;
+      result={ok:false};
+    }
+    if(performance.now()-start>this.decisionBudgetMs) this.memory.slowDecisions=(this.memory.slowDecisions||0)+1;
+    if(!result.ok&&!game.state.actionUsed){
+      // Cheap deterministic-seed random legal fallback, avoiding another
+      // expensive strategic search. Passing is always legal.
+      const units=this.ownUnits(game,u=>u.type==='villager');
+      if(units.length&&game.state.phase!=='technology'){
+        const u=pickRandom(units,this.random);
+        const near=shuffle(physicalNeighbors(game.state.hexes,u.hexId)
+          .filter(h=>h.terrain!=='water'),this.random);
+        for(const h of near.slice(0,3)){
+          const attempt=this.safe(game,'fallback-random-move',()=>
+            game.moveUnits(this.playerId,[u.id],h.id));
+          if(attempt.ok){this.memory.fallbacks=(this.memory.fallbacks||0)+1;return attempt;}
+        }
+      }
+      this.memory.fallbacks=(this.memory.fallbacks||0)+1;
+    }
 
     if (!result.ok && !game.state.actionUsed) {
       const passed = this.safe(game, 'pass', () => game.pass(this.playerId));
