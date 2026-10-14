@@ -2,7 +2,7 @@
 
 Muestra: 10 mapas de 60 hexágonos, cuatro rotaciones y cuatro órdenes de elección por mapa; 480 ejecuciones (perfil balanced). Todas conservan los beneficios iniciales del Experimento L.
 Variantes: **Actual**; **Automática** (producción al comenzar cada turno y se libera la acción económica); **Automática + Red** (además, las tecnologías, edades y aldeanos solo pueden pagarse con recursos en una cadena continua de territorios controlados hasta el CU).
-La producción automática reutiliza las reglas de PRODUCIR, incluyendo agotamiento y bonificaciones, hasta el límite de hexágonos por edad y solo en hexágonos con productores. El bot decide qué hexágonos produce.
+La producción automática reutiliza las reglas de PRODUCIR, incluyendo agotamiento y bonificaciones, hasta el límite de hexágonos por edad y solo en hexágonos con productores. Se produce en hexágonos con productores, priorizando los de mayor cantidad de trabajadores y con desempate fijo por ID, sin consultar las necesidades del bot.
 Limitación: los gastos locales de edificios/unidades siguen exigiendo los recursos en el mismo hexágono. La red solo modifica pago remoto controlado, no crea teletransporte ni transporte nuevo.
 
 ## Partidas y economía
