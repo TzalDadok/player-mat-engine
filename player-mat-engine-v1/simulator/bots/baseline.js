@@ -129,7 +129,8 @@ export class BaselineBot {
       game.state.buildings.filter(b=>b.hexId===h.id&&b.type==='farm').length<2;
     const remembered = this.memory.hubHexId
       ? game.hexMap.get(this.memory.hubHexId) : null;
-    if (viable(remembered)) return remembered;
+    const linked=game.state.logisticsNetworkEnabled ? new Set(this.connectedIds(game)) : null;
+    if (viable(remembered) && (!linked||linked.has(remembered.id))) return remembered;
 
     const tc = game.hexMap.get(this.player(game).tcHexId);
     const villagers = this.villagers(game);
@@ -141,7 +142,7 @@ export class BaselineBot {
       const tcDistance=tc?hexDistance(h,tc):0;
       const sources=physicalNeighbors(game.state.hexes,h.id)
         .filter(n=>SOURCE_TO_RESOURCE[n.source]).length;
-      return {h,score:distance*5+tcDistance*2-sources*2};
+      return {h,score:distance*5+tcDistance*2-sources*2+(linked&&!linked.has(h.id)?100:0)};
     }).filter(Boolean).sort((a,b)=>a.score-b.score||a.h.id.localeCompare(b.h.id));
     const chosen=locations[0]?.h || null;
     if(chosen) this.memory.hubHexId=chosen.id;
@@ -168,8 +169,52 @@ export class BaselineBot {
     ) || null;
   }
 
+  connectedIds(game) {
+    return game.logisticsConnectedHexIds(this.playerId);
+  }
+
   controlledResources(game) {
-    return sumResources(game, game.controlledHexIds(this.playerId));
+    return sumResources(game, game.state.logisticsNetworkEnabled
+      ? this.connectedIds(game) : game.controlledHexIds(this.playerId));
+  }
+
+  // A valuable corridor is one whose loss disconnects several owned hexes.
+  corridorValue(game, hexId, ownerId) {
+    const connected=new Set(game.logisticsConnectedHexIds(ownerId));
+    if(!connected.has(hexId)||hexId===game.playerMap.get(ownerId)?.tcHexId) return 0;
+    const other=new Set([...connected].filter(id=>id!==hexId));
+    const queue=[game.playerMap.get(ownerId).tcHexId], seen=new Set(queue);
+    for(let i=0;i<queue.length;i++){
+      for(const h of physicalNeighbors(game.state.hexes,queue[i])){
+        if(other.has(h.id)&&!seen.has(h.id)){seen.add(h.id);queue.push(h.id)}
+      }
+    }
+    return other.size-seen.size;
+  }
+
+  // Try restoring an isolated productive territory from the existing network.
+  reconnectNetwork(game) {
+    if(!game.state.logisticsNetworkEnabled)return {ok:false};
+    const linked=new Set(this.connectedIds(game));
+    const isolated=game.controlledHexIds(this.playerId)
+      .filter(id=>!linked.has(id));
+    if(!isolated.length)return {ok:false};
+    const candidates=this.villagers(game).flatMap(v=>isolated.map(id=>{
+      const path=strategicLandPath(game,v.hexId,id);
+      return path?{v,id,path}:null;
+    }).filter(Boolean)).sort((a,b)=>a.path.length-b.path.length);
+    for(const c of candidates){
+      const step=c.path[1];
+      if(!step)continue;
+      // Moving a unit off an occupied bottleneck can disconnect it; do not
+      // abandon a corridor without a remaining building or unit there.
+      if(this.corridorValue(game,c.v.hexId,this.playerId)>0 &&
+         !game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===c.v.hexId) &&
+         this.ownUnits(game,u=>u.hexId===c.v.hexId).length===1)continue;
+      const result=this.safe(game,'reconnect-network',()=>game.moveUnits(this.playerId,[c.v.id],step));
+      if(result.ok)return result;
+    }
+    return {ok:false};
   }
 
   localResources(game, hexId) {
@@ -308,6 +353,7 @@ export class BaselineBot {
   }
 
   afterProductionLoad(game, results = []) {
+    if(game.state.logisticsNetworkEnabled)return;
     const hub = this.hub(game);
     for (const result of results) {
       if (result.hexId === hub.id) continue;
@@ -319,10 +365,16 @@ export class BaselineBot {
   }
 
   moveLogistics(game) {
+    if(game.state.logisticsNetworkEnabled){
+      const repaired=this.reconnectNetwork(game);
+      if(repaired.ok)return repaired;
+    }
     const hub = this.hub(game);
     const villagers = shuffle(this.villagers(game), this.random);
 
     for (const villager of villagers) {
+      if (game.state.logisticsNetworkEnabled &&
+          this.connectedIds(game).includes(villager.hexId))continue;
       if (villager.cargo?.length && villager.hexId !== hub.id) {
         const step = this.nextLandStep(game, villager.hexId, hub.id);
         if (!step) continue;
@@ -349,6 +401,7 @@ export class BaselineBot {
       const currentResource = SOURCE_TO_RESOURCE[currentHex?.source];
 
       if (currentResource && deficits[currentResource] > 0) {
+        if(game.state.logisticsNetworkEnabled&&this.connectedIds(game).includes(villager.hexId))continue;
         this.loadUsefulCargo(game, villager, currentResource);
 
         if (villager.cargo?.length) {
@@ -407,7 +460,8 @@ export class BaselineBot {
 
     const hub = this.hub(game);
     const hasCargoAway = this.villagers(game).some(
-      v => v.hexId !== hub.id && (v.cargo?.length || 0) > 0
+      v => v.hexId !== hub.id && (v.cargo?.length || 0) > 0 &&
+        (!game.state.logisticsNetworkEnabled||!this.connectedIds(game).includes(v.hexId))
     );
 
     if (hasCargoAway) {
@@ -516,11 +570,20 @@ export class BaselineBot {
       );
       const armyForce = forceOf(game, player.id, enemyMilitary);
       const structures = game.state.buildings.filter(b => b.ownerId === player.id).length;
-      const score = (path?.length || 999) * 2 + armyForce + structures * 0.5;
+      const tacticalCorridors=game.state.logisticsNetworkEnabled
+        ? game.logisticsConnectedHexIds(player.id).filter(id=>this.corridorValue(game,id,player.id)>0)
+        : [];
+      const corridorPaths=tacticalCorridors.map(id=>({id,path:strategicLandPath(game,fromHexId,id)}))
+        .filter(x=>x.path).sort((a,b)=>a.path.length-b.path.length);
+      const strategic=corridorPaths[0];
+      const useCorridor=strategic&&strategic.path.length<(path?.length||999) &&
+        this.military(game).length>=2;
+      const chosenPath=useCorridor?strategic.path:path;
+      const score=(chosenPath?.length||999)*2+armyForce+structures*.5-(useCorridor?3:0);
       return {
         player,
-        target,
-        path,
+        target:useCorridor?game.hexMap.get(strategic.id):target,
+        path:chosenPath,
         armyForce,
         score,
         tieBreak:stableTargetTie(game.state.mapMeta?.seed || '',this.playerId,player.id)
