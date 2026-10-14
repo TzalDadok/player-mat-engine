@@ -220,6 +220,37 @@ export class BaselineBot {
       this.corridorValue(game,unit.hexId,this.playerId)===0;
   }
 
+  prepareBarracksSite(game) {
+    if(!game.state.logisticsNetworkEnabled||this.barracks(game))return {ok:false};
+    const rule=game.buildingRule(this.playerId,'barracks');
+    if(!rule||!canPay(this.controlledResources(game),rule.cost))return {ok:false};
+    const linked=new Set(this.connectedIds(game));
+    const targets=game.state.hexes.filter(h=>
+      ['plain','desert'].includes(h.terrain)&&!h.source&&!h.special&&
+      (linked.has(h.id)||physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id)))
+    );
+    const moves=[];
+    for(const v of this.villagers(game)){
+      if(!this.safeToVacate(game,v))continue;
+      for(const h of targets){
+        if(h.id===v.hexId)continue;
+        const path=strategicLandPath(game,v.hexId,h.id);
+        if(!path||path.length<2)continue;
+        const step=game.hexMap.get(path[1]);
+        if(!step||step.terrain==='water')continue;
+        // The destination must be supplied immediately after movement.
+        if(!linked.has(step.id)&&!physicalNeighbors(game.state.hexes,step.id).some(n=>linked.has(n.id)))continue;
+        moves.push({v,h,step,score:path.length+(linked.has(h.id)?-5:0)});
+      }
+    }
+    moves.sort((a,b)=>a.score-b.score);
+    for(const m of moves.slice(0,8)){
+      const r=this.safe(game,'prepare-barracks',()=>game.moveUnits(this.playerId,[m.v.id],m.step.id));
+      if(r.ok)return r;
+    }
+    return {ok:false};
+  }
+
   networkExpansion(game) {
     if(!game.state.logisticsNetworkEnabled)return {ok:false};
     const linked=new Set(this.connectedIds(game));
@@ -233,7 +264,9 @@ export class BaselineBot {
         if(!adjacent)continue;
         const resource=SOURCE_TO_RESOURCE[h.source]?1:0;
         const hub=this.memory.hubHexId===h.id?1:0;
-        const score=resource*3+hub*2+(occupied?1:0);
+        const needsSite=!this.barracks(game)&&canPay(this.controlledResources(game),game.buildingRule(this.playerId,'barracks')?.cost||{});
+        const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
+        const score=resource*3+hub*2+(occupied?1:0)+(needsSite&&buildSite?10:0);
         candidates.push({v,h,score});
       }
     }
@@ -328,7 +361,7 @@ export class BaselineBot {
     const hub = this.hub(game);
     const barracks = this.barracks(game);
     const target = barracks ? HUB_TARGET_AFTER_BARRACKS : HUB_TARGET_BEFORE_BARRACKS;
-    const have = this.localResources(game, hub.id);
+    const have = game.state.logisticsNetworkEnabled ? this.controlledResources(game) : this.localResources(game, hub.id);
     const deficits = {};
     for (const r of RESOURCE_TYPES) deficits[r] = Math.max(0, (target[r] || 0) - (have[r] || 0));
     return deficits;
@@ -416,6 +449,8 @@ export class BaselineBot {
 
   moveLogistics(game) {
     if(game.state.logisticsNetworkEnabled){
+      const constructed=this.prepareBarracksSite(game);
+      if(constructed.ok)return constructed;
       const repaired=this.reconnectNetwork(game);
       if(repaired.ok)return repaired;
       const expanded=this.networkExpansion(game);
@@ -550,14 +585,21 @@ export class BaselineBot {
     if (this.barracks(game)) return { ok: false };
 
     const hub = this.hub(game);
-    const villager = this.villagers(game).find(v => v.hexId === hub.id);
     const rule = game.buildingRule(this.playerId, 'barracks');
-    if (!villager || !rule || !canPay(this.localResources(game, hub.id), rule.cost)) {
+    const linked = game.state.logisticsNetworkEnabled ? new Set(this.connectedIds(game)) : null;
+    const builder = this.villagers(game).filter(v => {
+      const h=game.hexMap.get(v.hexId);
+      return h && ['plain','desert'].includes(h.terrain) && !h.special && !h.source &&
+        (!linked || linked.has(h.id)) && canPay(this.localResources(game,h.id),rule?.cost);
+    }).sort((a,b)=>Number(b.hexId===hub.id)-Number(a.hexId===hub.id))[0];
+    const villager = builder;
+    const buildHexId = villager?.hexId || hub.id;
+    if (!villager || !rule) {
       return { ok: false };
     }
 
     return this.safe(game, 'build-barracks', () =>
-      game.build(this.playerId, 'barracks', hub.id, villager.id)
+      game.build(this.playerId, 'barracks', buildHexId, villager.id)
     );
   }
 
