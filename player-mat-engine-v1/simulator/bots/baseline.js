@@ -173,6 +173,10 @@ export class BaselineBot {
   }
 
   localResources(game, hexId) {
+    if(game.state.logisticsNetworkEnabled &&
+       game.logisticsConnectedHexIds(this.playerId).includes(hexId)){
+      return sumResources(game,game.logisticsConnectedHexIds(this.playerId));
+    }
     return game.resourcesAt(hexId);
   }
 
