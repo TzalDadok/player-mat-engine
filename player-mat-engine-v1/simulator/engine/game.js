@@ -478,6 +478,24 @@ export class AoEGame {
     return buildingOwners.length === 1 ? buildingOwners[0] : null;
   }
 
+  logisticsConnectedHexIds(playerId) {
+    const p=this.playerMap.get(playerId);
+    if (!p) return [];
+    const controlled=new Set(this.controlledHexIds(playerId));
+    const reached=new Set([p.tcHexId]);
+    const queue=[p.tcHexId];
+    for(let i=0;i<queue.length;i++){
+      const h=this.hexMap.get(queue[i]);
+      if(!h)continue;
+      for(const n of physicalNeighbors(this.state.hexes,h.id)){
+        if(controlled.has(n.id)&&!reached.has(n.id)){
+          reached.add(n.id);queue.push(n.id);
+        }
+      }
+    }
+    return [...reached];
+  }
+
   controlledHexIds(playerId) {
     return this.state.hexes
       .filter(h =>
@@ -657,7 +675,7 @@ export class AoEGame {
 
     const remaining = { ...cost };
 
-    for (const hexId of this.controlledHexIds(playerId)) {
+    for (const hexId of (this.state.logisticsNetworkEnabled ? this.logisticsConnectedHexIds(playerId) : this.controlledHexIds(playerId))) {
       const hex = this.hexMap.get(hexId);
 
       for (const type of RESOURCE_TYPES) {
