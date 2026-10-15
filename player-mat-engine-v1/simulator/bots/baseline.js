@@ -992,7 +992,12 @@ export class BaselineBot {
     const goal=this.memory.networkGoal;
     const retained=liveTargets.find(h=>h.id===goal?.hexId&&
       dist.get(h.id)<=capacity && game.state.round-(goal?.started||0)<30);
-    const chosen=retained||liveTargets.find(h=>dist.get(h.id)<=capacity);
+    // Avoid exhausting all workers on a remote source: leave one mobile
+    // reserve unless the missing resource is reachable in a single step.
+    const viable=liveTargets.filter(h=>dist.get(h.id)<=capacity &&
+      (dist.get(h.id)<=1 || dist.get(h.id)<capacity));
+    const chosen=(retained&&viable.some(h=>h.id===retained.id)?retained:null)||
+      viable[0];
     if(!chosen)return {ok:false};
     if(!retained)this.memory.networkGoal={hexId:chosen.id,type:SOURCE_TO_RESOURCE[chosen.source],started:game.state.round};
     const chain=[chosen.id];let cursor=chosen.id;
