@@ -268,6 +268,15 @@ export class BaselineBot {
       if(!this.safeToVacate(game,v))continue;
       const occupied=linked.has(v.hexId);
       for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
+        // Shuttle idle workers through the already-controlled chain toward
+        // its frontier. They can pass through friendly-occupied hexes.
+        if(h.terrain!=='water'&&game.controllerOf(h.id)===this.playerId&&
+           linked.has(h.id)&&h.id!==v.hexId&&!SOURCE_TO_RESOURCE[h.source]&&
+           (v.hexId===this.player(game).tcHexId||other||building)){
+          const frontier=physicalNeighbors(game.state.hexes,h.id).some(n=>
+            n.terrain!=='water'&&game.controllerOf(n.id)!==this.playerId);
+          if(frontier)candidates.push({v,h,score:18});
+        }
         if(h.terrain==='water'||game.controllerOf(h.id)===this.playerId)continue;
         const adjacent=physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id));
         if(!adjacent)continue;
@@ -920,7 +929,9 @@ export class BaselineBot {
       const critical=this.corridorValue(game,v.hexId,this.playerId)>0;
       // A solitary starting worker must be allowed to switch sources.
       // This can relinquish its old tile but cannot sever downstream holdings.
-      const canLeave=other||building||!connected||!critical;
+      const producer=!!SOURCE_TO_RESOURCE[origin.source]&&connected;
+      const canLeave=other||building||!connected||(!critical&&
+        (!producer||this.villagers(game).length<3));
       if(!canLeave)continue;
       for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
         if(h.terrain==='water'||game.controllerOf(h.id)===this.playerId)continue;
