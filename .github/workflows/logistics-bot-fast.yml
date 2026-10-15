@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - network source persistence
+name: Fast logistics bot validation - manual network food production
 on:
   push:
     paths:
