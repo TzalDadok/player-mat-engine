@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - stalled courier recovery
+name: Fast logistics bot validation - barracks-first economy
 on:
   push:
     paths:
