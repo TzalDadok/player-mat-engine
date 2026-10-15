@@ -817,7 +817,103 @@ export class BaselineBot {
     return {ok:false};
   }
 
+  networkEconomy(game) {
+    // No transport: every payment is taken directly from the CU-connected
+    // component. Presence is still mandatory on every connected hex.
+    const selections=this.productiveSelections(game).filter(x=>
+      this.connectedIds(game).includes(x.hexId));
+    const stock=this.controlledResources(game);
+    const needs=this.resourceDeficits(game);
+    const villagers=this.villagers(game);
+    const foodNeeded=(stock.food||0)<2;
+    // First expand toward food if no worker can produce it.
+    const hasFoodWorker=selections.some(x=>x.mode==='coast'||
+      SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source]==='food');
+    if(foodNeeded&&!hasFoodWorker){
+      const expanded=this.networkGrow(game,'food');
+      if(expanded.ok)return expanded;
+    }
+    // Keep a surplus of workers for resource nodes, corridors, and construction.
+    if(villagers.length<this.maxVillagers&&(stock.food||0)>0){
+      const trained=this.tryTrainVillager(game);
+      if(trained.ok)return trained;
+    }
+    // Production is manual and must never be replaced by auto-generation.
+    if(selections.length){
+      const made=this.safe(game,'network-produce',()=>
+        game.produce(this.playerId,selections));
+      if(made.ok)return made;
+    }
+    if(!this.barracks(game)&&this.canPrepareNetworkBarracks(game)){
+      const setup=this.prepareBarracksSite(game);
+      if(setup.ok)return setup;
+    }
+    const grown=this.networkGrow(game);
+    if(grown.ok)return grown;
+    return {ok:false};
+  }
+
+  canPrepareNetworkBarracks(game) {
+    const rule=game.buildingRule(this.playerId,'barracks');
+    return !!rule&&canPay(this.controlledResources(game),rule.cost);
+  }
+
+  networkGrow(game,onlyResource=null) {
+    const linked=new Set(this.connectedIds(game));
+    const deficits=this.resourceDeficits(game);
+    const candidates=[];
+    const hasBarracks=!!this.barracks(game);
+    for(const v of this.villagers(game)){
+      const origin=game.hexMap.get(v.hexId);
+      if(!origin)continue;
+      const connected=linked.has(v.hexId);
+      const other=this.ownUnits(game,u=>u.id!==v.id&&u.hexId===v.hexId).length>0;
+      const building=game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===v.hexId);
+      const canLeave=other||building||!connected||!SOURCE_TO_RESOURCE[origin.source]&&
+        this.corridorValue(game,v.hexId,this.playerId)===0;
+      if(!canLeave)continue;
+      for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
+        if(h.terrain==='water'||game.controllerOf(h.id)===this.playerId)continue;
+        if(!physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id)))continue;
+        const resource=SOURCE_TO_RESOURCE[h.source];
+        if(onlyResource&&resource!==onlyResource&&
+           !(onlyResource==='food'&&!resource&&
+             physicalNeighbors(game.state.hexes,h.id).some(n=>n.terrain==='water')))continue;
+        const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
+        const score=(resource&&deficits[resource]>0?40:0)+
+          (resource==='food'&& (this.controlledResources(game).food||0)<2?35:0)+
+          (!hasBarracks&&buildSite&&this.canPrepareNetworkBarracks(game)?70:0)+
+          (v.hexId===this.player(game).tcHexId?12:0)-
+          (SOURCE_TO_RESOURCE[origin.source]?18:0);
+        candidates.push({v,h,score});
+      }
+    }
+    candidates.sort((a,b)=>b.score-a.score||a.h.id.localeCompare(b.h.id));
+    for(const {v,h} of candidates.slice(0,12)){
+      const moved=this.safe(game,'network-expand',()=>game.moveUnits(this.playerId,[v.id],h.id));
+      if(moved.ok)return moved;
+    }
+    return {ok:false};
+  }
+
+  networkMilitary(game) {
+    const built=this.tryBuildBarracks(game);
+    if(built.ok)return built;
+    const trained=this.tryTrainMilitary(game);
+    if(trained.ok)return trained;
+    if(this.military(game).length){
+      const advanced=this.tryArmyAction(game);
+      if(advanced.ok)return advanced;
+    }
+    if(!this.barracks(game)){
+      const prepared=this.prepareBarracksSite(game);
+      if(prepared.ok)return prepared;
+    }
+    return this.networkGrow(game);
+  }
+
   takeEconomy(game) {
+    if(game.state.logisticsNetworkEnabled)return this.networkEconomy(game);
     if(game.state.logisticsNetworkEnabled&&!this.barracks(game))return this.bootstrapBarracks(game);
     if(game.state.logisticsNetworkEnabled&&this.barracks(game)&&
        !this.connectedIds(game).includes(this.barracks(game).hexId)){
@@ -1172,6 +1268,7 @@ export class BaselineBot {
   }
 
   takeMilitary(game) {
+    if(game.state.logisticsNetworkEnabled)return this.networkMilitary(game);
     if(game.state.logisticsNetworkEnabled&&!this.barracks(game))return this.bootstrapBarracks(game);
     if(game.state.logisticsNetworkEnabled&&this.barracks(game)&&
        !this.connectedIds(game).includes(this.barracks(game).hexId)){
