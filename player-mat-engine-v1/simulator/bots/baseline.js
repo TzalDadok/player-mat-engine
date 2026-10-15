@@ -820,8 +820,12 @@ export class BaselineBot {
   networkEconomy(game) {
     // No transport: every payment is taken directly from the CU-connected
     // component. Presence is still mandatory on every connected hex.
-    const selections=this.productiveSelections(game).filter(x=>
-      this.connectedIds(game).includes(x.hexId));
+    const linked=new Set(this.connectedIds(game));
+    const selections=[...new Set(this.villagers(game).map(v=>v.hexId))]
+      .filter(id=>linked.has(id))
+      .map(id=>({hexId:id,mode:'source'}))
+      .filter(x=>!!SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source])
+      .slice(0,{dark:2,feudal:3,castles:4,imperial:5}[this.player(game).age]||2);
     const stock=this.controlledResources(game);
     const needs=this.resourceDeficits(game);
     const villagers=this.villagers(game);
