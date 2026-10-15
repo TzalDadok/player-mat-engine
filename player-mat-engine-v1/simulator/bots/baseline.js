@@ -666,6 +666,12 @@ export class BaselineBot {
       const rule=game.buildingRule(this.playerId,type);
       if(!rule||!game.ageAllows(this.player(game),rule.age))continue;
       if(!canPay(this.localResources(game,h.id),rule.cost))continue;
+      if(!this.barracks(game)){
+        const barracksCost=game.buildingRule(this.playerId,'barracks')?.cost||{};
+        const stock=this.controlledResources(game);
+        const resource=SOURCE_TO_RESOURCE[h.source];
+        if(resource!=='wood' && (stock.wood||0)<(barracksCost.wood||0)+(rule.cost.wood||0))continue;
+      }
       const built=this.safe(game,'consolidate-resource',()=>
         game.build(this.playerId,type,h.id,v.id));
       if(built.ok)return built;
@@ -901,6 +907,8 @@ export class BaselineBot {
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
+    // Grow workers only while they can support expansion and do not consume
+    // food reserved for the first military production chain.
     if(villagers.length<8&&(stock.food||0)>0 &&
        (!barracksAffordable || villagers.length<3) &&
        (!barracksRule || villagers.length<3 ||
