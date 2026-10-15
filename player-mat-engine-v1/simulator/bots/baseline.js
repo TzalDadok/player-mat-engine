@@ -958,20 +958,27 @@ export class BaselineBot {
       SOURCE_TO_RESOURCE[h.source]&&deficits[SOURCE_TO_RESOURCE[h.source]]>0&&
       !linked.has(h.id)&&game.controllerOf(h.id)!==this.playerId);
     if(!sources.length)return {ok:false};
-    const dist=new Map(),previous=new Map(),queue=[];
-    for(const id of linked){dist.set(id,0);queue.push(id);}
-    // 0-1 BFS: connected hexes cost zero and every additional tile costs
-    // one worker. Prefer corridors requiring fewer new occupants.
-    for(let i=0;i<queue.length;i++){
-      const id=queue[i],d=dist.get(id);
+    const dist=new Map(),previous=new Map();
+    const open=[...linked];
+    for(const id of linked)dist.set(id,0);
+    // Dijkstra using unoccupied hexes as the primary cost. Existing
+    // connected hexes are free; hostile hexes are never passable.
+    const done=new Set();
+    while(open.length){
+      open.sort((a,b)=>dist.get(a)-dist.get(b)||a.localeCompare(b));
+      const id=open.shift();
+      if(done.has(id))continue;
+      done.add(id);
       for(const h of physicalNeighbors(game.state.hexes,id)){
         if(h.terrain==='water')continue;
         const owner=game.controllerOf(h.id);
         if(owner&&owner!==this.playerId)continue;
-        const cost=linked.has(h.id)?0:1,nd=d+cost;
+        const cost=linked.has(h.id)?0:1;
+        const nd=dist.get(id)+cost;
         if(nd<(dist.get(h.id)??Infinity)){
-          dist.set(h.id,nd);previous.set(h.id,id);
-          if(cost===0)queue.splice(i,0,h.id);else queue.push(h.id);
+          dist.set(h.id,nd);
+          previous.set(h.id,id);
+          open.push(h.id);
         }
       }
     }
