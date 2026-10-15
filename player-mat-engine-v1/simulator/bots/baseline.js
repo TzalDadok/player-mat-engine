@@ -330,7 +330,7 @@ export class BaselineBot {
   }
 
   ensureFreeCargoOps(game) {
-    const hub = this.hub(game);
+    const hub = game.state.logisticsNetworkEnabled ? game.hexMap.get(this.player(game).tcHexId) : this.hub(game);
     for (const villager of this.villagers(game)) {
       if (villager.hexId === hub.id && villager.cargo?.length) {
         this.safe(game, 'unload', () => game.unloadAll(this.playerId, villager.id));
@@ -457,7 +457,55 @@ export class BaselineBot {
     }
   }
 
+  logisticsCourier(game) {
+    if(!game.state.logisticsNetworkEnabled)return {ok:false};
+    const tcId=this.player(game).tcHexId;
+    const villagers=this.villagers(game);
+    const deficits=this.resourceDeficits(game);
+    const carrying=villagers.find(v=>v.cargo?.length);
+    if(carrying){
+      if(carrying.hexId===tcId){
+        this.safe(game,'courier-unload',()=>game.unloadAll(this.playerId,carrying.id));
+        return {ok:false};
+      }
+      const step=this.nextLandStep(game,carrying.hexId,tcId);
+      return step?this.safe(game,'courier-return',()=>game.moveUnits(this.playerId,[carrying.id],step)):{ok:false};
+    }
+    const needed=Object.entries(deficits).filter(([,n])=>n>0);
+    if(!needed.length)return {ok:false};
+    const candidates=[];
+    for(const v of villagers){
+      for(const [resource,missing] of needed){
+        for(const h of this.sourceCandidates(game,resource)){
+          const path=strategicLandPath(game,v.hexId,h.id);
+          if(!path)continue;
+          const available=game.resourcesAt(h.id)[resource]||0;
+          // Prefer nearby useful material, but allow distant stone/gold trips.
+          const priority=resource==='stone'?4:resource==='gold'?3:resource==='wood'?2:1;
+          const score=path.length*2-priority-(available>0?4:0);
+          candidates.push({v,h,resource,path,score});
+        }
+      }
+    }
+    candidates.sort((a,b)=>a.score-b.score);
+    const best=candidates[0];
+    if(!best)return {ok:false};
+    if(best.v.hexId===best.h.id){
+      if((game.resourcesAt(best.h.id)[best.resource]||0)>0){
+        this.loadUsefulCargo(game,best.v,best.resource);
+        const step=this.nextLandStep(game,best.v.hexId,tcId);
+        if(step&&best.v.cargo?.length)return this.safe(game,'courier-loaded-return',()=>game.moveUnits(this.playerId,[best.v.id],step));
+      }
+      // Stay on source for the next manual production action.
+      return {ok:false,label:'await-production'};
+    }
+    return this.safe(game,'courier-seek',()=>game.moveUnits(this.playerId,[best.v.id],best.path[1]));
+  }
+
   moveLogistics(game) {
+    if(game.state.logisticsNetworkEnabled){
+      return this.logisticsCourier(game);
+    }
     if(game.state.logisticsNetworkEnabled){
       const constructed=this.prepareBarracksSite(game);
       if(constructed.ok)return constructed;
@@ -979,7 +1027,7 @@ export class BaselineBot {
       // Cheap deterministic-seed random legal fallback, avoiding another
       // expensive strategic search. Passing is always legal.
       const units=this.ownUnits(game,u=>u.type==='villager'&&this.safeToVacate(game,u));
-      if(units.length&&game.state.phase!=='technology'){
+      if(units.length&&game.state.phase!=='technology'&&!game.state.logisticsNetworkEnabled){
         const u=pickRandom(units,this.random);
         const near=shuffle(physicalNeighbors(game.state.hexes,u.hexId)
           .filter(h=>h.terrain!=='water'),this.random);
