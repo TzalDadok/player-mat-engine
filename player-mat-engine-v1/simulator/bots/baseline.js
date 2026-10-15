@@ -988,11 +988,15 @@ export class BaselineBot {
         a.id.localeCompare(b.id));
     if(!liveTargets.length)return {ok:false};
     const available=workers.filter(v=>this.safeToVacate(game,v));
+    // Workers standing on the CU are available, and can reinforce a corridor
+    // even when the network contains productive tiles staffed by others.
     const capacity=available.length;
     const goal=this.memory.networkGoal;
     const retained=liveTargets.find(h=>h.id===goal?.hexId&&
       dist.get(h.id)<=capacity && game.state.round-(goal?.started||0)<30);
     const chosen=retained||liveTargets.find(h=>dist.get(h.id)<=capacity);
+    // If no complete corridor fits, stage additional villagers at the CU
+    // instead of wandering into unrelated tiles.
     if(!chosen)return {ok:false};
     if(!retained)this.memory.networkGoal={hexId:chosen.id,type:SOURCE_TO_RESOURCE[chosen.source],started:game.state.round};
     const chain=[chosen.id];let cursor=chosen.id;
@@ -1005,7 +1009,13 @@ export class BaselineBot {
     const options=available.map(v=>{
       const route=strategicLandPath(game,v.hexId,frontier);
       return route?{v,route}:null;
-    }).filter(Boolean).sort((a,b)=>a.route.length-b.route.length);
+    }).filter(Boolean).sort((a,b)=>{
+      // Send workers from the CU or redundant occupied tiles first;
+      // moving from a valuable source should be a last resort.
+      const aTC=a.v.hexId===p.tcHexId?0:1;
+      const bTC=b.v.hexId===p.tcHexId?0:1;
+      return aTC-bTC||a.route.length-b.route.length;
+    });
     for(const {v,route} of options){
       const destination=v.hexId===frontier?first:route[1];
       if(!destination)continue;
