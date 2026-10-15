@@ -1068,6 +1068,36 @@ export class BaselineBot {
     return {ok:false};
   }
 
+  protectTownCenter(game) {
+    const tc=this.player(game).tcHexId;
+    const owned=this.military(game).filter(u=>game.effectiveUnitSpec(this.playerId,u.type).move>0);
+    if(!owned.length)return {ok:false};
+    const enemyUnits=game.state.units.filter(u=>u.ownerId!==this.playerId &&
+      !game.playerMap.get(u.ownerId)?.eliminated && game.isCombatParticipant(u.ownerId,u));
+    const threatened=enemyUnits.some(u=>{
+      const from=game.hexMap.get(u.hexId),home=game.hexMap.get(tc);
+      return from&&home&&hexDistance(from,home)<=3;
+    });
+    const defenders=owned.filter(u=>u.hexId===tc);
+    // Never abandon the last CU defender. No amount of expansion is worth
+    // immediate elimination.
+    if(defenders.length)return {ok:false};
+    if(!threatened && owned.length<2)return {ok:false};
+    const candidates=owned.map(u=>({u,path:strategicLandPath(game,u.hexId,tc)}))
+      .filter(x=>x.path&&x.path.length>1)
+      .sort((a,b)=>a.path.length-b.path.length);
+    for(const {u,path} of candidates){
+      const step=path[1];
+      const hostile=game.state.units.some(x=>x.hexId===step&&x.ownerId!==this.playerId &&
+        game.isCombatParticipant(x.ownerId,x));
+      if(hostile)continue;
+      const moved=this.safe(game,'defend-town-center',()=>
+        game.moveUnits(this.playerId,[u.id],step));
+      if(moved.ok)return moved;
+    }
+    return {ok:false};
+  }
+
   networkMilitary(game) {
     // Military logistics uses only the network's controlled connected stock.
     const villagers=this.villagers(game);
@@ -1075,6 +1105,8 @@ export class BaselineBot {
     const built=this.tryBuildBarracks(game);
     if(built.ok)return built;
     const army=this.military(game);
+    const defended=this.protectTownCenter(game);
+    if(defended.ok)return defended;
     // Once an army can engage, use it rather than training indefinitely.
     if(army.length>=Math.max(2,this.desiredArmy)){
       const advanced=this.tryArmyAction(game);
@@ -1325,8 +1357,13 @@ export class BaselineBot {
     if (!stacks.length) return { ok: false };
 
     for (const stack of stacks) {
+      const home=this.player(game).tcHexId;
+      const homeDefenders=this.military(game).filter(u=>u.hexId===home);
       const direct = stack.units.filter(u => {
         const spec = game.effectiveUnitSpec(this.playerId, u.type);
+        // Keep one defender at the CU even when it is the nearest stack
+        // to an attractive offensive target.
+        if(u.hexId===home&&homeDefenders[0]?.id===u.id)return false;
         return spec.move > 0 && !spec.water;
       });
       if (!direct.length) continue;
