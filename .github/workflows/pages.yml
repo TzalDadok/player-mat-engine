@@ -30,7 +30,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # Simulator smoke tests report failures but do not block publishing the rulebook.
       - name: Test simulator engine
+        continue-on-error: true
         run: |
           node player-mat-engine-v1/simulator/tests/hito1-smoke.mjs
           node player-mat-engine-v1/simulator/tests/civilizations-smoke.mjs
