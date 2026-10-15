@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - 200 rounds network
+name: Fast logistics bot validation - resource cooldown network
 on:
   push:
     paths:
