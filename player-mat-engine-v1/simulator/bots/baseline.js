@@ -386,6 +386,17 @@ export class BaselineBot {
       : barracks ? HUB_TARGET_AFTER_BARRACKS : HUB_TARGET_BEFORE_BARRACKS;
     const have = game.state.logisticsNetworkEnabled ? this.controlledResources(game) : this.localResources(game, hub.id);
     const deficits = {};
+    // Secure an economic anchor before all eight workers occupy permanent
+    // corridor tiles. A mill costs 3 wood; a camp costs 2 wood, in addition
+    // to the wood needed for the first barracks.
+    if(game.state.logisticsNetworkEnabled&&!barracks){
+      const buildings=game.state.buildings.filter(b=>b.ownerId===this.playerId);
+      if(!buildings.some(b=>b.type==='mill') &&
+         this.connectedIds(game).some(id=>['animals','berries'].includes(game.hexMap.get(id)?.source)))
+        target.wood=Math.max(target.wood||0,4);
+      else if(!buildings.some(b=>b.type==='camp'))
+        target.wood=Math.max(target.wood||0,3);
+    }
     for (const r of RESOURCE_TYPES) deficits[r] = Math.max(0, (target[r] || 0) - (have[r] || 0));
     return deficits;
   }
@@ -1015,12 +1026,6 @@ export class BaselineBot {
     const deficits=this.resourceDeficits(game);
     const candidates=[];
     const hasBarracks=!!this.barracks(game);
-    // Avoid occupying arbitrary territory while a required resource has an
-    // unfinished corridor. Each occupied hex consumes scarce worker capacity.
-    const goal=this.memory.networkGoal;
-    const goalPath=goal&&!linked.has(goal.hexId)
-      ? strategicLandPath(game,this.player(game).tcHexId,goal.hexId):null;
-    const goalTiles=goalPath?new Set(goalPath):null;
     for(const v of this.villagers(game)){
       const origin=game.hexMap.get(v.hexId);
       if(!origin)continue;
@@ -1046,9 +1051,7 @@ export class BaselineBot {
            !(onlyResource==='food'&&!resource&&
              physicalNeighbors(game.state.hexes,h.id).some(n=>n.terrain==='water')))continue;
         const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
-        if(goalTiles&&!goalTiles.has(h.id) &&
-           !(buildSite&&!hasBarracks&&this.canPrepareNetworkBarracks(game)))continue;
-        const score=(goalTiles?.has(h.id)?120:0)+(resource&&deficits[resource]>0?40:0)+
+        const score=(resource&&deficits[resource]>0?40:0)+
           (resource==='food'&& (this.controlledResources(game).food||0)<2?35:0)+
           (!hasBarracks&&buildSite&&this.canPrepareNetworkBarracks(game)?70:0)+
           (v.hexId===this.player(game).tcHexId?24:0)-
