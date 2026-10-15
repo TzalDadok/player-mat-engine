@@ -818,43 +818,37 @@ export class BaselineBot {
   }
 
   networkEconomy(game) {
-    // No transport: every payment is taken directly from the CU-connected
-    // component. Presence is still mandatory on every connected hex.
     const linked=new Set(this.connectedIds(game));
-    const selections=[...new Set(this.villagers(game).map(v=>v.hexId))]
-      .filter(id=>linked.has(id))
-      .map(id=>({hexId:id,mode:'source'}))
-      .filter(x=>!!SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source])
-      .slice(0,{dark:2,feudal:3,castles:4,imperial:5}[this.player(game).age]||2);
     const stock=this.controlledResources(game);
-    const needs=this.resourceDeficits(game);
+    const deficits=this.resourceDeficits(game);
     const villagers=this.villagers(game);
-    const foodNeeded=(stock.food||0)<2;
-    // First expand toward food if no worker can produce it.
-    const hasFoodWorker=selections.some(x=>x.mode==='coast'||
-      SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source]==='food');
-    if(foodNeeded&&!hasFoodWorker){
-      const expanded=this.networkGrow(game,'food');
-      if(expanded.ok)return expanded;
-    }
-    // Keep a surplus of workers for resource nodes, corridors, and construction.
+    // Buildings anchor resource tiles and free the worker to extend the net.
+    const consolidated=this.tryConsolidateResource(game);
+    if(consolidated.ok)return consolidated;
     if(villagers.length<this.maxVillagers&&(stock.food||0)>0){
       const trained=this.tryTrainVillager(game);
       if(trained.ok)return trained;
     }
-    // Production is manual and must never be replaced by auto-generation.
-    if(selections.length){
-      const made=this.safe(game,'network-produce',()=>
-        game.produce(this.playerId,selections));
-      if(made.ok)return made;
+    const occupied=[...new Set(villagers.map(v=>v.hexId))].filter(id=>linked.has(id));
+    const canProduce=occupied.map(id=>({hexId:id,mode:'source'}))
+      .filter(x=>!!SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source]);
+    const needed=canProduce.filter(x=>{
+      const type=SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source];
+      return (deficits[type]||0)>0 || (type==='food'&&(stock.food||0)<3) ||
+        (type==='wood'&&!this.barracks(game)&&
+          !game.state.buildings.some(b=>b.ownerId===this.playerId&&b.type==='camp')&&(stock.wood||0)<3);
+    });
+    if(needed.length){
+      const limit={dark:2,feudal:3,castles:4,imperial:5}[this.player(game).age]||2;
+      const produced=this.safe(game,'network-produce',()=>
+        game.produce(this.playerId,needed.slice(0,limit)));
+      if(produced.ok)return produced;
     }
-    if(!this.barracks(game)&&this.canPrepareNetworkBarracks(game)){
-      const setup=this.prepareBarracksSite(game);
-      if(setup.ok)return setup;
+    if(this.canPrepareNetworkBarracks(game)){
+      const prepared=this.prepareBarracksSite(game);
+      if(prepared.ok)return prepared;
     }
-    const grown=this.networkGrow(game);
-    if(grown.ok)return grown;
-    return {ok:false};
+    return this.networkGrow(game,stock.food<1?'food':null);
   }
 
   canPrepareNetworkBarracks(game) {
