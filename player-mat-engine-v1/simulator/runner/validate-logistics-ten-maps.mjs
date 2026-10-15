@@ -17,4 +17,5 @@ const built=observations.reduce((n,x)=>n+x.built,0);
 const trained=observations.reduce((n,x)=>n+x.trained,0);
 console.log(JSON.stringify({overall:{games:10,players:40,built,trained,
   combats:observations.reduce((n,x)=>n+x.combats,0)},observations}));
-if(built<30)throw new Error('Logistics regression: fewer than 30/40 barracks built');
+if(built<36||trained<20||observations.reduce((n,x)=>n+x.combats,0)===0)
+  throw new Error('Logistics regression: expected at least 36 barracks, 20 armies and one combat');
