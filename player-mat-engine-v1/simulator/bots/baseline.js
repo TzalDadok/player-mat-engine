@@ -649,7 +649,100 @@ export class BaselineBot {
     return {ok:false};
   }
 
+  bootstrapBarracks(game) {
+    if(!game.state.logisticsNetworkEnabled||this.barracks(game))return {ok:false};
+    const rule=game.buildingRule(this.playerId,'barracks');
+    if(!rule)return {ok:false};
+    const tc=this.player(game).tcHexId;
+    const villagers=this.villagers(game);
+    const stock=game.resourcesAt(tc);
+    const deficits=RESOURCE_TYPES.filter(type=>(stock[type]||0)<(rule.cost[type]||0));
+    // The opening stockpile is physical: nothing on a distant territory is
+    // counted until it has actually reached the CU.
+    for(const v of villagers){
+      if(v.hexId===tc&&v.cargo?.length)this.safe(game,'bootstrap-unload',()=>game.unloadAll(this.playerId,v.id));
+    }
+    const available=game.resourcesAt(tc);
+    if(canPay(available,rule.cost)){
+      const linked=new Set(this.connectedIds(game));
+      const sites=villagers.filter(v=>{
+        const h=game.hexMap.get(v.hexId);
+        return h&&linked.has(h.id)&&['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
+      });
+      if(game.state.phase==='military'){
+        for(const v of sites){
+          const built=this.safe(game,'bootstrap-build',()=>game.build(this.playerId,'barracks',v.hexId,v.id));
+          if(built.ok)return built;
+        }
+        const targets=physicalNeighbors(game.state.hexes,tc).filter(h=>
+          ['plain','desert'].includes(h.terrain)&&!h.source&&!h.special);
+        for(const v of villagers){
+          if(!this.safeToVacate(game,v))continue;
+          for(const h of targets){
+            const path=strategicLandPath(game,v.hexId,h.id);
+            if(!path||path.length<2)continue;
+            const moved=this.safe(game,'bootstrap-builder',()=>game.moveUnits(this.playerId,[v.id],path[1]));
+            if(moved.ok)return moved;
+          }
+        }
+      }
+      return {ok:false};
+    }
+    // Assign one worker a stable resource objective until it has delivered
+    // the required tokens. All other villagers may keep doing normal economy.
+    const courier= this.memory.bootstrapCourierId;
+    let v=villagers.find(u=>u.id===courier);
+    if(!v||(!v.cargo?.length&&v.hexId===tc)){
+      v=villagers.find(u=>u.cargo?.length)||villagers[0];
+      if(v)this.memory.bootstrapCourierId=v.id;
+    }
+    if(!v)return {ok:false};
+    if(v.cargo?.length){
+      if(game.state.phase==='economy'||game.state.phase==='military'){
+        const step=this.nextLandStep(game,v.hexId,tc);
+        if(step)return this.safe(game,'bootstrap-return',()=>game.moveUnits(this.playerId,[v.id],step));
+      }
+      return {ok:false};
+    }
+    const missing=RESOURCE_TYPES.filter(type=>(available[type]||0)<(rule.cost[type]||0));
+    let assignment=this.memory.bootstrapTarget;
+    if(!assignment||!missing.includes(assignment.type)){
+      const options=[];
+      for(const type of missing){
+        for(const h of this.sourceCandidates(game,type)){
+          const route=strategicLandPath(game,v.hexId,h.id);
+          if(route)options.push({type,hexId:h.id,distance:route.length});
+        }
+      }
+      options.sort((a,b)=>a.distance-b.distance||a.hexId.localeCompare(b.hexId));
+      assignment=options[0]||null;
+      this.memory.bootstrapTarget=assignment;
+    }
+    if(!assignment)return {ok:false};
+    if(v.hexId===assignment.hexId){
+      if(game.state.phase==='economy'){
+        const result=this.safe(game,'bootstrap-produce',()=>game.produce(this.playerId,[{hexId:v.hexId,mode:'source'}]));
+        if(result.ok)return result;
+      }
+      if(game.state.phase==='military'){
+        const before=v.cargo?.length||0;
+        this.loadUsefulCargo(game,v,assignment.type);
+        if((v.cargo?.length||0)>before){
+          const step=this.nextLandStep(game,v.hexId,tc);
+          if(step)return this.safe(game,'bootstrap-loaded-return',()=>game.moveUnits(this.playerId,[v.id],step));
+        }
+      }
+      return {ok:false};
+    }
+    if(game.state.phase==='economy'||game.state.phase==='military'){
+      const step=this.nextLandStep(game,v.hexId,assignment.hexId);
+      if(step)return this.safe(game,'bootstrap-to-source',()=>game.moveUnits(this.playerId,[v.id],step));
+    }
+    return {ok:false};
+  }
+
   takeEconomy(game) {
+    if(game.state.logisticsNetworkEnabled&&!this.barracks(game))return this.bootstrapBarracks(game);
     this.ensureFreeCargoOps(game);
     if(!game.state.logisticsNetworkEnabled || this.barracks(game)){
       const consolidated=this.tryConsolidateResource(game);
@@ -999,6 +1092,7 @@ export class BaselineBot {
   }
 
   takeMilitary(game) {
+    if(game.state.logisticsNetworkEnabled&&!this.barracks(game))return this.bootstrapBarracks(game);
     this.ensureFreeCargoOps(game);
 
     const built = this.tryBuildBarracks(game);
