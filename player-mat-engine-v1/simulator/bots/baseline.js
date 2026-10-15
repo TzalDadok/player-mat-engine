@@ -273,7 +273,7 @@ export class BaselineBot {
         // Shuttle idle workers through the already-controlled chain toward
         // its frontier. They can pass through friendly-occupied hexes.
         if(h.terrain!=='water'&&game.controllerOf(h.id)===this.playerId&&
-           linked.has(h.id)&&h.id!==v.hexId&&!SOURCE_TO_RESOURCE[h.source]&&
+           linked.has(h.id)&&h.id!==v.hexId&&
            (v.hexId===this.player(game).tcHexId||other||building)){
           const frontier=physicalNeighbors(game.state.hexes,h.id).some(n=>
             n.terrain!=='water'&&game.controllerOf(n.id)!==this.playerId);
