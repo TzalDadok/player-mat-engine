@@ -267,6 +267,8 @@ export class BaselineBot {
     for(const v of this.villagers(game)){
       if(!this.safeToVacate(game,v))continue;
       const occupied=linked.has(v.hexId);
+      const other=this.ownUnits(game,u=>u.id!==v.id&&u.hexId===v.hexId).length>0;
+      const building=game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===v.hexId);
       for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
         // Shuttle idle workers through the already-controlled chain toward
         // its frontier. They can pass through friendly-occupied hexes.
