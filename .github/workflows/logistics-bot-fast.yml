@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - ten maps
+name: Fast logistics bot validation - ten maps strict regression
 on:
   push:
     paths:
