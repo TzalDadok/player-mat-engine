@@ -871,6 +871,9 @@ export class BaselineBot {
   }
 
   networkEconomy(game) {
+    // A disconnected barracks cannot pay remotely; local resupply is legal.
+    if(this.barracks(game)&&!this.connectedIds(game).includes(this.barracks(game).hexId))
+      return this.supplyIsolatedBarracks(game);
     // Use network spending whenever possible. Physical logistics is only
     // a late fallback for an opening that cannot establish a supply chain.
     if(!this.barracks(game)&&game.state.round>=25&&
@@ -1035,6 +1038,11 @@ export class BaselineBot {
   }
 
   networkMilitary(game) {
+    if(this.barracks(game)&&!this.connectedIds(game).includes(this.barracks(game).hexId)){
+      const trained=this.tryTrainMilitary(game);
+      if(trained.ok)return trained;
+      return this.supplyIsolatedBarracks(game);
+    }
     if(!this.barracks(game)&&game.state.round>=25&&
        !this.canPrepareNetworkBarracks(game))return this.bootstrapBarracks(game);
     const villagers=this.villagers(game);
