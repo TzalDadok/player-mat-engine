@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - network-only diagnostic
+name: Fast logistics bot validation - network startup movement
 on:
   push:
     paths:
