@@ -817,11 +817,61 @@ export class BaselineBot {
     return {ok:false};
   }
 
+  emergencyFoodDelivery(game) {
+    // This is explicitly for DISCONNECTED supply only. Connected resources
+    // are never loaded or transported: the engine spends them remotely.
+    const tc=this.player(game).tcHexId;
+    const villagers=this.villagers(game);
+    const worker=villagers.find(v=>v.id===this.memory.foodCourierId)||villagers[0];
+    if(!worker)return {ok:false};
+    this.memory.foodCourierId=worker.id;
+    const cargo=worker.cargo||[];
+    if(worker.hexId===tc&&cargo.length){
+      this.safe(game,'isolated-food-unload',()=>game.unloadAll(this.playerId,worker.id));
+      return {ok:false};
+    }
+    if(cargo.length){
+      const step=this.nextLandStep(game,worker.hexId,tc);
+      if(step)return this.safe(game,'isolated-food-return',()=>game.moveUnits(this.playerId,[worker.id],step));
+      return {ok:false};
+    }
+    const linked=new Set(this.connectedIds(game));
+    const sources=this.sourceCandidates(game,'food').filter(h=>!linked.has(h.id))
+      .map(h=>({h,path:strategicLandPath(game,worker.hexId,h.id)}))
+      .filter(x=>x.path)
+      .sort((a,b)=>a.path.length-b.path.length);
+    const target=sources[0]?.h;
+    if(!target)return {ok:false};
+    if(worker.hexId===target.id){
+      if(game.state.phase==='economy'){
+        const produced=this.safe(game,'isolated-food-produce',()=>
+          game.produce(this.playerId,[{hexId:target.id,mode:'source'}]));
+        if(produced.ok)return produced;
+      }
+      const before=cargo.length;
+      this.loadUsefulCargo(game,worker,'food');
+      if((worker.cargo?.length||0)>before){
+        const step=this.nextLandStep(game,worker.hexId,tc);
+        if(step)return this.safe(game,'isolated-food-loaded',()=>game.moveUnits(this.playerId,[worker.id],step));
+      }
+      return {ok:false};
+    }
+    const step=sources[0].path[1];
+    if(step)return this.safe(game,'isolated-food-seek',()=>game.moveUnits(this.playerId,[worker.id],step));
+    return {ok:false};
+  }
+
   networkEconomy(game) {
     const linked=new Set(this.connectedIds(game));
     const stock=this.controlledResources(game);
     const deficits=this.resourceDeficits(game);
     const villagers=this.villagers(game);
+    const hasFoodSource=this.connectedIds(game).some(id=>
+      SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food');
+    if(!hasFoodSource&&(stock.food||0)===0&&villagers.length<3){
+      const food=this.emergencyFoodDelivery(game);
+      if(food.ok)return food;
+    }
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
@@ -897,6 +947,13 @@ export class BaselineBot {
   }
 
   networkMilitary(game) {
+    const villagers=this.villagers(game);
+    if(!this.barracks(game)&&villagers.length<3&&
+      !this.connectedIds(game).some(id=>SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food')&&
+      (this.controlledResources(game).food||0)===0){
+      const food=this.emergencyFoodDelivery(game);
+      if(food.ok)return food;
+    }
     const built=this.tryBuildBarracks(game);
     if(built.ok)return built;
     const trained=this.tryTrainMilitary(game);
