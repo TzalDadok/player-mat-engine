@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - connected payment contract
+name: Fast logistics bot validation - 200 rounds network
 on:
   push:
     paths:
@@ -18,3 +18,4 @@ jobs:
           node-version: '22'
       - run: node --check bots/baseline.js
       - run: node runner/assert-connected-spending.mjs
+      - run: node runner/diagnose-logistics-70.mjs
