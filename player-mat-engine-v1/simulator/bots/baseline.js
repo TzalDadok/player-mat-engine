@@ -821,8 +821,7 @@ export class BaselineBot {
     if(game.state.logisticsNetworkEnabled&&!this.barracks(game))return this.bootstrapBarracks(game);
     if(game.state.logisticsNetworkEnabled&&this.barracks(game)&&
        !this.connectedIds(game).includes(this.barracks(game).hexId)){
-      const supply=this.supplyIsolatedBarracks(game);
-      if(supply.ok)return supply;
+      return this.supplyIsolatedBarracks(game);
     }
     this.ensureFreeCargoOps(game);
     if(!game.state.logisticsNetworkEnabled || this.barracks(game)){
@@ -1178,8 +1177,7 @@ export class BaselineBot {
        !this.connectedIds(game).includes(this.barracks(game).hexId)){
       const trained=this.tryTrainMilitary(game);
       if(trained.ok)return trained;
-      const supply=this.supplyIsolatedBarracks(game);
-      if(supply.ok)return supply;
+      return this.supplyIsolatedBarracks(game);
     }
     this.ensureFreeCargoOps(game);
 
