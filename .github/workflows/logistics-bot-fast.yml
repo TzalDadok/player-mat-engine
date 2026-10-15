@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - barracks-first economy
+name: Fast logistics bot validation - deferred builder reservation
 on:
   push:
     paths:
