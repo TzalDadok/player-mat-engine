@@ -15,7 +15,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   turn: {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
-      ["Mover","Mové aldeanos y los recursos que transportan."],
+      ["Mover","Mové tus unidades según su capacidad de Movimiento."],
       ["Construir","Realizar una construcción económica disponible."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
@@ -88,18 +88,18 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"mill", type:"civil", title:"Aldeano", cost:{food:2}},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}},
-    {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar 6 unidades y 6 recursos."},
+    {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar hasta 6 unidades."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", cost:{food:1,wood:2,gold:1}},
     {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", cost:{food:2,gold:1}, text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
-    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
+    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
     {age:"dark", building:"tc", type:"tech", title:"Telar", cost:{food:1,wood:1}, text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"La comida de ANIMALES puede utilizarse desde cualquier hexágono."},
     {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
     {age:"castles", building:"mill", type:"tech", title:"Ganadería", cost:{food:3,wood:2,gold:2}, text:"Los hexágonos de Animales no sufren Sobreexplotación."},
-    {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Pesqueros pueden transportar 2 recursos."},
+    {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Escaramuzador", cost:{food:2,wood:2}},
     {age:"feudal", building:"barracks", type:"tech", title:"Marcha Disciplin.", cost:{food:2,gold:1}, text:"Unidades de arquería entrenadas pueden salir en hexágono adyacente."},
@@ -116,7 +116,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Misionero."},
 
     {age:"imperial", building:"tc", type:"tech", title:"Admin. Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
-    {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Podés mover hasta 6 recursos de un hexágono de manera instantánea a otro hexágono que contenga una construcción. Gasta tu acción económica."},
+    {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Como acción económica, incorporá a tu Red Logística un hexágono adyacente a ella. Marcá ese hexágono con una ficha de Carreta Mercante; no necesita unidad ni edificio propio."},
     {age:"imperial", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra edificios. Unidad disponible: Ariete y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de rango por turno."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
