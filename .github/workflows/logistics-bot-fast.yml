@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - deferred builder reservation
+name: Fast logistics bot validation - explicit TC bootstrap
 on:
   push:
     paths:
