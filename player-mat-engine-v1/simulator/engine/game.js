@@ -500,7 +500,11 @@ export class AoEGame {
 
   controlledHexIds(playerId) {
     return this.state.hexes
-      .filter(h => this.controllerOf(h.id) === playerId)
+      .filter(h => this.controllerOf(h.id) === playerId ||
+        // The Town Center itself is a permanent owned structure on its hex.
+        (h.special === 'tc' && h.tcOwnerId === playerId &&
+         !this.playerMap.get(playerId).eliminated &&
+         (this.controllerOf(h.id) === null || this.controllerOf(h.id) === playerId)))
       .map(h => h.id);
   }
 
