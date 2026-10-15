@@ -901,10 +901,16 @@ export class BaselineBot {
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
+    // Role allocation: expand the labor pool before locking workers in
+    // distant nodes, keeping the food source and CU connected.
+    const staffedSources=new Set(villagers.filter(v=>linked.has(v.hexId)&&
+      SOURCE_TO_RESOURCE[game.hexMap.get(v.hexId)?.source]).map(v=>v.hexId));
+    const reserveWorkers=villagers.filter(v=>this.safeToVacate(game,v)).length;
+    const needMoreLabor=reserveWorkers<2 || staffedSources.size<2;
     if(villagers.length<8&&(stock.food||0)>0 &&
        (!barracksAffordable || villagers.length<3) &&
-       (!barracksRule || villagers.length<3 ||
-        (stock.food||0)>(barracksRule.cost.food||0)+1)){
+       (villagers.length<3 || (needMoreLabor &&
+        (stock.food||0)>Math.max(1,barracksRule?.cost?.food||0)))){
       const trained=this.tryTrainVillager(game);
       if(trained.ok)return trained;
     }
