@@ -1135,9 +1135,14 @@ export class BaselineBot {
       return { ok: false };
     }
 
-    return this.safe(game, 'build-barracks', () =>
+    const remote=game.state.logisticsNetworkEnabled&&
+      this.connectedIds(game).includes(buildHexId)&&
+      !canPay(game.resourcesAt(buildHexId),rule.cost);
+    const result=this.safe(game, 'build-barracks', () =>
       game.build(this.playerId, 'barracks', buildHexId, villager.id)
     );
+    if(result.ok&&remote)this.memory.remoteNetworkBuildings=(this.memory.remoteNetworkBuildings||0)+1;
+    return result;
   }
 
   affordableMilitaryAt(game, building) {
@@ -1169,9 +1174,14 @@ export class BaselineBot {
     for (const building of buildings) {
       const unit = this.affordableMilitaryAt(game, building);
       if (!unit) continue;
+      const choice=unit.training.find(t=>t.building===building.type);
+      const remote=game.state.logisticsNetworkEnabled&&
+        this.connectedIds(game).includes(building.hexId)&&
+        !canPay(game.resourcesAt(building.hexId),choice?.cost||{});
       const result = this.safe(game, 'train-military', () =>
         game.trainUnits(this.playerId, [{ type: unit.type, buildingId: building.id }])
       );
+      if(result.ok&&remote)this.memory.remoteNetworkTraining=(this.memory.remoteNetworkTraining||0)+1;
       if (result.ok) return result;
     }
     return { ok: false };
