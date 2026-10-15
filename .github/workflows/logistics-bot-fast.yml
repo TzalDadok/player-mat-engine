@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - resource courier bootstrap
+name: Fast logistics bot validation - courier three maps
 on:
   push:
     paths:
