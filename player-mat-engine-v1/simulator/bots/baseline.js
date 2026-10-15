@@ -460,46 +460,69 @@ export class BaselineBot {
   logisticsCourier(game) {
     if(!game.state.logisticsNetworkEnabled)return {ok:false};
     const tcId=this.player(game).tcHexId;
-    const villagers=this.villagers(game);
     const deficits=this.resourceDeficits(game);
-    const carrying=villagers.find(v=>v.cargo?.length);
-    if(carrying){
-      if(carrying.hexId===tcId){
-        this.safe(game,'courier-unload',()=>game.unloadAll(this.playerId,carrying.id));
-        return {ok:false};
+    const villagers=this.villagers(game);
+    // Deliver cargo first. Loads and unloads do not consume the phase action.
+    for(const v of villagers.filter(v=>v.cargo?.length)){
+      if(v.hexId===tcId){
+        this.safe(game,'courier-unload',()=>game.unloadAll(this.playerId,v.id));
+        continue;
       }
-      const step=this.nextLandStep(game,carrying.hexId,tcId);
-      return step?this.safe(game,'courier-return',()=>game.moveUnits(this.playerId,[carrying.id],step)):{ok:false};
+      const step=this.nextLandStep(game,v.hexId,tcId);
+      if(step)return this.safe(game,'courier-return',()=>game.moveUnits(this.playerId,[v.id],step));
     }
-    const needed=Object.entries(deficits).filter(([,n])=>n>0);
-    if(!needed.length)return {ok:false};
-    const candidates=[];
-    for(const v of villagers){
-      for(const [resource,missing] of needed){
-        for(const h of this.sourceCandidates(game,resource)){
-          const path=strategicLandPath(game,v.hexId,h.id);
+    const needs=Object.entries(deficits).filter(([,n])=>n>0);
+    if(!needs.length)return {ok:false};
+    // Keep a destination while travelling: recomputing a best source every
+    // phase produced loops between unrelated resource hexes.
+    const assignments=this.memory.courierAssignments||(this.memory.courierAssignments={});
+    const idle=villagers.filter(v=>!v.cargo?.length);
+    const orders=[];
+    for(const v of idle){
+      const saved=assignments[v.id];
+      if(saved&&deficits[saved.resource]>0){
+        const target=game.hexMap.get(saved.hexId);
+        if(target&&target.terrain!=='water'){
+          const path=strategicLandPath(game,v.hexId,target.id);
+          if(path)orders.push({v,resource:saved.resource,target,path,score:-100});
+        }
+      }
+      for(const [resource,amount] of needs){
+        for(const target of this.sourceCandidates(game,resource)){
+          const path=strategicLandPath(game,v.hexId,target.id);
           if(!path)continue;
-          const available=game.resourcesAt(h.id)[resource]||0;
-          // Prefer nearby useful material, but allow distant stone/gold trips.
-          const priority=resource==='stone'?4:resource==='gold'?3:resource==='wood'?2:1;
-          const score=path.length*2-priority-(available>0?4:0);
-          candidates.push({v,h,resource,path,score});
+          const stocked=game.resourcesAt(target.id)[resource]||0;
+          const distance=path.length-1;
+          const score=distance*3-(stocked?7:0)-(resource==='stone'?3:0)-
+            Math.min(amount,4);
+          orders.push({v,resource,target,path,score});
         }
       }
     }
-    candidates.sort((a,b)=>a.score-b.score);
-    const best=candidates[0];
-    if(!best)return {ok:false};
-    if(best.v.hexId===best.h.id){
-      if((game.resourcesAt(best.h.id)[best.resource]||0)>0){
-        this.loadUsefulCargo(game,best.v,best.resource);
-        const step=this.nextLandStep(game,best.v.hexId,tcId);
-        if(step&&best.v.cargo?.length)return this.safe(game,'courier-loaded-return',()=>game.moveUnits(this.playerId,[best.v.id],step));
+    orders.sort((a,b)=>a.score-b.score||a.target.id.localeCompare(b.target.id));
+    for(const order of orders.slice(0,12)){
+      const {v,target,resource,path}=order;
+      if(v.hexId===target.id){
+        const amount=game.resourcesAt(target.id)[resource]||0;
+        if(amount){
+          this.loadUsefulCargo(game,v,resource);
+          if(v.cargo?.length){
+            delete assignments[v.id];
+            const home=this.nextLandStep(game,v.hexId,tcId);
+            if(home)return this.safe(game,'courier-loaded-return',()=>game.moveUnits(this.playerId,[v.id],home));
+          }
+        }
+        // Stay on the selected source until the next manual production.
+        assignments[v.id]={hexId:target.id,resource};
+        continue;
       }
-      // Stay on source for the next manual production action.
-      return {ok:false,label:'await-production'};
+      const moved=this.safe(game,'courier-seek',()=>game.moveUnits(this.playerId,[v.id],path[1]));
+      if(moved.ok){
+        assignments[v.id]={hexId:target.id,resource};
+        return moved;
+      }
     }
-    return this.safe(game,'courier-seek',()=>game.moveUnits(this.playerId,[best.v.id],best.path[1]));
+    return {ok:false};
   }
 
   moveLogistics(game) {
