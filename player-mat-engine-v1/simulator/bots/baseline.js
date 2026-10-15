@@ -1023,6 +1023,10 @@ export class BaselineBot {
     const deficits=this.resourceDeficits(game);
     const candidates=[];
     const hasBarracks=!!this.barracks(game);
+    const goal=this.memory.networkGoal;
+    const corridor=goal&&!linked.has(goal.hexId)
+      ? strategicLandPath(game,this.player(game).tcHexId,goal.hexId):null;
+    const corridorIds=new Set(corridor||[]);
     for(const v of this.villagers(game)){
       const origin=game.hexMap.get(v.hexId);
       if(!origin)continue;
@@ -1048,7 +1052,7 @@ export class BaselineBot {
            !(onlyResource==='food'&&!resource&&
              physicalNeighbors(game.state.hexes,h.id).some(n=>n.terrain==='water')))continue;
         const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
-        const score=(resource&&deficits[resource]>0?40:0)+
+        const score=(corridorIds.has(h.id)?65:0)+(resource&&deficits[resource]>0?40:0)+
           (resource==='food'&& (this.controlledResources(game).food||0)<2?35:0)+
           (!hasBarracks&&buildSite&&this.canPrepareNetworkBarracks(game)?70:0)+
           (v.hexId===this.player(game).tcHexId?24:0)-
