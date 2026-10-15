@@ -370,7 +370,9 @@ export class BaselineBot {
   resourceDeficits(game) {
     const hub = this.hub(game);
     const barracks = this.barracks(game);
-    const target = barracks ? HUB_TARGET_AFTER_BARRACKS : HUB_TARGET_BEFORE_BARRACKS;
+    const target = game.state.logisticsNetworkEnabled && !barracks
+      ? (game.buildingRule(this.playerId,'barracks')?.cost||HUB_TARGET_BEFORE_BARRACKS)
+      : barracks ? HUB_TARGET_AFTER_BARRACKS : HUB_TARGET_BEFORE_BARRACKS;
     const have = game.state.logisticsNetworkEnabled ? this.controlledResources(game) : this.localResources(game, hub.id);
     const deficits = {};
     for (const r of RESOURCE_TYPES) deficits[r] = Math.max(0, (target[r] || 0) - (have[r] || 0));
@@ -476,7 +478,11 @@ export class BaselineBot {
     // Keep a destination while travelling: recomputing a best source every
     // phase produced loops between unrelated resource hexes.
     const assignments=this.memory.courierAssignments||(this.memory.courierAssignments={});
-    const idle=villagers.filter(v=>!v.cargo?.length);
+    const reserve=!this.barracks(game)&&villagers.length>1
+      ? [...villagers].filter(v=>!v.cargo?.length).sort((a,b)=>
+        hexDistance(game.hexMap.get(a.hexId),game.hexMap.get(tcId))-
+        hexDistance(game.hexMap.get(b.hexId),game.hexMap.get(tcId)))[0] : null;
+    const idle=villagers.filter(v=>!v.cargo?.length&&v.id!==reserve?.id);
     const priority={stone:0,wood:1,gold:2,food:3};
     const orders=[];
     for(const v of idle){
@@ -644,8 +650,10 @@ export class BaselineBot {
 
   takeEconomy(game) {
     this.ensureFreeCargoOps(game);
-    const consolidated=this.tryConsolidateResource(game);
-    if(consolidated.ok)return consolidated;
+    if(!game.state.logisticsNetworkEnabled || this.barracks(game)){
+      const consolidated=this.tryConsolidateResource(game);
+      if(consolidated.ok)return consolidated;
+    }
 
     const hub = this.hub(game);
     const hasCargoAway = this.villagers(game).some(
