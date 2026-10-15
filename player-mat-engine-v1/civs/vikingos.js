@@ -79,7 +79,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"dark",building:"mill",type:"tech",title:"Asent. Vikingo",cost:{food:1,wood:2},text:"Al tomar un hexágono con granjas enemigas sin defensa militar, estas pasan a tu posesión en lugar de destruirse."},
     {age:"dark",building:"camp",type:"tech",title:"Doble Filo",cost:{food:1,gold:1,stone:1},text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
-    {age:"dark",building:"port",type:"tech",title:"Urca",cost:{wood:2,gold:1},text:"Los pesqueros pueden transportar recursos ilimitados."},
+    {age:"dark",building:"port",type:"tech",title:"Navegación Comercial",cost:{wood:2,gold:1},text:"Al PRODUCIR con un Pesquero, podés obtener 1 Oro en lugar de 1 Comida."},
     {age:"dark",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
     {age:"dark",building:"barracks",type:"unit",title:"Milicia",cost:{food:1,gold:1}},
 
