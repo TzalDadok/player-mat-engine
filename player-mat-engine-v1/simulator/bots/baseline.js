@@ -386,6 +386,7 @@ export class BaselineBot {
       : barracks ? HUB_TARGET_AFTER_BARRACKS : HUB_TARGET_BEFORE_BARRACKS;
     const have = game.state.logisticsNetworkEnabled ? this.controlledResources(game) : this.localResources(game, hub.id);
     const deficits = {};
+    const economicTarget={...target};
     // Secure an economic anchor before all eight workers occupy permanent
     // corridor tiles. A mill costs 3 wood; a camp costs 2 wood, in addition
     // to the wood needed for the first barracks.
@@ -393,11 +394,11 @@ export class BaselineBot {
       const buildings=game.state.buildings.filter(b=>b.ownerId===this.playerId);
       if(!buildings.some(b=>b.type==='mill') &&
          this.connectedIds(game).some(id=>['animals','berries'].includes(game.hexMap.get(id)?.source)))
-        target.wood=Math.max(target.wood||0,4);
+        economicTarget.wood=Math.max(economicTarget.wood||0,4);
       else if(!buildings.some(b=>b.type==='camp'))
-        target.wood=Math.max(target.wood||0,3);
+        economicTarget.wood=Math.max(economicTarget.wood||0,3);
     }
-    for (const r of RESOURCE_TYPES) deficits[r] = Math.max(0, (target[r] || 0) - (have[r] || 0));
+    for (const r of RESOURCE_TYPES) deficits[r] = Math.max(0, (economicTarget[r] || 0) - (have[r] || 0));
     return deficits;
   }
 
