@@ -224,9 +224,18 @@ export class BaselineBot {
     if(other||game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===unit.hexId))return true;
     // Never abandon the only anchor of an active network segment.
     const hex=game.hexMap.get(unit.hexId);
-    if(SOURCE_TO_RESOURCE[hex?.source]&&this.connectedIds(game).includes(unit.hexId))return false;
-    return !this.connectedIds(game).includes(unit.hexId) ||
-      this.corridorValue(game,unit.hexId,this.playerId)===0;
+    const connected=this.connectedIds(game).includes(unit.hexId);
+    if(!connected)return true;
+    if(this.corridorValue(game,unit.hexId,this.playerId)>0)return false;
+    const resource=SOURCE_TO_RESOURCE[hex?.source];
+    // Do not permanently pin a worker on a depleted source that is neither
+    // a logistics junction nor storing spendable resources.
+    if(resource){
+      if(game.resourcesAt(unit.hexId)[resource]>0)return false;
+      return (this.resourceDeficits(game)[resource]||0)===0 ||
+        !hex?.source;
+    }
+    return true;
   }
 
   prepareBarracksSite(game) {
