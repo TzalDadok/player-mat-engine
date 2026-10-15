@@ -105,7 +105,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"castles",building:"barracks",type:"tech",title:"Mahouts",cost:{food:2,gold:3},text:"Si al menos un Elefante combate junto a una unidad militar a pie, obtenés +1 Fuerza total en esa batalla."},
     {age:"castles",building:"tower",type:"military-building",title:"Castillo",cost:{stone:4,gold:2},text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia."},
 
-    {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:4,gold:4},text:"Tus construcciones cuestan −1 Piedra."},
+    {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:3,gold:3},text:"Tus construcciones cuestan −1 Piedra."},
     {age:"imperial",building:"mill",type:"tech",title:"Criad. Reales",cost:{food:3,wood:2,gold:2},text:"Los Elefantes de Guerra cuestan 1 Comida menos al entrenarse."},
     {age:"imperial",building:"camp",type:"tech",title:"Armadura Laminar",cost:{stone:3,gold:4},text:"Los Elefantes de Guerra obtienen +1 Fuerza."},
     {age:"imperial",building:"port",type:"tech",title:"Flota Imperial",cost:{food:2,wood:3,gold:2},text:"Barcos de Transporte y Galeras obtienen +1 Movimiento."},
