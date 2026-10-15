@@ -879,13 +879,20 @@ export class BaselineBot {
     const stock=this.controlledResources(game);
     const deficits=this.resourceDeficits(game);
     const villagers=this.villagers(game);
+    // Persist the construction objective: until a barracks exists, its
+    // cost drives production and expansion rather than opportunistic spending.
+    const barracksRule=!this.barracks(game)?game.buildingRule(this.playerId,'barracks'):null;
+    const barracksAffordable=!!barracksRule&&canPay(stock,barracksRule.cost);
     const hasFoodSource=this.connectedIds(game).some(id=>
       SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food');
     // Missing food means expand/produce on a connected food hex, not delivery.
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
-    if(villagers.length<8&&(stock.food||0)>0){
+    if(villagers.length<8&&(stock.food||0)>0 &&
+       (!barracksAffordable || villagers.length<3) &&
+       (!barracksRule || villagers.length<3 ||
+        (stock.food||0)>(barracksRule.cost.food||0)+1)){
       const trained=this.tryTrainVillager(game);
       if(trained.ok)return trained;
     }
@@ -907,10 +914,12 @@ export class BaselineBot {
         game.produce(this.playerId,needed.slice(0,limit)));
       if(produced.ok)return produced;
     }
-    if(this.canPrepareNetworkBarracks(game)){
+    if(barracksAffordable){
       const prepared=this.prepareBarracksSite(game);
       if(prepared.ok)return prepared;
     }
+    const repaired=this.reconnectNetwork(game);
+    if(repaired.ok)return repaired;
     const routed=this.networkPursue(game);
     if(routed.ok)return routed;
     return this.networkGrow(game,stock.food<1?'food':null);
@@ -1037,12 +1046,22 @@ export class BaselineBot {
     // Food shortages are addressed during network expansion/production.
     const built=this.tryBuildBarracks(game);
     if(built.ok)return built;
-    const trained=this.tryTrainMilitary(game);
-    if(trained.ok)return trained;
-    if(this.military(game).length){
+    const army=this.military(game);
+    // Once an army can engage, use it rather than training indefinitely.
+    if(army.length>=Math.max(2,this.desiredArmy)){
       const advanced=this.tryArmyAction(game);
       if(advanced.ok)return advanced;
     }
+    if(army.length<this.maxArmy){
+      const trained=this.tryTrainMilitary(game);
+      if(trained.ok)return trained;
+    }
+    if(army.length){
+      const advanced=this.tryArmyAction(game);
+      if(advanced.ok)return advanced;
+    }
+    const logistics=this.moveLogistics(game);
+    if(logistics.ok)return logistics;
     if(!this.barracks(game)&&this.canPrepareNetworkBarracks(game)){
       const prepared=this.prepareBarracksSite(game);
       if(prepared.ok)return prepared;
@@ -1390,7 +1409,8 @@ export class BaselineBot {
 
     const tryAdvance = () => {
       if (
-        armyCount < this.ageArmyThreshold ||
+        (armyCount < (game.state.logisticsNetworkEnabled && this.barracks(game)
+          ? Math.min(this.ageArmyThreshold, 1) : this.ageArmyThreshold)) ||
         ageIndex >= AGES.length - 1
       ) return { ok: false };
 
