@@ -763,8 +763,67 @@ export class BaselineBot {
     return {ok:false};
   }
 
+  supplyIsolatedBarracks(game) {
+    if(!game.state.logisticsNetworkEnabled)return {ok:false};
+    const b=this.barracks(game);
+    if(!b||this.connectedIds(game).includes(b.hexId))return {ok:false};
+    const cost=game.unitRule(this.playerId,'militia')?.cost||{food:1,gold:1};
+    const stock=game.resourcesAt(b.hexId);
+    if(canPay(stock,cost))return {ok:false};
+    const villagers=this.villagers(game);
+    const v=villagers.find(u=>u.id===this.memory.bootstrapCourierId)||villagers[0];
+    if(!v)return {ok:false};
+    if(v.cargo?.length){
+      if(v.hexId===b.hexId){
+        this.safe(game,'barracks-unload',()=>game.unloadAll(this.playerId,v.id));
+        return {ok:false};
+      }
+      const step=this.nextLandStep(game,v.hexId,b.hexId);
+      if(step)return this.safe(game,'barracks-delivery',()=>game.moveUnits(this.playerId,[v.id],step));
+      return {ok:false};
+    }
+    const need=RESOURCE_TYPES.filter(type=>(stock[type]||0)<(cost[type]||0));
+    const saved=this.memory.barracksSupplyTarget;
+    let target=saved&&need.includes(saved.type)?game.hexMap.get(saved.hexId):null;
+    let type=target?saved.type:null;
+    if(!target){
+      const options=[];
+      for(const resource of need){
+        for(const h of this.sourceCandidates(game,resource)){
+          const path=strategicLandPath(game,v.hexId,h.id);
+          if(path)options.push({h,type:resource,path});
+        }
+      }
+      options.sort((a,b)=>a.path.length-b.path.length);
+      target=options[0]?.h;
+      type=options[0]?.type;
+      if(target)this.memory.barracksSupplyTarget={hexId:target.id,type};
+    }
+    if(!target)return {ok:false};
+    if(v.hexId===target.id){
+      if(game.state.phase==='economy')
+        return this.safe(game,'barracks-produce',()=>game.produce(this.playerId,[{hexId:v.hexId,mode:'source'}]));
+      this.loadUsefulCargo(game,v,type);
+      if(v.cargo?.length){
+        const step=this.nextLandStep(game,v.hexId,b.hexId);
+        if(step)return this.safe(game,'barracks-loaded',()=>game.moveUnits(this.playerId,[v.id],step));
+      }
+      return {ok:false};
+    }
+    if(game.state.phase==='economy'||game.state.phase==='military'){
+      const step=this.nextLandStep(game,v.hexId,target.id);
+      if(step)return this.safe(game,'barracks-seek',()=>game.moveUnits(this.playerId,[v.id],step));
+    }
+    return {ok:false};
+  }
+
   takeEconomy(game) {
     if(game.state.logisticsNetworkEnabled&&!this.barracks(game))return this.bootstrapBarracks(game);
+    if(game.state.logisticsNetworkEnabled&&this.barracks(game)&&
+       !this.connectedIds(game).includes(this.barracks(game).hexId)){
+      const supply=this.supplyIsolatedBarracks(game);
+      if(supply.ok)return supply;
+    }
     this.ensureFreeCargoOps(game);
     if(!game.state.logisticsNetworkEnabled || this.barracks(game)){
       const consolidated=this.tryConsolidateResource(game);
@@ -1115,6 +1174,13 @@ export class BaselineBot {
 
   takeMilitary(game) {
     if(game.state.logisticsNetworkEnabled&&!this.barracks(game))return this.bootstrapBarracks(game);
+    if(game.state.logisticsNetworkEnabled&&this.barracks(game)&&
+       !this.connectedIds(game).includes(this.barracks(game).hexId)){
+      const trained=this.tryTrainMilitary(game);
+      if(trained.ok)return trained;
+      const supply=this.supplyIsolatedBarracks(game);
+      if(supply.ok)return supply;
+    }
     this.ensureFreeCargoOps(game);
 
     const built = this.tryBuildBarracks(game);
