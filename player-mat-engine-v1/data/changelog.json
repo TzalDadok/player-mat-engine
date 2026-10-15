@@ -16,5 +16,11 @@
     "text": "Arranque 4 jugadores:\n1.º\t1 aldeano +1 PM\n2.º\t1 aldeano +1 PM\n3.º\t2 aldeanos\n4.º\t2 aldeanos +1 PM\n\nArranque 3 jugadores:\n1 aldeano +1 PM\n2 aldeanos\n2 aldeanos +1 PM\n\nArranque 2 jugadores:\n1 aldeano +1 PM\n2 aldeanos",
     "createdAt": "2026-10-14T00:13:31.273Z",
     "implementedAt": "2026-10-14T00:13:33.837Z"
+  },
+  {
+    "id": "c209aad3-00fa-4c12-90c7-e5b267540a07",
+    "text": "Producción automática cada turno",
+    "createdAt": "2026-10-12T14:45:21.723Z",
+    "implementedAt": "2026-10-15T21:52:05.156Z"
   }
 ]
