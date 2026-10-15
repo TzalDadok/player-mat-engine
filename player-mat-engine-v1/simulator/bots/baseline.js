@@ -907,11 +907,13 @@ export class BaselineBot {
       const advanced=this.tryArmyAction(game);
       if(advanced.ok)return advanced;
     }
-    if(!this.barracks(game)){
+    if(!this.barracks(game)&&this.canPrepareNetworkBarracks(game)){
       const prepared=this.prepareBarracksSite(game);
       if(prepared.ok)return prepared;
     }
-    return this.networkGrow(game);
+    // Do not move resource workers in the Military phase: they must remain
+    // on the source until the next manual Economy/PRODUCIR action.
+    return {ok:false};
   }
 
   takeEconomy(game) {
