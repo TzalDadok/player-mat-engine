@@ -544,13 +544,14 @@ export class BaselineBot {
 
   moveLogistics(game) {
     if(game.state.logisticsNetworkEnabled){
-      return this.logisticsCourier(game);
-    }
-    if(game.state.logisticsNetworkEnabled){
-      const constructed=this.prepareBarracksSite(game);
-      if(constructed.ok)return constructed;
+      // Connected resources are paid remotely; never ferry them to the TC.
+      const repaired=this.reconnectNetwork(game);
+      if(repaired.ok)return repaired;
+      const prepared=this.prepareBarracksSite(game);
+      if(prepared.ok)return prepared;
       const expanded=this.networkExpansion(game);
       if(expanded.ok)return expanded;
+      return {ok:false,label:'network-no-courier'};
     }
     const hub = this.hub(game);
     const villagers = shuffle(this.villagers(game), this.random);
@@ -871,23 +872,14 @@ export class BaselineBot {
   }
 
   networkEconomy(game) {
-    // A disconnected barracks cannot pay remotely; local resupply is legal.
-    if(this.barracks(game)&&!this.connectedIds(game).includes(this.barracks(game).hexId))
-      return this.supplyIsolatedBarracks(game);
-    // Use network spending whenever possible. Physical logistics is only
-    // a late fallback for an opening that cannot establish a supply chain.
-    if(!this.barracks(game)&&game.state.round>=25&&
-       !this.canPrepareNetworkBarracks(game))return this.bootstrapBarracks(game);
+    // Do not ferry resources even for an isolated barracks: reconnect its territory.
     const linked=new Set(this.connectedIds(game));
     const stock=this.controlledResources(game);
     const deficits=this.resourceDeficits(game);
     const villagers=this.villagers(game);
     const hasFoodSource=this.connectedIds(game).some(id=>
       SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food');
-    if(!hasFoodSource&&(stock.food||0)===0&&villagers.length<3){
-      const food=this.emergencyFoodDelivery(game);
-      if(food.ok)return food;
-    }
+    // Missing food means expand/produce on a connected food hex, not delivery.
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
@@ -1038,20 +1030,9 @@ export class BaselineBot {
   }
 
   networkMilitary(game) {
-    if(this.barracks(game)&&!this.connectedIds(game).includes(this.barracks(game).hexId)){
-      const trained=this.tryTrainMilitary(game);
-      if(trained.ok)return trained;
-      return this.supplyIsolatedBarracks(game);
-    }
-    if(!this.barracks(game)&&game.state.round>=25&&
-       !this.canPrepareNetworkBarracks(game))return this.bootstrapBarracks(game);
+    // Military logistics uses only the network's controlled connected stock.
     const villagers=this.villagers(game);
-    if(!this.barracks(game)&&villagers.length<3&&
-      !this.connectedIds(game).some(id=>SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food')&&
-      (this.controlledResources(game).food||0)===0){
-      const food=this.emergencyFoodDelivery(game);
-      if(food.ok)return food;
-    }
+    // Food shortages are addressed during network expansion/production.
     const built=this.tryBuildBarracks(game);
     if(built.ok)return built;
     const trained=this.tryTrainMilitary(game);
