@@ -12,4 +12,4 @@ for(const logisticsNetwork of [true]){
 }
 
 console.log(JSON.stringify({regression:{maps:3,bots:12,built:totalBuilt,trained:totalTrained}}));
-// Network-mode diagnostic: report milestones without assuming prior courier strategy.
+if(totalBuilt<8||totalTrained<4)throw new Error(`Red Logistica no jugable: ${totalBuilt}/12 Cuarteles, ${totalTrained}/12 entrenaron; no aprobar la validacion`);
