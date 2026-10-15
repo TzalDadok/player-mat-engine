@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - local construction supply
+name: Fast logistics bot validation - isolated barracks training
 on:
   push:
     paths:
