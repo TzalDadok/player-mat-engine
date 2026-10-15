@@ -1,6 +1,3 @@
-// Temporary defense regression
-await import('./assert-connected-spending.mjs');
-await import('./validate-logistics-ten-maps.mjs');
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { runBenchmark } from './benchmark.mjs';
 import { BENCHMARK_SEEDS } from './benchmark-seeds.js';
