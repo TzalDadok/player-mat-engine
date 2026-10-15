@@ -15,7 +15,7 @@ window.PLAYER_MAT_CIVS.francos = {
   turn: {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
-      ["Mover","Mové aldeanos y los recursos que transportan."],
+      ["Mover","Mové tus unidades según su capacidad de Movimiento."],
       ["Construir","Realizar una construcción económica disponible."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
@@ -86,19 +86,19 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"dark", building:"tc", type:"civil", title:"Aldeano", cost:{food:1}},
     {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura o Desierto."},
     {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}},
-    {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar 6 unidades y 6 recursos."},
+    {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar hasta 6 unidades."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
     {age:"dark", building:"barracks", type:"unit", title:"Arquero", cost:{food:1,wood:2,gold:1}},
     {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", cost:{food:2,gold:1}, text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Vigía", cost:{wood:1,stone:1}, text:"La Torre aporta +1 Fuerza a las batallas en su propio hexágono."},
 
-    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los aldeanos pueden transportar +1 recurso."},
+    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
     {age:"feudal", building:"tc", type:"tech", title:"Colonización", cost:{food:2,wood:2}, text:"Un Aldeano entrenado puede salir en un hexágono adyacente."},
     {age:"feudal", building:"tc", type:"tech", title:"Conscripción", cost:{food:2,gold:1}, text:"La primera Milicia entrenada cada turno cuesta 1 Comida menos."},
     {age:"feudal", building:"mill", type:"tech", title:"Rotación", cost:{food:2,wood:1}, text:"Las Granjas no sufren Sobreexplotación."},
     {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
     {age:"feudal", building:"mill", type:"tech", title:"Campos Abiertos", cost:{food:3,wood:2}, text:"Se pueden construir Granjas en Desiertos."},
-    {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Pesqueros pueden transportar 2 recursos."},
+    {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Piquero", cost:{food:2,wood:1}},
     {age:"feudal", building:"barracks", type:"tech", title:"Hoplomachus", cost:{food:2,gold:1}, text:"El Piquero obtiene bonus contra Milicia."},
