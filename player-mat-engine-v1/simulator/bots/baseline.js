@@ -1082,7 +1082,7 @@ export class BaselineBot {
     // Never abandon the last CU defender. No amount of expansion is worth
     // immediate elimination.
     if(defenders.length)return {ok:false};
-    if(!threatened && owned.length<2)return {ok:false};
+    // Even in peacetime establish a standing CU garrison.
     const candidates=owned.map(u=>({u,path:strategicLandPath(game,u.hexId,tc)}))
       .filter(x=>x.path&&x.path.length>1)
       .sort((a,b)=>a.path.length-b.path.length);
