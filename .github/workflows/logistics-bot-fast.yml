@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - resource consolidation diagnostics
+name: Fast logistics bot validation - lightweight targeted logistics
 on:
   push:
     paths:
