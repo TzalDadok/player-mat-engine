@@ -892,7 +892,10 @@ export class BaselineBot {
     const canProduce=occupied.map(id=>({hexId:id,mode:'source'}))
       .filter(x=>!!SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source]);
     const needed=canProduce.filter(x=>{
-      const type=SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source];
+      const h=game.hexMap.get(x.hexId);
+      // Consecutive production exhausts the hex; let each source rest a round.
+      if(h?.productionHistory?.[this.playerId]?.lastRound===game.state.round-1)return false;
+      const type=SOURCE_TO_RESOURCE[h?.source];
       return (deficits[type]||0)>0 || (type==='food'&&(stock.food||0)<3) ||
         (type==='wood'&&!this.barracks(game)&&
           !game.state.buildings.some(b=>b.ownerId===this.playerId&&b.type==='camp')&&(stock.wood||0)<3);
