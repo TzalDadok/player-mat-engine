@@ -965,8 +965,19 @@ export class BaselineBot {
           score:(frontier-1)*3+path.length+(['food','wood','stone','gold'].indexOf(type))*2});
       }
     }
-    sourcePlans.sort((a,b)=>a.score-b.score||a.target.id.localeCompare(b.target.id));
-    for(const plan of sourcePlans.slice(0,12)){
+    // Keep a single resource corridor objective until it is connected.
+    // Without persistence, workers spread over multiple half-finished routes.
+    const goal=this.memory.networkGoal;
+    const pending=sourcePlans.filter(p=>!linked.has(p.target.id));
+    const retained=goal&&pending.find(p=>p.target.id===goal.hexId &&
+      p.type===goal.type && game.state.round-goal.started<35);
+    pending.sort((a,b)=>a.score-b.score||a.target.id.localeCompare(b.target.id));
+    const focused=retained||pending[0];
+    if(focused&&!retained)this.memory.networkGoal={
+      hexId:focused.target.id,type:focused.type,started:game.state.round
+    };
+    if(!focused)this.memory.networkGoal=null;
+    for(const plan of (focused?[focused]:[])){
       const anchor=plan.path[plan.frontier-1];
       const workers=this.villagers(game);
       const ready=workers.filter(v=>v.hexId===anchor&&this.safeToVacate(game,v));
