@@ -907,12 +907,78 @@ export class BaselineBot {
       const prepared=this.prepareBarracksSite(game);
       if(prepared.ok)return prepared;
     }
+    const routed=this.networkPursue(game);
+    if(routed.ok)return routed;
     return this.networkGrow(game,stock.food<1?'food':null);
   }
 
   canPrepareNetworkBarracks(game) {
     const rule=game.buildingRule(this.playerId,'barracks');
     return !!rule&&canPay(this.controlledResources(game),rule.cost);
+  }
+
+  networkPursue(game) {
+    const linked=new Set(this.connectedIds(game));
+    const tc=this.player(game).tcHexId;
+    const have=this.controlledResources(game);
+    const deficits=this.resourceDeficits(game);
+    const priorities=[
+      {type:'food',need:(have.food||0)<3?3-(have.food||0):0},
+      {type:'wood',need:deficits.wood||0},
+      {type:'stone',need:deficits.stone||0},
+      {type:'gold',need:deficits.gold||0}
+    ].filter(x=>x.need>0);
+    const sourcePlans=[];
+    for(const {type,need} of priorities){
+      for(const target of this.sourceCandidates(game,type)){
+        if(linked.has(target.id))continue;
+        const path=strategicLandPath(game,tc,target.id);
+        if(!path||path.length<2)continue;
+        let frontier=-1;
+        for(let i=1;i<path.length;i++){
+          if(!linked.has(path[i])){frontier=i;break;}
+        }
+        if(frontier<0||frontier===0)continue;
+        // Current frontier must be next to a connected anchor and not hostile.
+        const next=game.hexMap.get(path[frontier]);
+        if(!next||next.terrain==='water'||game.controllerOf(next.id)&&
+           game.controllerOf(next.id)!==this.playerId)continue;
+        sourcePlans.push({type,target,path,frontier,next,
+          score:(frontier-1)*3+path.length+(['food','wood','stone','gold'].indexOf(type))*2});
+      }
+    }
+    sourcePlans.sort((a,b)=>a.score-b.score||a.target.id.localeCompare(b.target.id));
+    for(const plan of sourcePlans.slice(0,12)){
+      const anchor=plan.path[plan.frontier-1];
+      const workers=this.villagers(game);
+      const ready=workers.filter(v=>v.hexId===anchor&&this.safeToVacate(game,v));
+      for(const worker of ready){
+        const moved=this.safe(game,'network-route-extend',()=>
+          game.moveUnits(this.playerId,[worker.id],plan.next.id));
+        if(moved.ok)return moved;
+      }
+      // Move a free reserve along already connected friendly hexes.
+      const queue=[anchor],parent=new Map([[anchor,null]]);
+      for(let i=0;i<queue.length;i++){
+        for(const h of physicalNeighbors(game.state.hexes,queue[i])){
+          if(!linked.has(h.id)||parent.has(h.id))continue;
+          parent.set(h.id,queue[i]);queue.push(h.id);
+        }
+      }
+      const reserves=workers.filter(v=>parent.has(v.hexId)&&this.safeToVacate(game,v))
+        .map(v=>{
+          let id=anchor,prior=parent.get(id);
+          while(prior!==null&&prior!==v.hexId){id=prior;prior=parent.get(id);}
+          return prior===v.hexId?{v,next:id,distance:hexDistance(game.hexMap.get(v.hexId),game.hexMap.get(anchor))}:null;
+        }).filter(Boolean).sort((a,b)=>a.distance-b.distance);
+      for(const {v,next} of reserves){
+        if(next===v.hexId)continue;
+        const moved=this.safe(game,'network-route-reinforce',()=>
+          game.moveUnits(this.playerId,[v.id],next));
+        if(moved.ok)return moved;
+      }
+    }
+    return {ok:false};
   }
 
   networkGrow(game,onlyResource=null) {
