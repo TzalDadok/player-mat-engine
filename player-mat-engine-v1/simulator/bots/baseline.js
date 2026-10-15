@@ -660,33 +660,55 @@ export class BaselineBot {
     // The opening stockpile is physical: nothing on a distant territory is
     // counted until it has actually reached the CU.
     for(const v of villagers){
-      if(v.hexId===tc&&v.cargo?.length)this.safe(game,'bootstrap-unload',()=>game.unloadAll(this.playerId,v.id));
+      if(v.hexId===tc&&v.cargo?.length&&!this.memory.bootstrapBuildSite)this.safe(game,'bootstrap-unload',()=>game.unloadAll(this.playerId,v.id));
     }
     const available=game.resourcesAt(tc);
-    if(canPay(available,rule.cost)){
-      const linked=new Set(this.connectedIds(game));
-      const sites=villagers.filter(v=>{
-        const h=game.hexMap.get(v.hexId);
-        return h&&linked.has(h.id)&&['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
-      });
-      if(game.state.phase==='military'){
-        for(const v of sites){
-          const built=this.safe(game,'bootstrap-build',()=>game.build(this.playerId,'barracks',v.hexId,v.id));
-          if(built.ok)return built;
+    // On some maps every land cell adjacent to the CU contains a resource.
+    // Then no adjacent legal barracks site exists. Transport the saved tokens
+    // to an ordinary plain/desert tile and pay locally (existing game rule).
+    const staging=this.memory.bootstrapBuildSite;
+    if(staging||canPay(available,rule.cost)){
+      if(!staging){
+        const options=game.state.hexes.filter(h=>['plain','desert'].includes(h.terrain)&&!h.source&&!h.special)
+          .map(h=>({h,path:strategicLandPath(game,tc,h.id)}))
+          .filter(x=>x.path)
+          .sort((a,b)=>a.path.length-b.path.length);
+        if(options.length)this.memory.bootstrapBuildSite=options[0].h.id;
+      }
+      const destination=game.hexMap.get(this.memory.bootstrapBuildSite);
+      if(destination){
+        const v=villagers.find(u=>u.id===this.memory.bootstrapCourierId)||villagers[0];
+        if(!v)return {ok:false};
+        const onsite=game.resourcesAt(destination.id);
+        if(v.hexId===destination.id){
+          if(v.cargo?.length)this.safe(game,'bootstrap-site-unload',()=>game.unloadAll(this.playerId,v.id));
+          if(canPay(game.resourcesAt(destination.id),rule.cost)){
+            if(game.state.phase==='military')
+              return this.safe(game,'bootstrap-build-local',()=>game.build(this.playerId,'barracks',destination.id,v.id));
+            return {ok:false};
+          }
+          const step=this.nextLandStep(game,v.hexId,tc);
+          if(step)return this.safe(game,'bootstrap-site-return',()=>game.moveUnits(this.playerId,[v.id],step));
+          return {ok:false};
         }
-        const targets=physicalNeighbors(game.state.hexes,tc).filter(h=>
-          ['plain','desert'].includes(h.terrain)&&!h.source&&!h.special);
-        for(const v of villagers){
-          if(!this.safeToVacate(game,v))continue;
-          for(const h of targets){
-            const path=strategicLandPath(game,v.hexId,h.id);
-            if(!path||path.length<2)continue;
-            const moved=this.safe(game,'bootstrap-builder',()=>game.moveUnits(this.playerId,[v.id],path[1]));
-            if(moved.ok)return moved;
+        if(v.hexId===tc){
+          for(const type of RESOURCE_TYPES){
+            const needed=Math.max(0,(rule.cost[type]||0)-(onsite[type]||0)-
+              v.cargo.filter(t=>t.type===type).length);
+            if(needed>0){
+              const free=game.effectiveUnitSpec(this.playerId,'villager').carry-v.cargo.length;
+              const take=Math.min(needed,free,game.resourcesAt(tc)[type]||0);
+              if(take>0)this.safe(game,'bootstrap-load-site',()=>game.loadResource(this.playerId,v.id,type,take));
+            }
           }
         }
+        const target=(v.cargo?.length||0)>0?destination.id:tc;
+        if(v.hexId!==target){
+          const step=this.nextLandStep(game,v.hexId,target);
+          if(step)return this.safe(game,'bootstrap-site-transport',()=>game.moveUnits(this.playerId,[v.id],step));
+        }
+        return {ok:false};
       }
-      return {ok:false};
     }
     // Assign one worker a stable resource objective until it has delivered
     // the required tokens. All other villagers may keep doing normal economy.
