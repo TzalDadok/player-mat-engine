@@ -478,7 +478,8 @@ export class BaselineBot {
     // Keep a destination while travelling: recomputing a best source every
     // phase produced loops between unrelated resource hexes.
     const assignments=this.memory.courierAssignments||(this.memory.courierAssignments={});
-    const reserve=!this.barracks(game)&&villagers.length>1
+    const reserve=!this.barracks(game)&&villagers.length>1&&
+      canPay(this.controlledResources(game),game.buildingRule(this.playerId,'barracks')?.cost||{})
       ? [...villagers].filter(v=>!v.cargo?.length).sort((a,b)=>
         hexDistance(game.hexMap.get(a.hexId),game.hexMap.get(tcId))-
         hexDistance(game.hexMap.get(b.hexId),game.hexMap.get(tcId)))[0] : null;
