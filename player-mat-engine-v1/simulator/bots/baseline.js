@@ -1082,7 +1082,8 @@ export class BaselineBot {
     // Never abandon the last CU defender. No amount of expansion is worth
     // immediate elimination.
     if(defenders.length)return {ok:false};
-    // Even in peacetime establish a standing CU garrison.
+    // Do not immobilize the only military unit before an immediate threat.
+    if(!threatened&&owned.length<2)return {ok:false};
     const candidates=owned.map(u=>({u,path:strategicLandPath(game,u.hexId,tc)}))
       .filter(x=>x.path&&x.path.length>1)
       .sort((a,b)=>a.path.length-b.path.length);
@@ -1363,7 +1364,7 @@ export class BaselineBot {
         const spec = game.effectiveUnitSpec(this.playerId, u.type);
         // Keep one defender at the CU even when it is the nearest stack
         // to an attractive offensive target.
-        if(u.hexId===home&&homeDefenders[0]?.id===u.id)return false;
+        if(u.hexId===home&&homeDefenders[0]?.id===u.id&&this.military(game).length>=2)return false;
         return spec.move > 0 && !spec.water;
       });
       if (!direct.length) continue;
