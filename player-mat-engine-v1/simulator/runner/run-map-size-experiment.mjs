@@ -1,3 +1,6 @@
+// Temporary logistics regression audit
+await import('./assert-connected-spending.mjs');
+await import('./diagnose-logistics-70.mjs');
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { runBenchmark } from './benchmark.mjs';
 import { BENCHMARK_SEEDS } from './benchmark-seeds.js';
