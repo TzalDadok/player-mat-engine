@@ -869,8 +869,10 @@ export class BaselineBot {
       const connected=linked.has(v.hexId);
       const other=this.ownUnits(game,u=>u.id!==v.id&&u.hexId===v.hexId).length>0;
       const building=game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===v.hexId);
-      const canLeave=other||building||!connected||!SOURCE_TO_RESOURCE[origin.source]&&
-        this.corridorValue(game,v.hexId,this.playerId)===0;
+      const critical=this.corridorValue(game,v.hexId,this.playerId)>0;
+      // A solitary starting worker must be allowed to switch sources.
+      // This can relinquish its old tile but cannot sever downstream holdings.
+      const canLeave=other||building||!connected||!critical;
       if(!canLeave)continue;
       for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
         if(h.terrain==='water'||game.controllerOf(h.id)===this.playerId)continue;
