@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - lightweight targeted logistics
+name: Fast logistics bot validation - supply inventory audit
 on:
   push:
     paths:
