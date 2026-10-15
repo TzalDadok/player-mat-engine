@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - manual network food production
+name: Fast logistics bot validation - anchored resource production
 on:
   push:
     paths:
