@@ -935,10 +935,19 @@ export class BaselineBot {
       const prepared=this.prepareBarracksSite(game);
       if(prepared.ok)return prepared;
     }
+    // Finish useful infrastructure before spending movement on disconnected
+    // or opportunistic empty tiles. Buildings anchor their hex permanently.
+    if(!barracksAffordable){
+      const consolidatedAgain=this.tryConsolidateResource(game);
+      if(consolidatedAgain.ok)return consolidatedAgain;
+    }
     const repaired=this.reconnectNetwork(game);
     if(repaired.ok)return repaired;
     const routed=this.networkPursue(game);
     if(routed.ok)return routed;
+    // Grow opportunistically only when there is no viable committed route.
+    if(this.memory.networkGoal && this.villagers(game).length>=3)
+      return {ok:false,label:'network-hold-goal'};
     return this.networkGrow(game,stock.food<1?'food':null);
   }
 
@@ -981,6 +990,8 @@ export class BaselineBot {
         a.id.localeCompare(b.id));
     if(!liveTargets.length)return {ok:false};
     const available=workers.filter(v=>this.safeToVacate(game,v));
+    // Reserve one worker for each new uncontrolled tile. Workers anchored on
+    // source/corridor positions cannot be counted as spare capacity.
     const capacity=available.length;
     const goal=this.memory.networkGoal;
     const retained=liveTargets.find(h=>h.id===goal?.hexId&&
