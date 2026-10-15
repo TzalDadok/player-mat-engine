@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - persistent courier objectives
+name: Fast logistics bot validation - stalled courier recovery
 on:
   push:
     paths:
