@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - network startup movement
+name: Fast logistics bot validation - network source persistence
 on:
   push:
     paths:
