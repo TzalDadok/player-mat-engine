@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - supply inventory audit
+name: Fast logistics bot validation - resource courier bootstrap
 on:
   push:
     paths:
