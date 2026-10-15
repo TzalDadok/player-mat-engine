@@ -122,6 +122,15 @@ export class BaselineBot {
   }
 
   hub(game) {
+    if(game.state.logisticsNetworkEnabled){
+      const linked=new Set(this.connectedIds(game));
+      const occupied=this.villagers(game).map(v=>game.hexMap.get(v.hexId))
+        .find(h=>h&&linked.has(h.id)&&['plain','desert'].includes(h.terrain)&&!h.source&&!h.special);
+      if(occupied)return occupied;
+      const tc=game.hexMap.get(this.player(game).tcHexId);
+      return physicalNeighbors(game.state.hexes,tc.id)
+        .find(h=>['plain','desert'].includes(h.terrain)&&!h.source&&!h.special)||tc;
+    }
     const viable = h => h && ['plain','desert'].includes(h.terrain) &&
       !h.special && !h.source &&
       game.state.buildings.filter(b=>b.hexId===h.id&&b.type==='farm').length<2;
@@ -234,13 +243,12 @@ export class BaselineBot {
       if(!this.safeToVacate(game,v))continue;
       for(const h of targets){
         if(h.id===v.hexId)continue;
-        const path=strategicLandPath(game,v.hexId,h.id);
-        if(!path||path.length<2)continue;
-        const step=game.hexMap.get(path[1]);
+        if(hexDistance(game.hexMap.get(v.hexId),h)!==1)continue;
+        const step=h;
         if(!step||step.terrain==='water')continue;
         // The destination must be supplied immediately after movement.
         if(!linked.has(step.id)&&!physicalNeighbors(game.state.hexes,step.id).some(n=>linked.has(n.id)))continue;
-        moves.push({v,h,step,score:path.length+(linked.has(h.id)?-5:0)});
+        moves.push({v,h,step,score:linked.has(h.id)?0:1});
       }
     }
     moves.sort((a,b)=>a.score-b.score);
@@ -255,6 +263,7 @@ export class BaselineBot {
     if(!game.state.logisticsNetworkEnabled)return {ok:false};
     const linked=new Set(this.connectedIds(game));
     const candidates=[];
+    const need=this.resourceDeficits(game);
     for(const v of this.villagers(game)){
       if(!this.safeToVacate(game,v))continue;
       const occupied=linked.has(v.hexId);
@@ -266,7 +275,8 @@ export class BaselineBot {
         const hub=this.memory.hubHexId===h.id?1:0;
         const needsSite=!this.barracks(game)&&canPay(this.controlledResources(game),game.buildingRule(this.playerId,'barracks')?.cost||{});
         const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
-        const score=resource*3+hub*2+(occupied?1:0)+(needsSite&&buildSite?10:0);
+        const type=SOURCE_TO_RESOURCE[h.source];
+        const score=(type&&need[type]>0?25:0)+resource*3+hub*2+(occupied?1:0)+(needsSite&&buildSite?12:0);
         candidates.push({v,h,score});
       }
     }
@@ -451,8 +461,6 @@ export class BaselineBot {
     if(game.state.logisticsNetworkEnabled){
       const constructed=this.prepareBarracksSite(game);
       if(constructed.ok)return constructed;
-      const repaired=this.reconnectNetwork(game);
-      if(repaired.ok)return repaired;
       const expanded=this.networkExpansion(game);
       if(expanded.ok)return expanded;
     }
