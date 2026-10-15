@@ -1043,9 +1043,9 @@ export class BaselineBot {
         if(!physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id)&&
             (n.id!==v.hexId||originRetained)))continue;
         const resource=SOURCE_TO_RESOURCE[h.source];
-        if(onlyResource&&resource!==onlyResource&&
-           !(onlyResource==='food'&&!resource&&
-             physicalNeighbors(game.state.hexes,h.id).some(n=>n.terrain==='water')))continue;
+        // Never freeze expansion solely because food is empty: a forest,
+        // stone or gold tile can anchor a route toward the missing food.
+        // Prioritize food but preserve other viable network extensions.
         const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
         const score=(resource&&deficits[resource]>0?40:0)+
           (resource==='food'&& (this.controlledResources(game).food||0)<2?35:0)+
