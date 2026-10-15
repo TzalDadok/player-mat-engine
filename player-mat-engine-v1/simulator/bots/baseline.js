@@ -871,6 +871,10 @@ export class BaselineBot {
   }
 
   networkEconomy(game) {
+    // Use network spending whenever possible. Physical logistics is only
+    // a late fallback for an opening that cannot establish a supply chain.
+    if(!this.barracks(game)&&game.state.round>=25&&
+       !this.canPrepareNetworkBarracks(game))return this.bootstrapBarracks(game);
     const linked=new Set(this.connectedIds(game));
     const stock=this.controlledResources(game);
     const deficits=this.resourceDeficits(game);
@@ -1031,6 +1035,8 @@ export class BaselineBot {
   }
 
   networkMilitary(game) {
+    if(!this.barracks(game)&&game.state.round>=25&&
+       !this.canPrepareNetworkBarracks(game))return this.bootstrapBarracks(game);
     const villagers=this.villagers(game);
     if(!this.barracks(game)&&villagers.length<3&&
       !this.connectedIds(game).some(id=>SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food')&&
