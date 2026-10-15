@@ -948,76 +948,64 @@ export class BaselineBot {
   }
 
   networkPursue(game) {
+    // Plan from the *actual connected network*, never from a theoretical
+    // shortest path through unowned territory. Each new tile needs an anchor.
     const linked=new Set(this.connectedIds(game));
-    const tc=this.player(game).tcHexId;
-    const have=this.controlledResources(game);
     const deficits=this.resourceDeficits(game);
-    const priorities=[
-      {type:'food',need:(have.food||0)<3?3-(have.food||0):0},
-      {type:'wood',need:deficits.wood||0},
-      {type:'stone',need:deficits.stone||0},
-      {type:'gold',need:deficits.gold||0}
-    ].filter(x=>x.need>0);
-    const sourcePlans=[];
-    for(const {type,need} of priorities){
-      for(const target of this.sourceCandidates(game,type)){
-        if(linked.has(target.id))continue;
-        const path=strategicLandPath(game,tc,target.id);
-        if(!path||path.length<2)continue;
-        let frontier=-1;
-        for(let i=1;i<path.length;i++){
-          if(!linked.has(path[i])){frontier=i;break;}
+    const p=this.player(game);
+    const workers=this.villagers(game);
+    const sources=game.state.hexes.filter(h=>h.terrain!=='water'&&
+      SOURCE_TO_RESOURCE[h.source]&&deficits[SOURCE_TO_RESOURCE[h.source]]>0&&
+      !linked.has(h.id)&&game.controllerOf(h.id)!==this.playerId);
+    if(!sources.length)return {ok:false};
+    const dist=new Map(),previous=new Map(),queue=[];
+    for(const id of linked){dist.set(id,0);queue.push(id);}
+    // 0-1 BFS: connected hexes cost zero and every additional tile costs
+    // one worker. Prefer corridors requiring fewer new occupants.
+    for(let i=0;i<queue.length;i++){
+      const id=queue[i],d=dist.get(id);
+      for(const h of physicalNeighbors(game.state.hexes,id)){
+        if(h.terrain==='water')continue;
+        const owner=game.controllerOf(h.id);
+        if(owner&&owner!==this.playerId)continue;
+        const cost=linked.has(h.id)?0:1,nd=d+cost;
+        if(nd<(dist.get(h.id)??Infinity)){
+          dist.set(h.id,nd);previous.set(h.id,id);
+          if(cost===0)queue.splice(i,0,h.id);else queue.push(h.id);
         }
-        if(frontier<0||frontier===0)continue;
-        // Current frontier must be next to a connected anchor and not hostile.
-        const next=game.hexMap.get(path[frontier]);
-        if(!next||next.terrain==='water'||game.controllerOf(next.id)&&
-           game.controllerOf(next.id)!==this.playerId)continue;
-        sourcePlans.push({type,target,path,frontier,next,
-          score:(frontier-1)*3+path.length+(['food','wood','stone','gold'].indexOf(type))*2});
       }
     }
-    // Keep a single resource corridor objective until it is connected.
-    // Without persistence, workers spread over multiple half-finished routes.
+    const liveTargets=sources.filter(h=>dist.has(h.id))
+      .sort((a,b)=>(dist.get(a.id)-dist.get(b.id))||
+        ((deficits[SOURCE_TO_RESOURCE[b.source]]||0)-(deficits[SOURCE_TO_RESOURCE[a.source]]||0))||
+        a.id.localeCompare(b.id));
+    if(!liveTargets.length)return {ok:false};
+    const available=workers.filter(v=>this.safeToVacate(game,v));
+    const capacity=available.length;
     const goal=this.memory.networkGoal;
-    const pending=sourcePlans.filter(p=>!linked.has(p.target.id));
-    const retained=goal&&pending.find(p=>p.target.id===goal.hexId &&
-      p.type===goal.type && game.state.round-goal.started<35);
-    pending.sort((a,b)=>a.score-b.score||a.target.id.localeCompare(b.target.id));
-    const focused=retained||pending[0];
-    if(focused&&!retained)this.memory.networkGoal={
-      hexId:focused.target.id,type:focused.type,started:game.state.round
-    };
-    if(!focused)this.memory.networkGoal=null;
-    for(const plan of (focused?[focused]:[])){
-      const anchor=plan.path[plan.frontier-1];
-      const workers=this.villagers(game);
-      const ready=workers.filter(v=>v.hexId===anchor&&this.safeToVacate(game,v));
-      for(const worker of ready){
-        const moved=this.safe(game,'network-route-extend',()=>
-          game.moveUnits(this.playerId,[worker.id],plan.next.id));
-        if(moved.ok)return moved;
-      }
-      // Move a free reserve along already connected friendly hexes.
-      const queue=[anchor],parent=new Map([[anchor,null]]);
-      for(let i=0;i<queue.length;i++){
-        for(const h of physicalNeighbors(game.state.hexes,queue[i])){
-          if(!linked.has(h.id)||parent.has(h.id))continue;
-          parent.set(h.id,queue[i]);queue.push(h.id);
-        }
-      }
-      const reserves=workers.filter(v=>parent.has(v.hexId)&&this.safeToVacate(game,v))
-        .map(v=>{
-          let id=anchor,prior=parent.get(id);
-          while(prior!==null&&prior!==v.hexId){id=prior;prior=parent.get(id);}
-          return prior===v.hexId?{v,next:id,distance:hexDistance(game.hexMap.get(v.hexId),game.hexMap.get(anchor))}:null;
-        }).filter(Boolean).sort((a,b)=>a.distance-b.distance);
-      for(const {v,next} of reserves){
-        if(next===v.hexId)continue;
-        const moved=this.safe(game,'network-route-reinforce',()=>
-          game.moveUnits(this.playerId,[v.id],next));
-        if(moved.ok)return moved;
-      }
+    const retained=liveTargets.find(h=>h.id===goal?.hexId&&
+      dist.get(h.id)<=capacity && game.state.round-(goal?.started||0)<30);
+    const chosen=retained||liveTargets.find(h=>dist.get(h.id)<=capacity);
+    if(!chosen)return {ok:false};
+    if(!retained)this.memory.networkGoal={hexId:chosen.id,type:SOURCE_TO_RESOURCE[chosen.source],started:game.state.round};
+    const chain=[chosen.id];let cursor=chosen.id;
+    while(!linked.has(cursor)&&previous.has(cursor)){cursor=previous.get(cursor);chain.unshift(cursor);}
+    const first=chain.find(id=>!linked.has(id));
+    if(!first)return {ok:false};
+    const frontier=chain[chain.indexOf(first)-1];
+    // Reinforce from an uncommitted worker. The final step must immediately
+    // occupy the frontier and be connected to the TC.
+    const options=available.map(v=>{
+      const route=strategicLandPath(game,v.hexId,frontier);
+      return route?{v,route}:null;
+    }).filter(Boolean).sort((a,b)=>a.route.length-b.route.length);
+    for(const {v,route} of options){
+      const destination=v.hexId===frontier?first:route[1];
+      if(!destination)continue;
+      if(destination!==first&&!linked.has(destination))continue;
+      const moved=this.safe(game,'network-route-extend',()=>
+        game.moveUnits(this.playerId,[v.id],destination));
+      if(moved.ok)return moved;
     }
     return {ok:false};
   }
