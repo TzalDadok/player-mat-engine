@@ -15,7 +15,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
   turn: {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
-      ["Mover","Mové aldeanos y los recursos que transportan."],
+      ["Mover","Mové tus unidades según su capacidad de Movimiento."],
       ["Construir","Realizar una construcción económica disponible."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
@@ -85,7 +85,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
 
     {age:"feudal",building:"tc",type:"tech",title:"Saqueos",cost:{food:2,gold:1},text:"Si un enemigo produce más de 1 recurso y un Aldeano Vikingo está en un hexágono adyacente, 1 recurso de esa producción pasa al hexágono del Aldeano Vikingo."},
     {age:"feudal",building:"mill",type:"civil",title:"Aldeano",cost:{food:2}},
-    {age:"feudal",building:"camp",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Los aldeanos pueden transportar +1 recurso."},
+    {age:"feudal",building:"camp",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
     {age:"feudal",building:"camp",type:"tech",title:"Maest. Artesanos",cost:{food:3,gold:4},text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
     {age:"feudal",building:"port",type:"tech",title:"Pesca Avanzada",cost:{food:2,wood:2},text:"Pesqueros producen +1 Comida."},
     {age:"feudal",building:"port",type:"tech",title:"Drakkar",cost:{wood:2,gold:2},text:"La Galera puede transportar hasta 6 unidades."},
@@ -95,7 +95,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"other",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
     {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"castles",building:"camp",type:"civil",title:"Aldeano",cost:{food:2}},
-    {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Mové hasta 6 recursos de un hexágono a otro hexágono que contenga una construcción. Consume tu acción económica."},
+    {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Como acción económica, incorporá a tu Red Logística un hexágono adyacente a ella. Marcá ese hexágono con una ficha de Carreta Mercante; no necesita unidad ni edificio propio."},
     {age:"castles",building:"port",type:"tech",title:"Comb. Naval Opt.",cost:{wood:3,gold:3},text:"Los barcos pueden recorrer todos los hexágonos de Agua y desembarcar sus unidades en un hexágono adyacente utilizando una única acción."},
     {age:"castles",building:"barracks",type:"unit",title:"Arquero",cost:{food:1,wood:2,gold:1}},
     {age:"castles",building:"barracks",type:"tech",title:"Hacha de Guerra",cost:{food:2,gold:2},text:"Las Milicias obtienen +1 Fuerza al atacar un hexágono que contenga un edificio enemigo."},
@@ -103,7 +103,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
 
     {age:"imperial",building:"tc",type:"tech",title:"Admin. Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
     {age:"imperial",building:"mill",type:"tech",title:"Colonos del Norte",cost:{wood:3,gold:3},text:"Podés mover una Granja propia a otro hexágono de Llanura o Desierto junto con el Aldeano que la ocupa."},
-    {age:"imperial",building:"camp",type:"tech",title:"Logística Naval",cost:{wood:3,gold:3},text:"Los recursos producidos en hexágonos adyacentes al Agua pueden cargarse directamente en un barco vikingo adyacente."},
+    {age:"imperial",building:"camp",type:"tech",title:"Comercio Marítimo",cost:{wood:3,gold:3},text:"Podés convertir hasta 2 recursos del mismo tipo ubicados en Agua en la misma cantidad de recursos de tu elección."},
     {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",cost:{wood:4,gold:3},text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."},
     {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",cost:{food:3,gold:3},text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",cost:{food:4,gold:3},text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
