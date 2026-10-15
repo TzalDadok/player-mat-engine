@@ -666,12 +666,6 @@ export class BaselineBot {
       const rule=game.buildingRule(this.playerId,type);
       if(!rule||!game.ageAllows(this.player(game),rule.age))continue;
       if(!canPay(this.localResources(game,h.id),rule.cost))continue;
-      if(!this.barracks(game)){
-        const barracksCost=game.buildingRule(this.playerId,'barracks')?.cost||{};
-        const stock=this.controlledResources(game);
-        const resource=SOURCE_TO_RESOURCE[h.source];
-        if(resource!=='wood' && (stock.wood||0)<(barracksCost.wood||0)+(rule.cost.wood||0))continue;
-      }
       const built=this.safe(game,'consolidate-resource',()=>
         game.build(this.playerId,type,h.id,v.id));
       if(built.ok)return built;
@@ -907,8 +901,6 @@ export class BaselineBot {
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
-    // Grow workers only while they can support expansion and do not consume
-    // food reserved for the first military production chain.
     if(villagers.length<8&&(stock.food||0)>0 &&
        (!barracksAffordable || villagers.length<3) &&
        (!barracksRule || villagers.length<3 ||
@@ -1023,10 +1015,6 @@ export class BaselineBot {
     const deficits=this.resourceDeficits(game);
     const candidates=[];
     const hasBarracks=!!this.barracks(game);
-    const goal=this.memory.networkGoal;
-    const corridor=goal&&!linked.has(goal.hexId)
-      ? strategicLandPath(game,this.player(game).tcHexId,goal.hexId):null;
-    const corridorIds=new Set(corridor||[]);
     for(const v of this.villagers(game)){
       const origin=game.hexMap.get(v.hexId);
       if(!origin)continue;
@@ -1052,7 +1040,7 @@ export class BaselineBot {
            !(onlyResource==='food'&&!resource&&
              physicalNeighbors(game.state.hexes,h.id).some(n=>n.terrain==='water')))continue;
         const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
-        const score=(corridorIds.has(h.id)?65:0)+(resource&&deficits[resource]>0?40:0)+
+        const score=(resource&&deficits[resource]>0?40:0)+
           (resource==='food'&& (this.controlledResources(game).food||0)<2?35:0)+
           (!hasBarracks&&buildSite&&this.canPrepareNetworkBarracks(game)?70:0)+
           (v.hexId===this.player(game).tcHexId?24:0)-
