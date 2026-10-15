@@ -1083,7 +1083,7 @@ export class BaselineBot {
     // immediate elimination.
     if(defenders.length)return {ok:false};
     // Do not immobilize the only military unit before an immediate threat.
-    if(!threatened&&owned.length<2)return {ok:false};
+    if(!threatened)return {ok:false};
     const candidates=owned.map(u=>({u,path:strategicLandPath(game,u.hexId,tc)}))
       .filter(x=>x.path&&x.path.length>1)
       .sort((a,b)=>a.path.length-b.path.length);
@@ -1364,7 +1364,7 @@ export class BaselineBot {
         const spec = game.effectiveUnitSpec(this.playerId, u.type);
         // Keep one defender at the CU even when it is the nearest stack
         // to an attractive offensive target.
-        if(u.hexId===home&&homeDefenders[0]?.id===u.id&&this.military(game).length>=2)return false;
+        if(u.hexId===home&&homeDefenders[0]?.id===u.id&&this.military(game).length>=2&&game.state.units.some(x=>x.ownerId!==this.playerId&&game.isCombatParticipant(x.ownerId,x)&&hexDistance(game.hexMap.get(x.hexId),game.hexMap.get(home))<=3))return false;
         return spec.move > 0 && !spec.water;
       });
       if (!direct.length) continue;
