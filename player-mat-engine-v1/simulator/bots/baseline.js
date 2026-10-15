@@ -477,10 +477,11 @@ export class BaselineBot {
     // phase produced loops between unrelated resource hexes.
     const assignments=this.memory.courierAssignments||(this.memory.courierAssignments={});
     const idle=villagers.filter(v=>!v.cargo?.length);
+    const priority={stone:0,wood:1,gold:2,food:3};
     const orders=[];
     for(const v of idle){
       const saved=assignments[v.id];
-      if(saved&&deficits[saved.resource]>0){
+      if(saved&&deficits[saved.resource]>0&&game.state.round-(saved.sinceRound||game.state.round)<6){
         const target=game.hexMap.get(saved.hexId);
         if(target&&target.terrain!=='water'){
           const path=strategicLandPath(game,v.hexId,target.id);
@@ -493,7 +494,7 @@ export class BaselineBot {
           if(!path)continue;
           const stocked=game.resourcesAt(target.id)[resource]||0;
           const distance=path.length-1;
-          const score=distance*3-(stocked?7:0)-(resource==='stone'?3:0)-
+          const score=distance*2-(stocked?6:0)+priority[resource]*5-
             Math.min(amount,4);
           orders.push({v,resource,target,path,score});
         }
@@ -513,12 +514,12 @@ export class BaselineBot {
           }
         }
         // Stay on the selected source until the next manual production.
-        assignments[v.id]={hexId:target.id,resource};
+        assignments[v.id]={hexId:target.id,resource,sinceRound:assignments[v.id]?.hexId===target.id&&assignments[v.id]?.resource===resource?assignments[v.id].sinceRound:game.state.round};
         continue;
       }
       const moved=this.safe(game,'courier-seek',()=>game.moveUnits(this.playerId,[v.id],path[1]));
       if(moved.ok){
-        assignments[v.id]={hexId:target.id,resource};
+        assignments[v.id]={hexId:target.id,resource,sinceRound:assignments[v.id]?.hexId===target.id&&assignments[v.id]?.resource===resource?assignments[v.id].sinceRound:game.state.round};
         return moved;
       }
     }
