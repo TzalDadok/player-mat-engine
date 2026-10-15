@@ -896,7 +896,12 @@ export class BaselineBot {
       const trained=this.tryTrainVillager(game);
       if(trained.ok)return trained;
     }
-    const occupied=[...new Set(villagers.map(v=>v.hexId))].filter(id=>linked.has(id));
+    // Camps and mills produce even without a villager on their hex.
+    // Earlier bots ignored autonomous buildings and stalled with zero wood.
+    const productiveBuildings=game.state.buildings.filter(b=>
+      b.ownerId===this.playerId && ['camp','mill'].includes(b.type)).map(b=>b.hexId);
+    const occupied=[...new Set([...villagers.map(v=>v.hexId),...productiveBuildings])]
+      .filter(id=>linked.has(id));
     const canProduce=occupied.map(id=>({hexId:id,mode:'source'}))
       .filter(x=>!!SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source]);
     const needed=canProduce.filter(x=>{
