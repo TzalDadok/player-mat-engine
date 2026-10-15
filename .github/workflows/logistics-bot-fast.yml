@@ -1,4 +1,4 @@
-name: Fast logistics bot validation - courier three maps
+name: Fast logistics bot validation - persistent courier objectives
 on:
   push:
     paths:
