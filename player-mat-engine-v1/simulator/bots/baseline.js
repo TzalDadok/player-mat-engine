@@ -617,7 +617,7 @@ export class BaselineBot {
 
   tryTrainVillager(game) {
     const villagers = this.villagers(game);
-    if (villagers.length >= this.maxVillagers) return { ok: false };
+    if (villagers.length >= (game.state.logisticsNetworkEnabled?8:this.maxVillagers)) return { ok: false };
 
     const rule = game.unitRule(this.playerId, 'villager');
     if (!rule) return { ok: false };
@@ -875,7 +875,7 @@ export class BaselineBot {
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
-    if(villagers.length<this.maxVillagers&&(stock.food||0)>0){
+    if(villagers.length<8&&(stock.food||0)>0){
       const trained=this.tryTrainVillager(game);
       if(trained.ok)return trained;
     }
@@ -924,7 +924,11 @@ export class BaselineBot {
       if(!canLeave)continue;
       for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
         if(h.terrain==='water'||game.controllerOf(h.id)===this.playerId)continue;
-        if(!physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id)))continue;
+        // The new tile must remain connected after moving this unit.
+        // Its departure can remove its old hex from the network.
+        const originRetained=other||building||v.hexId===this.player(game).tcHexId;
+        if(!physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id)&&
+            (n.id!==v.hexId||originRetained)))continue;
         const resource=SOURCE_TO_RESOURCE[h.source];
         if(onlyResource&&resource!==onlyResource&&
            !(onlyResource==='food'&&!resource&&
@@ -933,7 +937,7 @@ export class BaselineBot {
         const score=(resource&&deficits[resource]>0?40:0)+
           (resource==='food'&& (this.controlledResources(game).food||0)<2?35:0)+
           (!hasBarracks&&buildSite&&this.canPrepareNetworkBarracks(game)?70:0)+
-          (v.hexId===this.player(game).tcHexId?12:0)-
+          (v.hexId===this.player(game).tcHexId?24:0)-
           (SOURCE_TO_RESOURCE[origin.source]?18:0);
         candidates.push({v,h,score});
       }
