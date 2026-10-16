@@ -1138,8 +1138,8 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   align-items:stretch !important;
 }
 .mat[data-civ="francos"] .slot[data-age="dark"][data-building="mill"]>.node.building{
-  height:auto !important;
-  min-height:70px !important;
+  height:max-content !important;
+  min-height:0 !important;
   flex:0 0 auto !important;
   overflow:visible;
 }
