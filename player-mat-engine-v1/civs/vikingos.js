@@ -80,7 +80,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"dark",building:"mill",type:"tech",title:"Recolección",cost:{food:1,wood:2},text:"Al PRODUCIR en Frutos Silvestres, obtenés +1 Comida adicional, una vez por acción."},
     {age:"dark",building:"camp",type:"tech",title:"Doble Filo",cost:{food:1,gold:1,stone:1},text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
-    {age:"dark",building:"port",type:"tech",title:"Navegación Comercial",cost:{wood:2,gold:1},text:"Al PRODUCIR con un Pesquero, podés obtener 1 Oro en lugar de 1 Comida."},
+    {age:"dark",building:"port",type:"tech",title:"Navegación Comercial",cost:{wood:2,gold:1},text:"Al PRODUCIR con Pesquero, podés elegir 1 Oro en vez de 1 Comida."},
     {age:"dark",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
     {age:"dark",building:"barracks",type:"unit",title:"Milicia",cost:{food:1,gold:1}},
 
@@ -92,7 +92,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"port",type:"tech",title:"Drakkar",cost:{wood:2,gold:2},text:"La Galera puede transportar hasta 6 unidades."},
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
 
-    {age:"dark",building:"other",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita COMERCIAR: comprá o vendé hasta 2 recursos por acción a precios compartidos. También permite acuerdos entre jugadores, solo por Oro."},
+    {age:"dark",building:"other",type:"building",title:"Mercado",cost:{wood:3},text:"COMERCIAR: hasta 2 compras o ventas por acción, a precios compartidos. Acuerdos entre jugadores: solo por Oro."},
     {age:"feudal",building:"other",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
     {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"castles",building:"camp",type:"civil",title:"Aldeano",cost:{food:2}},
