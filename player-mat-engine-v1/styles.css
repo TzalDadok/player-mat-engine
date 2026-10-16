@@ -1118,3 +1118,12 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat[data-civ="vikingos"] .slot[data-age="dark"][data-building="port"]{gap:2px !important;padding-top:2px;padding-bottom:2px}
 .mat[data-civ="vikingos"] .slot[data-age="dark"][data-building="port"]>.node{min-height:0 !important;padding-top:2px;padding-bottom:2px}
 .mat[data-civ="vikingos"] .slot[data-age="dark"][data-building="port"] .node-text{margin-top:1px}
+
+/* Persas: estandarte en la esquina superior izquierda */
+.corner.persas-corner{
+  background:url("assets/ui/Emblema%20Persa%20Dorado%20con%20Alas.png") center center / cover no-repeat !important;
+  overflow:hidden;
+}
+.corner.persas-corner:before,
+.corner.persas-corner:after{content:none !important;display:none !important}
+.corner.persas-corner .label{display:none !important}
