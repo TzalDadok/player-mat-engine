@@ -84,7 +84,7 @@ window.PLAYER_MAT_CIVS.francos = {
   ],
   nodes: [
     {age:"dark", building:"tc", type:"civil", title:"Aldeano", cost:{food:1}},
-    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura o Desierto."},
+    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Puede construirse sobre Llanura."},
     {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}},
     {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar hasta 6 unidades."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
@@ -97,7 +97,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"feudal", building:"tc", type:"tech", title:"Conscripción", cost:{food:2,gold:1}, text:"La primera Milicia entrenada cada turno cuesta 1 Comida menos."},
     {age:"feudal", building:"mill", type:"tech", title:"Rotación", cost:{food:2,wood:1}, text:"Las Granjas no sufren Sobreexplotación."},
     {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita COMERCIAR: comprá o vendé hasta 2 recursos por acción a precios compartidos. También permite acuerdos entre jugadores, solo por Oro."},
-    {age:"feudal", building:"mill", type:"tech", title:"Campos Abiertos", cost:{food:3,wood:2}, text:"Se pueden construir Granjas en Desiertos."},
+    {age:"dark", building:"mill", type:"tech", title:"Campos Abiertos", cost:{food:3,wood:2}, text:"Se pueden construir Granjas en Desiertos."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Piquero", cost:{food:2,wood:1}},
@@ -117,7 +117,7 @@ window.PLAYER_MAT_CIVS.francos = {
 
     {age:"imperial", building:"tc", type:"tech", title:"Admin. Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"barracks", type:"tech", title:"Caballería Pesada", cost:{food:4,gold:4}, text:"Los Caballeros obtienen +1 Fuerza."},
-    {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Sin gastar turno, podés cambiar 1 Comida por 1 Oro."},
+    {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Una vez por turno, podés convertir 2 Comidas de tu Red Logística en 1 Oro, sin gastar una acción."},
     {age:"castles", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
     {age:"imperial", building:"camp", type:"tech", title:"Ingeniería", cost:{wood:3,gold:3}, text:"Escorpiones entrenados pueden salir en un hexágono adyacente."},
     {age:"imperial", building:"barracks", type:"tech", title:"Movilización", cost:{food:3,gold:3}, text:"Al entrenar una unidad de caballería, podés colocarla en cualquier construcción militar propia."},
