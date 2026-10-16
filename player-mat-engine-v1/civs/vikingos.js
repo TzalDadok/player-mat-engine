@@ -51,7 +51,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     ],
     abilities: [
       {name:"Drakkar",text:"La Galera puede transportar hasta 6 unidades."},
-      {name:"Drakkar Mejorado",text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."}
+      {name:"Drakkar Mejorado",text:"Al mover una Galera con unidades transportadas, podés desembarcar y mover ese ejército en el mismo turno, como parte de ese movimiento."}
     ],
     bonuses: [
       {from:"Milicia", to:"Construcciones", green:true},
@@ -105,7 +105,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"imperial",building:"tc",type:"tech",title:"Admin. Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
     {age:"imperial",building:"mill",type:"tech",title:"Colonos del Norte",cost:{wood:3,gold:3},text:"Podés mover una Granja propia a otro hexágono de Llanura o Desierto junto con el Aldeano que la ocupa."},
     {age:"imperial",building:"camp",type:"tech",title:"Comercio Marítimo",cost:{wood:3,gold:3},text:"Podés convertir hasta 2 recursos del mismo tipo ubicados en Agua en la misma cantidad de recursos de tu elección."},
-    {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",cost:{wood:4,gold:3},text:"Las unidades que desembarcan desde una Galera pueden realizar una acción Militar ese mismo turno."},
+    {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",cost:{wood:4,gold:3},text:"Al mover una Galera con unidades transportadas, podés desembarcar y mover ese ejército en el mismo turno, como parte de ese movimiento."},
     {age:"imperial",building:"port",type:"tech",title:"Dominio del Mar",cost:{wood:3,gold:3},text:"Tus Galeras obtienen +1 Fuerza al defender un hexágono de Agua."},
     {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",cost:{food:3,gold:3},text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",cost:{food:4,gold:3},text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
