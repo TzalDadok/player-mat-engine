@@ -108,6 +108,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"castles",building:"tower",type:"military-building",title:"Castillo",cost:{stone:4,gold:2},text:"Aporta +1 Fuerza a batallas a 1 hexágono."},
     {age:"castles",building:"tower",type:"tech",title:"Arquitectura Persa",cost:{wood:2,gold:3},text:"Castillo: +1 Fuerza adicional al defender su hexágono."},
 
+    {age:"imperial",building:"tc",type:"military-building",title:"Monasterio",cost:{wood:3,stone:2},text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
     {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:3,gold:3},text:"Tus construcciones cuestan −1 Piedra."},
     {age:"imperial",building:"mill",type:"tech",title:"Criad. Reales",cost:{food:3,wood:2,gold:2},text:"Los Elefantes de Guerra cuestan 1 Comida menos al entrenarse."},
     {age:"imperial",building:"mill",type:"tech",title:"Ingeniería Hidráulica",cost:{wood:3,stone:2,gold:2},text:"Granjas en Desierto junto a Montaña: no sufren sobreexplotación."},
