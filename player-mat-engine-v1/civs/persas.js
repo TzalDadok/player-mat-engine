@@ -97,7 +97,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"feudal",building:"tower",type:"tech",title:"Fortificación Real",cost:{wood:2,stone:2},text:"Cuando una Torre participa en una batalla defensiva, obtenés +1 al máximo de Poder Militar que podés apostar."},
 
     {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3},text:"Habilita COMERCIAR: comprá o vendé hasta 2 recursos por acción a precios compartidos. También permite acuerdos entre jugadores, solo por Oro."},
-    {age:"castles",building:"mill",type:"tech",title:"Forraje",cost:{food:3,wood:2,gold:1},text:"Los Elefantes de Guerra cuestan −1 Comida."},
+    {age:"castles",building:"mill",type:"tech",title:"Forraje",cost:{food:3,wood:2,gold:1},text:"Los Elefantes de Guerra pueden mover 1 hexágono adicional al salir del Cuartel."},
     {age:"castles",building:"camp",type:"tech",title:"Tributo Real",cost:{food:2,wood:2,gold:2},text:"El Centro Urbano puede PRODUCIR 1 recurso de tu elección."},
     {age:"castles",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
     {age:"castles",building:"port",type:"tech",title:"Flota Tributaria",cost:{wood:3,gold:2},text:"La primera Galera que entrenes durante tu turno cuesta 1 Madera menos."},
