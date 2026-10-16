@@ -115,7 +115,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"imperial",building:"port",type:"tech",title:"Flota Imperial",cost:{food:2,wood:3,gold:2},text:"Barcos de Transporte y Galeras obtienen +1 Movimiento."},
     {age:"imperial",building:"barracks",type:"tech",title:"Howdah",cost:{food:3,wood:2,gold:3},text:"Los Arqueros que se encuentren en el mismo hexágono que un Elefante obtienen +1 Alcance."},
     {age:"imperial",building:"barracks",type:"tech",title:"Rompemuros",cost:{food:3,gold:4},text:"El bonus de Elefante contra Construcciones pasa a +2."},
-    {age:"imperial",building:"tower",type:"tech",title:"Lealtad Imperial",cost:{gold:5},text:"Los Elefantes convertidos por unidades enemigas mueren en lugar de cambiar de jugador."}
+    {age:"imperial",building:"tower",type:"tech",title:"Lealtad Imperial",cost:{gold:5},text:"Los Elefantes convertidos por unidades enemigas mueren en lugar de cambiar de jugador."},
     {age:"imperial",building:"tower",type:"tech",title:"Guardia de Palacio",cost:{food:3,gold:3},text:"Las unidades militares que defienden el Centro Urbano obtienen +1 Fuerza total."},
   ]
 };
