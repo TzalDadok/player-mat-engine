@@ -96,7 +96,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"feudal", building:"tc", type:"tech", title:"Colonización", cost:{food:2,wood:2}, text:"Un Aldeano entrenado puede salir en un hexágono adyacente."},
     {age:"feudal", building:"tc", type:"tech", title:"Conscripción", cost:{food:2,gold:1}, text:"La primera Milicia entrenada cada turno cuesta 1 Comida menos."},
     {age:"feudal", building:"mill", type:"tech", title:"Rotación", cost:{food:2,wood:1}, text:"Las Granjas no sufren Sobreexplotación."},
-    {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita comerciar entre jugadores. Todo comercio debe incluir Oro."},
+    {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita COMERCIAR: comprá o vendé hasta 2 recursos por acción a precios compartidos. También permite acuerdos entre jugadores, solo por Oro."},
     {age:"feudal", building:"mill", type:"tech", title:"Campos Abiertos", cost:{food:3,wood:2}, text:"Se pueden construir Granjas en Desiertos."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
