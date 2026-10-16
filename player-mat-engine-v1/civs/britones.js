@@ -94,7 +94,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", cost:{food:2,gold:1}, text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
-    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
+    {age:"dark", building:"camp", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
     {age:"dark", building:"tc", type:"tech", title:"Telar", cost:{food:1,wood:1}, text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"Al PRODUCIR en Animales, obtenés +1 Comida adicional una vez por acción."},
     {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita COMERCIAR: comprá o vendé hasta 2 recursos por acción a precios compartidos. También permite acuerdos entre jugadores, solo por Oro."},
