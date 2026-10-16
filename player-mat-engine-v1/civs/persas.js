@@ -102,7 +102,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"castles",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
     {age:"castles",building:"port",type:"tech",title:"Flota Tributaria",cost:{wood:3,gold:2},text:"La primera Galera que entrenes durante tu turno cuesta 1 Madera menos."},
     {age:"castles",building:"barracks",type:"unit",title:"Elefante de Guerra",cost:{food:4,gold:4}},
-    {age:"castles",building:"barracks",type:"tech",title:"Mahouts",cost:{food:2,gold:3},text:"Si al menos un Elefante combate junto a una unidad militar a pie, obtenés +1 Fuerza total en esa batalla."},
+    {age:"castles",building:"barracks",type:"tech",title:"Mahouts",cost:{food:2,gold:3},text:"Elefante + unidad militar a pie: +1 Fuerza total en combate."},
     {age:"castles",building:"tower",type:"military-building",title:"Castillo",cost:{stone:4,gold:2},text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia."},
 
     {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:3,gold:3},text:"Tus construcciones cuestan −1 Piedra."},
