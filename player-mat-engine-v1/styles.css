@@ -1113,3 +1113,8 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   min-height:82px !important;
   overflow:hidden;
 }
+
+/* Puerto vikingo inicial: tres fichas completas sin cambiar tamaños de letra */
+.mat[data-civ="vikingos"] .slot[data-age="dark"][data-building="port"]{gap:2px !important;padding-top:2px;padding-bottom:2px}
+.mat[data-civ="vikingos"] .slot[data-age="dark"][data-building="port"]>.node{min-height:0 !important;padding-top:2px;padding-bottom:2px}
+.mat[data-civ="vikingos"] .slot[data-age="dark"][data-building="port"] .node-text{margin-top:1px}
