@@ -96,7 +96,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"feudal", building:"tc", type:"tech", title:"Colonización", cost:{food:2,wood:2}, text:"Un Aldeano entrenado puede salir en un hexágono adyacente."},
     {age:"feudal", building:"tc", type:"tech", title:"Conscripción", cost:{food:2,gold:1}, text:"La primera Milicia entrenada cada turno cuesta 1 Comida menos."},
     {age:"feudal", building:"mill", type:"tech", title:"Rotación", cost:{food:2,wood:1}, text:"Las Granjas no sufren Sobreexplotación."},
-    {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"Habilita COMERCIAR: comprá o vendé hasta 2 recursos por acción a precios compartidos. También permite acuerdos entre jugadores, solo por Oro."},
+    {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"COMERCIAR: hasta 2 compras o ventas por acción, a precios compartidos. Acuerdos entre jugadores: solo por Oro."},
     {age:"dark", building:"mill", type:"tech", title:"Campos Abiertos", cost:{food:3,wood:2}, text:"Se pueden construir Granjas en Desiertos."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
@@ -111,7 +111,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:3}},
     {age:"castles", building:"barracks", type:"unit", title:"Caballero", cost:{food:3,gold:4}},
     {age:"castles", building:"barracks", type:"tech", title:"Carga", cost:{food:2,gold:2}, text:"Unidades montadas que entren a un hexágono enemigo y peleen obtienen +1 Fuerza ese turno."},
-    {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:4,gold:2}, text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia.\\nUnidad disponible: Caballero."},
+    {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:4,gold:2}, text:"+1 Fuerza en batallas a 1 hexágono. Unidad disponible: Caballero."},
     {age:"castles", building:"tower", type:"tech", title:"Señorío", cost:{food:2,gold:2}, text:"Jinetes y Caballeros pueden entrenarse en el Castillo."},
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
 
@@ -121,7 +121,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"castles", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
     {age:"imperial", building:"camp", type:"tech", title:"Ingeniería", cost:{wood:3,gold:3}, text:"Escorpiones entrenados pueden salir en un hexágono adyacente."},
     {age:"imperial", building:"barracks", type:"tech", title:"Movilización", cost:{food:3,gold:3}, text:"Al entrenar una unidad de caballería, podés colocarla en cualquier construcción militar propia."},
-    {age:"imperial", building:"tower", type:"tech", title:"Saqueo", cost:{food:2,gold:3}, text:"Al ganar una batalla en un hexágono enemigo, podés mover 2 recursos de ese hexágono con tu ejército."},
+    {age:"imperial", building:"tower", type:"tech", title:"Saqueo", cost:{food:2,gold:3}, text:"Al ganar una batalla, podés llevarte 2 recursos del hexágono enemigo con tu ejército."},
     {age:"imperial", building:"tower", type:"tech", title:"Vasallaje", cost:{food:3,gold:3}, text:"Caballería adyacente al Castillo puede usarlo como punto de entrenamiento."},
     {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Unidades convertidas por monjes enemigos mueren en lugar de cambiar de bando."}
   ]
