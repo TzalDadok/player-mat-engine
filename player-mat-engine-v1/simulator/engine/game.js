@@ -471,17 +471,19 @@ export class AoEGame {
         .filter(u => u.hexId === hexId && !u.embarkedIn)
         .map(u => u.ownerId)
     )];
-    if (unitOwners.length === 1) return unitOwners[0];
-    if (unitOwners.length > 1) return null;
-
-    const buildingOwners = [...new Set(this.state.buildings.filter(b => b.hexId === hexId).map(b => b.ownerId))];
-    return buildingOwners.length === 1 ? buildingOwners[0] : null;
+    // A hex is controlled only if all present units/buildings agree on its owner.
+    // Contested presence must never expose stored resources to either player.
+    const buildingOwners = this.state.buildings.filter(b => b.hexId === hexId).map(b => b.ownerId);
+    const owners = new Set([...unitOwners, ...buildingOwners]);
+    return owners.size === 1 ? [...owners][0] : null;
   }
 
   logisticsConnectedHexIds(playerId) {
     const p=this.playerMap.get(playerId);
     if (!p) return [];
     const controlled=new Set(this.controlledHexIds(playerId));
+    // An unoccupied/lost TC cannot act as a virtual logistics anchor.
+    if (!controlled.has(p.tcHexId) || p.eliminated) return [];
     const reached=new Set([p.tcHexId]);
     const queue=[p.tcHexId];
     for(let i=0;i<queue.length;i++){
@@ -498,10 +500,11 @@ export class AoEGame {
 
   controlledHexIds(playerId) {
     return this.state.hexes
-      .filter(h =>
-        this.controllerOf(h.id) === playerId ||
-        (h.special === 'tc' && h.tcOwnerId === playerId && !this.playerMap.get(playerId).eliminated)
-      )
+      .filter(h => this.controllerOf(h.id) === playerId ||
+        // The Town Center itself is a permanent owned structure on its hex.
+        (h.special === 'tc' && h.tcOwnerId === playerId &&
+         !this.playerMap.get(playerId).eliminated &&
+         (this.controllerOf(h.id) === null || this.controllerOf(h.id) === playerId)))
       .map(h => h.id);
   }
 

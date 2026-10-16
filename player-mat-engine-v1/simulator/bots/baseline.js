@@ -267,11 +267,13 @@ export class BaselineBot {
     for(const v of this.villagers(game)){
       if(!this.safeToVacate(game,v))continue;
       const occupied=linked.has(v.hexId);
+      const other=this.ownUnits(game,u=>u.id!==v.id&&u.hexId===v.hexId).length>0;
+      const building=game.state.buildings.some(b=>b.ownerId===this.playerId&&b.hexId===v.hexId);
       for(const h of physicalNeighbors(game.state.hexes,v.hexId)){
         // Shuttle idle workers through the already-controlled chain toward
         // its frontier. They can pass through friendly-occupied hexes.
         if(h.terrain!=='water'&&game.controllerOf(h.id)===this.playerId&&
-           linked.has(h.id)&&h.id!==v.hexId&&!SOURCE_TO_RESOURCE[h.source]&&
+           linked.has(h.id)&&h.id!==v.hexId&&
            (v.hexId===this.player(game).tcHexId||other||building)){
           const frontier=physicalNeighbors(game.state.hexes,h.id).some(n=>
             n.terrain!=='water'&&game.controllerOf(n.id)!==this.playerId);
@@ -384,7 +386,19 @@ export class BaselineBot {
       : barracks ? HUB_TARGET_AFTER_BARRACKS : HUB_TARGET_BEFORE_BARRACKS;
     const have = game.state.logisticsNetworkEnabled ? this.controlledResources(game) : this.localResources(game, hub.id);
     const deficits = {};
-    for (const r of RESOURCE_TYPES) deficits[r] = Math.max(0, (target[r] || 0) - (have[r] || 0));
+    const economicTarget={...target};
+    // Secure an economic anchor before all eight workers occupy permanent
+    // corridor tiles. A mill costs 3 wood; a camp costs 2 wood, in addition
+    // to the wood needed for the first barracks.
+    if(game.state.logisticsNetworkEnabled&&!barracks){
+      const buildings=game.state.buildings.filter(b=>b.ownerId===this.playerId);
+      if(!buildings.some(b=>b.type==='mill') &&
+         this.connectedIds(game).some(id=>['animals','berries'].includes(game.hexMap.get(id)?.source)))
+        economicTarget.wood=Math.max(economicTarget.wood||0,4);
+      else if(!buildings.some(b=>b.type==='camp'))
+        economicTarget.wood=Math.max(economicTarget.wood||0,3);
+    }
+    for (const r of RESOURCE_TYPES) deficits[r] = Math.max(0, (economicTarget[r] || 0) - (have[r] || 0));
     return deficits;
   }
 
@@ -544,13 +558,14 @@ export class BaselineBot {
 
   moveLogistics(game) {
     if(game.state.logisticsNetworkEnabled){
-      return this.logisticsCourier(game);
-    }
-    if(game.state.logisticsNetworkEnabled){
-      const constructed=this.prepareBarracksSite(game);
-      if(constructed.ok)return constructed;
+      // Connected resources are paid remotely; never ferry them to the TC.
+      const repaired=this.reconnectNetwork(game);
+      if(repaired.ok)return repaired;
+      const prepared=this.prepareBarracksSite(game);
+      if(prepared.ok)return prepared;
       const expanded=this.networkExpansion(game);
       if(expanded.ok)return expanded;
+      return {ok:false,label:'network-no-courier'};
     }
     const hub = this.hub(game);
     const villagers = shuffle(this.villagers(game), this.random);
@@ -871,31 +886,34 @@ export class BaselineBot {
   }
 
   networkEconomy(game) {
-    // A disconnected barracks cannot pay remotely; local resupply is legal.
-    if(this.barracks(game)&&!this.connectedIds(game).includes(this.barracks(game).hexId))
-      return this.supplyIsolatedBarracks(game);
-    // Use network spending whenever possible. Physical logistics is only
-    // a late fallback for an opening that cannot establish a supply chain.
-    if(!this.barracks(game)&&game.state.round>=25&&
-       !this.canPrepareNetworkBarracks(game))return this.bootstrapBarracks(game);
+    // Do not ferry resources even for an isolated barracks: reconnect its territory.
     const linked=new Set(this.connectedIds(game));
     const stock=this.controlledResources(game);
     const deficits=this.resourceDeficits(game);
     const villagers=this.villagers(game);
+    // Persist the construction objective: until a barracks exists, its
+    // cost drives production and expansion rather than opportunistic spending.
+    const barracksRule=!this.barracks(game)?game.buildingRule(this.playerId,'barracks'):null;
+    const barracksAffordable=!!barracksRule&&canPay(stock,barracksRule.cost);
     const hasFoodSource=this.connectedIds(game).some(id=>
       SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food');
-    if(!hasFoodSource&&(stock.food||0)===0&&villagers.length<3){
-      const food=this.emergencyFoodDelivery(game);
-      if(food.ok)return food;
-    }
+    // Missing food means expand/produce on a connected food hex, not delivery.
     // Buildings anchor resource tiles and free the worker to extend the net.
     const consolidated=this.tryConsolidateResource(game);
     if(consolidated.ok)return consolidated;
-    if(villagers.length<8&&(stock.food||0)>0){
+    if(villagers.length<8&&(stock.food||0)>0 &&
+       (!barracksAffordable || villagers.length<3) &&
+       (!barracksRule || villagers.length<3 ||
+        (stock.food||0)>(barracksRule.cost.food||0)+1)){
       const trained=this.tryTrainVillager(game);
       if(trained.ok)return trained;
     }
-    const occupied=[...new Set(villagers.map(v=>v.hexId))].filter(id=>linked.has(id));
+    // Camps and mills produce even without a villager on their hex.
+    // Earlier bots ignored autonomous buildings and stalled with zero wood.
+    const productiveBuildings=game.state.buildings.filter(b=>
+      b.ownerId===this.playerId && ['camp','mill'].includes(b.type)).map(b=>b.hexId);
+    const occupied=[...new Set([...villagers.map(v=>v.hexId),...productiveBuildings])]
+      .filter(id=>linked.has(id));
     const canProduce=occupied.map(id=>({hexId:id,mode:'source'}))
       .filter(x=>!!SOURCE_TO_RESOURCE[game.hexMap.get(x.hexId)?.source]);
     const needed=canProduce.filter(x=>{
@@ -913,10 +931,12 @@ export class BaselineBot {
         game.produce(this.playerId,needed.slice(0,limit)));
       if(produced.ok)return produced;
     }
-    if(this.canPrepareNetworkBarracks(game)){
+    if(barracksAffordable){
       const prepared=this.prepareBarracksSite(game);
       if(prepared.ok)return prepared;
     }
+    const repaired=this.reconnectNetwork(game);
+    if(repaired.ok)return repaired;
     const routed=this.networkPursue(game);
     if(routed.ok)return routed;
     return this.networkGrow(game,stock.food<1?'food':null);
@@ -928,65 +948,76 @@ export class BaselineBot {
   }
 
   networkPursue(game) {
+    // Plan from the *actual connected network*, never from a theoretical
+    // shortest path through unowned territory. Each new tile needs an anchor.
     const linked=new Set(this.connectedIds(game));
-    const tc=this.player(game).tcHexId;
-    const have=this.controlledResources(game);
     const deficits=this.resourceDeficits(game);
-    const priorities=[
-      {type:'food',need:(have.food||0)<3?3-(have.food||0):0},
-      {type:'wood',need:deficits.wood||0},
-      {type:'stone',need:deficits.stone||0},
-      {type:'gold',need:deficits.gold||0}
-    ].filter(x=>x.need>0);
-    const sourcePlans=[];
-    for(const {type,need} of priorities){
-      for(const target of this.sourceCandidates(game,type)){
-        if(linked.has(target.id))continue;
-        const path=strategicLandPath(game,tc,target.id);
-        if(!path||path.length<2)continue;
-        let frontier=-1;
-        for(let i=1;i<path.length;i++){
-          if(!linked.has(path[i])){frontier=i;break;}
+    const p=this.player(game);
+    const workers=this.villagers(game);
+    const sources=game.state.hexes.filter(h=>h.terrain!=='water'&&
+      SOURCE_TO_RESOURCE[h.source]&&deficits[SOURCE_TO_RESOURCE[h.source]]>0&&
+      !linked.has(h.id)&&game.controllerOf(h.id)!==this.playerId);
+    if(!sources.length)return {ok:false};
+    const dist=new Map(),previous=new Map();
+    const open=[...linked];
+    for(const id of linked)dist.set(id,0);
+    // Dijkstra using unoccupied hexes as the primary cost. Existing
+    // connected hexes are free; hostile hexes are never passable.
+    const done=new Set();
+    while(open.length){
+      open.sort((a,b)=>dist.get(a)-dist.get(b)||a.localeCompare(b));
+      const id=open.shift();
+      if(done.has(id))continue;
+      done.add(id);
+      for(const h of physicalNeighbors(game.state.hexes,id)){
+        if(h.terrain==='water')continue;
+        const owner=game.controllerOf(h.id);
+        if(owner&&owner!==this.playerId)continue;
+        const cost=linked.has(h.id)?0:1;
+        const nd=dist.get(id)+cost;
+        if(nd<(dist.get(h.id)??Infinity)){
+          dist.set(h.id,nd);
+          previous.set(h.id,id);
+          open.push(h.id);
         }
-        if(frontier<0||frontier===0)continue;
-        // Current frontier must be next to a connected anchor and not hostile.
-        const next=game.hexMap.get(path[frontier]);
-        if(!next||next.terrain==='water'||game.controllerOf(next.id)&&
-           game.controllerOf(next.id)!==this.playerId)continue;
-        sourcePlans.push({type,target,path,frontier,next,
-          score:(frontier-1)*3+path.length+(['food','wood','stone','gold'].indexOf(type))*2});
       }
     }
-    sourcePlans.sort((a,b)=>a.score-b.score||a.target.id.localeCompare(b.target.id));
-    for(const plan of sourcePlans.slice(0,12)){
-      const anchor=plan.path[plan.frontier-1];
-      const workers=this.villagers(game);
-      const ready=workers.filter(v=>v.hexId===anchor&&this.safeToVacate(game,v));
-      for(const worker of ready){
-        const moved=this.safe(game,'network-route-extend',()=>
-          game.moveUnits(this.playerId,[worker.id],plan.next.id));
-        if(moved.ok)return moved;
-      }
-      // Move a free reserve along already connected friendly hexes.
-      const queue=[anchor],parent=new Map([[anchor,null]]);
-      for(let i=0;i<queue.length;i++){
-        for(const h of physicalNeighbors(game.state.hexes,queue[i])){
-          if(!linked.has(h.id)||parent.has(h.id))continue;
-          parent.set(h.id,queue[i]);queue.push(h.id);
-        }
-      }
-      const reserves=workers.filter(v=>parent.has(v.hexId)&&this.safeToVacate(game,v))
-        .map(v=>{
-          let id=anchor,prior=parent.get(id);
-          while(prior!==null&&prior!==v.hexId){id=prior;prior=parent.get(id);}
-          return prior===v.hexId?{v,next:id,distance:hexDistance(game.hexMap.get(v.hexId),game.hexMap.get(anchor))}:null;
-        }).filter(Boolean).sort((a,b)=>a.distance-b.distance);
-      for(const {v,next} of reserves){
-        if(next===v.hexId)continue;
-        const moved=this.safe(game,'network-route-reinforce',()=>
-          game.moveUnits(this.playerId,[v.id],next));
-        if(moved.ok)return moved;
-      }
+    const liveTargets=sources.filter(h=>dist.has(h.id))
+      .sort((a,b)=>(dist.get(a.id)-dist.get(b.id))||
+        ((deficits[SOURCE_TO_RESOURCE[b.source]]||0)-(deficits[SOURCE_TO_RESOURCE[a.source]]||0))||
+        a.id.localeCompare(b.id));
+    if(!liveTargets.length)return {ok:false};
+    const available=workers.filter(v=>this.safeToVacate(game,v));
+    const capacity=available.length;
+    const goal=this.memory.networkGoal;
+    const retained=liveTargets.find(h=>h.id===goal?.hexId&&
+      dist.get(h.id)<=capacity && game.state.round-(goal?.started||0)<30);
+    // Avoid exhausting all workers on a remote source: leave one mobile
+    // reserve unless the missing resource is reachable in a single step.
+    const viable=liveTargets.filter(h=>dist.get(h.id)<=capacity &&
+      (dist.get(h.id)<=1 || dist.get(h.id)<capacity));
+    const chosen=(retained&&viable.some(h=>h.id===retained.id)?retained:null)||
+      viable[0];
+    if(!chosen)return {ok:false};
+    if(!retained)this.memory.networkGoal={hexId:chosen.id,type:SOURCE_TO_RESOURCE[chosen.source],started:game.state.round};
+    const chain=[chosen.id];let cursor=chosen.id;
+    while(!linked.has(cursor)&&previous.has(cursor)){cursor=previous.get(cursor);chain.unshift(cursor);}
+    const first=chain.find(id=>!linked.has(id));
+    if(!first)return {ok:false};
+    const frontier=chain[chain.indexOf(first)-1];
+    // Reinforce from an uncommitted worker. The final step must immediately
+    // occupy the frontier and be connected to the TC.
+    const options=available.map(v=>{
+      const route=strategicLandPath(game,v.hexId,frontier);
+      return route?{v,route}:null;
+    }).filter(Boolean).sort((a,b)=>a.route.length-b.route.length);
+    for(const {v,route} of options){
+      const destination=v.hexId===frontier?first:route[1];
+      if(!destination)continue;
+      if(destination!==first&&!linked.has(destination))continue;
+      const moved=this.safe(game,'network-route-extend',()=>
+        game.moveUnits(this.playerId,[v.id],destination));
+      if(moved.ok)return moved;
     }
     return {ok:false};
   }
@@ -1017,9 +1048,9 @@ export class BaselineBot {
         if(!physicalNeighbors(game.state.hexes,h.id).some(n=>linked.has(n.id)&&
             (n.id!==v.hexId||originRetained)))continue;
         const resource=SOURCE_TO_RESOURCE[h.source];
-        if(onlyResource&&resource!==onlyResource&&
-           !(onlyResource==='food'&&!resource&&
-             physicalNeighbors(game.state.hexes,h.id).some(n=>n.terrain==='water')))continue;
+        // Never freeze expansion solely because food is empty: a forest,
+        // stone or gold tile can anchor a route toward the missing food.
+        // Prioritize food but preserve other viable network extensions.
         const buildSite=['plain','desert'].includes(h.terrain)&&!h.source&&!h.special;
         const score=(resource&&deficits[resource]>0?40:0)+
           (resource==='food'&& (this.controlledResources(game).food||0)<2?35:0)+
@@ -1037,29 +1068,61 @@ export class BaselineBot {
     return {ok:false};
   }
 
+  protectTownCenter(game) {
+    const tc=this.player(game).tcHexId;
+    const owned=this.military(game).filter(u=>game.effectiveUnitSpec(this.playerId,u.type).move>0);
+    if(!owned.length)return {ok:false};
+    const enemyUnits=game.state.units.filter(u=>u.ownerId!==this.playerId &&
+      !game.playerMap.get(u.ownerId)?.eliminated && game.isCombatParticipant(u.ownerId,u));
+    const threatened=enemyUnits.some(u=>{
+      const from=game.hexMap.get(u.hexId),home=game.hexMap.get(tc);
+      return from&&home&&hexDistance(from,home)<=3;
+    });
+    const defenders=owned.filter(u=>u.hexId===tc);
+    // Never abandon the last CU defender. No amount of expansion is worth
+    // immediate elimination.
+    if(defenders.length)return {ok:false};
+    // Do not immobilize the only military unit before an immediate threat.
+    if(!threatened)return {ok:false};
+    const candidates=owned.map(u=>({u,path:strategicLandPath(game,u.hexId,tc)}))
+      .filter(x=>x.path&&x.path.length>1)
+      .sort((a,b)=>a.path.length-b.path.length);
+    for(const {u,path} of candidates){
+      const step=path[1];
+      const hostile=game.state.units.some(x=>x.hexId===step&&x.ownerId!==this.playerId &&
+        game.isCombatParticipant(x.ownerId,x));
+      if(hostile)continue;
+      const moved=this.safe(game,'defend-town-center',()=>
+        game.moveUnits(this.playerId,[u.id],step));
+      if(moved.ok)return moved;
+    }
+    return {ok:false};
+  }
+
   networkMilitary(game) {
-    if(this.barracks(game)&&!this.connectedIds(game).includes(this.barracks(game).hexId)){
-      const trained=this.tryTrainMilitary(game);
-      if(trained.ok)return trained;
-      return this.supplyIsolatedBarracks(game);
-    }
-    if(!this.barracks(game)&&game.state.round>=25&&
-       !this.canPrepareNetworkBarracks(game))return this.bootstrapBarracks(game);
+    // Military logistics uses only the network's controlled connected stock.
     const villagers=this.villagers(game);
-    if(!this.barracks(game)&&villagers.length<3&&
-      !this.connectedIds(game).some(id=>SOURCE_TO_RESOURCE[game.hexMap.get(id)?.source]==='food')&&
-      (this.controlledResources(game).food||0)===0){
-      const food=this.emergencyFoodDelivery(game);
-      if(food.ok)return food;
-    }
+    // Food shortages are addressed during network expansion/production.
     const built=this.tryBuildBarracks(game);
     if(built.ok)return built;
-    const trained=this.tryTrainMilitary(game);
-    if(trained.ok)return trained;
-    if(this.military(game).length){
+    const army=this.military(game);
+    const defended=this.protectTownCenter(game);
+    if(defended.ok)return defended;
+    // Once an army can engage, use it rather than training indefinitely.
+    if(army.length>=Math.max(2,this.desiredArmy)){
       const advanced=this.tryArmyAction(game);
       if(advanced.ok)return advanced;
     }
+    if(army.length<this.maxArmy){
+      const trained=this.tryTrainMilitary(game);
+      if(trained.ok)return trained;
+    }
+    if(army.length){
+      const advanced=this.tryArmyAction(game);
+      if(advanced.ok)return advanced;
+    }
+    const logistics=this.moveLogistics(game);
+    if(logistics.ok)return logistics;
     if(!this.barracks(game)&&this.canPrepareNetworkBarracks(game)){
       const prepared=this.prepareBarracksSite(game);
       if(prepared.ok)return prepared;
@@ -1295,8 +1358,13 @@ export class BaselineBot {
     if (!stacks.length) return { ok: false };
 
     for (const stack of stacks) {
+      const home=this.player(game).tcHexId;
+      const homeDefenders=this.military(game).filter(u=>u.hexId===home);
       const direct = stack.units.filter(u => {
         const spec = game.effectiveUnitSpec(this.playerId, u.type);
+        // Keep one defender at the CU even when it is the nearest stack
+        // to an attractive offensive target.
+        if(u.hexId===home&&homeDefenders[0]?.id===u.id&&this.military(game).length>=2&&game.state.units.some(x=>x.ownerId!==this.playerId&&game.isCombatParticipant(x.ownerId,x)&&hexDistance(game.hexMap.get(x.hexId),game.hexMap.get(home))<=3))return false;
         return spec.move > 0 && !spec.water;
       });
       if (!direct.length) continue;
@@ -1407,7 +1475,8 @@ export class BaselineBot {
 
     const tryAdvance = () => {
       if (
-        armyCount < this.ageArmyThreshold ||
+        (armyCount < (game.state.logisticsNetworkEnabled && this.barracks(game)
+          ? Math.min(this.ageArmyThreshold, 1) : this.ageArmyThreshold)) ||
         ageIndex >= AGES.length - 1
       ) return { ok: false };
 
