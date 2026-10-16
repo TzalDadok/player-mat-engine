@@ -160,5 +160,50 @@
 
     requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
   };
+  // Impresión A4 a escala real: dos mitades verticales por civilización.
+  document.getElementById('printA4Btn').onclick=()=>{
+    const civ1=printCiv1.value, civ2=printCiv2.value;
+    const chosen=[civ1,civ2].filter(Boolean);
+    if(!chosen.length){alert('Seleccioná al menos una civilización para imprimir.');return;}
+    const current=select.value || Object.keys(civs)[0];
+    const sheet=document.getElementById('printA4');
+    sheet.innerHTML='';
+    const halfCm=19.8; // Ancho efectivo del mat: 39,6 cm.
+    chosen.forEach(id=>{
+      render(id);
+      for(const side of ['left','right']){
+        const page=document.createElement('div');
+        page.className='print-a4-page';
+        const viewport=document.createElement('div');
+        viewport.className='print-a4-viewport';
+        const clone=mat.cloneNode(true);
+        clone.removeAttribute('id');
+        clone.classList.remove('grid-guides','show-reference');
+        clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+        clone.style.position='absolute';
+        clone.style.top='0';
+        clone.style.left=(side==='left' ? '0' : `-${halfCm}cm`);
+        clone.style.margin='0';
+        clone.style.transform='none';
+        viewport.appendChild(clone);
+        page.appendChild(viewport);
+        sheet.appendChild(page);
+      }
+    });
+    render(current);
+    const pageStyle=document.createElement('style');
+    pageStyle.textContent='@media print{@page{size:A4 portrait;margin:0}}';
+    document.head.appendChild(pageStyle);
+    document.body.classList.add('print-a4-mode');
+    sheet.setAttribute('aria-hidden','false');
+    const cleanup=()=>{
+      document.body.classList.remove('print-a4-mode');
+      sheet.setAttribute('aria-hidden','true');
+      sheet.innerHTML='';
+      pageStyle.remove();
+    };
+    window.addEventListener('afterprint',cleanup,{once:true});
+    requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
+  };
   render(select.value || Object.keys(civs)[0]);
 })();
