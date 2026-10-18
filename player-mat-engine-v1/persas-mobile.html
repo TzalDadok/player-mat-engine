@@ -14,7 +14,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:9px;fle
 .board{flex:1;min-height:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:3px 8px 8px}
 .column{background:#1d2f25;border:1px solid #536649;border-radius:8px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .column-head{display:flex;align-items:center;justify-content:center;gap:4px;flex:0 0 auto;background:#354636;border-bottom:1px solid #89764c;padding:4px 2px;min-height:33px}
-.column-head img{height:26px;width:32px;object-fit:cover;border-radius:3px}.column-head b{font-size:10px;line-height:1.1}.column-head{width:100%;color:var(--ink);font:inherit;cursor:pointer}.column-head:disabled{opacity:1;cursor:default}.column-head.header-built{background:#4b7345;border-color:#acd88a}.column-head.header-built b{color:#d8ffc3}
+.column-head img{height:26px;width:32px;object-fit:cover;border-radius:3px}.column-head b{font-size:10px;line-height:1.1}.column-head{width:100%;color:var(--ink);font:inherit;cursor:pointer}.column-head:disabled{opacity:1;cursor:default}.column-head.header-built{background:#4b7345;border-color:#acd88a}.column-head.header-built b{color:#d8ffc3}.building-label{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;gap:2px}.building-price{display:block;font-size:10px;color:#f6d48b;font-weight:700;white-space:normal;line-height:1.1}.column-head{min-height:40px}
 .tiles{padding:5px;display:grid;grid-auto-rows:minmax(0,1fr);gap:5px;flex:1;min-height:0}
 .tile{min-height:0;border-radius:6px;padding:6px 4px;border:1px solid #6a925c;background:#30442e;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:3px;overflow:hidden}
 .tile.tech{background:#30492f;border-color:#86ac6d}.tile.building,.tile.military-building{background:#4a3828;border-color:#c3975f}.tile.unit,.tile.civil{background:#263d49;border-color:#779fb3}
@@ -51,7 +51,7 @@ $('advance').disabled=view!==current||!canAdvance();
 $('board').innerHTML=civ.buildings.map(col=>{
 const entries=nodes.filter(n=>n.age===ages[view].id&&n.building===col.id);
 const headerActive=col.id!=='tc'&&view===0&&view<=current;
-return '<section class="column"><button class="column-head '+(builtHeaders.has(col.id)?'header-built':'')+'" data-building="'+col.id+'" '+(!headerActive?'disabled':'')+'><img src="'+col.image+'" alt=""><b>'+col.name+(builtHeaders.has(col.id)?' ✓':'')+'</b></button><div class="tiles">'+(entries.length?entries.map(n=>{
+return '<section class="column"><button class="column-head '+(builtHeaders.has(col.id)?'header-built':'')+'" data-building="'+col.id+'" '+(!headerActive?'disabled':'')+'><img src="'+col.image+'" alt=""><span class="building-label"><b>'+col.name+(builtHeaders.has(col.id)?' ✓':'')+'</b>'+(col.cost?'<small class="building-price">'+money(col.cost)+'</small>':'')+'</span></button><div class="tiles">'+(entries.length?entries.map(n=>{
 const i=key(n),done=developed.has(i);
 return '<button class="tile '+n.type+(done?' checked':'')+(view>current?' preview':'')+'" data-node="'+i+'"><strong>'+n.title+'</strong><small>'+money(n.cost)+'</small>'+(markable(n)?'<span class="mark">'+(done?'✓ DESARROLLADO':view>current?'◌ PRÓXIMA EDAD':'○ PENDIENTE')+'</span>':'')+'</button>';
 }).join(''):'<div class="empty">—</div>')+'</div></section>';
