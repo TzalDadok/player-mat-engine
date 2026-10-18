@@ -50,7 +50,7 @@ const b=builds(),base=baseBuildings();$('requirement').textContent=view===curren
 $('advance').disabled=view!==current||!canAdvance();
 $('board').innerHTML=civ.buildings.map(col=>{
 const entries=nodes.filter(n=>n.age===ages[view].id&&n.building===col.id);
-const headerActive=col.id!=='tc'&&view===current&&current===0;
+const headerActive=col.id!=='tc'&&view===0&&view<=current;
 return '<section class="column"><button class="column-head '+(builtHeaders.has(col.id)?'header-built':'')+'" data-building="'+col.id+'" '+(!headerActive?'disabled':'')+'><img src="'+col.image+'" alt=""><b>'+col.name+(builtHeaders.has(col.id)?' ✓':'')+'</b></button><div class="tiles">'+(entries.length?entries.map(n=>{
 const i=key(n),done=developed.has(i);
 return '<button class="tile '+n.type+(done?' checked':'')+(view>current?' preview':'')+'" data-node="'+i+'"><strong>'+n.title+'</strong><small>'+money(n.cost)+'</small>'+(markable(n)?'<span class="mark">'+(done?'✓ DESARROLLADO':view>current?'◌ PRÓXIMA EDAD':'○ PENDIENTE')+'</span>':'')+'</button>';
@@ -58,7 +58,7 @@ return '<button class="tile '+n.type+(done?' checked':'')+(view>current?' previe
 }).join('');
 }
 $('ages').onclick=e=>{const el=e.target.closest('[data-age]');if(!el)return;const i=Number(el.dataset.age);if(i<=current+1){view=i;render()}};
-$('board').onclick=e=>{const head=e.target.closest('[data-building]');if(head){if(current!==0||view!==current||head.dataset.building==='tc')return;const id=head.dataset.building;if(builtHeaders.has(id))builtHeaders.delete(id);else builtHeaders.add(id);render();return;}const el=e.target.closest('[data-node]');if(!el)return;selected=Number(el.dataset.node);const n=nodes[selected];$('type').textContent=types[n.type];$('name').textContent=n.title;$('cost').textContent=money(n.cost);$('description').textContent=n.text||(n.stats?'Fuerza: '+(n.stats.force??'—')+' · Alcance: '+(n.stats.range??'—')+' · Movimiento: '+(n.stats.move??'—'):'Disponible desde esta Edad.');
+$('board').onclick=e=>{const head=e.target.closest('[data-building]');if(head){if(view!==0||view>current||head.dataset.building==='tc')return;const id=head.dataset.building;if(builtHeaders.has(id))builtHeaders.delete(id);else builtHeaders.add(id);render();return;}const el=e.target.closest('[data-node]');if(!el)return;selected=Number(el.dataset.node);const n=nodes[selected];$('type').textContent=types[n.type];$('name').textContent=n.title;$('cost').textContent=money(n.cost);$('description').textContent=n.text||(n.stats?'Fuerza: '+(n.stats.force??'—')+' · Alcance: '+(n.stats.range??'—')+' · Movimiento: '+(n.stats.move??'—'):'Disponible desde esta Edad.');
 const allowed=markable(n)&&view<=current;$('toggle').hidden=!allowed;if(allowed)$('toggle').textContent=developed.has(selected)?'Desmarcar':'Marcar como '+(isBuilding(n)?'construido':'investigado');$('details').showModal();
 };
 $('close').onclick=()=>$('details').close();
