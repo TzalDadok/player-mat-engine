@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AEVUM · Mat móvil Persas</title>
+<style>
+:root{color-scheme:dark;--bg:#111d18;--panel:#1d3027;--border:#947a46;--gold:#e3c47b;--ink:#f8f0d7;--soft:#cbbfa5}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Arial,sans-serif}
+button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #ffd071;outline-offset:2px}
+header{padding:8px 13px;background:#14271e;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}.brand img{width:45px;height:45px;object-fit:cover;border:1px solid #9c753d;border-radius:7px}
+.brand strong{display:block;letter-spacing:.11em;color:var(--gold);font-family:Georgia,serif;font-size:18px}.brand small{color:var(--soft);font-size:10px}
+.controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:end}.button{border:1px solid var(--border);border-radius:8px;background:#293b2c;color:var(--ink);padding:8px 12px;font-weight:700;font-size:12px}
+.button.primary{background:#b99748;color:#1f1b12}.button:disabled{opacity:.42;cursor:not-allowed}
+.notice{font-size:11px;color:#e6c783;margin:0;padding:5px 13px;background:#233627}
+main{padding:9px 12px 18px}.ages{display:flex;gap:7px;margin-bottom:10px}
+.age{flex:1;min-width:0;text-align:center;border:1px solid #6b6548;border-radius:8px;background:#27342b;color:#dacfae;padding:8px 4px}
+.age b{display:block;font-family:Georgia,serif;font-size:17px}.age small{display:block;font-size:10px}.age.active{background:#547245;border-color:#e4bb62;color:#fff3d4}.age.preview{border-style:dashed;border-color:#e1bd76}.age.locked{opacity:.33;pointer-events:none}
+.layout{display:grid;grid-template-columns:minmax(145px,21%) minmax(0,1fr);gap:10px}
+aside{background:var(--panel);border:1px solid #4e644e;border-radius:9px;padding:10px;align-self:start}
+aside h3{margin:0 0 8px;color:var(--gold);font:700 16px Georgia,serif}
+aside p{font-size:12px;line-height:1.45;margin:5px 0 10px}.muted{color:var(--soft)}
+.cost{font-weight:700;color:#ffe0a3;font-size:12px;white-space:normal}
+.panel h2{font:700 17px Georgia,serif;color:var(--gold);margin:0 0 8px}
+.building-group{margin-bottom:9px;border:1px solid #526448;border-radius:9px;background:#1d2b22;overflow:hidden}
+.building-header{display:flex;align-items:center;gap:9px;padding:6px 9px;border-bottom:1px solid #485a46;background:#293c30}
+.building-header img{height:30px;width:44px;object-fit:cover;border-radius:4px}
+.building-header strong{font-size:13px}
+.cards{padding:7px;display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:7px}
+.card{border:1px solid #766c4e;border-radius:8px;background:#344032;padding:8px;text-align:left;color:var(--ink);min-width:0}
+.card.tech{border-color:#7d9e61;background:#253c27}.card.building,.card.military-building{border-color:#c49b63;background:#493727}
+.card.unit,.card.civil{border-color:#7a9bb0;background:#263c47}
+.card-head{display:flex;justify-content:space-between;gap:6px;align-items:start}
+.card strong{font-size:13px}.card .kind{font-size:10px;color:#ddca91}
+.card p{font-size:11px;line-height:1.35;margin:6px 0 0;color:#f0e9d5}
+.card .cost{margin-top:5px}
+.card.trackable{cursor:pointer}.card.checked{border-color:#b9d996;background:#395634}.card.checked .mark{color:#b9ef97}
+.card .mark{font-size:18px;line-height:1;color:#e8cf8d}
+.card.preview-card{opacity:.68;cursor:default}
+.empty{color:var(--soft);font-size:13px}
+@media (orientation:portrait){body:before{content:"↻ Girá el celular para usar el mat en horizontal";position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;background:#102117;color:#f6d99c;z-index:99;font-size:21px;font-weight:bold}}
+@media(max-height:440px){header{padding:4px 10px}.brand img{width:34px;height:34px}.ages{margin-bottom:5px}.age{padding:4px}.layout{grid-template-columns:165px minmax(0,1fr)}}
+</style></head><body>
+<header><div class="brand"><img src="assets/ui/Emblema%20Persa%20Dorado%20con%20Alas.png" alt=""><div><strong>PERSAS</strong><small>AEVUM · MAT INTERACTIVO</small></div></div><div class="controls"><button id="currentBtn" class="button">Edad actual</button><button id="advanceBtn" class="button primary">Avanzar Edad →</button><button id="resetBtn" class="button">Reiniciar mat</button></div></header>
+<p class="notice" id="message" role="status">Marcá las tecnologías investigadas y los edificios construidos. No se guarda información.</p>
+<main><nav class="ages" id="ages" aria-label="Edades"></nav><div class="layout"><aside id="summary"></aside><section class="panel"><h2 id="sectionTitle"></h2><div id="cards"></div></section></div></main>
+<script src="civs/persas.js"></script>
+<script>
+(()=>{
+const civ=window.PLAYER_MAT_CIVS.persas;
+const ages=civ.ages;const kinds={tech:'Tecnología',building:'Edificio','military-building':'Edificio militar',unit:'Unidad',civil:'Unidad económica'};
+const icons={food:'🥩',wood:'🪵',stone:'🪨',gold:'🪙'};
+const unique=[];const keys=new Set;
+for(const n of civ.nodes){const k=[n.age,n.building,n.type,n.title].join('|');if(!keys.has(k)){unique.push(n);keys.add(k)}}
+const idx=new Map(unique.map((n,i)=>[n,i]));
+let ageIndex=0,viewIndex=0;const complete=new Set();
+const $=id=>document.getElementById(id);
+const cost=obj=>obj?Object.entries(obj).map(([k,v])=>icons[k]+' '+v).join(' · '):'Sin costo';
+const typeIsBuilding=n=>['building','military-building'].includes(n.type);
+function message(s){$('message').textContent=s}
+function render(){
+$('ages').innerHTML=ages.map((a,i)=>'<button class="age '+(i===ageIndex?'active ':i===ageIndex+1?'preview ':'')+(i>ageIndex+1?'locked':'')+'" data-age="'+i+'" '+(i>ageIndex+1?'disabled':'')+'><b>'+a.roman+'</b><small>'+a.name.replace('EDAD DE LOS ','').replace('EDAD ','')+'</small></button>').join('');
+const active=ages[ageIndex],next=ages[ageIndex+1];
+const required=unique.filter(n=>n.age===active.id&&typeIsBuilding(n));
+const hasRequired=required.length===0||required.some(n=>complete.has(idx.get(n)));
+const preview=viewIndex>ageIndex;
+$('currentBtn').disabled=!preview;
+$('advanceBtn').disabled=!next||!hasRequired||preview;
+$('sectionTitle').textContent=(preview?'Vista previa · ':'Edad actual · ')+ages[viewIndex].name;
+$('summary').innerHTML='<h3>'+active.name+'</h3><p>Edad actual: <strong>'+active.roman+'</strong><br>Tecnologías investigadas: <strong>'+unique.filter(n=>n.type==='tech'&&complete.has(idx.get(n))).length+'</strong></p>'+
+(next?'<p><strong>Siguiente:</strong> '+next.name+'<br><span class="cost">'+cost(next.cost)+'</span></p>':'<p>Última Edad alcanzada.</p>')+
+(required.length?'<p><strong>Requisito de construcción:</strong><br>'+required.map(n=>(complete.has(idx.get(n))?'✓ ':'○ ')+n.title).join('<br>')+'<br><span class="muted">Basta con una construcción de esta Edad.</span></p>':'<p class="muted">Esta Edad no tiene construcciones nuevas: no exige ese requisito.</p>')+
+'<p class="muted">El costo de avanzar se paga en el tablero físico. La app no lleva recursos.</p>';
+const selected=unique.filter(n=>n.age===ages[viewIndex].id);
+$('cards').innerHTML=civ.buildings.map(b=>{
+const nodes=selected.filter(n=>n.building===b.id);if(!nodes.length)return '';
+return '<div class="building-group"><div class="building-header"><img src="'+b.image+'" alt=""><strong>'+b.name+'</strong></div><div class="cards">'+nodes.map(n=>{
+const id=idx.get(n),markable=['tech','building','military-building'].includes(n.type),done=complete.has(id);
+return '<button class="card '+n.type+' '+(markable&&!preview?'trackable ':'')+(done?'checked ':'')+(preview?'preview-card':'')+'" data-node="'+id+'" '+(!markable||preview?'disabled':'')+'><div class="card-head"><div><strong>'+n.title+'</strong><div class="kind">'+kinds[n.type]+'</div></div>'+(markable?'<span class="mark">'+(done?'✓':'○')+'</span>':'')+'</div><div class="cost">'+cost(n.cost)+'</div>'+(n.stats?'<p>⚔ '+(n.stats.force??'—')+' · Alcance '+(n.stats.range??'—')+' · Movimiento '+(n.stats.move??'—')+'</p>':'')+(n.text?'<p>'+n.text+'</p>':'')+'</button>';
+}).join('')+'</div></div>';
+}).join('')||'<p class="empty">No hay desarrollos en esta Edad.</p>';
+}
+$('ages').addEventListener('click',e=>{const b=e.target.closest('[data-age]');if(!b)return;const n=Number(b.dataset.age);if(n<=ageIndex+1){viewIndex=n;render();}});
+$('cards').addEventListener('click',e=>{const b=e.target.closest('[data-node]');if(!b||viewIndex>ageIndex)return;const id=Number(b.dataset.node),n=unique[id];if(!n||!['tech','building','military-building'].includes(n.type))return;if(complete.has(id))complete.delete(id);else complete.add(id);render();});
+$('currentBtn').onclick=()=>{viewIndex=ageIndex;render()};
+$('advanceBtn').onclick=()=>{if(ageIndex>=ages.length-1||viewIndex!==ageIndex)return;const required=unique.filter(n=>n.age===ages[ageIndex].id&&typeIsBuilding(n));if(required.length&&!required.some(n=>complete.has(idx.get(n)))){message('Antes necesitás construir al menos un edificio de tu Edad actual.');return;}ageIndex++;viewIndex=ageIndex;message('Pasaste a '+ages[ageIndex].name+'. Recordá pagar el costo en el tablero.');render();};
+$('resetBtn').onclick=()=>{if(!window.confirm('¿Seguro que querés reiniciar el mat? Se borrarán todas las marcas y volverás a Alta Edad Media.'))return;ageIndex=0;viewIndex=0;complete.clear();message('Mat reiniciado. No se guardan datos.');render();};
+render();
+})();
+</script></body></html>
