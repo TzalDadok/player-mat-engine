@@ -108,7 +108,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"imperial",building:"tc",type:"military-building",title:"Monasterio",cost:{wood:3,stone:2},text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
     {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:3,gold:3},text:"Tus construcciones cuestan −1 Piedra."},
     {age:"imperial",building:"mill",type:"tech",title:"Criad. Reales",cost:{food:3,wood:2,gold:2},text:"Los Elefantes de Guerra cuestan 1 Comida menos al entrenarse."},
-    {age:"imperial",building:"mill",type:"tech",title:"Ingeniería Hidráulica",cost:{wood:3,stone:2,gold:2},text:"Granjas en Desierto junto a Montaña: no sufren sobreexplotación."},
+    {age:"imperial",building:"mill",type:"tech",title:"Ingeniería Hidráulica",cost:{wood:3,stone:2,gold:2},text:"⚠ PENDIENTE DE REVISIÓN: su efecto de evitar la sobreexplotación ya no aplica. No investigar hasta redefinir."},
     {age:"imperial",building:"mill",type:"tech",title:"Armadura Laminar",cost:{stone:3,gold:4},text:"Los Elefantes de Guerra obtienen +1 Fuerza."},
     {age:"imperial",building:"port",type:"tech",title:"Flota Imperial",cost:{food:2,wood:3,gold:2},text:"Barcos de Transporte y Galeras obtienen +1 Movimiento."},
     {age:"imperial",building:"barracks",type:"tech",title:"Howdah",cost:{food:3,wood:2,gold:3},text:"Los Arqueros que se encuentren en el mismo hexágono que un Elefante obtienen +1 Alcance."},
