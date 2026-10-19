@@ -16,9 +16,9 @@ window.PLAYER_MAT_CIVS.francos = {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
       ["Mover","Mové tus unidades según su capacidad de Movimiento."],
-      ["Construir","Realizar una construcción económica disponible."],
+      ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
-      ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
+      ["Comerciar","Comprá o vendé hasta 2 recursos a precios compartidos. Acuerdos entre jugadores: solo por Oro."]
     ],
     technology: [
       ["Investigar","Adquirí una tecnología disponible (cuadro verde)."],
@@ -36,7 +36,6 @@ window.PLAYER_MAT_CIVS.francos = {
     military: [
       ["Mover","Mové unidades militares o económicas. Al entrar con enemigos, decidís si combatir."],
       ["Entrenar","Entrená tantas unidades militares disponibles como puedas pagar."],
-      ["Construir","Realizar una construcción militar disponible."],
       {name:"Instruir", cost:{gold:1}, text:"Obtené +1 Poder de pelea."}
     ]
   },
@@ -70,8 +69,7 @@ window.PLAYER_MAT_CIVS.francos = {
   },
   buildings: [
     {id:"tc", name:"Centro Urbano", image:"assets/buildings/centro-urbano.png"},
-    {id:"mill", name:"Molino", image:"assets/buildings/molino.png", cost:{wood:3}},
-    {id:"camp", name:"Camp. de Recursos", image:"assets/buildings/campamento-recursos.png", cost:{wood:2}},
+    {id:"mill", name:"Campamento Productivo", image:"assets/buildings/molino.png", cost:{wood:2}},
     {id:"port", name:"Puerto", image:"assets/buildings/puerto.png", cost:{wood:4,stone:2}},
     {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.png", cost:{wood:1,stone:3,gold:1}},
     {id:"tower", name:"Torre", image:"assets/buildings/torre.png", cost:{stone:3,wood:2}}
@@ -96,18 +94,17 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"feudal", building:"tc", type:"tech", title:"Colonización", cost:{food:2,wood:2}, text:"Un Aldeano entrenado puede salir en un hexágono adyacente."},
     {age:"feudal", building:"tc", type:"tech", title:"Conscripción", cost:{food:2,gold:1}, text:"La primera Milicia entrenada cada turno cuesta 1 Comida menos."},
     {age:"feudal", building:"mill", type:"tech", title:"Rotación", cost:{food:2,wood:1}, text:"Las Granjas no sufren Sobreexplotación."},
-    {age:"castles", building:"mill", type:"building", title:"Mercado", cost:{wood:3}, text:"COMERCIAR: hasta 2 compras o ventas por acción, a precios compartidos. Acuerdos entre jugadores: solo por Oro."},
     {age:"dark", building:"mill", type:"tech", title:"Campos Abiertos", cost:{food:3,wood:2}, text:"Se pueden construir Granjas en Desiertos."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
-    {age:"dark", building:"camp", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
+    {age:"dark", building:"mill", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Piquero", cost:{food:2,wood:1}},
     {age:"feudal", building:"barracks", type:"tech", title:"Hoplomachus", cost:{food:2,gold:1}, text:"El Piquero obtiene bonus contra Milicia."},
     {age:"feudal", building:"tower", type:"tech", title:"Muralla", cost:{wood:2,stone:2}, text:"Fortificar puede pagarse con 2 piedra en lugar de madera."},
     {age:"castles", building:"port", type:"unit", title:"Galera", cost:{wood:3,gold:1}},
     {age:"castles", building:"port", type:"tech", title:"Astillero", cost:{wood:3,gold:2}, text:"Barcos entrenados pueden salir en un hexágono de Agua adyacente al Puerto."},
     {age:"imperial", building:"port", type:"tech", title:"Desembarco", cost:{wood:3,food:2}, text:"Unidades transportadas se pueden mover 1 hexágono al desembarcar."},
-    {age:"feudal", building:"camp", type:"tech", title:"Canteros", cost:{food:2,wood:1}, text:"Aldeanos trabajando en una cantera de piedra producen +1 piedra."},
-    {age:"imperial", building:"camp", type:"tech", title:"Herrería", cost:{food:2,stone:2,gold:2}, text:"La primera unidad militar que entrenes cada turno cuesta 1 Oro menos."},
+    {age:"feudal", building:"mill", type:"tech", title:"Canteros", cost:{food:2,wood:1}, text:"Aldeanos trabajando en una cantera de piedra producen +1 piedra."},
+    {age:"imperial", building:"mill", type:"tech", title:"Herrería", cost:{food:2,stone:2,gold:2}, text:"La primera unidad militar que entrenes cada turno cuesta 1 Oro menos."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:3}},
     {age:"castles", building:"barracks", type:"unit", title:"Caballero", cost:{food:3,gold:4}},
     {age:"castles", building:"barracks", type:"tech", title:"Carga", cost:{food:2,gold:2}, text:"Unidades montadas que entren a un hexágono enemigo y peleen obtienen +1 Fuerza ese turno."},
@@ -117,9 +114,9 @@ window.PLAYER_MAT_CIVS.francos = {
 
     {age:"imperial", building:"tc", type:"tech", title:"Admin. Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"barracks", type:"tech", title:"Caballería Pesada", cost:{food:4,gold:4}, text:"Los Caballeros obtienen +1 Fuerza."},
-    {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Una vez por turno, podés convertir 2 Comidas de tu Red Logística en 1 Oro, sin gastar una acción."},
-    {age:"castles", building:"camp", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
-    {age:"imperial", building:"camp", type:"tech", title:"Ingeniería", cost:{wood:3,gold:3}, text:"Escorpiones entrenados pueden salir en un hexágono adyacente."},
+    {age:"imperial", building:"mill", type:"tech", title:"Excedentes", cost:{food:3,gold:2}, text:"Una vez por turno, podés convertir 2 Comidas de tu territorios controlados en 1 Oro, sin gastar una acción."},
+    {age:"castles", building:"mill", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
+    {age:"imperial", building:"mill", type:"tech", title:"Ingeniería", cost:{wood:3,gold:3}, text:"Escorpiones entrenados pueden salir en un hexágono adyacente."},
     {age:"imperial", building:"barracks", type:"tech", title:"Movilización", cost:{food:3,gold:3}, text:"Al entrenar una unidad de caballería, podés colocarla en cualquier construcción militar propia."},
     {age:"imperial", building:"tower", type:"tech", title:"Saqueo", cost:{food:2,gold:3}, text:"Al ganar una batalla, podés llevarte 2 recursos del hexágono enemigo con tu ejército."},
     {age:"imperial", building:"tower", type:"tech", title:"Vasallaje", cost:{food:3,gold:3}, text:"Caballería adyacente al Castillo puede usarlo como punto de entrenamiento."},
