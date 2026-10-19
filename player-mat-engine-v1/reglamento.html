@@ -176,11 +176,11 @@
 
           <h4>B. Territorios primarios</h4>
           <div class="terrain-grid">
-            <article class="terrain"><span class="terrain-icon">🫐</span><span class="value">2 PUNTOS</span><h4>Frutos silvestres</h4><p>Cada Aldeano produce <strong>1 Comida</strong>. Un <strong>Molino</strong> ubicado aquí produce como un Aldeano adicional. Si se sobreexplota, el terreno pasa a Llanura.</p></article>
-            <article class="terrain"><span class="terrain-icon">🐑</span><span class="value">2 PUNTOS</span><h4>Animales</h4><p>Cada Aldeano produce <strong>1 Comida</strong>. Un <strong>Molino</strong> ubicado aquí produce como un Aldeano adicional. Si se sobreexplota, pasa a Llanura.</p></article>
-            <article class="terrain"><span class="terrain-icon">🪙</span><span class="value">2 PUNTOS</span><h4>Cantera de Oro</h4><p>Cada Aldeano produce <strong>1 Oro</strong>, salvo mejoras. Un <strong>Campamento de Recursos</strong> ubicado aquí produce como un Aldeano adicional. Agotada, pasa a Agua.</p></article>
-            <article class="terrain"><span class="terrain-icon">🪨</span><span class="value">2 PUNTOS</span><h4>Cantera de Piedra</h4><p>Cada Aldeano produce <strong>1 Piedra</strong>, salvo mejoras. Un <strong>Campamento de Recursos</strong> ubicado aquí produce como un Aldeano adicional. Agotada, pasa a Agua.</p></article>
-            <article class="terrain"><span class="terrain-icon">🌲</span><span class="value">2 PUNTOS</span><h4>Bosque</h4><p>Cada Aldeano produce <strong>1 Madera</strong>, salvo mejoras. Un <strong>Campamento de Recursos</strong> ubicado aquí produce como un Aldeano adicional. Agotado, pasa a Llanura.</p></article>
+            <article class="terrain"><span class="terrain-icon">🫐</span><span class="value">2 PUNTOS</span><h4>Frutos silvestres</h4><p>Cada Aldeano produce <strong>1 Comida</strong>. Un <strong>Campamento Productivo</strong> ubicado aquí produce 2 Comidas al activarse. Si se sobreexplota, el terreno pasa a Llanura.</p></article>
+            <article class="terrain"><span class="terrain-icon">🐑</span><span class="value">2 PUNTOS</span><h4>Animales</h4><p>Cada Aldeano produce <strong>1 Comida</strong>. Un <strong>Campamento Productivo</strong> ubicado aquí produce 2 Comidas al activarse. Si se sobreexplota, pasa a Llanura.</p></article>
+            <article class="terrain"><span class="terrain-icon">🪙</span><span class="value">2 PUNTOS</span><h4>Cantera de Oro</h4><p>Cada Aldeano produce <strong>1 Oro</strong>, salvo mejoras. Un <strong>Campamento Productivo</strong> ubicado aquí produce 2 recursos al activarse. Agotada, pasa a Agua.</p></article>
+            <article class="terrain"><span class="terrain-icon">🪨</span><span class="value">2 PUNTOS</span><h4>Cantera de Piedra</h4><p>Cada Aldeano produce <strong>1 Piedra</strong>, salvo mejoras. Un <strong>Campamento Productivo</strong> ubicado aquí produce 2 recursos al activarse. Agotada, pasa a Agua.</p></article>
+            <article class="terrain"><span class="terrain-icon">🌲</span><span class="value">2 PUNTOS</span><h4>Bosque</h4><p>Cada Aldeano produce <strong>1 Madera</strong>, salvo mejoras. Un <strong>Campamento Productivo</strong> ubicado aquí produce 2 recursos al activarse. Agotado, pasa a Llanura.</p></article>
           </div>
           <h4>C. Sobreexplotación</h4>
           <p>Si un jugador produce en el mismo territorio primario durante <strong>dos turnos propios consecutivos</strong>, lo agota. Dejar descansar el hexágono al menos un turno propio evita la sobreexplotación. Algunas tecnologías de civilización cambian esta regla.</p>
@@ -203,10 +203,10 @@
           <h3>1.2. Recursos</h3>
           <div class="badge-legend"><span>🪵 Madera</span><span>🥩 Comida</span><span>🪙 Oro</span><span>🪨 Piedra</span></div>
           <p>Los recursos se representan con fichas físicas y <strong>permanecen en el mapa</strong>. No existe una reserva personal fuera del tablero. Producir agrega fichas al hexágono; pagar un costo devuelve las fichas gastadas al suministro general.</p>
-          <h4>A. Red Logística</h4>
-          <p>Tu <strong>Red Logística</strong> empieza en el Centro Urbano (CU) y conecta todos los hexágonos que controles unidos por sus lados. Un hexágono se controla con una unidad o edificio propio; si queda vacío, pierde el control. El CU es siempre el origen de tu red.</p>
-          <p>Podés <strong>pagar cualquier costo con recursos de cualquier hexágono de tu red</strong>, sin transportarlos. Las fichas permanecen donde se produjeron hasta gastarse. Si se corta una conexión, los recursos aislados permanecen en el mapa, pero no pueden gastarse ni venderse. Podés recuperar el hexágono que unía la red o trasladar físicamente esos recursos hasta un hexágono conectado.</p>
-          <p><strong>Carreta Mercante:</strong> cuando esta tecnología incorpora un hexágono adyacente a tu red, colocá allí su ficha especial. Si otro jugador conquista ese hexágono, recuperás la ficha y podés volver a colocarla en otro hexágono válido mediante la acción correspondiente.</p>
+          <h4>A. Control de recursos</h4>
+          <p>Los recursos permanecen en el mapa y pertenecen al jugador que <strong>controla el hexágono</strong>. Un hexágono se controla mediante una unidad o edificio propio; si no queda presencia propia, deja de estar controlado.</p>
+          <p>Podés pagar cualquier costo con recursos que estén en <strong>cualquier hexágono que controles</strong>, sin importar la distancia ni la conexión entre territorios. Si perdés el control de un hexágono, los recursos quedan allí, pero ya no podés gastarlos ni venderlos hasta recuperar el control.</p>
+          <p><strong>Sin territorios controlados:</strong> desaparecen las conexiones y la ficha de hexágono adherido a la red. Las tecnologías que dependían exclusivamente de la red quedan pendientes de adaptación por civilización.</p>
           <div class="note"><b>Los recursos sobreviven a la conquista</b>Si un enemigo toma un territorio, sus fichas de Madera, Comida, Oro y Piedra <strong>quedan sobre el mapa</strong>. También permanecen cuando una civilización es eliminada.</div>
         </section>
 
@@ -221,16 +221,15 @@
 
           <h3 style="margin-top:35px">1.4. Edificios</h3>
           <div class="cards"><div class="mini-card economy"><b>Edificios económicos · Rojo</b><p>Habilitan producción, entrenamiento económico y desarrollo de actividades económicas.</p></div><div class="mini-card military"><b>Edificios militares · Violeta</b><p>Habilitan tropas, fortificaciones y efectos en combate.</p></div></div>
-          <p>En general, un jugador puede tener <strong>un edificio de cada tipo</strong> construido. Su construcción requiere un Aldeano presente en el terreno de construcción; el costo se paga con recursos disponibles en tu Red Logística. Si un edificio es destruido, regresa al mat para poder reconstruirse.</p>
+          <p>En general, un jugador puede tener <strong>un edificio de cada tipo</strong> construido, excepto el <strong>Campamento Productivo</strong>, que no tiene límite global y admite como máximo uno por hexágono. Su construcción requiere un Aldeano presente en el terreno de construcción; el costo se paga con recursos disponibles en tus hexágonos controlados. Si un edificio es destruido, regresa al mat para poder reconstruirse.</p>
           <div class="table-wrap"><table><thead><tr><th>Construcción base</th><th>Costo de referencia</th><th>Uso habitual</th></tr></thead><tbody>
             <tr><td>Centro Urbano</td><td>Sin costo (inicial)</td><td>Hexágono de origen; no es edificio.</td></tr>
-            <tr><td>Molino</td><td class="cost">🪵 3</td><td>Producción y funciones económicas.</td></tr>
-            <tr><td>Campamento de Recursos</td><td class="cost">🪵 2</td><td>Producción y desarrollo de recursos.</td></tr>
+            <tr><td>Campamento Productivo</td><td class="cost">🪵 2</td><td>Se construye en recursos de Comida, Madera, Oro o Piedra; produce 2 recursos por sí solo al activar su hexágono.</td></tr>
             <tr><td>Puerto</td><td class="cost">🪵 4 · 🪨 2</td><td>Unidades navales y pesca.</td></tr>
             <tr><td>Cuartel</td><td class="cost">🪵 1 · 🪨 3 · 🪙 1</td><td>Entrenamiento militar terrestre.</td></tr>
             <tr><td>Torre</td><td class="cost">🪨 3 · 🪵 2</td><td>Defensa y tecnologías de la civilización, si está disponible.</td></tr>
           </tbody></table></div>
-          <p>Otras construcciones, como <strong>Mercado, Castillo, Monasterio y Asedio</strong>, se habilitan en distintas Edades según la civilización. Algunas civilizaciones no tienen acceso a ciertos edificios. <strong>Las Granjas tienen reglas de colocación propias.</strong></p>
+          <p>Otras construcciones, como <strong>Castillo, Monasterio y Asedio</strong>, se habilitan en distintas Edades según la civilización. Algunas civilizaciones no tienen acceso a ciertos edificios. <strong>Las Granjas tienen reglas de colocación propias.</strong></p>
           <div class="note"><b>El Player Mat manda en lo específico</b>Si una civilización modifica un costo, desbloquea una excepción o carece de un edificio, se aplica lo escrito en su Player Mat. Las reglas generales de este documento se mantienen en lo demás.</div>
 
           <h3 style="margin-top:35px">1.5. Exploración y componentes especiales</h3>
@@ -354,7 +353,7 @@
         <p class="lead-section">Cada categoría reúne opciones distintas. Los Player Mats determinan qué unidades, edificios o tecnologías están habilitados en cada momento.</p>
 
         <section class="section action-section econ" id="economicas">
-          <h3>4.1. Acciones económicas</h3>
+          <h3>4.1. Acciones económicas</h3><div class="note"><b>Versión de juego: economía simplificada</b>La producción requiere una acción PRODUCIR (no es automática). Un Aldeano produce 1 recurso y el Campamento Productivo produce 2 por sí solo. En un mismo hexágono, el Campamento y un Aldeano producen 3 recursos base. Mantené el límite de hexágonos productivos 2/3/4/5 según la Edad. No se alteran los costos de Edad, tecnologías y unidades.</div>
           <div class="action-title"><h4>A. PRODUCIR</h4><span class="type">Recursos</span></div>
           <p>Al realizar esta acción, elegí hasta la cantidad de <strong>hexágonos productivos</strong> permitidos por tu Edad. Todos los Aldeanos y edificios productivos elegibles ubicados en esos hexágonos pueden producir una vez, respetando los requisitos de terreno y sus habilidades. Los recursos se toman del suministro general y se colocan <strong>en el mismo hexágono donde se produjeron</strong>.</p>
           <table><thead><tr><th>Edad</th><th>Hexágonos que pueden producir</th></tr></thead><tbody><tr><td>I · Alta Edad Media</td><td>2</td></tr><tr><td>II · Feudal</td><td>3</td></tr><tr><td>III · Castillos</td><td>4</td></tr><tr><td>IV · Imperial</td><td>5</td></tr></tbody></table>
@@ -368,27 +367,27 @@
           <p>Los Aldeanos pueden llevar recursos; la carga y descarga se realizan como parte de ese movimiento. Algunas tecnologías permiten distancias o transportes especiales.</p>
 
           <div class="action-title"><h4>C. CONSTRUIR</h4><span class="type">Edificio económico</span></div>
-          <p>Elegí una construcción económica disponible. Debe haber un <strong>Aldeano en el hexágono elegido</strong>. Pagá el costo desde tu <strong>Red Logística</strong> y colocá el edificio.</p>
+          <p>Elegí una construcción económica o militar disponible. Debe haber un <strong>Aldeano en el hexágono elegido</strong>. Pagá el costo desde hexágonos que controles y colocá el edificio.</p>
 
           <div class="action-title"><h4>D. ENTRENAR</h4><span class="type">Unidad económica</span></div>
-          <p><strong>Aldeanos:</strong> el Centro Urbano, aunque es un hexágono y no un edificio, <strong>oficia como edificio de entrenamiento</strong>. El costo se paga con recursos de tu Red Logística y el nuevo Aldeano aparece en el CU. Si una civilización permite entrenar Aldeanos desde otro edificio, el jugador puede elegir entrenarlo allí y colocarlo en el hexágono de ese edificio.</p>
+          <p><strong>Aldeanos:</strong> el Centro Urbano, aunque es un hexágono y no un edificio, <strong>oficia como edificio de entrenamiento</strong>. El costo se paga con recursos de hexágonos que controles y el nuevo Aldeano aparece en el CU. Si una civilización permite entrenar Aldeanos desde otro edificio, el jugador puede elegir entrenarlo allí y colocarlo en el hexágono de ese edificio.</p>
           <p><strong>Unidades económicas navales:</strong> Pesqueros y transportes se entrenan normalmente en el <strong>Puerto</strong> y aparecen en el mismo hexágono de Agua donde está construido, salvo que el Player Mat indique una excepción.</p>
 
-          <div class="action-title"><h4>E. COMERCIAR</h4><span class="type">Mercado e intercambios</span></div>
-          <p>Si tenés un <strong>Mercado propio</strong>, podés usar la acción económica <strong>COMERCIAR</strong> para comprar o vender hasta <strong>2 recursos</strong> (Comida, Madera o Piedra) a cambio de Oro. El Mercado tiene <strong>precios compartidos</strong> entre los cuatro jugadores y una ficha por recurso. Después de cada compra, mové su ficha un espacio a la derecha; después de cada venta, un espacio a la izquierda. Pagá o cobrá el precio de la casilla <strong>antes de mover</strong> la ficha. En los extremos podés seguir comerciando sin moverla.</p>
+          <div class="action-title"><h4>E. COMERCIAR</h4><span class="type">Mercado global desde Alta Edad Media</span></div>
+          <p>Desde el comienzo de la partida, sin construir un Mercado, podés usar la acción económica <strong>COMERCIAR</strong> para comprar o vender hasta <strong>2 recursos</strong> (Comida, Madera o Piedra) a cambio de Oro. El Mercado tiene <strong>precios compartidos</strong> entre los cuatro jugadores y una ficha por recurso. Después de cada compra, mové su ficha un espacio a la derecha; después de cada venta, un espacio a la izquierda. Pagá o cobrá el precio de la casilla <strong>antes de mover</strong> la ficha. En los extremos podés seguir comerciando sin moverla.</p>
           <div class="table-wrap"><table><thead><tr><th>Recurso</th><th>Casilla 1 · Inicio</th><th>Casilla 2</th><th>Casilla 3</th><th>Casilla 4</th><th>Casilla 5</th></tr></thead><tbody>
             <tr><td><strong>🥩 Comida</strong></td><td>Compra 2 / Venta 1</td><td>3 / 1</td><td>4 / 2</td><td>5 / 3</td><td>6 / 4</td></tr>
             <tr><td><strong>🪵 Madera</strong></td><td>Compra 3 / Venta 1</td><td>4 / 2</td><td>5 / 3</td><td>6 / 4</td><td>7 / 5</td></tr>
             <tr><td><strong>🪨 Piedra</strong></td><td>Compra 4 / Venta 2</td><td>5 / 3</td><td>6 / 4</td><td>7 / 5</td><td>8 / 6</td></tr>
           </tbody></table></div>
-          <p>Los recursos comprados se colocan en el hexágono de tu Mercado; los vendidos se retiran de tu <a href="#recursos">Red Logística</a>. Los precios se actualizan <strong>después de cada operación</strong>, incluso cuando se realizan dos en la misma acción.</p>
-          <p><strong>El comercio entre jugadores también está permitido.</strong> Si existe al menos un Mercado construido en la partida, los jugadores pueden conversar y acordar intercambios libremente, pero <strong>todo intercambio de recursos entre jugadores debe pagarse exclusivamente con Oro</strong>. Los acuerdos y promesas no están garantizados por el reglamento. Estos intercambios no modifican los precios del Mercado compartido y cuentan para ambos participantes de cara a la estrella de cinco comercios del modo Competitivo.</p>
+          <p>Los recursos comprados se colocan en un hexágono propio controlado (por ejemplo, tu Centro Urbano); los vendidos se retiran de tus hexágonos controlados. Los precios se actualizan <strong>después de cada operación</strong>, incluso cuando se realizan dos en la misma acción.</p>
+          <p><strong>El comercio entre jugadores también está permitido.</strong> Los jugadores pueden conversar y acordar intercambios libremente, pero <strong>todo intercambio de recursos entre jugadores debe pagarse exclusivamente con Oro</strong>. Los acuerdos y promesas no están garantizados por el reglamento. Estos intercambios no modifican los precios del Mercado compartido y cuentan para ambos participantes de cara a la estrella de cinco comercios del modo Competitivo.</p>
         </section>
 
         <section class="section action-section tech" id="tecnologicas">
           <h3>4.2. Acciones tecnológicas</h3>
           <div class="action-title"><h4>A. INVESTIGAR</h4><span class="type">Progreso</span></div>
-          <p>Elegí una tecnología disponible en tu Player Mat y pagá su costo utilizando recursos de tu <strong>Red Logística</strong>. Los efectos se aplican según el texto de la tecnología. Algunas mejoras afectan a toda una clase de unidades o edificios.</p>
+          <p>Elegí una tecnología disponible en tu Player Mat y pagá su costo utilizando recursos de tus <strong>hexágonos controlados</strong>. Los efectos se aplican según el texto de la tecnología. Algunas mejoras afectan a toda una clase de unidades o edificios.</p>
           <p>Las tecnologías investigadas cuentan para el objetivo de 15 tecnologías. <strong>Avanzar de Edad no cuenta</strong> como tecnología investigada.</p>
 
           <div class="action-title"><h4>B. AVANZAR DE EDAD</h4><span class="type">Civilización</span></div>
@@ -418,14 +417,13 @@
           <p>Al ingresar en un hexágono enemigo, el atacante decide si inicia el combate cuando hay defensa militar. Los combates se resuelven al finalizar el turno.</p>
 
           <div class="action-title"><h4>B. ENTRENAR</h4><span class="type">Unidades militares</span></div>
-          <p>Elegí una o más unidades militares habilitadas por tu civilización. Durante una misma acción ENTRENAR podés entrenar <strong>tantas unidades como puedas pagar</strong>, siempre que estén habilitadas por el edificio correspondiente y pagues los costos desde tu Red Logística. Todas las unidades entrenadas aparecen allí, salvo excepciones expresas del Player Mat.</p>
+          <p>Elegí una o más unidades militares habilitadas por tu civilización. Durante una misma acción ENTRENAR podés entrenar <strong>tantas unidades como puedas pagar</strong>, siempre que estén habilitadas por el edificio correspondiente y pagues los costos desde hexágonos que controles. Todas las unidades entrenadas aparecen allí, salvo excepciones expresas del Player Mat.</p>
           <p>La producción militar terrestre se centraliza en el <strong>Cuartel</strong>, con excepciones como unidades habilitadas por Castillos u otras tecnologías. <strong>No existen Establos ni Galerías de Arquería como edificios independientes.</strong> Las unidades navales dependen del Puerto y de sus habilitaciones.</p>
 
-          <div class="action-title"><h4>C. CONSTRUIR</h4><span class="type">Edificio militar</span></div>
-          <p>Construí una estructura militar habilitada por tu civilización. Al igual que al construir un edificio económico, debe haber un <strong>Aldeano</strong> en el hexágono de construcción; el costo se paga desde tu <strong>Red Logística</strong>.</p>
+          
 
           <div class="action-title"><h4>D. INSTRUIR</h4><span class="type">Poder de Pelea</span></div>
-          <div class="rule"><b>Costo: 🪙 1 → Ganancia: +1 Poder de Pelea</b>El Oro debe estar disponible en tu Red Logística. Cada jugador puede acumular hasta <strong>16</strong> Poder de Pelea. En un combate puede apostar entre <strong>0 y 7</strong>, sin superar el disponible.</div>
+          <div class="rule"><b>Costo: 🪙 1 → Ganancia: +1 Poder de Pelea</b>El Oro debe estar disponible en hexágonos que controles. Cada jugador puede acumular hasta <strong>16</strong> Poder de Pelea. En un combate puede apostar entre <strong>0 y 7</strong>, sin superar el disponible.</div>
           <p>Mientras controles la Maravilla, <strong>INSTRUIR no cuesta Oro</strong>; sigue gastando tu acción Militar del turno.</p>
         </section>
       </section>
