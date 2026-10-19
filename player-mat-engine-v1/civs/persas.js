@@ -95,7 +95,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"feudal",building:"tower",type:"tech",title:"Fortificación Real",cost:{wood:2,stone:2},text:"Cuando una Torre participa en una batalla defensiva, obtenés +1 al máximo de Poder Militar que podés apostar."},
 
     {age:"castles",building:"tc",type:"tech",title:"Tesorería Real",cost:{food:2,gold:3},text:"Una vez por turno, al gastar al menos 3 Oro en una misma acción, recuperás 1 Oro."},
-    {age:"castles",building:"mill",type:"tech",title:"Forraje",cost:{food:3,wood:2,gold:1},text:"Los Elefantes de Guerra pueden mover 1 hexágono adicional al salir del Cuartel."},
+    {age:"castles",building:"mill",type:"tech",title:"Forraje",cost:{food:3,wood:2,gold:1},text:"Pendiente de adaptación a la regla de movimiento fijo de unidades montadas."},
     {age:"castles",building:"mill",type:"tech",title:"Tributo Real",cost:{food:2,wood:2,gold:2},text:"El Centro Urbano puede PRODUCIR 1 recurso de tu elección."},
     {age:"castles",building:"mill",type:"tech",title:"Canteros Reales",cost:{food:2,wood:2,gold:2},text:"Una vez por acción PRODUCIR, un hexágono de Piedra elegido genera +1 Piedra adicional."},
     {age:"castles",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
