@@ -15,7 +15,7 @@ window.PLAYER_MAT_CIVS.persas = {
   turn: {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5. Aldeano: 1; Campamento Productivo: 2; ambos: 3. Solo se produce al elegir la acción."],
-      ["Mover","Mové tus unidades según su capacidad de Movimiento."],
+      ["Mover","Mové 1 hexágono a pie o 2 montado. Un grupo se mueve al ritmo del más lento."],
       ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Comprá o vendé hasta 2 recursos a precios compartidos. Acuerdos entre jugadores: solo por Oro."]
@@ -46,7 +46,7 @@ window.PLAYER_MAT_CIVS.persas = {
       {name:"Arquero",force:1,range:1,move:1},
       {name:"Piquero",force:1,range:0,move:1},
       {name:"Galera",force:2,range:0,move:1},
-      {name:"Elefante",force:3,range:0,move:1,forceUpgrade:1}
+      {name:"Elefante",force:3,range:0,move:2,forceUpgrade:1}
     ],
     upgrades: [
       {name:"Telar",text:"Aldeano +1 Fuerza."},
