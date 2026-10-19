@@ -15,7 +15,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
   turn: {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5. Aldeano: 1; Campamento Productivo: 2; ambos: 3. Solo se produce al elegir la acción."],
-      ["Mover","Mové tus unidades según su capacidad de Movimiento."],
+      ["Mover","Mové 1 hexágono a pie o 2 montado. Un grupo se mueve al ritmo del más lento."],
       ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Comprá o vendé hasta 2 recursos a precios compartidos. Acuerdos entre jugadores: solo por Oro."]
@@ -108,6 +108,6 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",cost:{food:3,gold:3},text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",cost:{food:4,gold:3},text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
     {age:"imperial",building:"other",type:"tech",title:"Jarl Saloon",cost:{wood:3,stone:2,gold:3},text:"Al ENTRENAR Milicias desde un Castillo, podés entrenar 2 con una sola acción, pagando el coste de ambas."},
-    {age:"castles",building:"mill",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."}
+    {age:"castles",building:"mill",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Construí maquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere una unidad a pie para trasladarla y un Aldeano para operarla. al menos un aldeano para su uso."}
   ]
 };
