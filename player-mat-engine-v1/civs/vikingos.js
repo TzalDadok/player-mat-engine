@@ -16,9 +16,9 @@ window.PLAYER_MAT_CIVS.vikingos = {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
       ["Mover","Mové tus unidades según su capacidad de Movimiento."],
-      ["Construir","Realizar una construcción económica disponible."],
+      ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
-      ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
+      ["Comerciar","Comprá o vendé hasta 2 recursos a precios compartidos. Acuerdos entre jugadores: solo por Oro."]
     ],
     technology: [
       ["Investigar","Adquirí una tecnología disponible (cuadro verde)."],
@@ -32,7 +32,6 @@ window.PLAYER_MAT_CIVS.vikingos = {
     military: [
       ["Mover","Mové unidades militares o económicas. Al entrar con enemigos, decidís si combatir."],
       ["Entrenar","Entrená tantas unidades militares disponibles como puedas pagar."],
-      ["Construir","Realizar una construcción militar disponible."],
       {name:"Instruir",cost:{gold:1},text:"Obtené +1 Poder de pelea."}
     ]
   },
@@ -61,8 +60,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
   },
   buildings: [
     {id:"tc",name:"Centro Urbano",image:"assets/buildings/centro-urbano.png"},
-    {id:"mill",name:"Molino",image:"assets/buildings/molino.png",cost:{wood:3}},
-    {id:"camp",name:"Camp. de Recursos",image:"assets/buildings/campamento-recursos.png",cost:{wood:2}},
+    {id:"mill",name:"Campamento Productivo",image:"assets/buildings/molino.png",cost:{wood:2}},
     {id:"port",name:"Puerto",image:"assets/buildings/puerto.png",cost:{wood:4,stone:2}},
     {id:"barracks",name:"Cuartel",image:"assets/buildings/cuartel.png",cost:{wood:1,stone:3,gold:1}},
     {id:"other",name:"Otros",image:""}
@@ -78,7 +76,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"dark",building:"tc",type:"tech",title:"Telar",cost:{food:1,wood:1},text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"dark",building:"mill",type:"tech",title:"Asent. Vikingo",cost:{food:1,wood:2},text:"Al tomar un hexágono con granjas enemigas sin defensa militar, estas pasan a tu posesión en lugar de destruirse."},
     {age:"dark",building:"mill",type:"tech",title:"Recolección",cost:{food:1,wood:2},text:"Al PRODUCIR en Frutos Silvestres, obtenés +1 Comida adicional, una vez por acción."},
-    {age:"dark",building:"camp",type:"tech",title:"Doble Filo",cost:{food:1,gold:1,stone:1},text:"Aldeanos trabajando en el bosque producen +1 madera."},
+    {age:"dark",building:"mill",type:"tech",title:"Doble Filo",cost:{food:1,gold:1,stone:1},text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
     {age:"dark",building:"port",type:"tech",title:"Navegación Comercial",cost:{wood:2,gold:1},text:"Al PRODUCIR con Pesquero, podés elegir 1 Oro en vez de 1 Comida."},
     {age:"dark",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
@@ -86,17 +84,16 @@ window.PLAYER_MAT_CIVS.vikingos = {
 
     {age:"feudal",building:"tc",type:"tech",title:"Saqueos",cost:{food:2,gold:1},text:"Si un enemigo produce más de 1 recurso y un Aldeano Vikingo está en un hexágono adyacente, 1 recurso de esa producción pasa al hexágono del Aldeano Vikingo."},
     {age:"feudal",building:"mill",type:"civil",title:"Aldeano",cost:{food:2}},
-    {age:"feudal",building:"camp",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
-    {age:"feudal",building:"camp",type:"tech",title:"Maest. Artesanos",cost:{food:3,gold:4},text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
+    {age:"feudal",building:"mill",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
+    {age:"feudal",building:"mill",type:"tech",title:"Maest. Artesanos",cost:{food:3,gold:4},text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
     {age:"feudal",building:"port",type:"tech",title:"Pesca Avanzada",cost:{food:2,wood:2},text:"Pesqueros producen +1 Comida."},
     {age:"feudal",building:"port",type:"tech",title:"Drakkar",cost:{wood:2,gold:2},text:"La Galera puede transportar hasta 6 unidades."},
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
 
-    {age:"dark",building:"other",type:"building",title:"Mercado",cost:{wood:3},text:"COMERCIAR: hasta 2 compras o ventas por acción, a precios compartidos. Acuerdos entre jugadores: solo por Oro."},
     {age:"feudal",building:"other",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
     {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
-    {age:"castles",building:"camp",type:"civil",title:"Aldeano",cost:{food:2}},
-    {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Como acción económica, incorporá a tu Red Logística un hexágono adyacente a ella. Marcá ese hexágono con una ficha de Carreta Mercante; no necesita unidad ni edificio propio."},
+    {age:"castles",building:"mill",type:"civil",title:"Aldeano",cost:{food:2}},
+    {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Como acción económica, incorporá a tu territorios controlados un hexágono adyacente a ella. Marcá ese hexágono con una ficha de Carreta Mercante; no necesita unidad ni edificio propio."},
     {age:"castles",building:"port",type:"tech",title:"Comb. Naval Opt.",cost:{wood:3,gold:3},text:"Los barcos pueden recorrer todos los hexágonos de Agua y desembarcar sus unidades en un hexágono adyacente utilizando una única acción."},
     {age:"castles",building:"barracks",type:"unit",title:"Arquero",cost:{food:1,wood:2,gold:1}},
     {age:"castles",building:"barracks",type:"tech",title:"Hacha de Guerra",cost:{food:2,gold:2},text:"Las Milicias obtienen +1 Fuerza al atacar un hexágono que contenga un edificio enemigo."},
@@ -105,12 +102,12 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"imperial",building:"tc",type:"military-building",title:"Monasterio",cost:{wood:3,stone:2},text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
     {age:"imperial",building:"tc",type:"tech",title:"Admin. Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
     {age:"imperial",building:"mill",type:"tech",title:"Colonos del Norte",cost:{wood:3,gold:3},text:"Podés mover una Granja propia a otro hexágono de Llanura o Desierto junto con el Aldeano que la ocupa."},
-    {age:"imperial",building:"camp",type:"tech",title:"Comercio Marítimo",cost:{wood:3,gold:3},text:"Podés convertir hasta 2 recursos del mismo tipo ubicados en Agua en la misma cantidad de recursos de tu elección."},
+    {age:"imperial",building:"mill",type:"tech",title:"Comercio Marítimo",cost:{wood:3,gold:3},text:"Podés convertir hasta 2 recursos del mismo tipo ubicados en Agua en la misma cantidad de recursos de tu elección."},
     {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",cost:{wood:4,gold:3},text:"Al mover una Galera con unidades transportadas, podés desembarcar y mover ese ejército en el mismo turno, como parte de ese movimiento."},
     {age:"imperial",building:"port",type:"tech",title:"Dominio del Mar",cost:{wood:3,gold:3},text:"Tus Galeras obtienen +1 Fuerza al defender un hexágono de Agua."},
     {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",cost:{food:3,gold:3},text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",cost:{food:4,gold:3},text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
     {age:"imperial",building:"other",type:"tech",title:"Jarl Saloon",cost:{wood:3,stone:2,gold:3},text:"Al ENTRENAR Milicias desde un Castillo, podés entrenar 2 con una sola acción, pagando el coste de ambas."},
-    {age:"castles",building:"camp",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."}
+    {age:"castles",building:"mill",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Contruye máquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."}
   ]
 };
