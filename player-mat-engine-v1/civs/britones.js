@@ -15,7 +15,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   turn: {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5. Aldeano: 1; Campamento Productivo: 2; ambos: 3. Solo se produce al elegir la acción."],
-      ["Mover","Mové tus unidades según su capacidad de Movimiento."],
+      ["Mover","Mové 1 hexágono a pie o 2 montado. Un grupo se mueve al ritmo del más lento."],
       ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Comprá o vendé hasta 2 recursos a precios compartidos. Acuerdos entre jugadores: solo por Oro."]
@@ -114,7 +114,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
 
     {age:"imperial", building:"tc", type:"tech", title:"Admin. Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Pendiente de redefinir: la Red Logística ya no existe en esta versión."},
-    {age:"imperial", building:"mill", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Contruye máquinaria que da bonus contra edificios. Unidad disponible: Ariete y Trebuchet. Requiere alguna unidad para su traslado y al menos un aldeano para su uso."},
+    {age:"imperial", building:"mill", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Construí maquinaria que da bonus contra edificios. Unidad disponible: Ariete y Trebuchet. Requiere una unidad a pie para trasladarla y un Aldeano para operarla. al menos un aldeano para su uso."},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de rango por turno."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
     {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Unidades convertidas por monjes enemigos mueren en lugar de cambiar de bando."}
