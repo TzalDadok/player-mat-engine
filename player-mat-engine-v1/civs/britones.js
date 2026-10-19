@@ -14,7 +14,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   ],
   turn: {
     economy: [
-      ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
+      ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5. Aldeano: 1; Campamento Productivo: 2; ambos: 3. Solo se produce al elegir la acción."],
       ["Mover","Mové tus unidades según su capacidad de Movimiento."],
       ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
