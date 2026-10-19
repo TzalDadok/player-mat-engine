@@ -48,6 +48,7 @@ $('ages').innerHTML=ages.map((a,i)=>'<button data-age="'+i+'" class="age '+(i===
 $('view').innerHTML=(view===current?'<strong>EDAD ACTUAL</strong>':'<strong>VISTA PREVIA · NO DISPONIBLE</strong>')+' · '+ages[view].name+(view<current?' · Edad anterior':'');
 const b=builds(),base=baseBuildings();$('requirement').textContent=view===current?(b.length||base.length?'Para avanzar: '+(hasBuilding()?'✓ construcción registrada':'marcá una construcción de esta Edad'):'Sin construcción obligatoria en esta Edad'):'Tocá la Edad actual para volver';
 $('advance').disabled=view!==current||!canAdvance();
+$('board').style.gridTemplateColumns='repeat('+civ.buildings.length+',minmax(0,1fr))';
 $('board').innerHTML=civ.buildings.map(col=>{
 const entries=nodes.filter(n=>n.age===ages[view].id&&n.building===col.id);
 const headerActive=col.id!=='tc'&&view===0&&view<=current;
