@@ -16,9 +16,9 @@ window.PLAYER_MAT_CIVS.persas = {
     economy: [
       ["Producir","Elegí hexágonos productivos. Los productores elegibles en ellos generan sus recursos. I: 2 · II: 3 · III: 4 · IV: 5."],
       ["Mover","Mové tus unidades según su capacidad de Movimiento."],
-      ["Construir","Realizar una construcción económica disponible."],
+      ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
-      ["Comerciar","Realizá un intercambio utilizando oro, si existe un Mercado."]
+      ["Comerciar","Comprá o vendé hasta 2 recursos a precios compartidos. Acuerdos entre jugadores: solo por Oro."]
     ],
     technology: [
       ["Investigar","Adquirí una tecnología disponible (cuadro verde)."],
@@ -36,7 +36,6 @@ window.PLAYER_MAT_CIVS.persas = {
     military: [
       ["Mover","Mové unidades militares o económicas. Al entrar con enemigos, decidís si combatir."],
       ["Entrenar","Entrená tantas unidades militares disponibles como puedas pagar."],
-      ["Construir","Realizar una construcción militar disponible."],
       {name:"Instruir",cost:{gold:1},text:"Obtené +1 Poder de pelea."}
     ]
   },
@@ -66,8 +65,7 @@ window.PLAYER_MAT_CIVS.persas = {
   },
   buildings: [
     {id:"tc",name:"Centro Urbano",image:"assets/buildings/centro-urbano.png"},
-    {id:"mill",name:"Molino",image:"assets/buildings/molino.png",cost:{wood:3}},
-    {id:"camp",name:"Camp. de Recursos",image:"assets/buildings/campamento-recursos.png",cost:{wood:2}},
+    {id:"mill",name:"Campamento Productivo",image:"assets/buildings/molino.png",cost:{wood:2}},
     {id:"port",name:"Puerto",image:"assets/buildings/puerto.png",cost:{wood:4,stone:2}},
     {id:"barracks",name:"Cuartel",image:"assets/buildings/cuartel.png",cost:{wood:1,stone:3,gold:1}},
     {id:"tower",name:"Torre",image:"assets/buildings/torre.png",cost:{stone:3,wood:2}}
@@ -81,7 +79,7 @@ window.PLAYER_MAT_CIVS.persas = {
   nodes: [
     {age:"dark",building:"tc",type:"civil",title:"Aldeano",cost:{food:1}},
     {age:"dark",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
-    {age:"dark",building:"camp",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
+    {age:"dark",building:"mill",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
     {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
     {age:"dark",building:"port",type:"civil",title:"Barco de Transporte",stats:{move:2},cost:{wood:3},text:"Unidad capaz de transportar hasta 6 unidades."},
     {age:"dark",building:"barracks",type:"unit",title:"Milicia",cost:{food:1,gold:1}},
@@ -91,16 +89,15 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"dark",building:"tc",type:"tech",title:"Telar",cost:{food:1,wood:1},text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"feudal",building:"tc",type:"tech",title:"Camino Real",cost:{food:2,wood:2},text:"Un Aldeano que parte de una construcción propia puede mover 2 hexágonos si termina en otra construcción propia."},
     {age:"feudal",building:"mill",type:"tech",title:"Qanats",cost:{wood:2,stone:2},text:"Podés construir Granjas en Desierto. Si están adyacentes a una Montaña, producen +1 Comida."},
-    {age:"feudal",building:"camp",type:"tech",title:"Minería Imperial",cost:{food:3,wood:1,stone:2},text:"Aldeanos trabajando en una cantera de Oro producen +1 Oro."},
+    {age:"feudal",building:"mill",type:"tech",title:"Minería Imperial",cost:{food:3,wood:1,stone:2},text:"Aldeanos trabajando en una cantera de Oro producen +1 Oro."},
     {age:"feudal",building:"port",type:"tech",title:"Redes de Carga",cost:{wood:4},text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"feudal",building:"barracks",type:"unit",title:"Piquero",cost:{food:2,wood:1}},
     {age:"feudal",building:"tower",type:"tech",title:"Fortificación Real",cost:{wood:2,stone:2},text:"Cuando una Torre participa en una batalla defensiva, obtenés +1 al máximo de Poder Militar que podés apostar."},
 
-    {age:"castles",building:"tc",type:"building",title:"Mercado",cost:{wood:3},text:"COMERCIAR: hasta 2 compras o ventas por acción, a precios compartidos. Acuerdos entre jugadores: solo por Oro."},
     {age:"castles",building:"tc",type:"tech",title:"Tesorería Real",cost:{food:2,gold:3},text:"Una vez por turno, al gastar al menos 3 Oro en una misma acción, recuperás 1 Oro."},
     {age:"castles",building:"mill",type:"tech",title:"Forraje",cost:{food:3,wood:2,gold:1},text:"Los Elefantes de Guerra pueden mover 1 hexágono adicional al salir del Cuartel."},
-    {age:"castles",building:"camp",type:"tech",title:"Tributo Real",cost:{food:2,wood:2,gold:2},text:"El Centro Urbano puede PRODUCIR 1 recurso de tu elección."},
-    {age:"castles",building:"camp",type:"tech",title:"Canteros Reales",cost:{food:2,wood:2,gold:2},text:"Una vez por acción PRODUCIR, un hexágono de Piedra elegido genera +1 Piedra adicional."},
+    {age:"castles",building:"mill",type:"tech",title:"Tributo Real",cost:{food:2,wood:2,gold:2},text:"El Centro Urbano puede PRODUCIR 1 recurso de tu elección."},
+    {age:"castles",building:"mill",type:"tech",title:"Canteros Reales",cost:{food:2,wood:2,gold:2},text:"Una vez por acción PRODUCIR, un hexágono de Piedra elegido genera +1 Piedra adicional."},
     {age:"castles",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
     {age:"castles",building:"port",type:"tech",title:"Flota Tributaria",cost:{wood:3,gold:2},text:"La primera Galera que entrenes durante tu turno cuesta 1 Madera menos."},
     {age:"castles",building:"barracks",type:"unit",title:"Elefante de Guerra",cost:{food:4,gold:4}},
@@ -112,7 +109,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:3,gold:3},text:"Tus construcciones cuestan −1 Piedra."},
     {age:"imperial",building:"mill",type:"tech",title:"Criad. Reales",cost:{food:3,wood:2,gold:2},text:"Los Elefantes de Guerra cuestan 1 Comida menos al entrenarse."},
     {age:"imperial",building:"mill",type:"tech",title:"Ingeniería Hidráulica",cost:{wood:3,stone:2,gold:2},text:"Granjas en Desierto junto a Montaña: no sufren sobreexplotación."},
-    {age:"imperial",building:"camp",type:"tech",title:"Armadura Laminar",cost:{stone:3,gold:4},text:"Los Elefantes de Guerra obtienen +1 Fuerza."},
+    {age:"imperial",building:"mill",type:"tech",title:"Armadura Laminar",cost:{stone:3,gold:4},text:"Los Elefantes de Guerra obtienen +1 Fuerza."},
     {age:"imperial",building:"port",type:"tech",title:"Flota Imperial",cost:{food:2,wood:3,gold:2},text:"Barcos de Transporte y Galeras obtienen +1 Movimiento."},
     {age:"imperial",building:"barracks",type:"tech",title:"Howdah",cost:{food:3,wood:2,gold:3},text:"Los Arqueros que se encuentren en el mismo hexágono que un Elefante obtienen +1 Alcance."},
     {age:"imperial",building:"barracks",type:"tech",title:"Rompemuros",cost:{food:3,gold:4},text:"El bonus de Elefante contra Construcciones pasa a +2."},
