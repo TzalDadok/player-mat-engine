@@ -217,7 +217,7 @@
           <div class="badge-legend"><span>⚔ Fuerza: valor en batalla</span><span>◎ Alcance: apoyo a distancia</span><span>👣 Movimiento: desplazamiento</span></div>
           <p>La composición de cada ejército y las mejoras de sus unidades dependen del Player Mat. Las bonificaciones contra tipos de unidades y edificios se suman a su Fuerza cuando correspondan.</p>
           <h4>B. Agrupación</h4>
-          <p>La acción <strong>MOVER</strong> desplaza unidades desde un hexágono. Si hay varias unidades allí, pueden moverse juntas como grupo, respetando las capacidades individuales y las reglas del terreno. Las unidades especiales con Movimiento 0 requieren las condiciones particulares indicadas en combate.</p>
+          <p>La acción <strong>MOVER</strong> desplaza un grupo de unidades que parte del mismo hexágono y cuenta como <strong>un solo movimiento</strong>. Todas las unidades a pie recorren <strong>1 hexágono</strong>, y todas las unidades montadas recorren <strong>2 hexágonos</strong>. Un grupo se desplaza al ritmo de la unidad más lenta. Las máquinas de asedio mantienen Movimiento 0 y sus reglas especiales de transporte.</p>
 
           <h3 style="margin-top:35px">1.4. Edificios</h3>
           <div class="cards"><div class="mini-card economy"><b>Edificios económicos · Rojo</b><p>Habilitan producción, entrenamiento económico y desarrollo de actividades económicas.</p></div><div class="mini-card military"><b>Edificios militares · Violeta</b><p>Habilitan tropas, fortificaciones y efectos en combate.</p></div></div>
@@ -363,7 +363,7 @@
           <p>Una explotación consecutiva del mismo recurso primario puede causar <a href="#territorios">sobreexplotación</a>. Las tecnologías de cada civilización pueden otorgar producción adicional, alterar los recursos válidos o evitar el agotamiento.</p>
 
           <div class="action-title"><h4>B. MOVER</h4><span class="type">Unidades económicas</span></div>
-          <p>Permite mover un grupo de unidades económicas que parte de un mismo hexágono hacia otro adyacente. Si varias unidades están juntas, pueden desplazarse juntas. El movimiento y transporte respetan los atributos y mejoras de cada unidad.</p>
+          <p>Permite mover juntas las unidades económicas que parten del mismo hexágono, contando como un solo movimiento. Las unidades a pie recorren 1 hexágono y las montadas 2; los grupos siempre se mueven al ritmo de la unidad más lenta.</p>
           <p>Los Aldeanos pueden llevar recursos; la carga y descarga se realizan como parte de ese movimiento. Algunas tecnologías permiten distancias o transportes especiales.</p>
 
           <div class="action-title"><h4>C. CONSTRUIR</h4><span class="type">Edificio económico</span></div>
@@ -412,7 +412,7 @@
         <section class="section action-section mil" id="militares">
           <h3>4.3. Acciones militares</h3>
           <div class="action-title"><h4>A. MOVER</h4><span class="type">Ejército</span></div>
-          <p>La acción militar <strong>MOVER</strong> puede utilizarse para mover un grupo de <strong>unidades militares o económicas</strong> que parten de un mismo hexágono. Pueden hacerlo juntas, respetando su Movimiento y las restricciones del terreno. Normalmente las unidades de infantería recorren 1 hexágono y la caballería puede recorrer 2, según sus atributos.</p>
+          <p>La acción militar <strong>MOVER</strong> puede utilizarse para mover un grupo de <strong>unidades militares o económicas</strong> que parten de un mismo hexágono. Pueden hacerlo juntas, respetando su Movimiento y las restricciones del terreno. Todas las unidades a pie recorren 1 hexágono y todas las unidades montadas recorren 2. Si varias unidades salen juntas del mismo hexágono, se mueven en grupo con una sola acción y recorren como máximo la distancia de la más lenta.</p>
           <div class="rule"><b>Movimiento asimétrico</b>Las unidades económicas pueden moverse tanto con la acción MOVER de Economía como con la acción MOVER Militar. Las unidades militares solo pueden moverse con la acción MOVER Militar.</div>
           <p>Al ingresar en un hexágono enemigo, el atacante decide si inicia el combate cuando hay defensa militar. Los combates se resuelven al finalizar el turno.</p>
 
@@ -484,7 +484,7 @@
 
           <h3>5.7. Unidades de asedio</h3>
           <p>Son máquinas de guerra como <strong>Ariete, Escorpión y Trebuchet</strong>. Se identifican por su <strong>Movimiento 0</strong> y sus bonificaciones especiales contra unidades o edificios.</p>
-          <div class="rule"><b>Transporte y operación</b>Una máquina de asedio con Movimiento 0 <strong>no se mueve sola</strong>: puede desplazarse si forma parte de un grupo acompañado por <strong>al menos otra unidad</strong>, que se considera que transporta la máquina. Para que la máquina pueda aportar su Fuerza, Alcance y bonificaciones en combate, debe haber <strong>al menos un Aldeano en el mismo hexágono que la máquina</strong> para operarla. Sin Aldeano puede ser transportada, pero no utilizada en combate.</div>
+          <div class="rule"><b>Transporte y operación</b>Una máquina de asedio con Movimiento 0 <strong>no se mueve sola</strong>: solo puede desplazarse si forma parte de un grupo acompañado por <strong>una unidad a pie</strong>, que la transporta. El conjunto recorre como máximo <strong>1 hexágono</strong> por movimiento. Para que la máquina pueda aportar su Fuerza, Alcance y bonificaciones en combate, debe haber <strong>al menos un Aldeano en el mismo hexágono que la máquina</strong> para operarla. Sin Aldeano puede ser transportada, pero no utilizada en combate.</div>
           <p><strong>Asedio Imperial:</strong> desde Edad Imperial, las máquinas de asedio operadas por un Aldeano pueden <strong>iniciar un ataque desde su Alcance</strong> contra unidades o edificios enemigos, <strong>excepto contra el Centro Urbano (CU)</strong>. Ganar a distancia no conquista el hexágono: para controlarlo deben entrar unidades propias. El CU solo puede conquistarse entrando físicamente en su hexágono.</p>
           <p>Su Alcance y su Fuerza dependen de la unidad. Por ejemplo, el Trebuchet puede apoyar desde lejos, mientras que el Ariete se utiliza cerca de su objetivo. Las bonificaciones concretas aparecen en el Player Mat.</p>
           <p>El Taller de Maquinaria de Asedio —o la construcción equivalente que figure como <strong>Asedio</strong>— permite habilitar estas unidades según la Edad y la civilización.</p>
