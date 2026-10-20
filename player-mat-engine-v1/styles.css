@@ -1184,7 +1184,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 }
 
 /* TU TURNO: restablecer alturas en función de las acciones actuales (5/3/3). */
-.sidebar{grid-template-rows:.95cm minmax(0,4fr) minmax(0,4.5fr) minmax(0,2.8fr)}
+.sidebar{grid-template-rows:.95cm minmax(0,4.65fr) minmax(0,3.85fr) minmax(0,2.8fr)}
 .action.econ .action-body{display:grid;grid-template-rows:repeat(5,minmax(0,1fr))}
 .action.tech .action-body{display:grid;grid-template-rows:.7fr .7fr 2.6fr}
 .action.mil .action-body{display:grid;grid-template-rows:repeat(3,minmax(0,1fr))}
