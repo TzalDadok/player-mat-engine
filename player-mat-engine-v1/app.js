@@ -87,11 +87,12 @@
     // Physical player-mat size: fixed 14 cm height; width grows with the tech tree.
     const sidebarCm = 6.8;
     const ageCm = 3.6;
-    const buildingCm = 5.12; // A3 horizontal: 40 cm con cinco columnas y márgenes de 1 cm.
-    const unitsCm = c.unitReference ? 4.0 : 0;
+    const buildingCm = (40 - sidebarCm - ageCm) / (c.buildings.length + (c.unitReference ? 1 : 0)); // Edificios y unidades: mismo ancho, mat A3 de 40 cm.
+    const unitsCm = c.unitReference ? buildingCm : 0;
     mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm) + unitsCm}cm`;
     mat.style.height = '15.6cm';
     mat.style.setProperty('--sidebar-w', `${sidebarCm}cm`);
+    mat.style.setProperty('--unit-w', `${unitsCm}cm`);
     tree.style.gridTemplateColumns = `${ageCm}cm repeat(${c.buildings.length}, ${buildingCm}cm)`;
     tree.style.right = `${unitsCm}cm`;
     renderSidebar(c); renderTree(c); renderUnits(c);
