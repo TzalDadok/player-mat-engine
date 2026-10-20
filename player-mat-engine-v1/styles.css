@@ -1279,3 +1279,39 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat[data-civ="vikingos"] .tree .slot[data-age="castles"][data-building="tc"]>.node.tech .node-text{
   margin-top:2px !important;
 }
+
+
+/* PRUEBA VIKINGOS: diseño de fichas con tamaño natural.
+   Scope exclusivo: no modifica el mat, sus tracks ni las fuentes. */
+.mat[data-civ="vikingos"] .tree .slot:has(> .node){
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+  align-items:stretch !important;
+  gap:4px !important;
+  padding:4px !important;
+  overflow:hidden !important;
+}
+.mat[data-civ="vikingos"] .tree .slot:has(> .node) > .node{
+  box-sizing:border-box !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  flex:0 0 auto !important;
+  align-self:stretch !important;
+  margin:0 !important;
+  padding:4px 5px !important;
+  overflow:visible !important;
+}
+.mat[data-civ="vikingos"] .tree .slot:has(> .node) > .node.building{
+  padding-top:21px !important;
+}
+.mat[data-civ="vikingos"] .tree .slot .node-head{
+  flex-wrap:wrap;
+  row-gap:2px;
+}
+.mat[data-civ="vikingos"] .tree .slot .node-head > .costline{
+  flex-wrap:wrap;
+  max-width:100%;
+}
