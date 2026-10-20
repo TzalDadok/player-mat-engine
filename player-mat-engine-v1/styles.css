@@ -1348,3 +1348,8 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   overflow-wrap:anywhere;
   white-space:normal;
 }
+
+/* Tamaños mínimos originales: el motor gana espacio aumentando alturas,
+   nunca achicando títulos ni descripciones. */
+.mat .tree .slot .node-title{font-size:11px !important}
+.mat .tree .slot .node-text{font-size:9px !important}
