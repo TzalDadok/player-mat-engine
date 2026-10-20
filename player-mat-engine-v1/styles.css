@@ -1256,3 +1256,30 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   line-height:1.1;
   margin-top:2px;
 }
+
+/* Britones / Alta Edad Media / Campamento Productivo:
+   Granja y Doble Filo: dos tarjetas de altura natural, sin cortes ni
+   reglas heredadas de los antiguos casilleros con fichas compactas. */
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"]{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:5px !important;
+  padding:5px 4px !important;
+}
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"]>.node{
+  display:block !important;
+  flex:0 0 auto !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:visible !important;
+  padding:5px 5px 6px !important;
+}
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"]>.node.building{
+  padding-top:22px !important;
+}
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"] .node-title{font-size:10px;line-height:1.12}
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"] .node-text{font-size:8.7px;line-height:1.14}
