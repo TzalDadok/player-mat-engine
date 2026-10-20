@@ -266,5 +266,10 @@
     window.addEventListener('afterprint',cleanup,{once:true});
     requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
   };
+  // Recalcular después de cargar fuentes y ante cambios de ancho/zoom.
+  window.addEventListener('resize',()=>fitTreeCells());
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(()=>fitTreeCells());
+  }
   render(select.value || Object.keys(civs)[0]);
 })();
