@@ -1207,3 +1207,24 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 /* Cantidad de hexágonos activables por Edad: indicadores discretos. */
 .age-hex-count{position:absolute;z-index:5;right:5px;top:5px;display:flex;align-items:center;gap:2px;pointer-events:none}
 .age-hex{display:block;width:12px;height:11px;background:#e2bf6c;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);filter:drop-shadow(0 1px 1px #0009)}
+
+/* Casilleros con tres desarrollos: tres filas reales, no la plantilla de dos. 
+   Aplicable a cualquier civilización que agregue una tecnología. */
+.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))){
+  display:grid !important;
+  grid-template-rows:repeat(3,minmax(0,1fr)) !important;
+  align-content:stretch !important;
+  gap:3px !important;
+}
+.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node{
+  box-sizing:border-box;
+  width:100%;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:100%;
+  overflow:hidden;
+  padding:3px 4px !important;
+}
+.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .node-title{font-size:10px;line-height:1.06}
+.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .node-text{font-size:8.1px;line-height:1.08;margin-top:2px}
+.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .costline{margin-top:1px}
