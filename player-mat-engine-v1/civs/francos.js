@@ -102,7 +102,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"feudal", building:"tower", type:"tech", title:"Muralla", cost:{wood:2,stone:2}, text:"Fortificar puede pagarse con 2 piedra en lugar de madera."},
     {age:"castles", building:"port", type:"unit", title:"Galera", cost:{wood:3,gold:1}},
     {age:"castles", building:"port", type:"tech", title:"Astillero", cost:{wood:3,gold:2}, text:"Barcos entrenados pueden salir en un hexágono de Agua adyacente al Puerto."},
-    {age:"imperial", building:"port", type:"tech", title:"Desembarco", cost:{wood:3,food:2}, text:"Unidades transportadas se pueden mover 1 hexágono al desembarcar."},
+    {age:"imperial", building:"port", type:"tech", title:"Desembarco", cost:{wood:3,food:2}, text:"Unidades siendo transportadas en barco pueden desembarcar en un hexágono adyacente ese mismo turno."},
     {age:"feudal", building:"mill", type:"tech", title:"Canteros", cost:{food:2,wood:1}, text:"Aldeanos trabajando en una cantera de piedra producen +1 piedra."},
     {age:"castles", building:"tc", type:"tech", title:"Herrería", cost:{food:2,stone:2,gold:2}, text:"La primera unidad militar que entrenes cada turno cuesta 1 Oro menos."},
     {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:3}},
