@@ -87,7 +87,7 @@
     // Physical player-mat size: fixed 14 cm height; width grows with the tech tree.
     const sidebarCm = 6.8;
     const ageCm = 3.6;
-    const buildingCm = 4.2;
+    const buildingCm = 5.12; // A3 horizontal: 40 cm con cinco columnas y márgenes de 1 cm.
     const unitsCm = c.unitReference ? 4.0 : 0;
     mat.style.width = `${sidebarCm + ageCm + (c.buildings.length * buildingCm) + unitsCm}cm`;
     mat.style.height = '15.6cm';
@@ -144,7 +144,7 @@
 
     const pageStyle=document.createElement('style');
     pageStyle.id='a3PrintPageStyle';
-    pageStyle.textContent='@media print{@page{size:A3 landscape;margin:5mm 0}}';
+    pageStyle.textContent='@media print{@page{size:A3 landscape;margin:0}}';
     document.head.appendChild(pageStyle);
 
     document.body.classList.add('print-1v1-mode');
@@ -168,7 +168,7 @@
     const current=select.value || Object.keys(civs)[0];
     const sheet=document.getElementById('printA4');
     sheet.innerHTML='';
-    const halfCm=19.8; // Ancho efectivo del mat: 39,6 cm.
+    const halfCm=20; // Mitades de un mat de 40 cm a tamaño real.
     chosen.forEach(id=>{
       render(id);
       for(const side of ['left','right']){
