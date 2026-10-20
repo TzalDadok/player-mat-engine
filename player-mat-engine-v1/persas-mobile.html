@@ -26,7 +26,7 @@ dialog{background:#20352a;color:var(--ink);border:2px solid #b99755;border-radiu
 @media(orientation:portrait){.shell:before{content:"↻ Girá el celular para usar el mat horizontalmente";position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:30px;background:#14281c;font-size:20px;z-index:20}}
 @media(max-height:390px){header{padding:3px 8px}.brand img{width:26px;height:26px}.ages{padding:3px 8px}.age{padding:3px}.status{padding-bottom:2px}.column-head{min-height:27px}.column-head img{height:20px;width:25px}.tiles{gap:3px;padding:3px}.tile{padding:3px}}
 </style></head><body>
-<div class="shell"><header><div class="brand"><img src="assets/ui/Emblema%20Persa%20Dorado%20con%20Alas.png" alt=""><div><strong>PERSAS</strong><small>AEVUM · MAT MÓVIL</small></div></div><div class="actions"><button class="btn primary" id="advance">Avanzar Edad →</button><button class="btn" id="reset">Reiniciar</button></div></header>
+<div class="shell"><header><div class="brand"><img src="assets/ui/Emblema%20Persa%20Dorado%20con%20Alas.png" alt=""><div><strong>PERSAS</strong><small>AEVUM · MAT MÓVIL</small></div></div><div class="actions"><button class="btn" id="wake" type="button" aria-pressed="false" title="Mantener la pantalla encendida">☀ Pantalla</button><button class="btn primary" id="advance">Avanzar Edad →</button><button class="btn" id="reset">Reiniciar</button></div></header>
 <nav class="ages" id="ages"></nav><div class="status"><span id="view"></span><span class="requirement" id="requirement"></span></div><main class="board" id="board"></main></div>
 <dialog id="details"><div class="dialog-body"><div class="dialog-type" id="type"></div><h2 id="name"></h2><div class="dialog-cost" id="cost"></div><p id="description"></p><div class="dialog-actions"><button class="btn" id="close">Cerrar</button><button class="btn primary" id="toggle"></button></div></div></dialog>
 <div id="notice" role="status"></div><script src="civs/persas.js"></script>
@@ -66,6 +66,40 @@ $('close').onclick=()=>$('details').close();
 $('toggle').onclick=()=>{if(selected===null)return;const n=nodes[selected];if(!markable(n)||view>current)return;if(developed.has(selected))developed.delete(selected);else developed.add(selected);$('details').close();render()};
 $('advance').onclick=()=>{if(!canAdvance()||view!==current)return;const cost=money(ages[current+1].cost);if(!confirm('¿Avanzar a '+ages[current+1].name+'?\nCosto: '+cost+'\nConfirmá después de pagar los recursos en el tablero.'))return;current++;view=current;render()};
 $('reset').onclick=()=>{if(!confirm('¿Seguro que querés reiniciar el mat? Se perderán todas las marcas de esta partida.'))return;current=0;view=0;developed.clear();builtHeaders.clear();render();flash('Mat reiniciado')};
+// Screen Wake Lock: mantener la pantalla encendida mientras el mat esté visible.
+let wakeLock=null;
+const wakeButton=$('wake');
+async function requestWakeLock(){
+  if(!('wakeLock' in navigator)||document.visibilityState!=='visible')return;
+  if(wakeLock)return;
+  try{
+    const lock=await navigator.wakeLock.request('screen');
+    wakeLock=lock;
+    wakeButton.textContent='☀ Activa';
+    wakeButton.setAttribute('aria-pressed','true');
+    lock.addEventListener('release',()=>{
+      if(wakeLock===lock)wakeLock=null;
+      wakeButton.textContent='☀ Pantalla';
+      wakeButton.setAttribute('aria-pressed','false');
+    });
+  }catch(e){
+    wakeButton.textContent='☀ Pantalla';
+    wakeButton.setAttribute('aria-pressed','false');
+  }
+}
+if(!('wakeLock' in navigator)){
+  wakeButton.textContent='☀ No disponible';
+  wakeButton.disabled=true;
+}else{
+  wakeButton.onclick=async()=>{
+    await requestWakeLock();
+    if(!wakeLock)flash('El navegador no permite mantener la pantalla encendida.');
+  };
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')requestWakeLock();
+  });
+  requestWakeLock();
+}
 render();
 })();
 </script></body></html>
