@@ -113,7 +113,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"castles", building:"tc", type:"military-building", title:"Monasterio", cost:{wood:3,stone:2}, text:"Construcción necesaria para guardar reliquias. Unidad disponible: Misionero."},
 
     {age:"imperial", building:"tc", type:"tech", title:"Admin. Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
-    {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Pendiente de redefinir: la Red Logística ya no existe en esta versión."},
+    {age:"imperial", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Al comprar recursos en el Mercado, pagás 1 Oro menos por recurso."},
     {age:"imperial", building:"mill", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Construí maquinaria que da bonus contra edificios. Unidad disponible: Ariete y Trebuchet. Requiere una unidad a pie para trasladarla y un Aldeano para operarla."},
     {age:"imperial", building:"barracks", type:"tech", title:"Levas", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de rango por turno."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
