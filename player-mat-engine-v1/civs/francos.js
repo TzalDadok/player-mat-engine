@@ -90,7 +90,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", cost:{food:2,gold:1}, text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Vigía", cost:{wood:1,stone:1}, text:"La Torre aporta +1 Fuerza a las batallas en su propio hexágono."},
 
-    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los Aldeanos pueden transportar recursos al MOVER. Sin esta tecnología no pueden transportar recursos."},
+    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los Aldeanos pueden transportar recursos al MOVER."},
     {age:"feudal", building:"tc", type:"tech", title:"Colonización", cost:{food:2,wood:2}, text:"Un Aldeano entrenado puede salir en un hexágono adyacente."},
     {age:"feudal", building:"tc", type:"tech", title:"Conscripción", cost:{food:2,gold:1}, text:"La primera Milicia entrenada cada turno cuesta 1 Comida menos."},
     {age:"feudal", building:"mill", type:"tech", title:"Rotación", cost:{food:2,wood:1}, text:"⚠ PENDIENTE DE REVISIÓN: su efecto de evitar la sobreexplotación ya no aplica. No investigar hasta redefinir."},
