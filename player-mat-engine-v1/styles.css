@@ -1303,3 +1303,48 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 }
 .mat .tree .slot .node-title{font-size:10px !important}
 .mat .tree .slot .node-text{font-size:8.5px !important}
+
+
+/* Diseño adaptable universal de casilleros.
+   PROHIBIDO achicar tipografías o recortar contenido para hacerlo entrar.
+   app.js mide cada columna de Edad y aumenta la fila cuando hace falta. */
+.mat .tree .slot:has(> .node){
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:4px !important;
+  overflow:visible !important;
+  min-height:0;
+}
+.mat .tree .slot > .node{
+  box-sizing:border-box !important;
+  flex:0 0 auto !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+.mat .tree .slot .node-head{
+  display:flex;
+  flex-wrap:wrap !important;
+  align-items:flex-start;
+  min-width:0;
+}
+.mat .tree .slot .node-head .node-title{
+  min-width:0;
+  overflow-wrap:anywhere;
+  hyphens:auto;
+}
+.mat .tree .slot .node-head .costline{
+  display:flex;
+  flex-wrap:wrap !important;
+  justify-content:flex-end;
+  max-width:100%;
+}
+.mat .tree .slot .node-text,
+.mat .tree .slot .embedded-unit{
+  overflow-wrap:anywhere;
+  white-space:normal;
+}
