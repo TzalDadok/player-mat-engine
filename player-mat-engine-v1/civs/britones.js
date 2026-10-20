@@ -70,7 +70,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   },
   buildings: [
     {id:"tc", name:"Centro Urbano", image:"assets/buildings/centro-urbano.png"},
-    {id:"mill", name:"Campamento Productivo", image:"assets/buildings/molino.png", cost:{wood:2}},
+    {id:"mill", name:"Campamento Productivo", image:"assets/buildings/molino.png", cost:{wood:3}},
     {id:"port", name:"Puerto", image:"assets/buildings/puerto.png", cost:{wood:4,stone:2}},
     {id:"barracks", name:"Cuartel", image:"assets/buildings/cuartel.png", cost:{wood:1,stone:3,gold:1}},
     {id:"tower", name:"Torre", image:"assets/buildings/torre.png", cost:{stone:3,wood:2}}
@@ -84,7 +84,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   nodes: [
     {age:"dark", building:"tc", type:"civil", title:"Aldeano", cost:{food:1}},
     {age:"dark", building:"mill", type:"civil", title:"Aldeano", cost:{food:2}},
-    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 1 Comida. Construcción sobre Llanura."},
+    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 2 Comidas. Construcción sobre Llanura."},
     {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}},
     {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar hasta 6 unidades."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
