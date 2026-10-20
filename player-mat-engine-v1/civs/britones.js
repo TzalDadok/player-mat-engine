@@ -84,7 +84,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
   nodes: [
     {age:"dark", building:"tc", type:"civil", title:"Aldeano", cost:{food:1}},
     {age:"dark", building:"mill", type:"civil", title:"Aldeano", cost:{food:2}},
-    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 2 Comidas. Construcción sobre Llanura."},
+    {age:"dark", building:"mill", type:"building", title:"Granja", cost:{wood:2}, text:"Produce 2 Comidas."},
     {age:"dark", building:"port", type:"civil", title:"Pesquero", cost:{wood:2}},
     {age:"dark", building:"port", type:"civil", title:"Barco de Transporte", stats:{move:2}, cost:{wood:3}, text:"Unidad capaz de transportar hasta 6 unidades."},
     {age:"dark", building:"barracks", type:"unit", title:"Milicia", cost:{food:1,gold:1}},
