@@ -84,7 +84,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
 
     {age:"feudal",building:"tc",type:"tech",title:"Saqueos",cost:{food:2,gold:1},text:"Si un enemigo produce más de 1 recurso y un Aldeano Vikingo está en un hexágono adyacente, 1 recurso de esa producción pasa al hexágono del Aldeano Vikingo."},
     {age:"feudal",building:"mill",type:"civil",title:"Aldeano",cost:{food:2}},
-    {age:"feudal",building:"mill",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
+    {age:"feudal",building:"mill",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Los Aldeanos pueden transportar recursos al MOVER. Sin esta tecnología no pueden transportar recursos."},
     {age:"feudal",building:"mill",type:"tech",title:"Maest. Artesanos",cost:{food:3,gold:4},text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
     {age:"feudal",building:"port",type:"tech",title:"Pesca Avanzada",cost:{food:2,wood:2},text:"Pesqueros producen +1 Comida."},
     {age:"feudal",building:"port",type:"tech",title:"Drakkar",cost:{wood:2,gold:2},text:"La Galera puede transportar hasta 6 unidades."},
