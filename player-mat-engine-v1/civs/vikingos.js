@@ -85,7 +85,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"tc",type:"tech",title:"Saqueos",cost:{food:2,gold:1},text:"Si un enemigo produce más de 1 recurso y un Aldeano Vikingo está en un hexágono adyacente, 1 recurso de esa producción pasa al hexágono del Aldeano Vikingo."},
     {age:"feudal",building:"mill",type:"civil",title:"Aldeano",cost:{food:2}},
     {age:"feudal",building:"mill",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Los Aldeanos pueden transportar recursos al MOVER."},
-    {age:"feudal",building:"mill",type:"tech",title:"Maest. Artesanos",cost:{food:3,gold:4},text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
+    {age:"feudal",building:"mill",type:"tech",title:"Maestros Artesanos",cost:{food:3,gold:4},text:"Al construir, podés sustituir el pago de 1 piedra por 2 maderas."},
     {age:"feudal",building:"port",type:"tech",title:"Pesca Avanzada",cost:{food:2,wood:2},text:"Pesqueros producen +1 Comida."},
     {age:"feudal",building:"port",type:"tech",title:"Drakkar",cost:{wood:2,gold:2},text:"La Galera puede transportar hasta 6 unidades."},
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
@@ -100,7 +100,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"castles",building:"other",type:"military-building",title:"Castillo",cost:{stone:4,gold:2},text:"Esta construcción agrega +1 de Fuerza a cualquier batalla que se dé a un hexágono de distancia. Unidad disponible: Milicia."},
 
     {age:"imperial",building:"tc",type:"military-building",title:"Monasterio",cost:{wood:3,stone:2},text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
-    {age:"imperial",building:"tc",type:"tech",title:"Admin. Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
+    {age:"imperial",building:"tc",type:"tech",title:"Administración Real",cost:{food:4,gold:3},text:"Tus construcciones producen +1 recurso."},
     {age:"imperial",building:"mill",type:"tech",title:"Colonos del Norte",cost:{wood:3,gold:3},text:"Podés mover una Granja propia a otro hexágono de Llanura o Desierto junto con el Aldeano que la ocupa."},
     {age:"imperial",building:"mill",type:"tech",title:"Comercio Marítimo",cost:{wood:3,gold:3},text:"Podés convertir hasta 2 recursos del mismo tipo ubicados en Agua en la misma cantidad de recursos de tu elección."},
     {age:"imperial",building:"port",type:"tech",title:"Drakkar Mejorado",cost:{wood:4,gold:3},text:"Al mover una Galera con unidades transportadas, podés desembarcar y mover ese ejército en el mismo turno, como parte de ese movimiento."},
