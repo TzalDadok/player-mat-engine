@@ -40,25 +40,27 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   body.print-1v1-mode .print-1v1-sheet{
     display:block!important;
     width:42cm;
-    height:28.7cm;
+    height:auto;
     margin:0;
     padding:0;
-    overflow:hidden;
   }
   body.print-1v1-mode .print-1v1-row{
     position:relative;
     width:42cm;
-    height:14.34888cm;
+    height:29.7cm;
     margin:0;
     padding:0;
     overflow:hidden;
+    break-after:page;
+    page-break-after:always;
   }
+  body.print-1v1-mode .print-1v1-row:last-child{break-after:auto;page-break-after:auto}
   body.print-1v1-mode .print-1v1-row>.mat{
     position:absolute;
-    left:2.78796cm;
-    top:0;
+    left:1cm;
+    top:7.05cm;
     margin:0;
-    transform:scale(.9198);
+    transform:none;
     transform-origin:top left;
     box-shadow:none;
   }
@@ -1144,7 +1146,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   overflow:visible;
 }
 
-/* A4 vertical: dos páginas por mat, recorte 1:1 de 39,6 x 15,6 cm.
+/* A4 vertical: dos páginas por mat, recorte 1:1 de 40 x 15,6 cm.
    La mitad izquierda y la derecha no se escalan. */
 .print-a4-sheet{display:none}
 @media print{
@@ -1170,7 +1172,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
     position:absolute;
     top:1cm;
     left:.6cm;
-    width:19.8cm;
+    width:20cm;
     height:15.6cm;
     overflow:hidden;
   }
