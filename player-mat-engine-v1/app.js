@@ -85,33 +85,60 @@
   // Ajuste global de casilleros: medir el contenido real sin achicar la tipografía.
   // Si una Edad requiere más espacio, redistribuir la altura de las cuatro Edades.
   function fitTreeCells(){
-    const slots=[...tree.querySelectorAll('.slot')];
+    // Medir a ancho real: las tarjetas nunca se comprimen ni se recortan.
     const ageIds=['dark','feudal','castles','imperial'];
-    const baseline=mat.getBoundingClientRect().height;
-    const headerHeight=baseline/5;
+    const slots=[...tree.querySelectorAll('.slot')];
+    const baseHeight=15.6*96/2.54; // Tamaño mínimo del mat, en píxeles CSS.
+    const headerHeight=baseHeight/5;
     const minima=ageIds.map(age=>{
-      let max=55;
-      slots.filter(s=>s.dataset.age===age).forEach(slot=>{
-        const nodes=[...slot.querySelectorAll(':scope > .node')];
-        if(!nodes.length)return;
-        const probe=slot.cloneNode(false);
-        probe.style.cssText='position:absolute !important; left:-10000px !important; top:0 !important; width:'+slot.getBoundingClientRect().width+'px !important; height:auto !important; min-height:0 !important; max-height:none !important; display:flex !important; flex-direction:column !important; justify-content:flex-start !important; overflow:visible !important; gap:3px !important; visibility:hidden !important;';
-        nodes.forEach(node=>{
-          const copy=node.cloneNode(true);
-          copy.style.cssText='box-sizing:border-box !important; flex:none !important; width:100% !important; height:auto !important; min-height:0 !important; max-height:none !important; overflow:visible !important;';
-          probe.appendChild(copy);
-        });
+      let required=55;
+      for(const slot of slots.filter(s=>s.dataset.age===age)){
+        if(!slot.querySelector(':scope > .node')) continue;
+        const probe=slot.cloneNode(true);
+        probe.removeAttribute('id');
+        probe.style.cssText=[
+          'position:absolute !important','left:-10000px !important',
+          'top:0 !important','grid-column:auto !important','grid-row:auto !important',
+          'width:'+slot.getBoundingClientRect().width+'px !important',
+          'height:max-content !important','min-height:0 !important',
+          'max-height:none !important','overflow:visible !important',
+          'display:flex !important','flex-direction:column !important',
+          'gap:4px !important','visibility:hidden !important'
+        ].join(';');
         tree.appendChild(probe);
-        max=Math.max(max,Math.ceil(probe.getBoundingClientRect().height)+5);
+        // getBoundingClientRect captura también bordes y padding.
+        const rect=probe.getBoundingClientRect();
+        required=Math.max(required,Math.ceil(Math.max(rect.height,probe.scrollHeight))+8);
         probe.remove();
-      });
-      return max;
+      }
+      return required;
     });
-    const free=Math.max(0,baseline-headerHeight-minima.reduce((a,b)=>a+b,0));
-    const heights=minima.map(h=>h+free/4);
-    const total=headerHeight+heights.reduce((a,b)=>a+b,0);
-    if(total>baseline+1)mat.style.height=total+'px';
+    // La altura crece cuando el contenido lo exige: nunca se reduce la fuente.
+    const minimumTotal=headerHeight+minima.reduce((a,b)=>a+b,0);
+    const total=Math.max(baseHeight,minimumTotal);
+    const spare=(total-minimumTotal)/4;
+    const heights=minima.map(h=>h+spare);
+    mat.style.height=total+'px';
     tree.style.gridTemplateRows=[headerHeight,...heights].map(h=>h+'px').join(' ');
+
+    // Corregir posibles diferencias de métricas por fuentes o redondeo.
+    for(let pass=0;pass<3;pass++){
+      let changed=false;
+      for(let i=0;i<ageIds.length;i++){
+        let excess=0;
+        for(const slot of slots.filter(s=>s.dataset.age===ageIds[i])){
+          if(!slot.querySelector(':scope > .node'))continue;
+          const last=slot.lastElementChild;
+          const innerBottom=last.getBoundingClientRect().bottom;
+          const allowed=slot.getBoundingClientRect().bottom-5;
+          excess=Math.max(excess,Math.ceil(innerBottom-allowed));
+        }
+        if(excess>0){heights[i]+=excess+3;changed=true;}
+      }
+      if(!changed)break;
+      mat.style.height=(headerHeight+heights.reduce((a,b)=>a+b,0))+'px';
+      tree.style.gridTemplateRows=[headerHeight,...heights].map(h=>h+'px').join(' ');
+    }
   }
 
   function render(id){
