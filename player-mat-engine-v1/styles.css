@@ -1208,78 +1208,24 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .age-hex-count{position:absolute;z-index:5;right:5px;top:5px;display:flex;align-items:center;gap:2px;pointer-events:none}
 .age-hex{display:block;width:12px;height:11px;background:#e2bf6c;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);filter:drop-shadow(0 1px 1px #0009)}
 
-/* Casilleros con tres desarrollos: tres filas reales, no la plantilla de dos. 
-   Aplicable a cualquier civilización que agregue una tecnología. */
-.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))){
-  display:grid !important;
-  grid-template-rows:repeat(3,minmax(0,1fr)) !important;
-  align-content:stretch !important;
-  gap:3px !important;
+
+/* DISTRIBUCIÓN DE TARJETAS — sin reducir tipografías por casillero.
+   Todas las fichas conservan el mismo tamaño de títulos y descripciones. */
+.tree .slot .node .node-title{font-family:Georgia,"Times New Roman",serif !important;font-size:10px !important;line-height:1.08 !important}
+.tree .slot .node .node-text{font-family:Georgia,"Times New Roman",serif !important;font-size:8.5px !important;line-height:1.12 !important}
+.tree .slot:has(>.node:nth-child(3)):not(:has(>.node:nth-child(4))){display:flex !important;flex-direction:column !important;justify-content:flex-start !important;gap:3px !important}
+.tree .slot:has(>.node:nth-child(3)):not(:has(>.node:nth-child(4)))>.node{height:auto !important;min-height:0 !important;flex:0 0 auto !important;overflow:visible !important}
+.mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="tc"],
+.mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="mill"]{
+  display:flex !important;flex-direction:column !important;justify-content:flex-start !important;align-items:stretch !important;
+  padding:3px 4px !important;gap:3px !important;overflow:visible !important;
 }
-.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node{
-  box-sizing:border-box;
-  width:100%;
-  height:auto !important;
-  min-height:0 !important;
-  max-height:100%;
-  overflow:hidden;
+.mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="tc"]>.node,
+.mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="mill"]>.node{
+  flex:0 0 auto !important;min-height:0 !important;height:auto !important;
+  max-height:none !important;overflow:visible !important;width:100% !important;
   padding:3px 4px !important;
 }
-.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .node-title{font-size:10px;line-height:1.06}
-.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .node-text{font-size:8.1px;line-height:1.08;margin-top:2px}
-.tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .costline{margin-top:1px}
-
-/* Britones · CU / Alta Edad Media: Aldeano + Carretilla + Telar.
-   La ficha breve ocupa una fila corta; las dos tecnologías reciben el resto. */
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]{
-  display:grid !important;
-  grid-template-rows:23px repeat(2,minmax(0,1fr)) !important;
-  align-content:stretch !important;
-  gap:3px !important;
-}
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]>.node{
-  height:auto !important;
-  min-height:0 !important;
-  max-height:100%;
-  overflow:hidden;
-  padding:2px 4px !important;
-}
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]>.node:nth-child(n+2) .node-head{
-  display:flex;
-  flex-direction:row;
-  align-items:center;
-  justify-content:space-between;
-  gap:3px;
-}
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]>.node:nth-child(n+2) .node-text{
-  font-size:8px;
-  line-height:1.1;
-  margin-top:2px;
-}
-
-/* Britones / Alta Edad Media / Campamento Productivo:
-   Granja y Doble Filo: dos tarjetas de altura natural, sin cortes ni
-   reglas heredadas de los antiguos casilleros con fichas compactas. */
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"]{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  justify-content:flex-start !important;
-  gap:5px !important;
-  padding:5px 4px !important;
-}
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"]>.node{
-  display:block !important;
-  flex:0 0 auto !important;
-  width:100% !important;
-  height:auto !important;
-  min-height:0 !important;
-  max-height:none !important;
-  overflow:visible !important;
-  padding:5px 5px 6px !important;
-}
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"]>.node.building{
-  padding-top:22px !important;
-}
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"] .node-title{font-size:10px;line-height:1.12}
-.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="mill"] .node-text{font-size:8.7px;line-height:1.14}
+.mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="mill"]>.node.building{padding-top:21px !important}
+.mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="tc"]>.node .node-text,
+.mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="mill"]>.node .node-text{font-size:8.5px !important}
