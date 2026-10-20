@@ -1232,8 +1232,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="tc"]>.node .node-text,
 .mat[data-civ="britanicos"] .slot[data-age="dark"][data-building="mill"]>.node .node-text{font-size:8.5px !important}
 
-/* Títulos largos: una línea sin cambiar el tamaño tipográfico.
-   El costo pasa debajo solo cuando falta ancho. */
-.tree .node.single-line-title .node-head{flex-wrap:wrap;justify-content:flex-start;align-items:center;column-gap:5px;row-gap:1px}
+/* El título y su costo deben compartir una sola línea, sin alterar la tipografía. */
+.tree .node.single-line-title .node-head{flex-wrap:nowrap;justify-content:space-between;align-items:center;column-gap:3px;row-gap:0}
 .tree .node.single-line-title .node-title{flex:0 0 auto;white-space:nowrap;min-width:0}
 .tree .node.single-line-title .node-head>.costline{flex:0 0 auto;margin:0}
