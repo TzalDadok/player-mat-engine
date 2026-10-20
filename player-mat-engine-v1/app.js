@@ -81,66 +81,6 @@
     mat.appendChild(unitPanel);
   }
 
-
-  // Ajuste global de casilleros: medir el contenido real sin achicar la tipografía.
-  // Si una Edad requiere más espacio, redistribuir la altura de las cuatro Edades.
-  function fitTreeCells(){
-    // Medir a ancho real: las tarjetas nunca se comprimen ni se recortan.
-    const ageIds=['dark','feudal','castles','imperial'];
-    const slots=[...tree.querySelectorAll('.slot')];
-    const baseHeight=15.6*96/2.54; // Tamaño mínimo del mat, en píxeles CSS.
-    const headerHeight=baseHeight/5;
-    const minima=ageIds.map(age=>{
-      let required=55;
-      for(const slot of slots.filter(s=>s.dataset.age===age)){
-        if(!slot.querySelector(':scope > .node')) continue;
-        const probe=slot.cloneNode(true);
-        probe.removeAttribute('id');
-        probe.style.cssText=[
-          'position:absolute !important','left:-10000px !important',
-          'top:0 !important','grid-column:auto !important','grid-row:auto !important',
-          'width:'+slot.getBoundingClientRect().width+'px !important',
-          'height:max-content !important','min-height:0 !important',
-          'max-height:none !important','overflow:visible !important',
-          'display:flex !important','flex-direction:column !important',
-          'gap:4px !important','visibility:hidden !important'
-        ].join(';');
-        tree.appendChild(probe);
-        // getBoundingClientRect captura también bordes y padding.
-        const rect=probe.getBoundingClientRect();
-        required=Math.max(required,Math.ceil(Math.max(rect.height,probe.scrollHeight))+8);
-        probe.remove();
-      }
-      return required;
-    });
-    // La altura crece cuando el contenido lo exige: nunca se reduce la fuente.
-    const minimumTotal=headerHeight+minima.reduce((a,b)=>a+b,0);
-    const total=Math.max(baseHeight,minimumTotal);
-    const spare=(total-minimumTotal)/4;
-    const heights=minima.map(h=>h+spare);
-    mat.style.height=total+'px';
-    tree.style.gridTemplateRows=[headerHeight,...heights].map(h=>h+'px').join(' ');
-
-    // Corregir posibles diferencias de métricas por fuentes o redondeo.
-    for(let pass=0;pass<3;pass++){
-      let changed=false;
-      for(let i=0;i<ageIds.length;i++){
-        let excess=0;
-        for(const slot of slots.filter(s=>s.dataset.age===ageIds[i])){
-          if(!slot.querySelector(':scope > .node'))continue;
-          const last=slot.lastElementChild;
-          const innerBottom=last.getBoundingClientRect().bottom;
-          const allowed=slot.getBoundingClientRect().bottom-5;
-          excess=Math.max(excess,Math.ceil(innerBottom-allowed));
-        }
-        if(excess>0){heights[i]+=excess+3;changed=true;}
-      }
-      if(!changed)break;
-      mat.style.height=(headerHeight+heights.reduce((a,b)=>a+b,0))+'px';
-      tree.style.gridTemplateRows=[headerHeight,...heights].map(h=>h+'px').join(' ');
-    }
-  }
-
   function render(id){
     const c=civs[id]; if(!c) return;
     mat.dataset.civ = c.id;
@@ -155,7 +95,7 @@
     mat.style.setProperty('--unit-w', `${unitsCm}cm`);
     tree.style.gridTemplateColumns = `${ageCm}cm repeat(${c.buildings.length}, ${buildingCm}cm)`;
     tree.style.right = `${unitsCm}cm`;
-    renderSidebar(c); renderTree(c); renderUnits(c); fitTreeCells();
+    renderSidebar(c); renderTree(c); renderUnits(c);
   }
 
   const printCiv1=document.getElementById('printCiv1');
@@ -266,10 +206,5 @@
     window.addEventListener('afterprint',cleanup,{once:true});
     requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
   };
-  // Recalcular después de cargar fuentes y ante cambios de ancho/zoom.
-  window.addEventListener('resize',()=>fitTreeCells());
-  if(document.fonts && document.fonts.ready){
-    document.fonts.ready.then(()=>fitTreeCells());
-  }
   render(select.value || Object.keys(civs)[0]);
 })();
