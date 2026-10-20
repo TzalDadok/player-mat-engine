@@ -15,14 +15,14 @@ window.PLAYER_MAT_CIVS.vikingos = {
   turn: {
     economy: [
       ["Producir","Elegí hexagonos para producir."],
-      ["Mover","Mové 1 hexágono a pie o 2 montado. Un grupo se mueve al ritmo del más lento."],
-      ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
-      ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
-      ["Comerciar","Comprá o vendé hasta 2 recursos a precios compartidos. Acuerdos entre jugadores: solo por Oro."]
+      ["Mover","Mueve hasta 2 unidades según su movilidad."],
+      ["Construir","Utiliza un aldeano para construir estructuras disponibles."],
+      ["Entrenar","Entrena tantas unidades económicas disponibles como puedas pagar."],
+      ["Comerciar","Intercambia hasta 2 recursos utilizando el mercado."]
     ],
     technology: [
-      ["Investigar","Adquirí una tecnología disponible (cuadro verde)."],
-      ["Avanzar de Edad","Pagá los requisitos y desbloqueá la siguiente línea del árbol."],
+      ["Investigar","Investiga tecnologías disponibles."],
+      ["Avanzar de Edad","Paga los requisitos y desbloquea la siguiente edad."],
       {kind:"terrain",label:"Modificar Terreno",items:[
         {name:"Irrigar",cost:{wood:3,food:3,stone:3},text:"Convierte un hexágono de Desierto en Llanura."},
         {name:"Drenar",cost:{wood:5,food:5,stone:5},text:"Convierte un hexágono de Agua en Desierto."},
@@ -30,9 +30,9 @@ window.PLAYER_MAT_CIVS.vikingos = {
       ]}
     ],
     military: [
-      ["Mover","Mové unidades militares o económicas. Al entrar con enemigos, decidís si combatir."],
-      ["Entrenar","Entrená tantas unidades militares disponibles como puedas pagar."],
-      {name:"Instruir",cost:{gold:1},text:"Obtené +1 Poder de pelea."}
+      ["Mover","Mueve hasta 2 unidades según su movilidad."],
+      ["Entrenar","Entrena tantas unidades militares disponibles como puedas pagar."],
+      {name:"Instruir",cost:{gold:1},text:"Obtén +1 poder de pelea."}
     ]
   },
   unitReference: {
