@@ -14,7 +14,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
   ],
   turn: {
     economy: [
-      ["Producir","Elegí los hexágonos que producen. Aldeano: 1; Campamento Productivo: 2; ambos: 3. Requiere esta acción."],
+      ["Producir","Elegí hexagonos para producir."],
       ["Mover","Mové 1 hexágono a pie o 2 montado. Un grupo se mueve al ritmo del más lento."],
       ["Construir","Construí una estructura disponible, económica o militar, con un Aldeano en el hexágono."],
       ["Entrenar","Entrená tantas unidades económicas disponibles como puedas pagar."],
