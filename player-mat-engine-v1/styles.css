@@ -1236,3 +1236,31 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .tree .node.single-line-title .node-head{flex-wrap:nowrap;justify-content:space-between;align-items:center;column-gap:3px;row-gap:0}
 .tree .node.single-line-title .node-title{flex:0 0 auto;white-space:nowrap;min-width:0}
 .tree .node.single-line-title .node-head>.costline{flex:0 0 auto;margin:0}
+
+/* Francos / CU / Alta Edad Media: espacio completo para Aldeano, Carretilla y Telar.
+   Sin alterar tamaños de tipografía ni permitir que Telar invada otra Edad. */
+.mat[data-civ="francos"] .tree .slot[data-age="dark"][data-building="tc"]{
+  display:grid !important;
+  grid-template-rows:22px minmax(0,1fr) minmax(0,1fr) !important;
+  align-content:stretch !important;
+  gap:2px !important;
+  padding:3px 4px !important;
+  overflow:hidden !important;
+}
+.mat[data-civ="francos"] .tree .slot[data-age="dark"][data-building="tc"]>.node{
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:100% !important;
+  box-sizing:border-box;
+  margin:0 !important;
+  padding:2px 4px !important;
+  overflow:hidden !important;
+}
+.mat[data-civ="francos"] .tree .slot[data-age="dark"][data-building="tc"]>.node .node-head{
+  margin:0 !important;
+  gap:2px;
+}
+.mat[data-civ="francos"] .tree .slot[data-age="dark"][data-building="tc"]>.node .node-text{
+  margin-top:1px !important;
+}
