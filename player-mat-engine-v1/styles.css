@@ -1331,3 +1331,35 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat .tree .slot .node-head .cost-item{white-space:nowrap}
 .mat .tree .slot .node .stats{margin:1px 0}
 /* No se modifica font-size ni line-height: se aprovecha el espacio interno. */
+
+
+/* Corrección puntual: Franco/Doble Filo, Vikingo/Recolección y Granja.
+   Las tarjetas NO se estiran para rellenar el slot: cada una mide solo su contenido.
+   Se respetan dimensiones del mat, tracks de grilla y tipografías existentes. */
+.mat[data-civ="francos"] .tree .slot[data-age="dark"][data-building="mill"],
+.mat[data-civ="vikingos"] .tree .slot[data-age="dark"][data-building="mill"],
+.mat[data-civ="vikingos"] .tree .slot[data-age="dark"][data-building="other"]{
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+  align-items:stretch !important;
+  align-content:start !important;
+  gap:2px !important;
+}
+.mat[data-civ="francos"] .tree .slot[data-age="dark"][data-building="mill"] > .node,
+.mat[data-civ="vikingos"] .tree .slot[data-age="dark"][data-building="mill"] > .node,
+.mat[data-civ="vikingos"] .tree .slot[data-age="dark"][data-building="other"] > .node{
+  flex-grow:0 !important;
+  flex-shrink:0 !important;
+  flex-basis:auto !important;
+  align-self:stretch !important;
+  height:max-content !important;
+  min-height:0 !important;
+  max-height:none !important;
+  margin:0 !important;
+}
+/* La Granja no reserva una altura artificial ni distribuye su texto en vertical. */
+.mat[data-civ="vikingos"] .tree .slot[data-age="dark"][data-building="other"] > .node.building{
+  min-height:0 !important;
+  height:max-content !important;
+}
