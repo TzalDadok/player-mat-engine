@@ -1228,3 +1228,31 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .node-title{font-size:10px;line-height:1.06}
 .tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .node-text{font-size:8.1px;line-height:1.08;margin-top:2px}
 .tree .slot:has(> .node:nth-child(3)):not(:has(> .node:nth-child(4))) > .node .costline{margin-top:1px}
+
+/* Britones · CU / Alta Edad Media: Aldeano + Carretilla + Telar.
+   La ficha breve ocupa una fila corta; las dos tecnologías reciben el resto. */
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]{
+  display:grid !important;
+  grid-template-rows:23px repeat(2,minmax(0,1fr)) !important;
+  align-content:stretch !important;
+  gap:3px !important;
+}
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]>.node{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:100%;
+  overflow:hidden;
+  padding:2px 4px !important;
+}
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]>.node:nth-child(n+2) .node-head{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  gap:3px;
+}
+.mat[data-civ="britanicos"] .tree .slot[data-age="dark"][data-building="tc"]>.node:nth-child(n+2) .node-text{
+  font-size:8px;
+  line-height:1.1;
+  margin-top:2px;
+}
