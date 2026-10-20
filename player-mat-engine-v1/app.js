@@ -59,7 +59,7 @@
     });
     c.ages.forEach((a,ai)=>{
       const ac=document.createElement('div'); ac.className='cell age-cell'; ac.style.gridColumn='1'; ac.style.gridRow=String(ai+2);
-      ac.innerHTML=`${a.image?`<img src="${esc(a.image)}" alt="">`:``}<span class="age-roman">${esc(a.roman)}</span><div class="age-hex-count" aria-label="${ai+2} hexágonos por acción Producir">${Array.from({length:ai+2},()=>`<span class="age-hex" aria-hidden="true"></span>`).join("")}</div><div class="age-info"><span class="age-text">${esc(a.name)}</span>${a.cost?costHTML(a.cost):``}</div>`; tree.appendChild(ac);
+      ac.innerHTML=`${a.image?`<img src="${esc(a.image)}" alt="">`:``}<span class="age-roman">${esc(a.roman)}</span><div class="age-hex-count" aria-label="${[2,3,3,4][ai]} hexágonos por acción Producir">${Array.from({length:[2,3,3,4][ai]},()=>`<span class="age-hex" aria-hidden="true"></span>`).join("")}</div><div class="age-info"><span class="age-text">${esc(a.name)}</span>${a.cost?costHTML(a.cost):``}</div>`; tree.appendChild(ac);
       c.buildings.forEach((b,bi)=>{
         const slot=document.createElement('div'); slot.className='cell slot'; slot.dataset.age=a.id; slot.dataset.building=b.id; slot.style.gridColumn=String(bi+2); slot.style.gridRow=String(ai+2);
         const nodes=c.nodes.filter(n=>n.age===a.id&&n.building===b.id); slot.innerHTML=nodes.length?nodes.map(nodeHTML).join(''):'<div class="empty"></div>';
