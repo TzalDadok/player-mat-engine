@@ -92,10 +92,10 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", cost:{food:2,gold:1}, text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
-    {age:"dark", building:"mill", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
+    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
     {age:"dark", building:"tc", type:"tech", title:"Telar", cost:{food:1,wood:1}, text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
-    {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"Al PRODUCIR en Animales, obtenés +1 Comida adicional una vez por acción."},
-    {age:"castles", building:"mill", type:"tech", title:"Ganadería", cost:{food:3,wood:2,gold:2}, text:"⚠ PENDIENTE DE REVISIÓN: su efecto de evitar la sobreexplotación ya no aplica. No investigar hasta redefinir."},
+    {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"Los aldeanos producen +1 comida en hexágono de animales."},
+    {age:"castles", building:"mill", type:"tech", title:"Ganadería Intensiva", cost:{food:3,wood:2,gold:2}, text:"Podés construir dos Campamentos Productivos en un mismo hexágono de Animales."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"dark", building:"mill", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Escaramuzador", cost:{food:2,wood:2}},
