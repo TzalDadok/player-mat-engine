@@ -92,7 +92,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"barracks", type:"tech", title:"Hombre de Armas", cost:{food:2,gold:1}, text:"Tu milicia gana +1 de fuerza."},
     {age:"dark", building:"tower", type:"tech", title:"Guarnición", cost:{food:2,wood:1}, text:"Las unidades de arquería pueden guarecerse en la Torre."},
 
-    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
+    {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los Aldeanos pueden transportar recursos al MOVER. Sin esta tecnología no pueden transportar recursos."},
     {age:"dark", building:"tc", type:"tech", title:"Telar", cost:{food:1,wood:1}, text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"Los aldeanos producen +1 comida en hexágono de animales."},
     {age:"castles", building:"mill", type:"tech", title:"Ganadería Intensiva", cost:{food:3,wood:2,gold:2}, text:"Podés construir dos Campamentos Productivos en un mismo hexágono de Animales."},
