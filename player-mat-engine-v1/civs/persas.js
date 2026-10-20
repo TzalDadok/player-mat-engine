@@ -79,7 +79,7 @@ window.PLAYER_MAT_CIVS.persas = {
   nodes: [
     {age:"dark",building:"tc",type:"civil",title:"Aldeano",cost:{food:1}},
     {age:"dark",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 1 Comida. Puede construirse sobre Llanura."},
-    {age:"dark",building:"mill",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Al PRODUCIR, un Aldeano de tu elección genera +1 recurso adicional."},
+    {age:"dark",building:"mill",type:"tech",title:"Carretilla",cost:{wood:1,gold:1},text:"Los Aldeanos pueden transportar recursos al MOVER. Sin esta tecnología no pueden transportar recursos."},
     {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
     {age:"dark",building:"port",type:"civil",title:"Barco de Transporte",stats:{move:2},cost:{wood:3},text:"Unidad capaz de transportar hasta 6 unidades."},
     {age:"dark",building:"barracks",type:"unit",title:"Milicia",cost:{food:1,gold:1}},
