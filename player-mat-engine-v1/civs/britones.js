@@ -95,7 +95,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"dark", building:"tc", type:"tech", title:"Carretilla", cost:{wood:1,gold:1}, text:"Los Aldeanos pueden transportar recursos al MOVER."},
     {age:"dark", building:"tc", type:"tech", title:"Telar", cost:{food:1,wood:1}, text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"feudal", building:"mill", type:"tech", title:"Pastoreo", cost:{food:1,wood:1}, text:"Los aldeanos producen +1 comida en hexágono de animales."},
-    {age:"castles", building:"mill", type:"tech", title:"Ganad. Int.", cost:{food:3,wood:2,gold:2}, text:"Podés construir dos Campamentos Productivos en un mismo hexágono de Animales."},
+    {age:"castles", building:"mill", type:"tech", title:"Ganadería Intensi.", cost:{food:3,wood:2,gold:2}, text:"Podés construir dos Campamentos Productivos en un mismo hexágono de Animales."},
     {age:"feudal", building:"port", type:"tech", title:"Redes de Carga", cost:{wood:4}, text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
     {age:"dark", building:"mill", type:"tech", title:"Doble Filo", cost:{food:1,gold:1,stone:1}, text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"feudal", building:"barracks", type:"unit", title:"Escaramuzador", cost:{food:2,wood:2}},
