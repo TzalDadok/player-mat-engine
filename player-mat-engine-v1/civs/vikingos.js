@@ -75,7 +75,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"dark",building:"tc",type:"civil",title:"Aldeano",cost:{food:1}},
     {age:"dark",building:"tc",type:"tech",title:"Telar",cost:{food:1,wood:1},text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
     {age:"dark",building:"mill",type:"tech",title:"Asent. Vikingo",cost:{food:1,wood:2},text:"Al tomar un hexágono con granjas enemigas sin defensa militar, estas pasan a tu posesión en lugar de destruirse."},
-    {age:"dark",building:"mill",type:"tech",title:"Recolección",cost:{food:1,wood:2},text:"Al PRODUCIR en Frutos Silvestres, obtenés +1 Comida adicional, una vez por acción."},
+    {age:"dark",building:"other",type:"tech",title:"Recolección",cost:{food:1,wood:2},text:"Al PRODUCIR en Frutos Silvestres, obtenés +1 Comida adicional, una vez por acción."},
     {age:"dark",building:"mill",type:"tech",title:"Doble Filo",cost:{food:1,gold:1,stone:1},text:"Aldeanos trabajando en el bosque producen +1 madera."},
     {age:"dark",building:"port",type:"civil",title:"Pesquero",cost:{wood:2}},
     {age:"dark",building:"port",type:"tech",title:"Navegación Comercial",cost:{wood:2,gold:1},text:"Al PRODUCIR con Pesquero, podés elegir 1 Oro en vez de 1 Comida."},
@@ -91,8 +91,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"feudal",building:"barracks",type:"tech",title:"Guerrero Vikingo",cost:{food:2,gold:1},text:"Cuando participan 2 o más Milicias Vikingas en un combate, obtenés +1 Fuerza total."},
 
     {age:"feudal",building:"other",type:"tech",title:"Desmantelar",cost:{wood:3,gold:3},text:"Como acción económica, podés retirar uno de tus edificios y recuperar 2 recursos de su coste."},
-    {age:"castles",building:"mill",type:"building",title:"Granja",cost:{wood:2},text:"Produce 2 Comidas. Construcción sobre Llanura."},
-    {age:"castles",building:"mill",type:"civil",title:"Aldeano",cost:{food:2}},
+    {age:"dark",building:"other",type:"building",title:"Granja",cost:{wood:2},text:"Produce 2 Comidas. Construcción sobre Llanura."},
     {age:"castles",building:"tc",type:"tech",title:"Carreta Mercante",cost:{wood:3,gold:2},text:"Al comprar recursos en el Mercado, pagás 1 Oro menos por recurso."},
     {age:"castles",building:"port",type:"tech",title:"Comb. Naval Opt.",cost:{wood:3,gold:3},text:"Los barcos pueden recorrer todos los hexágonos de Agua y desembarcar sus unidades en un hexágono adyacente utilizando una única acción."},
     {age:"castles",building:"barracks",type:"unit",title:"Arquero",cost:{food:1,wood:2,gold:1}},
