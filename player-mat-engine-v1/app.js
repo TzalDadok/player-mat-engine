@@ -81,6 +81,39 @@
     mat.appendChild(unitPanel);
   }
 
+
+  // Ajuste global de casilleros: medir el contenido real sin achicar la tipografía.
+  // Si una Edad requiere más espacio, redistribuir la altura de las cuatro Edades.
+  function fitTreeCells(){
+    const slots=[...tree.querySelectorAll('.slot')];
+    const ageIds=['dark','feudal','castles','imperial'];
+    const baseline=mat.getBoundingClientRect().height;
+    const headerHeight=baseline/5;
+    const minima=ageIds.map(age=>{
+      let max=55;
+      slots.filter(s=>s.dataset.age===age).forEach(slot=>{
+        const nodes=[...slot.querySelectorAll(':scope > .node')];
+        if(!nodes.length)return;
+        const probe=slot.cloneNode(false);
+        probe.style.cssText='position:absolute !important; left:-10000px !important; top:0 !important; width:'+slot.getBoundingClientRect().width+'px !important; height:auto !important; min-height:0 !important; max-height:none !important; display:flex !important; flex-direction:column !important; justify-content:flex-start !important; overflow:visible !important; gap:3px !important; visibility:hidden !important;';
+        nodes.forEach(node=>{
+          const copy=node.cloneNode(true);
+          copy.style.cssText='box-sizing:border-box !important; flex:none !important; width:100% !important; height:auto !important; min-height:0 !important; max-height:none !important; overflow:visible !important;';
+          probe.appendChild(copy);
+        });
+        tree.appendChild(probe);
+        max=Math.max(max,Math.ceil(probe.getBoundingClientRect().height)+5);
+        probe.remove();
+      });
+      return max;
+    });
+    const free=Math.max(0,baseline-headerHeight-minima.reduce((a,b)=>a+b,0));
+    const heights=minima.map(h=>h+free/4);
+    const total=headerHeight+heights.reduce((a,b)=>a+b,0);
+    if(total>baseline+1)mat.style.height=total+'px';
+    tree.style.gridTemplateRows=[headerHeight,...heights].map(h=>h+'px').join(' ');
+  }
+
   function render(id){
     const c=civs[id]; if(!c) return;
     mat.dataset.civ = c.id;
@@ -95,7 +128,7 @@
     mat.style.setProperty('--unit-w', `${unitsCm}cm`);
     tree.style.gridTemplateColumns = `${ageCm}cm repeat(${c.buildings.length}, ${buildingCm}cm)`;
     tree.style.right = `${unitsCm}cm`;
-    renderSidebar(c); renderTree(c); renderUnits(c);
+    renderSidebar(c); renderTree(c); renderUnits(c); fitTreeCells();
   }
 
   const printCiv1=document.getElementById('printCiv1');
