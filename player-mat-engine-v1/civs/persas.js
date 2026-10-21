@@ -56,8 +56,8 @@ window.PLAYER_MAT_CIVS.persas = {
       {name:"Armadura Laminar",text:"Elefante de Guerra +1 Fuerza."}
     ],
     abilities: [
-      {name:"Mahouts",text:"Si un Elefante combate junto a una unidad militar a pie, obtenés +1 Fuerza total."},
-      {name:"Howdah",text:"Los Arqueros en el mismo hexágono que un Elefante obtienen +1 Alcance."}
+      {name:"Mahouts",text:"Elefante junto a una unidad militar a pie: +1 Fuerza total."},
+      {name:"Howdah",text:"Arqueros junto a Elefante: +1 Alcance."}
     ],
     bonuses: [
       {from:"Piquero",to:"Caballería"},
