@@ -1366,3 +1366,25 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   flex:0 0 auto;
   margin-top:0;
 }
+
+
+/* Persas: distribución compacta y uniforme de la referencia de unidades.
+   Conserva ancho, alto y tipografía originales. */
+.mat[data-civ="persas"] .unit-reference{
+  justify-content:flex-start;
+  gap:3px;
+}
+.mat[data-civ="persas"] .unit-ref-title{margin-bottom:3px}
+.mat[data-civ="persas"] .unit-ref-row{
+  flex:0 0 23px;
+  min-height:23px;
+  padding:2px 1px;
+}
+.mat[data-civ="persas"] .unit-ref-section{
+  margin-top:5px;
+  margin-bottom:2px;
+}
+.mat[data-civ="persas"] .unit-ref-note,
+.mat[data-civ="persas"] .unit-ref-bonus{
+  flex:0 0 auto;
+}
