@@ -96,7 +96,7 @@ window.PLAYER_MAT_CIVS.persas = {
 
     {age:"castles",building:"tc",type:"tech",title:"Tesorería Real",cost:{food:2,gold:3},text:"Una vez por turno, al gastar al menos 3 Oro en una misma acción, recuperás 1 Oro."},
     {age:"castles",building:"mill",type:"tech",title:"Forraje",cost:{food:3,wood:2,gold:1},text:"Pendiente de adaptación a la regla de movimiento fijo de unidades montadas."},
-    {age:"castles",building:"mill",type:"tech",title:"Tributo Real",cost:{food:2,wood:2,gold:2},text:"El Centro Urbano puede PRODUCIR 1 recurso de tu elección."},
+    {age:"castles",building:"tc",type:"tech",title:"Tributo Real",cost:{food:2,wood:2,gold:2},text:"El Centro Urbano puede PRODUCIR 1 recurso de tu elección."},
     {age:"castles",building:"mill",type:"tech",title:"Canteros Reales",cost:{food:2,wood:2,gold:2},text:"Una vez por acción PRODUCIR, un hexágono de Piedra elegido genera +1 Piedra adicional."},
     {age:"castles",building:"port",type:"unit",title:"Galera",cost:{wood:3,gold:1}},
     {age:"castles",building:"port",type:"tech",title:"Flota Tributaria",cost:{wood:3,gold:2},text:"La primera Galera que entrenes durante tu turno cuesta 1 Madera menos."},
