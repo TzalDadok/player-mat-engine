@@ -1388,3 +1388,85 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat[data-civ="persas"] .unit-ref-bonus{
   flex:0 0 auto;
 }
+
+
+/* REFERENCIA DE UNIDADES — mismo sistema editorial para las cuatro civilizaciones.
+   No cambia anchuras, alturas del mat, filas del árbol ni tamaños de fuente. */
+.mat[data-civ] .unit-reference{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  gap:0;
+  padding:0 5px 4px;
+}
+.mat[data-civ] .unit-ref-title{
+  flex:0 0 31px;
+  margin:0 -5px 3px;
+}
+.mat[data-civ] .unit-ref-head,
+.mat[data-civ] .unit-ref-row{
+  grid-template-columns:minmax(0,1fr) 23px 23px 23px;
+  column-gap:1px;
+}
+.mat[data-civ] .unit-ref-head{
+  flex:0 0 18px;
+  min-height:18px;
+}
+.mat[data-civ] .unit-ref-row{
+  display:grid;
+  grid-template-rows:auto auto;
+  align-content:center;
+  flex:0 0 auto;
+  height:auto;
+  min-height:0;
+  padding:2px 1px 3px;
+  row-gap:1px;
+}
+.mat[data-civ] .unit-ref-name{
+  min-width:0;
+  white-space:normal;
+  overflow:visible;
+  overflow-wrap:normal;
+  line-height:1.05;
+}
+.mat[data-civ] .unit-ref-row > span{
+  align-self:start;
+}
+.mat[data-civ] .unit-ref-cost{
+  grid-column:1 / -1;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:10px;
+  white-space:normal;
+}
+.mat[data-civ] .unit-ref-cost .costline{
+  display:flex;
+  justify-content:flex-start;
+  gap:4px;
+  margin:0;
+  font-size:8px;
+  line-height:1;
+}
+.mat[data-civ] .unit-ref-cost .cost-item .ri{
+  font-size:9px;
+}
+.mat[data-civ] .unit-cost-or{
+  margin:0 3px;
+}
+.mat[data-civ] .unit-cost-missing{
+  font-size:8px;
+  font-style:italic;
+}
+.mat[data-civ] .unit-ref-section{
+  flex:0 0 auto;
+  margin:5px -1px 2px;
+}
+.mat[data-civ] .unit-ref-note{
+  flex:0 0 auto;
+  padding:2px 1px;
+}
+.mat[data-civ] .unit-ref-bonus{
+  flex:0 0 auto;
+  padding:2px 0;
+}
