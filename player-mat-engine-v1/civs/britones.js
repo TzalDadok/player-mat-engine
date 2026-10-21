@@ -50,7 +50,9 @@ window.PLAYER_MAT_CIVS.britanicos = {
       {name:"Arquero Tiro Largo", force:2, range:2, move:1, forceUpgrade:1},
       {name:"Ariete", force:1, range:0, move:0},
       {name:"Trebuchet", force:1, range:3, move:0},
-      {name:"Misionero", force:0, range:1, move:2}
+      {name:"Misionero", force:0, range:1, move:2},
+      {name:"Pesquero", force:0, range:0, move:1},
+      {name:"Barco de Transporte", force:0, range:0, move:2}
     ],
     upgrades: [
       {name:"Telar", text:"Aldeano +1 Fuerza."},
