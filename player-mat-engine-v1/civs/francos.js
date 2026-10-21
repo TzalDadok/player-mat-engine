@@ -59,8 +59,8 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Caballería Pesada", text:"Caballero +1 Fuerza."}
     ],
     abilities: [
-      {name:"Caballería — Carga", text:"Requiere Carga. Unidades montadas que entren a un hexágono enemigo y peleen obtienen +1 Fuerza ese turno."},
-      {name:"Monje — Conversión", text:"Si vencés una batalla en la que participaron Monjes, elegí 1 unidad enemiga derrotada por cada Monje participante. Las unidades elegidas pasan a tu control."}
+      {name:"Caballería — Carga", text:"Con Carga, montados que entren a un hexágono enemigo y combatan: +1 Fuerza."},
+      {name:"Monje — Conversión", text:"Al vencer con Monjes, convertí 1 unidad derrotada por cada Monje."}
     ],
     bonuses: [
       {from:"Piquero", to:"Caballería"},
