@@ -43,7 +43,6 @@ window.PLAYER_MAT_CIVS.vikingos = {
       {name:"Galera",force:2,range:0,move:1},
       {name:"Escorpión",force:1,range:1,move:0,cost:{wood:3,gold:2}},
       {name:"Trebuchet",force:1,range:3,move:0,cost:{wood:4,stone:2,gold:3}},
-      {name:"Pesquero",force:"—",range:"—",move:"—"},
       {name:"Monje",force:0,range:1,move:1,cost:{food:2,gold:2}}
     ],
     upgrades: [
