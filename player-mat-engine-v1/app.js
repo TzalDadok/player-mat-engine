@@ -87,7 +87,7 @@
     const upgrades=(c.unitReference.upgrades||[]).map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
     const abilities=(c.unitReference.abilities||[]).map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
     const bonuses=(c.unitReference.bonuses||[]).map(x=>`<div class="unit-ref-bonus${x.green?' bonus-green':''}"><b>${esc(x.from)}</b> <span>→</span> <b>${esc(x.to)}</b></div>`).join('');
-    unitPanel.innerHTML=`<div class="unit-ref-title">UNIDADES</div><div class="unit-ref-head"><span></span><span>⚔</span><span>◎</span><span>👣</span></div>${rows}<div class="unit-cost-legend">— Costo por definir</div><div class="unit-ref-section">MEJORAS</div>${upgrades}<div class="unit-ref-section">HABILIDADES</div>${abilities}<div class="unit-ref-section">BONUS</div>${bonuses}`;
+    unitPanel.innerHTML=`<div class="unit-ref-title">UNIDADES</div><div class="unit-ref-head"><span></span><span>⚔</span><span>◎</span><span>👣</span></div>${rows}<div class="unit-cost-legend">— Dato sin definir</div><div class="unit-ref-section">MEJORAS</div>${upgrades}<div class="unit-ref-section">HABILIDADES</div>${abilities}<div class="unit-ref-section">BONUS</div>${bonuses}`;
     mat.appendChild(unitPanel);
   }
 
