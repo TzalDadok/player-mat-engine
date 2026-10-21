@@ -81,7 +81,7 @@
       return unique.map(x=>costHTML(x.cost)).join('<span class="unit-cost-or"> / </span>');
     };
     const rows=c.unitReference.units.map(u=>{
-      const cost=costsFor(u.name);
+      const cost=costsFor(u.name) || (u.cost ? costHTML(u.cost) : '');
       return `<div class="unit-ref-row"><div class="unit-ref-top"><b class="unit-ref-name">${esc(u.name)}</b><div class="unit-ref-stats"><span>${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div></div><div class="unit-ref-cost">${cost || '<span class="unit-cost-missing" title="Costo aún no definido">—</span>'}</div></div>`;
     }).join('');
     const upgrades=(c.unitReference.upgrades||[]).map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
