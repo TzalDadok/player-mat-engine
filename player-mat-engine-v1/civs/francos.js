@@ -51,8 +51,8 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Escorpión", force:1, range:1, move:0},
       {name:"Trebuchet", force:1, range:3, move:0},
       {name:"Monje", force:0, range:1, move:1},
-      {name:"Pesquero", force:0, range:0, move:1},
-      {name:"Barco de Transporte", force:0, range:0, move:2}
+      {name:"Pesquero", force:"—",range:"—",move:"—"},
+      {name:"Barco de Transporte", force:"—",range:"—",move:2}
     ],
     upgrades: [
       {name:"Hombre de Armas", text:"Milicia +1 Fuerza."},
