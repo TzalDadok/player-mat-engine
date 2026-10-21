@@ -46,7 +46,8 @@ window.PLAYER_MAT_CIVS.persas = {
       {name:"Arquero",force:1,range:1,move:1},
       {name:"Piquero",force:1,range:0,move:1},
       {name:"Galera",force:2,range:0,move:1},
-      {name:"Elefante",force:3,range:0,move:2,forceUpgrade:1}
+      {name:"Elefante",force:3,range:0,move:2,forceUpgrade:1},
+      {name:"Monje",force:0,range:1,move:1}
     ],
     upgrades: [
       {name:"Telar",text:"Aldeano +1 Fuerza."},
@@ -87,7 +88,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"dark",building:"tower",type:"tech",title:"Guardia de Frontera",cost:{wood:1,stone:1},text:"La Torre aporta +1 Fuerza a las batallas en su propio hexágono."},
 
     {age:"dark",building:"tc",type:"tech",title:"Telar",cost:{food:1,wood:1},text:"Tus aldeanos adquieren +1 Fuerza. Ahora pueden entrar a la batalla."},
-    {age:"feudal",building:"tc",type:"tech",title:"Camino Real",cost:{food:2,wood:2},text:"Un Aldeano que parte de una construcción propia puede mover 2 hexágonos si termina en otra construcción propia."},
+    {age:"feudal",building:"tc",type:"tech",title:"Camino Real",cost:{food:2,wood:2},text:"Todos los hexágonos que contengan construcciones persas se consideran adyacentes entre sí."},
     {age:"feudal",building:"mill",type:"tech",title:"Qanats",cost:{wood:2,stone:2},text:"Podés construir Granjas en Desierto. Si están adyacentes a una Montaña, producen +1 Comida."},
     {age:"feudal",building:"mill",type:"tech",title:"Minería Imperial",cost:{food:3,wood:1,stone:2},text:"Aldeanos trabajando en una cantera de Oro producen +1 Oro."},
     {age:"feudal",building:"port",type:"tech",title:"Redes de Carga",cost:{wood:4},text:"Cada Pesquero puede PRODUCIR en su hexágono de Agua y en otro hexágono de Agua adyacente. Los recursos quedan en el hexágono donde se producen."},
@@ -106,7 +107,7 @@ window.PLAYER_MAT_CIVS.persas = {
     {age:"castles",building:"tower",type:"tech",title:"Arquitectura Persa",cost:{wood:2,gold:3},text:"Castillo: +1 Fuerza adicional al defender su hexágono."},
 
     {age:"imperial",building:"tc",type:"military-building",title:"Monasterio",cost:{wood:3,stone:2},text:"Construcción necesaria para guardar reliquias. Unidad disponible: Monje."},
-    {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:3,gold:3},text:"Tus construcciones cuestan −1 Piedra."},
+    {age:"imperial",building:"tc",type:"tech",title:"Satrapías",cost:{food:3,gold:3},text:"Tus construcciones cuestan 2 Piedras menos."},
     {age:"imperial",building:"mill",type:"tech",title:"Criad. Reales",cost:{food:3,wood:2,gold:2},text:"Los Elefantes de Guerra cuestan 1 Comida menos al entrenarse."},
     {age:"imperial",building:"mill",type:"tech",title:"Ingeniería Hidráulica",cost:{wood:3,stone:2,gold:2},text:"⚠ PENDIENTE DE REVISIÓN: su efecto de evitar la sobreexplotación ya no aplica. No investigar hasta redefinir."},
     {age:"imperial",building:"mill",type:"tech",title:"Armadura Laminar",cost:{stone:3,gold:4},text:"Los Elefantes de Guerra obtienen +1 Fuerza."},
