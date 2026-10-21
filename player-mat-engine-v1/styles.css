@@ -1470,3 +1470,94 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   flex:0 0 auto;
   padding:2px 0;
 }
+
+
+/* Columnas de UNIDADES: plantilla editorial única y dos líneas por unidad.
+   Mantener tamaños de mat, ancho de columna y tipografías existentes. */
+.mat[data-civ] .unit-reference{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  padding:0 5px 4px;
+  overflow:hidden;
+}
+.mat[data-civ] .unit-ref-title{
+  flex:0 0 31px;
+  height:31px;
+  min-height:31px;
+  margin:0 -5px 4px;
+}
+.mat[data-civ] .unit-ref-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) repeat(3,22px);
+  column-gap:2px;
+  flex:0 0 18px;
+  min-height:18px;
+  padding:1px 0 2px;
+}
+.mat[data-civ] .unit-ref-head span:not(:first-child){text-align:center}
+.mat[data-civ] .unit-ref-row{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  flex:0 0 auto;
+  min-height:0;
+  height:auto;
+  gap:2px;
+  padding:3px 1px 4px;
+  border-bottom:1px solid #c4a66e;
+}
+.mat[data-civ] .unit-ref-top{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  column-gap:4px;
+}
+.mat[data-civ] .unit-ref-name{
+  min-width:0;
+  font-size:8.5px;
+  line-height:1.05;
+  white-space:normal;
+  overflow:visible;
+  overflow-wrap:break-word;
+}
+.mat[data-civ] .unit-ref-stats{
+  display:grid;
+  grid-template-columns:repeat(3,22px);
+  column-gap:2px;
+  align-items:start;
+}
+.mat[data-civ] .unit-ref-stats span{
+  text-align:center;
+  white-space:nowrap;
+  font-family:Arial,sans-serif;
+  font-size:8px;
+  line-height:1.05;
+}
+.mat[data-civ] .unit-ref-stats em{
+  color:#0a7a39;
+  font-style:normal;
+  font-weight:700;
+}
+.mat[data-civ] .unit-ref-cost{
+  display:flex;
+  align-items:center;
+  min-height:10px;
+  padding-left:0;
+}
+.mat[data-civ] .unit-ref-cost .costline{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  gap:4px;
+  margin:0;
+  font-size:8px;
+  line-height:1;
+}
+.mat[data-civ] .unit-ref-cost .cost-item .ri{font-size:9px;margin-right:1px}
+.mat[data-civ] .unit-cost-missing{font-size:8px;font-style:italic}
+.mat[data-civ] .unit-cost-or{margin:0 3px;font-size:8px}
+.mat[data-civ] .unit-cost-legend{font-size:8px;padding:2px 1px}
+.mat[data-civ] .unit-ref-section{flex:0 0 auto;margin:5px -1px 2px;padding:2px 4px}
+.mat[data-civ] .unit-ref-note{flex:0 0 auto;padding:2px 1px}
+.mat[data-civ] .unit-ref-bonus{flex:0 0 auto;padding:2px 0}
