@@ -48,9 +48,9 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Jinete", force:2, range:0, move:2},
       {name:"Galera", force:2, range:0, move:1},
       {name:"Caballero", force:3, range:0, move:2, forceUpgrade:1},
-      {name:"Escorpión", force:1, range:1, move:0},
-      {name:"Trebuchet", force:1, range:3, move:0},
-      {name:"Monje", force:0, range:1, move:1},
+      {name:"Escorpión", force:1, range:1, move:0,cost:{wood:3,gold:2}},
+      {name:"Trebuchet", force:1, range:3, move:0,cost:{wood:4,stone:2,gold:3}},
+      {name:"Monje", force:0, range:1, move:1,cost:{food:2,gold:2}},
       {name:"Pesquero", force:"—",range:"—",move:"—"},
       {name:"Barco de Transporte", force:"—",range:"—",move:2}
     ],
