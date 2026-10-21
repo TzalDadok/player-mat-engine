@@ -60,8 +60,8 @@ window.PLAYER_MAT_CIVS.britanicos = {
       {name:"Élite", text:"Arquero de Tiro Largo +1 Fuerza."}
     ],
     abilities: [
-      {name:"Arquero — Guarnición", text:"Requiere Guarnición. Puede guarecerse en una Torre. Continúa aportando su Fuerza a las batallas. Si la Torre cae, permanece en el hexágono."},
-      {name:"Misionero — Conversión", text:"Si vencés una batalla en la que participaron Misioneros, elegí 1 unidad enemiga derrotada por cada Misionero participante. Las unidades elegidas pasan a tu control."},
+      {name:"Arquero — Guarnición", text:"Con Guarnición, el Arquero en Torre aporta Fuerza; si cae, queda en el hexágono."},
+      {name:"Misionero — Conversión", text:"Al vencer con Misioneros, convertí 1 unidad derrotada por cada Misionero."},
     ],
     bonuses: [
       {from:"Escaramuzador", to:"Arquero"},
