@@ -1325,3 +1325,44 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   flex:0 0 auto;
   margin-top:0;
 }
+
+
+/* Persas — Granja en Alta Edad Media.
+   Tarjeta de altura natural y encabezado rojo íntegro, sin modificar
+   la geometría del mat ni el tamaño de la tipografía. */
+.mat[data-civ="persas"] .tree .slot[data-age="dark"][data-building="mill"]{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:4px !important;
+  padding:4px !important;
+  overflow:hidden !important;
+}
+.mat[data-civ="persas"] .tree .slot[data-age="dark"][data-building="mill"] > .node{
+  box-sizing:border-box !important;
+  flex:0 0 auto !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  margin:0 !important;
+  overflow:visible !important;
+}
+.mat[data-civ="persas"] .tree .slot[data-age="dark"][data-building="mill"] > .node.building{
+  padding:21px 5px 5px !important;
+}
+.mat[data-civ="persas"] .tree .slot[data-age="dark"][data-building="mill"] > .node.building .node-head{
+  margin-top:-20px;
+  margin-bottom:8px;
+  flex-wrap:nowrap;
+  align-items:center;
+}
+.mat[data-civ="persas"] .tree .slot[data-age="dark"][data-building="mill"] > .node.building .node-head .node-title{
+  flex:1 1 auto;
+  min-width:0;
+}
+.mat[data-civ="persas"] .tree .slot[data-age="dark"][data-building="mill"] > .node.building .node-head .costline{
+  flex:0 0 auto;
+  margin-top:0;
+}
