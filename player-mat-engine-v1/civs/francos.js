@@ -105,7 +105,7 @@ window.PLAYER_MAT_CIVS.francos = {
     {age:"imperial", building:"port", type:"tech", title:"Desembarco", cost:{wood:3,food:2}, text:"Unidades siendo transportadas en barco pueden desembarcar en un hexágono adyacente ese mismo turno."},
     {age:"feudal", building:"mill", type:"tech", title:"Canteros", cost:{food:2,wood:1}, text:"Aldeanos trabajando en una cantera de piedra producen +1 piedra."},
     {age:"castles", building:"tc", type:"tech", title:"Herrería", cost:{food:2,stone:2,gold:2}, text:"La primera unidad militar que entrenes cada turno cuesta 1 Oro menos."},
-    {age:"castles", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:3}},
+    {age:"feudal", building:"barracks", type:"unit", title:"Jinete", cost:{food:2,gold:3}},
     {age:"castles", building:"barracks", type:"unit", title:"Caballero", cost:{food:3,gold:4}},
     {age:"castles", building:"barracks", type:"tech", title:"Carga", cost:{food:2,gold:2}, text:"Unidades montadas que entren a un hexágono enemigo y peleen obtienen +1 Fuerza ese turno."},
     {age:"castles", building:"tower", type:"military-building", title:"Castillo", cost:{stone:4,gold:2}, text:"+1 Fuerza en batallas a 1 hexágono. Unidad disponible: Caballero."},
