@@ -60,7 +60,6 @@ window.PLAYER_MAT_CIVS.persas = {
     bonuses: [
       {from:"Piquero",to:"Caballería"},
       {from:"Piquero",to:"Elefante (+2)"},
-      {from:"Elefante",to:"Construcciones"},
       {from:"Elefante",to:"Construcciones (+2)",green:true}
     ]
   },
