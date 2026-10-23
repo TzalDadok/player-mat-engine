@@ -1620,3 +1620,17 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat[data-civ="britones"] .tree .slot[data-age="imperial"][data-building="barracks"] > .node.military-building{
   padding:21px 5px 5px !important;
 }
+
+
+/* Persas / Feudal / Cuartel: Piquero ocupa todo el ancho de su casillero.
+   No cambia alturas de filas, dimensiones del mat ni tipografías. */
+.mat[data-civ="persas"] .tree .slot[data-age="feudal"][data-building="barracks"] > .node.unit{
+  display:flex !important;
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+  justify-self:stretch !important;
+  align-self:stretch !important;
+}
