@@ -115,7 +115,8 @@ window.PLAYER_MAT_CIVS.britanicos = {
     {age:"imperial", building:"tc", type:"tech", title:"Administración Real", cost:{food:4,gold:3}, text:"Tus construcciones producen +1 recurso."},
     {age:"feudal", building:"mill", type:"tech", title:"Carreta Mercante", cost:{wood:3,gold:2}, text:"Al comprar recursos en el Mercado, pagás 1 Oro menos por recurso."},
     {age:"imperial", building:"barracks", type:"military-building", title:"Asedio", cost:{wood:4,stone:2,gold:2}, text:"Asedio contra edificios. Unidades: Ariete y Trebuchet. Para moverlas: una unidad a pie. Para operarlas: un Aldeano."},
-    {age:"imperial", building:"barracks", type:"tech", title:"Levas", cost:{food:3,gold:3}, text:"Podés entrenar hasta 2 unidades de rango por turno."},
+    {age:"castles", building:"barracks", type:"tech", title:"Levas", cost:{food:3,gold:3}, text:"Las Milicias obtienen +1 Fuerza al defender hexágonos con construcciones britonas."},
+    {age:"imperial", building:"barracks", type:"tech", title:"Arietes de Transporte", cost:{wood:3,gold:3}, text:"Los Arietes pueden transportar hasta 6 unidades."},
     {age:"imperial", building:"tower", type:"tech", title:"Élite", cost:{food:3,gold:3}, text:"Los Arqueros de Tiro Largo obtienen +1 Fuerza."},
     {age:"imperial", building:"tc", type:"tech", title:"Herejía", cost:{gold:5}, text:"Unidades convertidas por monjes enemigos mueren en lugar de cambiar de bando."}
   ]
