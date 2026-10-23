@@ -65,6 +65,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
       {from:"Escaramuzador", to:"Arquero"},
       {from:"Galera", to:"Barcos (◎ 0)", green:true},
       {from:"Ariete", to:"Edificios"},
+      {from:"Ariete", to:"Sin apoyo de Arqueros a 1 hex. si solo hay Arietes"},
       {from:"Trebuchet", to:"Edificios (+2)"}
     ]
   },
