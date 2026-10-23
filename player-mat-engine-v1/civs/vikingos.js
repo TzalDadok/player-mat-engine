@@ -42,7 +42,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
       {name:"Arquero",force:1,range:1,move:1},
       {name:"Galera",force:2,range:0,move:1},
       {name:"Escorpión",force:1,range:1,move:0,cost:{wood:3,gold:2}},
-      {name:"Trebuchet",force:1,range:3,move:0,cost:{wood:4,stone:2,gold:3}},
+      {name:"Onagro",force:1,range:1,move:0,cost:{wood:3,stone:2,gold:2}},
       {name:"Monje",force:0,range:1,move:1,cost:{food:2,gold:2}}
     ],
     upgrades: [
@@ -56,7 +56,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     bonuses: [
       {from:"Milicia", to:"Construcciones", green:true},
       {from:"Escorpión", to:"Infantería a pie"},
-      {from:"Trebuchet", to:"Edificios (+2)"}
+      {from:"Onagro", to:"3+ enemigos (+2 ⚔)"}
     ]
   },
   buildings: [
@@ -107,6 +107,6 @@ window.PLAYER_MAT_CIVS.vikingos = {
     {age:"imperial",building:"barracks",type:"tech",title:"Jefes Guerreros",cost:{food:3,gold:3},text:"Si ganás un combate, recuperás 1 Poder Militar apostado."},
     {age:"imperial",building:"barracks",type:"tech",title:"Berserkergang",cost:{food:4,gold:3},text:"Cuando atacás con 3 o más Milicias, obtenés +1 al máximo de Poder Militar que podés apostar."},
     {age:"imperial",building:"other",type:"tech",title:"Jarl Saloon",cost:{wood:3,stone:2,gold:3},text:"Puedes entrenar 3 milicias al costo de 2."},
-    {age:"castles",building:"mill",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Construí maquinaria que da bonus contra unidades y edificios. Unidad disponible: Escorpión y Trebuchet. Requiere una unidad a pie para trasladarla y un Aldeano para operarla."}
+    {age:"castles",building:"mill",type:"military-building",title:"Asedio",cost:{wood:4,stone:2,gold:2},text:"Construí maquinaria que da bonus contra unidades y edificios. Unidades disponibles: Escorpión y Onagro. Requiere una unidad a pie para trasladarla y un Aldeano para operarla."}
   ]
 };
