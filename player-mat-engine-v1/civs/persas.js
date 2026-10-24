@@ -57,7 +57,9 @@ window.PLAYER_MAT_CIVS.persas = {
       {name:"Mahouts",text:"Elefante junto a una unidad militar a pie: +1 Fuerza total."},
       {name:"Howdah",text:"Arqueros junto a Elefante: +1 Alcance."}
     ],
+    defenseBonuses: [],
     bonuses: [
+      {from:"Unidades (Alcance 0)",to:"Unidades de Asedio"},
       {from:"Piquero",to:"Caballería"},
       {from:"Piquero",to:"Elefante (+2)"},
       {from:"Elefante",to:"Construcciones (+2)",green:true}
