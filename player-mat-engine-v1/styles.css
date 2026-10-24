@@ -1671,42 +1671,44 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat[data-civ="britones"] .unit-ref-cost .costline{gap:1px 3px}
 
 
-/* Britones: nombre y costo juntos. Estadísticas debajo, alineadas con sus
-   encabezados; sin cambiar fuentes, ancho de columna ni tamaño del mat. */
+/* Britones: unidad, costo y estadísticas en una única línea.
+   La referencia conserva dimensiones y tamaños tipográficos. */
 .mat[data-civ="britones"] .unit-ref-row-compact{
-  display:flex !important;
-  flex-direction:column !important;
+  display:block !important;
   padding:1px !important;
-  gap:0 !important;
-}
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:2px;
-  min-width:0;
-  width:100%;
-}
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-name{
-  flex:0 1 auto;
-  min-width:0;
-  white-space:nowrap !important;
-  overflow:visible !important;
-}
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost{
-  flex:0 0 auto;
-  margin-left:auto;
-  padding:0 !important;
   min-height:0 !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost .costline{
-  flex-wrap:nowrap;
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto 49px;
+  align-items:center;
   gap:2px;
+  width:100%;
+  min-width:0;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-name{
+  min-width:0;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost{
+  margin:0;
+  min-width:0;
+  padding:0 !important;
+  justify-content:center;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost .costline{
+  flex-wrap:nowrap !important;
+  gap:1px !important;
+  white-space:nowrap;
 }
 .mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-stats{
-  align-self:flex-end;
-  grid-template-columns:repeat(3,22px);
-  column-gap:1px;
-  line-height:1;
-  margin-top:-1px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;
+  width:49px;
+  min-width:49px;
+  margin:0;
+  align-self:center;
 }
