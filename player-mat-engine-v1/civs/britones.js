@@ -61,11 +61,12 @@ window.PLAYER_MAT_CIVS.britanicos = {
       {name:"Arquero — Guarnición", text:"Con Guarnición, el Arquero en Torre aporta Fuerza; si cae, queda en el hexágono."},
       {name:"Misionero — Conversión", text:"Al vencer con Misioneros, convertí 1 unidad derrotada por cada Misionero."},
     ],
+    defenseBonuses: [{from:"Ariete",to:"Unidades con alcance 1+"}],
     bonuses: [
+      {from:"Unidades (Alcance 0)",to:"Unidades de Asedio"},
       {from:"Escaramuzador", to:"Arquero"},
       {from:"Galera", to:"Barcos (◎ 0)", green:true},
       {from:"Ariete", to:"Edificios"},
-      {from:"Ariete", to:"Solo Arietes: arqueros no apoyan"},
       {from:"Trebuchet", to:"Edificios (+2)"}
     ]
   },
