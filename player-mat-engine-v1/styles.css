@@ -1712,3 +1712,19 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   margin:0;
   align-self:center;
 }
+
+
+/* Britones: la regla general grid-column:1/-1 forzaba el costo a
+   ocupar toda la fila. Cada elemento usa ahora su propia columna. */
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line > .unit-ref-name{
+  grid-column:1 !important;
+  grid-row:1 !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line > .unit-ref-cost{
+  grid-column:2 !important;
+  grid-row:1 !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line > .unit-ref-stats{
+  grid-column:3 !important;
+  grid-row:1 !important;
+}
