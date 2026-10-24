@@ -1646,3 +1646,26 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 .mat[data-civ] .unit-ref-bonus{
   text-align:left;
 }
+
+
+/* Britones: liberar altura en la referencia más cargada, sin alterar fuente,
+   ancho de columna ni tamaño del mat. */
+.mat[data-civ="britones"] .unit-ref-title{margin-bottom:1px !important}
+.mat[data-civ="britones"] .unit-ref-row{
+  padding:1px 1px !important;
+  gap:0 !important;
+}
+.mat[data-civ="britones"] .unit-ref-top{column-gap:1px}
+.mat[data-civ="britones"] .unit-ref-section{
+  margin:3px -1px 1px !important;
+  padding:1px 4px !important;
+}
+.mat[data-civ="britones"] .unit-ref-note{
+  padding:1px 1px !important;
+  line-height:1.05 !important;
+}
+.mat[data-civ="britones"] .unit-ref-bonus{
+  padding:1px 0 !important;
+  line-height:1.05 !important;
+}
+.mat[data-civ="britones"] .unit-ref-cost .costline{gap:1px 3px}
