@@ -62,6 +62,7 @@ window.PLAYER_MAT_CIVS.francos = {
     ],
     defenseBonuses: [],
     bonuses: [
+      {from:"Arquero",to:"Piquero"},
       {from:"Unidades (◎ 0)",to:"Unidades de Asedio"},
       {from:"Piquero", to:"Caballería"},
       {from:"Piquero", to:"Milicia", green:true},
