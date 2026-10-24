@@ -55,6 +55,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     ],
     defenseBonuses: [],
     bonuses: [
+      {from:"Arquero",to:"Piquero"},
       {from:"Unidades (◎ 0)",to:"Unidades de Asedio"},
       {from:"Milicia", to:"Construcciones", green:true},
       {from:"Escorpión", to:"Infantería a pie"},
