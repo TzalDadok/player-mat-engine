@@ -60,7 +60,9 @@ window.PLAYER_MAT_CIVS.francos = {
       {name:"Caballería — Carga", text:"Con Carga, montados que entren a un hexágono enemigo y combatan: +1 Fuerza."},
       {name:"Monje — Conversión", text:"Al vencer con Monjes, convertí 1 unidad derrotada por cada Monje."}
     ],
+    defenseBonuses: [],
     bonuses: [
+      {from:"Unidades (Alcance 0)",to:"Unidades de Asedio"},
       {from:"Piquero", to:"Caballería"},
       {from:"Piquero", to:"Milicia", green:true},
       {from:"Escorpión", to:"Infantería a pie"},
