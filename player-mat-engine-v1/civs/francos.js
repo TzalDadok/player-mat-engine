@@ -62,7 +62,7 @@ window.PLAYER_MAT_CIVS.francos = {
     ],
     defenseBonuses: [],
     bonuses: [
-      {from:"Unidades (Alcance 0)",to:"Unidades de Asedio"},
+      {from:"Unidades (◎ 0)",to:"Unidades de Asedio"},
       {from:"Piquero", to:"Caballería"},
       {from:"Piquero", to:"Milicia", green:true},
       {from:"Escorpión", to:"Infantería a pie"},
