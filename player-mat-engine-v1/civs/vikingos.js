@@ -53,7 +53,9 @@ window.PLAYER_MAT_CIVS.vikingos = {
       {name:"Drakkar",text:"La Galera puede transportar hasta 6 unidades."},
       {name:"Drakkar Mejorado",text:"Al mover una Galera cargada, podés desembarcar y mover su ejército ese turno."}
     ],
+    defenseBonuses: [],
     bonuses: [
+      {from:"Unidades (Alcance 0)",to:"Unidades de Asedio"},
       {from:"Milicia", to:"Construcciones", green:true},
       {from:"Escorpión", to:"Infantería a pie"},
       {from:"Onagro", to:"3+ enemigos (+2 ⚔)"}
