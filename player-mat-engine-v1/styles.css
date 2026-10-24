@@ -1669,3 +1669,44 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   line-height:1.05 !important;
 }
 .mat[data-civ="britones"] .unit-ref-cost .costline{gap:1px 3px}
+
+
+/* Britones: nombre y costo juntos. Estadísticas debajo, alineadas con sus
+   encabezados; sin cambiar fuentes, ancho de columna ni tamaño del mat. */
+.mat[data-civ="britones"] .unit-ref-row-compact{
+  display:flex !important;
+  flex-direction:column !important;
+  padding:1px !important;
+  gap:0 !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:2px;
+  min-width:0;
+  width:100%;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-name{
+  flex:0 1 auto;
+  min-width:0;
+  white-space:nowrap !important;
+  overflow:visible !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost{
+  flex:0 0 auto;
+  margin-left:auto;
+  padding:0 !important;
+  min-height:0 !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost .costline{
+  flex-wrap:nowrap;
+  gap:2px;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-stats{
+  align-self:flex-end;
+  grid-template-columns:repeat(3,22px);
+  column-gap:1px;
+  line-height:1;
+  margin-top:-1px;
+}
