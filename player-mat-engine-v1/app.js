@@ -82,6 +82,14 @@
     };
     const rows=c.unitReference.units.map(u=>{
       const cost=costsFor(u.name) || (u.cost ? costHTML(u.cost) : '');
+      const name = c.id==='britones' ? ({
+        'Arquero Tiro Largo':'Arq. Tiro Largo',
+        'Escaramuzador':'Escaramuz.',
+        'Barco de Transporte':'Barco Transp.'
+      }[u.name] || u.name) : u.name;
+      if (c.id==='britones') {
+        return `<div class="unit-ref-row unit-ref-row-compact"><div class="unit-ref-line"><b class="unit-ref-name" title="${esc(u.name)}">${esc(name)}</b><div class="unit-ref-cost">${cost || '—'}</div></div><div class="unit-ref-stats"><span>${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div></div>`;
+      }
       return `<div class="unit-ref-row"><div class="unit-ref-top"><b class="unit-ref-name">${esc(u.name)}</b><div class="unit-ref-stats"><span>${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div></div><div class="unit-ref-cost">${cost || '<span class="unit-cost-missing" title="Costo aún no definido">—</span>'}</div></div>`;
     }).join('');
     const upgrades=(c.unitReference.upgrades||[]).map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
