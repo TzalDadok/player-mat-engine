@@ -55,7 +55,7 @@ window.PLAYER_MAT_CIVS.vikingos = {
     ],
     defenseBonuses: [],
     bonuses: [
-      {from:"Unidades (Alcance 0)",to:"Unidades de Asedio"},
+      {from:"Unidades (◎ 0)",to:"Unidades de Asedio"},
       {from:"Milicia", to:"Construcciones", green:true},
       {from:"Escorpión", to:"Infantería a pie"},
       {from:"Onagro", to:"3+ enemigos (+2 ⚔)"}
