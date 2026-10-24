@@ -63,7 +63,7 @@ window.PLAYER_MAT_CIVS.britanicos = {
     ],
     defenseBonuses: [{from:"Ariete",to:"Unidades con alcance 1+"}],
     bonuses: [
-      {from:"Unidades (Alcance 0)",to:"Unidades de Asedio"},
+      {from:"Unidades (◎ 0)",to:"Unidades de Asedio"},
       {from:"Escaramuzador", to:"Arquero"},
       {from:"Galera", to:"Barcos (◎ 0)", green:true},
       {from:"Ariete", to:"Edificios"},
