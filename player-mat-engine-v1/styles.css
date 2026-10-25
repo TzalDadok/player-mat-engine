@@ -1728,3 +1728,49 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   grid-column:3 !important;
   grid-row:1 !important;
 }
+
+
+/* Britones: una sola fila real (flex horizontal) para nombre, costo y stats.
+   Sustituye la cuadrícula anterior, cuyo ancho no admitía los tres bloques. */
+.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  min-width:0 !important;
+  gap:2px !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-name{
+  display:block !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-cost{
+  display:flex !important;
+  flex:0 0 auto !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  width:auto !important;
+  margin:0 !important;
+  white-space:nowrap !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-cost .costline{
+  display:flex !important;
+  flex-flow:row nowrap !important;
+  gap:1px !important;
+  margin:0 !important;
+}
+.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-stats{
+  display:grid !important;
+  flex:0 0 40px !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  min-width:40px !important;
+  width:40px !important;
+  margin:0 !important;
+}
