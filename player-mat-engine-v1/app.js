@@ -83,9 +83,9 @@
     const rows=c.unitReference.units.map(u=>{
       const cost=costsFor(u.name) || (u.cost ? costHTML(u.cost) : '');
       const name = c.id==='britones' ? ({
-        'Arquero Tiro Largo':'Arq. Tiro Largo',
-        'Escaramuzador':'Escaramuz.',
-        'Barco de Transporte':'Barco Transp.'
+        'Arquero Tiro Largo':'Arq. Largo',
+        'Escaramuzador':'Escaram.',
+        'Barco de Transporte':'B. Transp.'
       }[u.name] || u.name) : u.name;
       if (c.id==='britones') {
         return `<div class="unit-ref-row unit-ref-row-compact"><div class="unit-ref-line"><b class="unit-ref-name" title="${esc(u.name)}">${esc(name)}</b><div class="unit-ref-cost">${cost || '—'}</div><div class="unit-ref-stats"><span>${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div></div></div>`;
