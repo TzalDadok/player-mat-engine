@@ -1597,7 +1597,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 
 /* Britones: Levas + Asedio en Cuartel Imperial.
    Altura natural en vez de mitades iguales; Asedio conserva banda violeta. */
-.mat[data-civ="britones"] .tree .slot[data-age="imperial"][data-building="barracks"]{
+.mat[data-civ="britanicos"] .tree .slot[data-age="imperial"][data-building="barracks"]{
   display:flex !important;
   flex-direction:column !important;
   align-items:stretch !important;
@@ -1606,7 +1606,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   padding:3px 4px !important;
   overflow:hidden !important;
 }
-.mat[data-civ="britones"] .tree .slot[data-age="imperial"][data-building="barracks"] > .node{
+.mat[data-civ="britanicos"] .tree .slot[data-age="imperial"][data-building="barracks"] > .node{
   box-sizing:border-box !important;
   flex:0 0 auto !important;
   width:100% !important;
@@ -1617,7 +1617,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   overflow:visible !important;
   padding:4px 5px !important;
 }
-.mat[data-civ="britones"] .tree .slot[data-age="imperial"][data-building="barracks"] > .node.military-building{
+.mat[data-civ="britanicos"] .tree .slot[data-age="imperial"][data-building="barracks"] > .node.military-building{
   padding:21px 5px 5px !important;
 }
 
@@ -1650,35 +1650,35 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 
 /* Britones: liberar altura en la referencia más cargada, sin alterar fuente,
    ancho de columna ni tamaño del mat. */
-.mat[data-civ="britones"] .unit-ref-title{margin-bottom:1px !important}
-.mat[data-civ="britones"] .unit-ref-row{
+.mat[data-civ="britanicos"] .unit-ref-title{margin-bottom:1px !important}
+.mat[data-civ="britanicos"] .unit-ref-row{
   padding:1px 1px !important;
   gap:0 !important;
 }
-.mat[data-civ="britones"] .unit-ref-top{column-gap:1px}
-.mat[data-civ="britones"] .unit-ref-section{
+.mat[data-civ="britanicos"] .unit-ref-top{column-gap:1px}
+.mat[data-civ="britanicos"] .unit-ref-section{
   margin:3px -1px 1px !important;
   padding:1px 4px !important;
 }
-.mat[data-civ="britones"] .unit-ref-note{
+.mat[data-civ="britanicos"] .unit-ref-note{
   padding:1px 1px !important;
   line-height:1.05 !important;
 }
-.mat[data-civ="britones"] .unit-ref-bonus{
+.mat[data-civ="britanicos"] .unit-ref-bonus{
   padding:1px 0 !important;
   line-height:1.05 !important;
 }
-.mat[data-civ="britones"] .unit-ref-cost .costline{gap:1px 3px}
+.mat[data-civ="britanicos"] .unit-ref-cost .costline{gap:1px 3px}
 
 
 /* Britones: unidad, costo y estadísticas en una única línea.
    La referencia conserva dimensiones y tamaños tipográficos. */
-.mat[data-civ="britones"] .unit-ref-row-compact{
+.mat[data-civ="britanicos"] .unit-ref-row-compact{
   display:block !important;
   padding:1px !important;
   min-height:0 !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-line{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto 49px;
   align-items:center;
@@ -1686,24 +1686,24 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   width:100%;
   min-width:0;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-name{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-name{
   min-width:0;
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:clip;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-cost{
   margin:0;
   min-width:0;
   padding:0 !important;
   justify-content:center;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-cost .costline{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-cost .costline{
   flex-wrap:nowrap !important;
   gap:1px !important;
   white-space:nowrap;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-stats{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-stats{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:0;
@@ -1716,15 +1716,15 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 
 /* Britones: la regla general grid-column:1/-1 forzaba el costo a
    ocupar toda la fila. Cada elemento usa ahora su propia columna. */
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line > .unit-ref-name{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-line > .unit-ref-name{
   grid-column:1 !important;
   grid-row:1 !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line > .unit-ref-cost{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-line > .unit-ref-cost{
   grid-column:2 !important;
   grid-row:1 !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact .unit-ref-line > .unit-ref-stats{
+.mat[data-civ="britanicos"] .unit-ref-row-compact .unit-ref-line > .unit-ref-stats{
   grid-column:3 !important;
   grid-row:1 !important;
 }
@@ -1732,7 +1732,7 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 
 /* Britones: una sola fila real (flex horizontal) para nombre, costo y stats.
    Sustituye la cuadrícula anterior, cuyo ancho no admitía los tres bloques. */
-.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line{
+.mat[data-civ="britanicos"] .unit-ref-row-compact > .unit-ref-line{
   display:flex !important;
   flex-direction:row !important;
   flex-wrap:nowrap !important;
@@ -1742,14 +1742,14 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   min-width:0 !important;
   gap:2px !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-name{
+.mat[data-civ="britanicos"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-name{
   display:block !important;
   flex:1 1 auto !important;
   min-width:0 !important;
   white-space:nowrap !important;
   overflow:hidden !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-cost{
+.mat[data-civ="britanicos"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-cost{
   display:flex !important;
   flex:0 0 auto !important;
   grid-column:auto !important;
@@ -1758,13 +1758,13 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   margin:0 !important;
   white-space:nowrap !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-cost .costline{
+.mat[data-civ="britanicos"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-cost .costline{
   display:flex !important;
   flex-flow:row nowrap !important;
   gap:1px !important;
   margin:0 !important;
 }
-.mat[data-civ="britones"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-stats{
+.mat[data-civ="britanicos"] .unit-ref-row-compact > .unit-ref-line > .unit-ref-stats{
   display:grid !important;
   flex:0 0 40px !important;
   grid-column:auto !important;
