@@ -1796,8 +1796,8 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 }
 .mat[data-civ="britanicos"] .unit-table-row{
   flex:0 0 auto;
-  min-height:15px;
-  padding:1px;
+  min-height:20px;
+  padding:3px 2px;
   border-bottom:1px solid #c4a66e;
   font-size:8.5px;
   line-height:1.05;
