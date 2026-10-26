@@ -29,6 +29,17 @@ if((game.resourcesAt(store.id).stone||0)!==0)throw Error('Remote stone was not s
 game.state.phase='military';game.state.actionUsed=false;
 const trained=bot.tryTrainMilitary(game);
 if(!trained.ok)throw Error('Bot failed connected remote-payment military training: '+trained.error?.message);
+// Removing the only occupant immediately removes territorial control and access.
+game.addResourceTokens(store.id,{wood:2});
+const storeOccupants=game.state.units.filter(u=>u.ownerId==='P1'&&u.hexId===store.id);
+game.state.units=game.state.units.filter(u=>!storeOccupants.includes(u));
+if(game.controllerOf(store.id)==='P1')throw Error('Unoccupied tile still controlled');
+if(game.logisticsConnectedHexIds('P1').includes(store.id))throw Error('Unoccupied tile stayed network-connected');
+if(game.canAffordControlled('P1',{wood:2}))throw Error('Unconnected resources remained spendable');
+// A permanent owned building can retain control after the villager leaves.
+game.addBuilding('P1','camp',store.id);
+if(!game.logisticsConnectedHexIds('P1').includes(store.id))throw Error('Building failed to retain network control');
+if(!game.canAffordControlled('P1',{wood:2}))throw Error('Building-connected resources unavailable');
 const types=game.state.log.filter(e=>['load','unload'].includes(e.type));
 if(types.length)throw Error('Bot transported connected resources');
 console.log(JSON.stringify({pass:true,site:site.id,remoteStore:store.id,
