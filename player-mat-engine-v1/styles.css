@@ -1774,3 +1774,64 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
   width:40px !important;
   margin:0 !important;
 }
+
+
+/* Britones: tabla REAL de 5 columnas, una línea por unidad.
+   Mantiene ancho de la última columna y tamaños tipográficos existentes. */
+.mat[data-civ="britanicos"] .unit-table-head,
+.mat[data-civ="britanicos"] .unit-table-row{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,60px) 15px 15px 15px !important;
+  column-gap:1px;
+  width:100%;
+  align-items:center;
+  box-sizing:border-box;
+}
+.mat[data-civ="britanicos"] .unit-table-head{
+  flex:0 0 auto;
+  padding:2px 1px;
+  border-bottom:1px solid #9d814f;
+  font-size:7px;
+  font-weight:700;
+}
+.mat[data-civ="britanicos"] .unit-table-row{
+  flex:0 0 auto;
+  min-height:15px;
+  padding:1px;
+  border-bottom:1px solid #c4a66e;
+  font-size:8.5px;
+  line-height:1.05;
+}
+.mat[data-civ="britanicos"] .unit-table-head > *,
+.mat[data-civ="britanicos"] .unit-table-row > *{
+  min-width:0;
+  margin:0;
+}
+.mat[data-civ="britanicos"] .unit-table-row > b{
+  font-size:8.5px;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.mat[data-civ="britanicos"] .unit-table-head > span:nth-child(n+3),
+.mat[data-civ="britanicos"] .unit-table-row > span{
+  text-align:center;
+  font-family:Arial,sans-serif;
+}
+.mat[data-civ="britanicos"] .unit-table-row > span{font-size:8px;white-space:nowrap}
+.mat[data-civ="britanicos"] .unit-table-row em{color:#0a7a39;font-style:normal;font-weight:700}
+.mat[data-civ="britanicos"] .unit-table-cost{
+  display:flex;
+  align-items:center;
+  white-space:nowrap;
+  overflow:visible;
+}
+.mat[data-civ="britanicos"] .unit-table-cost .costline{
+  display:flex;
+  flex-wrap:nowrap !important;
+  gap:1px !important;
+  margin:0 !important;
+  font-size:8px;
+  justify-content:flex-start;
+}
+.mat[data-civ="britanicos"] .unit-table-cost .cost-item{white-space:nowrap}
+.mat[data-civ="britanicos"] .unit-table-cost .ri{font-size:9px;margin-right:0}
