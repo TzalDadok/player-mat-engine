@@ -82,13 +82,11 @@
     };
     const rows=c.unitReference.units.map(u=>{
       const cost=costsFor(u.name) || (u.cost ? costHTML(u.cost) : '');
-      const name = c.id==='britones' ? ({
-        'Arquero Tiro Largo':'Arq. Largo',
-        'Escaramuzador':'Escaram.',
-        'Barco de Transporte':'B. Transp.'
-      }[u.name] || u.name) : u.name;
-      if (c.id==='britones') {
-        return `<div class="unit-ref-row unit-ref-row-compact"><div class="unit-ref-line"><b class="unit-ref-name" title="${esc(u.name)}">${esc(name)}</b><div class="unit-ref-cost">${cost || '—'}</div><div class="unit-ref-stats"><span>${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div></div></div>`;
+      if (c.id==='britanicos') {
+        const names={'Arquero Tiro Largo':'Arq. Largo','Escaramuzador':'Escaram.','Trebuchet':'Trebuchet','Misionero':'Misionero'};
+        const name=names[u.name]||u.name;
+        const attack=esc(u.force)+(u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:'');
+        return `<div class="unit-table-row"><b title="${esc(u.name)}">${esc(name)}</b><div class="unit-table-cost">${cost||'—'}</div><span>${attack}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div>`;
       }
       return `<div class="unit-ref-row"><div class="unit-ref-top"><b class="unit-ref-name">${esc(u.name)}</b><div class="unit-ref-stats"><span>${esc(u.force)}${u.forceUpgrade?` <em>(+${esc(u.forceUpgrade)})</em>`:''}</span><span>${esc(u.range)}</span><span>${esc(u.move)}</span></div></div><div class="unit-ref-cost">${cost || '<span class="unit-cost-missing" title="Costo aún no definido">—</span>'}</div></div>`;
     }).join('');
@@ -96,7 +94,7 @@
     const abilities=(c.unitReference.abilities||[]).map(x=>`<div class="unit-ref-note"><b>${esc(x.name)}</b> — ${esc(x.text)}</div>`).join('');
     const bonuses=(c.unitReference.bonuses||[]).map(x=>`<div class="unit-ref-bonus${x.green?' bonus-green':''}"><b>${esc(x.from)}</b> <span>→</span> <b>${esc(x.to)}</b></div>`).join('');
     const defenseBonuses=(c.unitReference.defenseBonuses||[]).map(x=>`<div class="unit-ref-bonus${x.green?' bonus-green':''}"><b>${esc(x.from)}</b> <span>→</span> <b>${esc(x.to)}</b></div>`).join('');
-    unitPanel.innerHTML=`<div class="unit-ref-title">UNIDADES</div><div class="unit-ref-head"><span></span><span>⚔</span><span>◎</span><span>👣</span></div>${rows}<div class="unit-ref-section">MEJORAS</div>${upgrades}<div class="unit-ref-section">HABILIDADES</div>${abilities}<div class="unit-ref-section">BONUS ATAQUE</div>${bonuses}${defenseBonuses ? `<div class="unit-ref-section">BONUS DEFENSA</div>${defenseBonuses}` : ""}`;
+    unitPanel.innerHTML=`<div class="unit-ref-title">UNIDADES</div>${c.id==='britanicos' ? `<div class="unit-table-head"><span>UNIDAD</span><span>COSTO</span><span>⚔</span><span>◎</span><span>👣</span></div>` : `<div class="unit-ref-head"><span></span><span>⚔</span><span>◎</span><span>👣</span></div>`}${rows}<div class="unit-ref-section">MEJORAS</div>${upgrades}<div class="unit-ref-section">HABILIDADES</div>${abilities}<div class="unit-ref-section">BONUS ATAQUE</div>${bonuses}${defenseBonuses ? `<div class="unit-ref-section">BONUS DEFENSA</div>${defenseBonuses}` : ""}`;
     mat.appendChild(unitPanel);
   }
 
