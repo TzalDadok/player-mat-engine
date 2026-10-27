@@ -14,12 +14,13 @@ function generateMap(count: number, seed: number): MapState {
   // Tableros regulares: 2 jugadores = 2 anillos; 3 o 4 = 3 anillos.
   // Cada tipo terrestre aparece equilibradamente, con ambas variantes de agua.
   const rings = count === 2 ? 2 : 3;
-  const terrainCopies = count === 2 ? 2 : 4;
-  const waterCopies = count === 2 ? 1 : 2;
-  const terrains = types.filter(t => t !== 'Agua')
-    .flatMap(t => Array.from({length: terrainCopies}, () => t));
-  terrains.push(...Array.from({length:waterCopies},()=> 'Agua A'),
-                ...Array.from({length:waterCopies},()=> 'Agua B'));
+  // Cada set tiene exactamente 18 piezas: 2 de cada tipo primario
+  // (Frutos, Animales, Oro, Piedra, Bosque), 2 de cada secundario
+  // (Agua, Desierto, Llanura, Montaña); las dos Aguas son A y B.
+  const set = types.filter(t => t !== 'Agua')
+    .flatMap(t => [t,t]).concat(['Agua A','Agua B']);
+  const sets = count === 2 ? 1 : 2;
+  const terrains = Array.from({length:sets},()=>set).flat();
   for(let i = terrains.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [terrains[i],terrains[j]] = [terrains[j],terrains[i]];
@@ -53,11 +54,13 @@ export class GameRoom extends DurableObject<Env> {
     super(ctx,env);
     ctx.blockConcurrencyWhile(async()=>{
       this.map = (await ctx.storage.get<MapState>('map')) ?? null;
-      // Mapas creados antes de reservar el centro se regeneran con la misma semilla.
-      // Conservar mapas ya iniciados hasta que el anfitrión genere uno nuevo.
-      // No reemplazar CU ni órdenes de colocación persistidos.
-      if(this.map && (this.map.hexes.some(h=>h.q===0&&h.r===0) || this.map.hexes.some(h=>h.type==='Agua') || (!isCompact(this.map) && this.map.hexes.length !== this.map.count*18))){
+      // Migrar solamente salas sin CU. Nunca borrar colocaciones existentes.
+      // Las salas de la versión anterior se actualizan al reconectarse.
+      if(this.map && !(this.map.centers?.length) &&
+        (!isCompact(this.map) || this.map.hexes.some(h=>h.type==='Agua'))) {
+        const order=this.map.order;
         this.map=generateMap(this.map.count,this.map.seed);
+        if(order?.length===this.map.count) this.map.order=order;
         await ctx.storage.put('map',this.map);
       }
     });
