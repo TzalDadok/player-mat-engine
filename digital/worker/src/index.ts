@@ -49,11 +49,13 @@ function isCompact(map:MapState):boolean {
 }
 export class GameRoom extends DurableObject<Env> {
   private map: MapState | null = null;
+  private seatTokens:Record<number,string>={};
   private seat(ws:WebSocket): number { return (ws.deserializeAttachment() as (Member & {seat:number})|null)?.seat ?? -1; }
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx,env);
     ctx.blockConcurrencyWhile(async()=>{
       this.map = (await ctx.storage.get<MapState>('map')) ?? null;
+      this.seatTokens=(await ctx.storage.get<Record<number,string>>('seatTokens'))??{};
       // Migrar solamente salas sin CU. Nunca borrar colocaciones existentes.
       // Las salas de la versión anterior se actualizan al reconectarse.
       if(this.map && !(this.map.centers?.length) &&
@@ -67,14 +69,26 @@ export class GameRoom extends DurableObject<Env> {
   }
   async fetch(request: Request): Promise<Response> {
     if(request.headers.get('Upgrade')?.toLowerCase()!=='websocket') return new Response('WebSocket required',{status:426});
-    if(this.map?.started)return new Response('La partida ya comenzó',{status:409});
-    if(this.ctx.getWebSockets().length >= (this.map?.count??4))return new Response('Sala llena',{status:409});
-    const used=new Set(this.ctx.getWebSockets().map(ws=>this.seat(ws)));
-    const seat=[0,1,2,3].find(s=>!used.has(s));
-    if(seat===undefined)return new Response('Sala llena',{status:409});
+    const connected=this.ctx.getWebSockets();
+    const used=new Set(connected.map(ws=>this.seat(ws)));
+    const token=new URL(request.url).searchParams.get('token')??'';
+    if(!/^[a-f0-9-]{36}$/i.test(token))return new Response('Identidad de jugador inválida',{status:400});
+    const savedSeat=Object.entries(this.seatTokens).find(([,saved])=>saved===token);
+    const count=this.map?.count??4;
+    let seat=savedSeat?Number(savedSeat[0]):-1;
+    if(seat>=count)return new Response('El puesto ya no pertenece a esta partida',{status:409});
+    if(seat>=0&&used.has(seat))return new Response('Tu jugador ya está conectado en otra ventana',{status:409});
+    if(seat<0){
+      // Las partidas antiguas no tenían identidades persistentes. Permitir
+      // recuperar una plaza libre, sin sobrescribir jugadores identificados.
+      seat=Array.from({length:count},(_,i)=>i).find(i=>!used.has(i)&&!this.seatTokens[i])??-1;
+      if(seat<0)return new Response('Sala llena o puestos reservados',{status:409});
+      this.seatTokens[seat]=token;
+      await this.ctx.storage.put('seatTokens',this.seatTokens);
+    }
     const pair=new WebSocketPair();const [client,server]=Object.values(pair);
     const name=(new URL(request.url).searchParams.get('name')||'Jugador').trim().slice(0,24)||'Jugador';
-    const id=crypto.randomUUID();
+    const id=token;
     this.ctx.acceptWebSocket(server);server.serializeAttachment({id,name,seat});
     server.send(JSON.stringify({type:'welcome',id,room:new URL(request.url).pathname.slice(4),seat:this.seat(server)}));
     server.send(JSON.stringify({type:'map',map:this.map}));
