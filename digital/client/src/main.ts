@@ -213,15 +213,15 @@ function renderMap(map:MapState|null){
   if(map)countSelect.value=String(map.count);
   const isHost=mySeat>=0&&lobbyPlayers.length>0&&mySeat===Math.min(...lobbyPlayers.map(p=>p.seat));
   countSelect.disabled=!isHost||!!map;
-  generate.disabled=!isHost||!!map||civSelect.value===''||socket?.readyState!==WebSocket.OPEN;
+  generate.disabled=!isHost||!!map||socket?.readyState!==WebSocket.OPEN;
   const chosen=map?.civs??{};
-  civSelect.disabled=!!map?.started || (!!map&& (mySeat===0 || (map.centers??[]).some(p=>p.seat===mySeat)));
+  civSelect.disabled=!map||!!map.started || (map.centers??[]).some(p=>p.seat===mySeat);
   if(map&&Number.isInteger(chosen[mySeat]))civSelect.value=String(chosen[mySeat]);
   Array.from(civSelect.options).forEach(o=>{if(o.value!=='')o.disabled=Object.entries(chosen).some(([s,v])=>Number(s)!==mySeat&&String(v)===o.value)});
   chooseCiv.disabled=!map||!!map.started||mySeat<0||mySeat>=map.count||civSelect.value===''||civSelect.disabled;
   const complete=!!map&&lobbyPlayers.length===map.count&&Array.from({length:map.count},(_,i)=>i).every(seat=>Number.isInteger(chosen[seat])&&(map.centers??[]).some(p=>p.seat===seat))&&new Set(Object.values(chosen)).size===map.count;
   startGame.disabled=!isHost||!complete||!!map?.started;
-  setupStatus.textContent=!map?'1. El anfitrión elige civilización, cantidad de jugadores y genera el mapa.':map.started?'Partida iniciada.':'2. Jugadores '+lobbyPlayers.length+'/'+map.count+' · Civilizaciones '+Object.keys(chosen).length+'/'+map.count+' · CU '+(map.centers?.length??0)+'/'+map.count;
+  setupStatus.textContent=!map?'Paso 1: elegí la cantidad de jugadores y generá el mapa.':map.started?'Partida iniciada.':'Paso 2: elegí tu civilización. Jugadores '+lobbyPlayers.length+'/'+map.count+' · Civilizaciones '+Object.keys(chosen).length+'/'+map.count+' · CU '+(map.centers?.length??0)+'/'+map.count;
   const placed=map?.centers??[];
   redrawOrder();
   const order=map?.order??Array.from({length:map?.count??0},(_,i)=>i);
@@ -229,8 +229,8 @@ function renderMap(map:MapState|null){
   const nextName=lobbyPlayers.find(p=>p.seat===next)?.name??('Jugador '+(next+1));
   cuInfo.textContent=!map?'Generá el mapa para colocar los CU.':mySeat<0?'Conectate para colocar tu CU.':mySeat>=map.count?'Estás como espectador: no hay puesto disponible.':placed.length>=map.count?'Todos los CU están colocados.':placed.some(p=>p.seat===mySeat)?'Tu CU está colocado. Ahora le toca a '+nextName+'.':mySeat!==next?'Turno de '+nextName+' para colocar su CU.': 'Es tu turno. Elegí una casilla exterior resaltada sin CU vecinos ('+placed.length+'/'+map.count+' colocados).';
 }
-generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value),civ:Number(civSelect.value)})));
-civSelect.addEventListener('change',()=>{if(sharedMap)renderMap(sharedMap);else generate.disabled=civSelect.value===''||socket?.readyState!==WebSocket.OPEN||mySeat!==0});
+generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value)})));
+civSelect.addEventListener('change',()=>{if(sharedMap)renderMap(sharedMap)});
 chooseCiv.addEventListener('click',()=>{if(civSelect.value!=='')socket?.send(JSON.stringify({type:'choose_civ',civ:Number(civSelect.value)}))});
 startGame.addEventListener('click',()=>socket?.send(JSON.stringify({type:'start_game'})));
 document.getElementById('fullscreen')!.addEventListener('click', async () => {
