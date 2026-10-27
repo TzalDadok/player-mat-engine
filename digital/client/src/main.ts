@@ -50,7 +50,8 @@ class BootScene extends Phaser.Scene {
       return;
     }
     const hexes=this.currentMap.hexes;
-    const displayHexes=[{q:0,r:0,type:'Maravilla'},...hexes];
+    // Compatibilidad con mapas viejos: la Maravilla debe ser la única ficha en (0,0).
+    const displayHexes=[...hexes.filter(h=>h.q!==0||h.r!==0),{q:0,r:0,type:'Maravilla'}];
     const coords=displayHexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const minX=Math.min(...coords.map(p=>p.x))-1,maxX=Math.max(...coords.map(p=>p.x))+1;
     const minY=Math.min(...coords.map(p=>p.y))-1,maxY=Math.max(...coords.map(p=>p.y))+1;
@@ -67,7 +68,8 @@ class BootScene extends Phaser.Scene {
       }
       const imageName=textures[type];
       if(imageName && this.textures.exists(imageName)){
-        this.add.image(x,y,imageName).setDisplaySize(size*2,size*2);
+        // Ligero solapamiento para compensar el margen transparente y antialiasing del WebP.
+        this.add.image(x,y,imageName).setDisplaySize(size*2.055,size*2.055);
       } else {
         g.fillStyle(terrain[type]?.fill||0x555555);g.fillPoints(points,true);
         g.lineStyle(Math.max(1,size*.035),0x162533);g.strokePoints(points,true);
