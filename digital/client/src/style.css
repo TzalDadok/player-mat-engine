@@ -40,3 +40,22 @@ button,select,input {min-height:44px}
 .lobby-table input[type=checkbox]{width:22px;height:22px;min-height:22px;accent-color:#bba16f}
 #start-game,#confirm-cu{width:100%;margin:10px 0}
 @media(max-width:800px){.lobby-table{font-size:14px}.lobby-table select{font-size:14px}}
+
+/* El lobby de cuatro columnas debe entrar íntegro sin scroll horizontal. */
+@media(min-width:801px){
+  main,body:fullscreen main,body:-webkit-full-screen main{grid-template-columns:minmax(0,1fr) clamp(400px,32vw,490px)}
+  aside{min-width:0;overflow-y:auto}
+}
+.lobby-scroll{overflow-x:visible}
+.lobby-table{min-width:0;table-layout:fixed;width:100%}
+.lobby-table th:nth-child(1){width:25%}
+.lobby-table th:nth-child(2){width:37%}
+.lobby-table th:nth-child(3){width:20%}
+.lobby-table th:nth-child(4){width:18%}
+.lobby-table select{min-width:0;width:100%;box-sizing:border-box}
+.lobby-table td{overflow-wrap:anywhere}
+@media(max-width:800px){
+  .lobby-table th,.lobby-table td{padding:7px 3px}
+  .lobby-table select{font-size:12px;padding:7px 1px}
+  .lobby-table th{font-size:9px}
+}
