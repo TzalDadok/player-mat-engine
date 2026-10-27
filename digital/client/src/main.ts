@@ -13,6 +13,8 @@ const players = document.getElementById('players')!;
 const join = document.getElementById('join') as HTMLButtonElement;
 let socket: WebSocket | undefined;
 let playerId = '';
+let connectionOpened = false;
+let connectionError = '';
 const roomCodeInput = document.createElement('input');
 roomCodeInput.id = 'room-code';
 roomCodeInput.placeholder = 'Código de sala';
@@ -58,9 +60,12 @@ join.addEventListener('click', () => {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const ws = new WebSocket(`${protocol}//${location.host}/ws/${encodeURIComponent(code)}?name=${encodeURIComponent(name)}`);
   socket = ws;
+  connectionOpened = false;
+  connectionError = '';
   join.disabled = true;
   status.textContent = 'Conectando…';
   ws.onopen = () => {
+    connectionOpened = true;
     status.textContent = 'Conectado';
     roomLabel.textContent = 'Sala: ' + code;
     history.replaceState(null, '', '?sala=' + encodeURIComponent(code));
@@ -78,12 +83,20 @@ join.addEventListener('click', () => {
       }
     } catch { /* ignore malformed payload */ }
   };
-  ws.onerror = () => { status.textContent = 'Error de conexión'; };
-  ws.onclose = () => {
+  ws.onerror = () => {
+    connectionError = 'No fue posible establecer WebSocket con Cloudflare.';
+    status.textContent = 'Error de conexión';
+    roomLabel.textContent = connectionError;
+  };
+  ws.onclose = (event) => {
+    const wasOpen = connectionOpened;
+    const errorText = connectionError;
+    connectionOpened = false;
     socket = undefined;
     playerId = '';
     join.disabled = false;
-    status.textContent = 'Desconectado';
+    status.textContent = wasOpen ? 'Desconectado' : 'No se pudo conectar';
+    roomLabel.textContent = wasOpen ? 'Conexión cerrada: ' + (event.reason || event.code) : (errorText || 'La conexión se cerró antes de abrir (código ' + event.code + ').');
     players.replaceChildren();
   };
 });
