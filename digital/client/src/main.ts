@@ -30,11 +30,11 @@ const terrain: Record<string,{fill:number;label:string}> = {
   'Maravilla':{fill:0xc4a45a,label:'🏛️'},
   'Frutos silvestres':{fill:0x668447,label:'🫐'},'Animales':{fill:0x94a35b,label:'🐑'},
   'Cantera de Oro':{fill:0xb39b47,label:'🪙'},'Cantera de Piedra':{fill:0x828993,label:'🪨'},
-  'Bosque':{fill:0x386b48,label:'🌲'},'Agua':{fill:0x36759f,label:'🌊'},
+  'Bosque':{fill:0x386b48,label:'🌲'},'Agua':{fill:0x36759f,label:'🌊'},'Agua A':{fill:0x36759f,label:'A'},'Agua B':{fill:0x36759f,label:'B'},
   'Desierto':{fill:0xc9a26c,label:'🏜️'},'Llanura':{fill:0x85a86a,label:'🌱'},
   'Montaña':{fill:0x6b737c,label:'⛰️'}
 };
-const textures:Record<string,string> = {'Frutos silvestres':'comidaFrutos','Animales':'comidaAnimales','Cantera de Oro':'oro','Cantera de Piedra':'piedra','Bosque':'madera','Desierto':'nadaArena','Llanura':'nadaPasto','Montaña':'montana','Agua':'agua','Maravilla':'maravilla','Centro Urbano':'centroUrbano'};
+const textures:Record<string,string> = {'Frutos silvestres':'comidaFrutos','Animales':'comidaAnimales','Cantera de Oro':'oro','Cantera de Piedra':'piedra','Bosque':'madera','Desierto':'nadaArena','Llanura':'nadaPasto','Montaña':'montana','Agua A':'aguaA','Agua B':'aguaB','Maravilla':'maravilla','Centro Urbano':'centroUrbano'};
 class BootScene extends Phaser.Scene {
   preload(){for(const name of Object.values(textures))this.load.image(name,'/terrenos/'+name+'.webp');}
   private currentMap: MapState|null = null;
