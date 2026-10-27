@@ -95,10 +95,10 @@ class BootScene extends Phaser.Scene {
       const icon=resourceIcons[type];
       if(!icon)continue;
       const x=cx+size*coords[i].x,y=cy+size*coords[i].y;
-      const fontSize=Math.max(10,Math.round(size*.34));
+      const fontSize=Math.max(9,Math.round(size*.32));
       // Más adentro del vértice inferior, con insignia circular de 6 px de margen.
       const iconY=y+size*.57;
-      const radius=fontSize*.62+3;
+      const radius=fontSize*.59+2.5;
       this.add.circle(x,iconY,radius,0x000000,0.55);
       const label=this.add.text(x,iconY,icon,{
         fontSize:fontSize+'px'
