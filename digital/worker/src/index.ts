@@ -15,7 +15,7 @@ export class GameRoom extends DurableObject<Env> {
     const id = crypto.randomUUID();
     this.ctx.acceptWebSocket(server);
     server.serializeAttachment({ id, name });
-    server.send(JSON.stringify({ type: 'welcome', id, room: url.searchParams.get('room') }));
+    server.send(JSON.stringify({ type: 'welcome', id, room: url.pathname.slice(4) }));
     this.broadcastLobby();
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -46,8 +46,8 @@ export default {
       const room = url.pathname.slice(4);
       if (!/^[a-zA-Z0-9_-]{3,30}$/.test(room)) return new Response('Código de sala inválido', { status: 400 });
       const id = env.GAME_ROOMS.idFromName(room);
-      url.searchParams.set('room', room);
-      return env.GAME_ROOMS.get(id).fetch(new Request(url.toString(), request));
+      // Forward the original upgrade request unchanged so Cloudflare preserves the WebSocket handshake.
+      return env.GAME_ROOMS.get(id).fetch(request);
     }
     return env.ASSETS.fetch(request);
   }
