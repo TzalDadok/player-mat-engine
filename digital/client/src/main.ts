@@ -96,9 +96,11 @@ class BootScene extends Phaser.Scene {
       if(!icon)continue;
       const x=cx+size*coords[i].x,y=cy+size*coords[i].y;
       const fontSize=Math.max(10,Math.round(size*.34));
-      // El vértice inferior está en y + size. El ícono queda apenas encima,
-      // sin fondo, dejando visible la ilustración original del terreno.
-      const label=this.add.text(x,y+size*.76,icon,{
+      // Más adentro del vértice inferior, con insignia circular de 6 px de margen.
+      const iconY=y+size*.57;
+      const radius=fontSize*.62+6;
+      this.add.circle(x,iconY,radius,0x000000,0.55);
+      const label=this.add.text(x,iconY,icon,{
         fontSize:fontSize+'px'
       }).setOrigin(.5);
       label.setResolution(2);
