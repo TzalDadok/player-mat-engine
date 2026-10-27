@@ -15,7 +15,7 @@ function generateMap(count: number, seed: number): MapState {
   for(let i = terrains.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [terrains[i],terrains[j]] = [terrains[j],terrains[i]]; }
   const coords = [{q:0,r:0}];
   const used = new Set([key(0,0)]);
-  while(coords.length < count * 18) {
+  while(coords.length < count * 18 + 1) {
     const candidates = new Map<string,{q:number;r:number}>();
     for (const p of coords) for(const [dq,dr] of neighbors) {
       const q=p.q+dq,r=p.r+dr,k=key(q,r);
@@ -27,7 +27,7 @@ function generateMap(count: number, seed: number): MapState {
     const next=pool[0];
     coords.push({q:next.q,r:next.r});used.add(key(next.q,next.r));
   }
-  return {seed,count,hexes:coords.map((p,i)=>({...p,type:terrains[i]}))};
+  return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]}))};
 }
 export class GameRoom extends DurableObject<Env> {
   private map: MapState | null = null;
