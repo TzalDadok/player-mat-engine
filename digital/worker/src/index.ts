@@ -4,7 +4,7 @@ interface Env { GAME_ROOMS: DurableObjectNamespace; ASSETS: Fetcher }
 type Member = { id: string; name: string };
 type Hex = { q: number; r: number; type: string };
 type Placement = { seat: number; q: number; r: number };
-type MapState = { seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[] };
+type MapState = { seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean };
 
 const types = ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque','Agua','Desierto','Llanura','Montaña'];
 const neighbors = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
@@ -35,7 +35,7 @@ function generateMap(count: number, seed: number): MapState {
     }
   }
   if (terrains.length !== coords.length-1) throw new Error('Cantidad de terrenos incorrecta');
-  return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]})),centers:[],order:Array.from({length:count},(_,i)=>i)};
+  return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]})),centers:[],order:Array.from({length:count},(_,i)=>i),civs:{},started:false};
 }
 function isCompact(map:MapState):boolean {
   const expected = map.count===2 ? 18 : 36;
@@ -67,7 +67,8 @@ export class GameRoom extends DurableObject<Env> {
   }
   async fetch(request: Request): Promise<Response> {
     if(request.headers.get('Upgrade')?.toLowerCase()!=='websocket') return new Response('WebSocket required',{status:426});
-    if(this.ctx.getWebSockets().length>=4)return new Response('Sala llena (4 jugadores)',{status:409});
+    if(this.map?.started)return new Response('La partida ya comenzó',{status:409});
+    if(this.ctx.getWebSockets().length >= (this.map?.count??4))return new Response('Sala llena',{status:409});
     const used=new Set(this.ctx.getWebSockets().map(ws=>this.seat(ws)));
     const seat=[0,1,2,3].find(s=>!used.has(s));
     if(seat===undefined)return new Response('Sala llena',{status:409});
@@ -89,12 +90,31 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[]};
+    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
+    if(packet.type==='choose_civ'){
+      const seat=this.seat(ws), civ=packet.civ;
+      if(!this.map||this.map.started){ws.send(JSON.stringify({type:'error',message:'No se puede elegir civilización ahora.'}));return}
+      if(seat<0||seat>=this.map.count||!Number.isInteger(civ)||civ!<0||civ!>3){ws.send(JSON.stringify({type:'error',message:'Civilización inválida.'}));return}
+      if((this.map.centers??[]).some(p=>p.seat===seat)){ws.send(JSON.stringify({type:'error',message:'No podés cambiar civilización después de colocar el CU.'}));return}
+      if(Object.entries(this.map.civs??{}).some(([s,v])=>Number(s)!==seat&&v===civ)){ws.send(JSON.stringify({type:'error',message:'Esa civilización ya está elegida.'}));return}
+      this.map.civs={...this.map.civs,[seat]:civ!};
+      await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map});return;
+    }
+    if(packet.type==='start_game'){
+      if(!this.map||this.map.started)return;
+      if(this.seat(ws)!==0){ws.send(JSON.stringify({type:'error',message:'Solo el anfitrión puede iniciar.'}));return}
+      const sockets=this.ctx.getWebSockets(), civs=this.map.civs??{}, centers=this.map.centers??[];
+      if(sockets.length!==this.map.count||!Array.from({length:this.map.count},(_,i)=>i).every(s=>sockets.some(sock=>this.seat(sock)===s)&&Number.isInteger(civs[s])&&centers.some(p=>p.seat===s))||new Set(Object.values(civs)).size!==this.map.count){
+        ws.send(JSON.stringify({type:'error',message:'Deben estar todos conectados, con civilización única y CU colocado.'}));return}
+      this.map.started=true;await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map});return;
+    }
     if(packet.type==='place_cu'){
       if(!this.map){ws.send(JSON.stringify({type:'error',message:'Primero generá el mapa.'}));return}
+      if(this.map.started){ws.send(JSON.stringify({type:'error',message:'La partida ya comenzó.'}));return}
       const seat=this.seat(ws), q=packet.q, r=packet.r;
+      if(!Number.isInteger(this.map.civs?.[seat])){ws.send(JSON.stringify({type:'error',message:'Elegí tu civilización antes de colocar el CU.'}));return}
       if(seat<0||seat>=this.map.count){ws.send(JSON.stringify({type:'error',message:'No tenés un puesto en este mapa.'}));return}
       if(!Number.isInteger(q)||!Number.isInteger(r)||Math.abs(q!)>12||Math.abs(r!)>12){ws.send(JSON.stringify({type:'error',message:'Posición inválida.'}));return}
       const placed=this.map.centers??[];
@@ -116,6 +136,7 @@ export class GameRoom extends DurableObject<Env> {
     }
     if(packet.type==='set_order'){
       if(!this.map){ws.send(JSON.stringify({type:'error',message:'Generá un mapa primero.'}));return}
+      if(this.map.started){ws.send(JSON.stringify({type:'error',message:'La partida ya comenzó.'}));return}
       const leader=Math.min(...this.ctx.getWebSockets().map(s=>this.seat(s)));
       if(this.seat(ws)!==leader){ws.send(JSON.stringify({type:'error',message:'Solo el anfitrión puede definir el orden.'}));return}
       if((this.map.centers??[]).length){ws.send(JSON.stringify({type:'error',message:'El orden no puede cambiar luego de colocar el primer CU.'}));return}
@@ -130,9 +151,13 @@ export class GameRoom extends DurableObject<Env> {
       if(this.seat(ws)!==Math.min(...sockets.map(s=>this.seat(s)))){ws.send(JSON.stringify({type:'error',message:'Solo quien creó la sala puede generar el mapa.'}));return}
       const count=Number(packet.count);
       if(!Number.isInteger(count)||count<2||count>4){ws.send(JSON.stringify({type:'error',message:'Seleccioná entre 2 y 4 jugadores.'}));return}
+      if(this.map){ws.send(JSON.stringify({type:'error',message:'El mapa ya está generado y bloqueado.'}));return}
+      const civ=packet.civ;
+      if(!Number.isInteger(civ)||civ!<0||civ!>3){ws.send(JSON.stringify({type:'error',message:'El anfitrión debe elegir su civilización.'}));return}
       const seed=crypto.getRandomValues(new Uint32Array(1))[0];
       if(this.ctx.getWebSockets().length>count){ws.send(JSON.stringify({type:'error',message:'Hay más jugadores conectados que puestos en el mapa.'}));return}
       this.map=generateMap(count,seed);
+      this.map.civs={[this.seat(ws)]:civ!};
       await this.ctx.storage.put('map',this.map);
       this.broadcast({type:'map',map:this.map});
     }
