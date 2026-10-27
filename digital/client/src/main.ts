@@ -34,7 +34,9 @@ const terrain: Record<string,{fill:number;label:string}> = {
   'Desierto':{fill:0xc9a26c,label:'🏜️'},'Llanura':{fill:0x85a86a,label:'🌱'},
   'Montaña':{fill:0x6b737c,label:'⛰️'}
 };
+const textures:Record<string,string> = {'Frutos silvestres':'comidaFrutos','Animales':'comidaAnimales','Cantera de Oro':'oro','Cantera de Piedra':'piedra','Bosque':'madera','Desierto':'nadaArena','Llanura':'nadaPasto','Montaña':'montana','Centro Urbano':'centroUrbano'};
 class BootScene extends Phaser.Scene {
+  preload(){for(const name of Object.values(textures))this.load.image(name,'/terrenos/'+name+'.webp');}
   private currentMap: MapState|null = null;
   constructor(){super('BootScene')}
   create(){this.scale.on('resize',()=>this.draw());this.draw()}
@@ -63,9 +65,14 @@ class BootScene extends Phaser.Scene {
         const a=(60*k-30)*Math.PI/180;
         points.push(new Phaser.Math.Vector2(x+size*Math.cos(a),y+size*Math.sin(a)));
       }
-      g.fillStyle(terrain[type]?.fill||0x555555);g.fillPoints(points,true);
-      g.lineStyle(Math.max(1,size*.035),0x162533);g.strokePoints(points,true);
-      this.add.text(x,y,terrain[type]?.label||'?',{fontSize:Math.max(13,Math.round(size*.57))+'px'}).setOrigin(.5);
+      const imageName=textures[type];
+      if(imageName && this.textures.exists(imageName)){
+        this.add.image(x,y,imageName).setDisplaySize(size*2,size*2);
+      } else {
+        g.fillStyle(terrain[type]?.fill||0x555555);g.fillPoints(points,true);
+        g.lineStyle(Math.max(1,size*.035),0x162533);g.strokePoints(points,true);
+        this.add.text(x,y,terrain[type]?.label||'?',{fontSize:Math.max(13,Math.round(size*.57))+'px'}).setOrigin(.5);
+      }
     }
     this.add.text(width/2,20,hexes.length+' terrenos + Maravilla · Semilla '+this.currentMap.seed,{fontSize:'15px',color:'#f3e5be'}).setOrigin(.5,0);
   }
