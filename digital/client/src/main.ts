@@ -201,7 +201,7 @@ function renderMap(map:MapState|null){
   countSelect.disabled=!isHost||!!map;
   generate.disabled=!isHost||!!map||civSelect.value===''||socket?.readyState!==WebSocket.OPEN;
   const chosen=map?.civs??{};
-  civSelect.disabled=!!map?.started || (!!map&& (map.centers??[]).some(p=>p.seat===mySeat));
+  civSelect.disabled=!!map?.started || (!!map&& (mySeat===0 || (map.centers??[]).some(p=>p.seat===mySeat)));
   if(map&&Number.isInteger(chosen[mySeat]))civSelect.value=String(chosen[mySeat]);
   Array.from(civSelect.options).forEach(o=>{if(o.value!=='')o.disabled=Object.entries(chosen).some(([s,v])=>Number(s)!==mySeat&&String(v)===o.value)});
   chooseCiv.disabled=!map||!!map.started||mySeat<0||mySeat>=map.count||civSelect.value===''||civSelect.disabled;
