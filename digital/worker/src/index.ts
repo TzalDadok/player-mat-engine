@@ -178,6 +178,7 @@ export class GameRoom extends DurableObject<Env> {
       if(this.ctx.getWebSockets().length>count){ws.send(JSON.stringify({type:'error',message:'Hay más jugadores conectados que puestos en el mapa.'}));return}
       this.map=generateMap(count,seed);
       this.map.civs={};
+      this.map.setupConfirmed=true;
       await this.ctx.storage.put('map',this.map);
       this.broadcast({type:'map',map:this.map});
     }
