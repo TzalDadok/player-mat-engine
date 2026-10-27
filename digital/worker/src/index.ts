@@ -10,7 +10,9 @@ const neighbors = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
 function generateMap(count: number, seed: number): MapState {
   let rng = seed >>> 0;
   const random = () => { rng = (Math.imul(rng, 1664525) + 1013904223) >>> 0; return rng / 4294967296; };
-  const terrains = types.flatMap(t => Array.from({ length: count * 2 }, () => t));
+  // Cada jugador aporta dos Aguas: una A y una B.
+  const terrains = types.filter(t => t !== 'Agua').flatMap(t => Array.from({ length: count * 2 }, () => t));
+  terrains.push(...Array.from({length:count},()=> 'Agua A'),...Array.from({length:count},()=> 'Agua B'));
   for(let i = terrains.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [terrains[i],terrains[j]] = [terrains[j],terrains[i]]; }
   // Anillos completos desde la Maravilla: el mapa de 2 jugadores forma
   // un hexágono perfecto de radio 3 (36 terrenos + centro).
