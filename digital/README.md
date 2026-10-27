@@ -38,3 +38,6 @@ Hito 1 preparado en GitHub; hasta desplegarlo falta validar en Cloudflare el bui
 
 ## Hito 2
 Mapa procedural visible con **18 hexágonos por jugador** (10 primarios y 8 secundarios; dos por tipo). **Los CU se colocan después** por los jugadores, como piezas nuevas adyacentes al perímetro del mapa generado.
+
+## Terrenos ilustrados (assets)
+Los archivos WebP provistos por el usuario se cargan desde `digital/client/public/terrenos/` (ruta web `/terrenos/`). Nombres requeridos: `centroUrbano.webp`, `piedra.webp`, `comidaFrutos.webp`, `comidaAnimales.webp`, `montana.webp`, `madera.webp`, `nadaArena.webp`, `nadaPasto.webp`, `oro.webp`. Cada archivo debe cargarse individualmente como binario. Si falta un gráfico se muestra el color y emoji temporal. La Maravilla y el Agua aún necesitan imágenes específicas.
