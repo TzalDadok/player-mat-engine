@@ -11,45 +11,36 @@ const neighbors = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
 function generateMap(count: number, seed: number): MapState {
   let rng = seed >>> 0;
   const random = () => { rng = (Math.imul(rng, 1664525) + 1013904223) >>> 0; return rng / 4294967296; };
-  // Cada jugador aporta dos Aguas: una A y una B.
-  const terrains = types.filter(t => t !== 'Agua').flatMap(t => Array.from({ length: count * 2 }, () => t));
-  terrains.push(...Array.from({length:count},()=> 'Agua A'),...Array.from({length:count},()=> 'Agua B'));
-  for(let i = terrains.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [terrains[i],terrains[j]] = [terrains[j],terrains[i]]; }
-  // Anillos completos desde la Maravilla: el mapa de 2 jugadores forma
-  // un hexágono perfecto de radio 3 (36 terrenos + centro).
-  // Para 3/4 jugadores, distribuir la grada exterior en forma equilibrada.
+  // Tableros regulares: 2 jugadores = 2 anillos; 3 o 4 = 3 anillos.
+  // Cada tipo terrestre aparece equilibradamente, con ambas variantes de agua.
+  const rings = count === 2 ? 2 : 3;
+  const terrainCopies = count === 2 ? 2 : 4;
+  const waterCopies = count === 2 ? 1 : 2;
+  const terrains = types.filter(t => t !== 'Agua')
+    .flatMap(t => Array.from({length: terrainCopies}, () => t));
+  terrains.push(...Array.from({length:waterCopies},()=> 'Agua A'),
+                ...Array.from({length:waterCopies},()=> 'Agua B'));
+  for(let i = terrains.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [terrains[i],terrains[j]] = [terrains[j],terrains[i]];
+  }
   const coords: {q:number;r:number}[] = [{q:0,r:0}];
-  for (let radius = 1; coords.length < count*18+1; radius++) {
-    const ring: {q:number;r:number}[] = [];
+  for (let radius = 1; radius <= rings; radius++) {
     let q = -radius, r = radius;
     for(const [dq,dr] of neighbors) {
       for(let step=0;step<radius;step++) {
-        ring.push({q,r}); q+=dq; r+=dr;
-      }
-    }
-    const remaining = count*18+1-coords.length;
-    if (remaining >= ring.length) coords.push(...ring);
-    else {
-      // Distribución equilibrada: misma cantidad de hexágonos en cada
-      // uno de los seis lados. Para 3 jugadores: 3 por lado (radio 4);
-      // para 4 jugadores: 2 por lado (radio 5).
-      // No hay un hexágono perfecto con 55 o 73 casillas, pero sí
-      // una distribución con simetría rotacional de 60 grados.
-      const perSide = remaining / 6;
-      if(!Number.isInteger(perSide))throw new Error('Anillo exterior no divisible entre seis lados');
-      const sideLength = radius;
-      const offset = Math.floor((sideLength - perSide) / 2);
-      for(let side=0;side<6;side++){
-        for(let i=offset;i<offset+perSide;i++)coords.push(ring[side*sideLength+i]);
+        coords.push({q,r}); q+=dq; r+=dr;
       }
     }
   }
+  if (terrains.length !== coords.length-1) throw new Error('Cantidad de terrenos incorrecta');
   return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]})),centers:[],order:Array.from({length:count},(_,i)=>i)};
 }
 function isCompact(map:MapState):boolean {
-  if(map.hexes.length!==map.count*18)return false;
+  const expected = map.count===2 ? 18 : 36;
+  if(map.hexes.length!==expected)return false;
   const occupied=new Set(map.hexes.map(h=>h.q+','+h.r));
-  const required=map.count===2 ? 3 : map.count===3 ? 3 : 4;
+  const required=map.count===2 ? 2 : 3;
   for(let q=-required;q<=required;q++)for(let r=-required;r<=required;r++)
     if(Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r))<=required &&
        (q!==0||r!==0) && !occupied.has(q+','+r))return false;
@@ -63,7 +54,9 @@ export class GameRoom extends DurableObject<Env> {
     ctx.blockConcurrencyWhile(async()=>{
       this.map = (await ctx.storage.get<MapState>('map')) ?? null;
       // Mapas creados antes de reservar el centro se regeneran con la misma semilla.
-      if(this.map && (this.map.hexes.some(h=>h.q===0&&h.r===0) || !isCompact(this.map) || this.map.hexes.some(h=>h.type==='Agua'))){
+      // Conservar mapas ya iniciados hasta que el anfitrión genere uno nuevo.
+      // No reemplazar CU ni órdenes de colocación persistidos.
+      if(this.map && (this.map.hexes.some(h=>h.q===0&&h.r===0) || this.map.hexes.some(h=>h.type==='Agua') || (!isCompact(this.map) && this.map.hexes.length !== this.map.count*18))){
         this.map=generateMap(this.map.count,this.map.seed);
         await ctx.storage.put('map',this.map);
       }
