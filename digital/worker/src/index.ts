@@ -96,6 +96,7 @@ export class GameRoom extends DurableObject<Env> {
     if(packet.type==='choose_civ'){
       const seat=this.seat(ws), civ=packet.civ;
       if(!this.map||this.map.started){ws.send(JSON.stringify({type:'error',message:'No se puede elegir civilización ahora.'}));return}
+      if(seat===0){ws.send(JSON.stringify({type:'error',message:'El anfitrión ya fijó su civilización al generar el mapa.'}));return}
       if(seat<0||seat>=this.map.count||!Number.isInteger(civ)||civ!<0||civ!>3){ws.send(JSON.stringify({type:'error',message:'Civilización inválida.'}));return}
       if((this.map.centers??[]).some(p=>p.seat===seat)){ws.send(JSON.stringify({type:'error',message:'No podés cambiar civilización después de colocar el CU.'}));return}
       if(Object.entries(this.map.civs??{}).some(([s,v])=>Number(s)!==seat&&v===civ)){ws.send(JSON.stringify({type:'error',message:'Esa civilización ya está elegida.'}));return}
