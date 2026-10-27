@@ -5,11 +5,16 @@ const container = document.getElementById('app')!;
 container.innerHTML = `
 <header><div><strong>AoE BoardGame <span class="tag">Digital · Hito 2</span></strong><br/><small>Cliente web + servidor multijugador</small></div>
 <div class="controls"><input id="name" aria-label="Nombre del jugador" maxlength="24" placeholder="Nombre del jugador" value="Jugador"/><button id="join">Entrar a sala</button><button id="fullscreen" class="secondary">⛶ Pantalla completa</button></div><span id="status">Sin conectar</span></header>
-<main><section class="stage"><div id="game"></div></section><aside><h2>Sala multijugador</h2><p id="room">Todavía no hay una sala conectada.</p><h2>Jugadores conectados</h2><ol id="players"></ol><hr/><div id="host-config"><div class="controls"><select id="count" aria-label="Jugadores del mapa"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div><button id="confirm-setup" disabled>Confirmar configuración</button></div><div id="game-menu" hidden><h2>Preparación de partida</h2><p>Elegí tu civilización, definí el orden y colocá los Centros Urbanos.</p></div><div class="controls"><label for="civ">Civilización</label><select id="civ"><option value="">Elegí una civilización</option><option value="0">Britones</option><option value="1">Francos</option><option value="2">Vikingos</option><option value="3">Persas</option></select><button id="choose-civ" disabled>Confirmar civilización</button></div><p id="setup-status"></p><button id="start-game" disabled>Iniciar partida</button><p id="map-info">Mapa todavía no generado.</p><div id="order-panel"><h2>Orden de colocación</h2><div id="order-controls"></div><button id="save-order" disabled>Guardar orden</button></div><button id="confirm-cu" disabled>Confirmar posición del CU</button><p id="cu-info">Generá el mapa para colocar los Centros Urbanos.</p><small>Para colocar tu CU, hacé clic en una casilla resaltada del perímetro exterior. Cada jugador dispone de un CU; sus colores corresponden a Britones, Francos, Vikingos y Persas.</small><p>Hito 2: preparación del mapa. Sin turnos ni combate todavía.</p></aside></main>`;
+<main><section class="stage"><div id="game"></div></section><aside><h2 id="phase-title">Crear partida</h2><p id="room">Sin conectar</p>
+<div id="host-config"><div class="controls"><select id="count"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div></div>
+<div id="lobby-panel" hidden><p id="setup-status"></p><div class="lobby-scroll"><table class="lobby-table"><thead><tr><th>JUGADOR</th><th>CIVILIZACIÓN</th><th>ORDEN</th><th>READY</th></tr></thead><tbody id="lobby-rows"></tbody></table></div><button id="start-game" disabled>Iniciar partida</button></div>
+<div id="cu-panel" hidden><p id="cu-info"></p><button id="confirm-cu" disabled>Confirmar posición del CU</button></div>
+<div id="playing-panel" hidden><p>Todos los CU colocados. El menú de partida se incorporará en el Hito 3.</p></div><p id="map-info">Mapa todavía no generado.</p>
+</aside></main>`;
 
 const status = document.getElementById('status')!;
 const roomLabel = document.getElementById('room')!;
-const players = document.getElementById('players')!;
+const players = document.createElement('ol');
 const join = document.getElementById('join') as HTMLButtonElement;
 let socket: WebSocket | undefined;
 let playerId = '';
@@ -19,61 +24,44 @@ const generate = document.getElementById('generate') as HTMLButtonElement;
 const mapInfo = document.getElementById('map-info')!;
 type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
-type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null };
+type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;ready?:Record<number,boolean> };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
-const civSelect=document.getElementById('civ') as HTMLSelectElement;
-const chooseCiv=document.getElementById('choose-civ') as HTMLButtonElement;
 const startGame=document.getElementById('start-game') as HTMLButtonElement;
 const setupStatus=document.getElementById('setup-status')!;
-const confirmSetup=document.getElementById('confirm-setup') as HTMLButtonElement;
 const hostConfig=document.getElementById('host-config')!;
-const gameMenu=document.getElementById('game-menu')!;
+const lobbyPanel=document.getElementById('lobby-panel')!;
+const cuPanel=document.getElementById('cu-panel')!;
+const playingPanel=document.getElementById('playing-panel')!;
+const phaseTitle=document.getElementById('phase-title')!;
+const lobbyRows=document.getElementById('lobby-rows')!;
 const confirmCu=document.getElementById('confirm-cu') as HTMLButtonElement;
-let mySeat = -1;
-let lobbyPlayers: {id:string;name:string;seat:number}[]=[];
-const orderControls=document.getElementById('order-controls')!;
-const saveOrder=document.getElementById('save-order') as HTMLButtonElement;
-function redrawOrder(){
-  orderControls.replaceChildren();
-  const map=sharedMap;
-  if(!map){saveOrder.disabled=true;return}
-  const locked=!map.setupConfirmed||!!map.centers?.length||!!map.started;
-  const host=mySeat>=0&&mySeat===Math.min(...lobbyPlayers.map(p=>p.seat));
+const cuInfo=document.getElementById('cu-info')!;
+let mySeat=-1;
+let lobbyPlayers:{id:string;name:string;seat:number}[]=[];
+let sharedMap:MapState|null=null;
+function renderLobby(){
+  lobbyRows.replaceChildren();
+  const map=sharedMap;if(!map)return;
   const order=map.order??Array.from({length:map.count},(_,i)=>i);
-  for(let i=0;i<map.count;i++){
-    const row=document.createElement('label');row.textContent=(i+1)+'º ';row.className='order-row';
-    const select=document.createElement('select');select.dataset.position=String(i);
-    for(let s=0;s<map.count;s++){
-      const option=document.createElement('option');option.value=String(s);
-      option.textContent=lobbyPlayers.find(p=>p.seat===s)?.name??('Jugador '+(s+1));
-      select.append(option);
-    }
-    select.value=String(order[i]);select.disabled=locked||!host;row.append(select);orderControls.append(row);
+  const civs=map.civs??{},ready=map.ready??{};
+  for(let seat=0;seat<map.count;seat++){
+    const tr=document.createElement('tr');
+    const name=document.createElement('td');name.textContent=lobbyPlayers.find(p=>p.seat===seat)?.name??'Esperando…';
+    const civCell=document.createElement('td'),select=document.createElement('select');
+    const blank=document.createElement('option');blank.value='';blank.textContent='Elegir…';select.append(blank);
+    for(let i=0;i<civNames.length;i++){const o=document.createElement('option');o.value=String(i);o.textContent=civNames[i];o.disabled=Object.entries(civs).some(([s,v])=>Number(s)!==seat&&v===i);select.append(o)}
+    select.value=Number.isInteger(civs[seat])?String(civs[seat]):'';
+    select.disabled=seat!==mySeat||ready[seat]===true||!lobbyPlayers.some(p=>p.seat===seat);
+    select.addEventListener('change',()=>{if(select.value!=='')socket?.send(JSON.stringify({type:'choose_civ',civ:Number(select.value)}))});civCell.append(select);
+    const orderCell=document.createElement('td'),pos=document.createElement('select');
+    for(let i=0;i<map.count;i++){const o=document.createElement('option');o.value=String(i);o.textContent=String(i+1);pos.append(o)}
+    pos.value=String(order.indexOf(seat));pos.disabled=mySeat!==0||Object.values(ready).some(Boolean);
+    pos.addEventListener('change',()=>{const updated=[...order],old=updated.indexOf(seat),target=Number(pos.value);[updated[old],updated[target]]=[updated[target],updated[old]];socket?.send(JSON.stringify({type:'set_order',order:updated}))});orderCell.append(pos);
+    const readyCell=document.createElement('td'),check=document.createElement('input');check.type='checkbox';check.checked=ready[seat]===true;check.disabled=seat!==mySeat||!Number.isInteger(civs[seat]);check.addEventListener('change',()=>socket?.send(JSON.stringify({type:'set_ready',ready:check.checked})));readyCell.append(check);
+    tr.append(name,civCell,orderCell,readyCell);lobbyRows.append(tr);
   }
-  saveOrder.disabled=locked||!host;
-  // El anfitrión aplica el orden al modificar un selector; los demás lo reciben
-  // como nuevo estado del servidor, sin necesidad de recargar sus ventanas.
-  orderControls.querySelectorAll('select').forEach(select=>select.addEventListener('change',()=>{
-    const selects=[...orderControls.querySelectorAll('select')];
-    const changed=Number((select as HTMLSelectElement).dataset.position);
-    const chosen=Number((select as HTMLSelectElement).value);
-    const oldOrder=sharedMap?.order??Array.from({length:map.count},(_,i)=>i);
-    const previous=oldOrder[changed];
-    const other=selects.findIndex((item,i)=>i!==changed&&Number((item as HTMLSelectElement).value)===chosen);
-    if(other>=0)(selects[other] as HTMLSelectElement).value=String(previous);
-    const updated=selects.map(item=>Number((item as HTMLSelectElement).value));
-    if(new Set(updated).size===map.count&&socket?.readyState===WebSocket.OPEN)
-      socket.send(JSON.stringify({type:'set_order',order:updated}));
-  }));
 }
-saveOrder.addEventListener('click',()=>{
-  const order=[...orderControls.querySelectorAll('select')].map(s=>Number(s.value));
-  if(new Set(order).size!==order.length){cuInfo.textContent='Cada jugador debe ocupar una posición distinta.';return}
-  socket?.send(JSON.stringify({type:'set_order',order}));
-});
-const cuInfo = document.getElementById('cu-info')!;
-let sharedMap:MapState|null = null;
 const roomCodeInput = document.createElement('input');
 roomCodeInput.id = 'room-code';
 roomCodeInput.placeholder = 'Código de sala';
@@ -155,7 +143,7 @@ class BootScene extends Phaser.Scene {
     for(const h of hexes)for(const [dq,dr] of neighborDirs){const q=h.q+dq,r=h.r+dr,key=q+','+r;if(!occupied.has(key))candidates.set(key,{q,r})}
     const spots=[...candidates.values()].filter(p=>!centers.some(center=>Math.max(Math.abs(center.q-p.q),Math.abs(center.r-p.r),Math.abs(center.q+center.r-p.q-p.r))<=1));
     const order=this.currentMap.order??Array.from({length:this.currentMap.count},(_,i)=>i);
-    const canPlace=!!this.currentMap.setupConfirmed&&!this.currentMap.started&&Number.isInteger(this.currentMap.civs?.[this.seat])&&this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
+    const canPlace=!!this.currentMap.started&&Number.isInteger(this.currentMap.civs?.[this.seat])&&this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
     const allCoords=[...displayHexes,...centers.map(p=>({q:p.q,r:p.r})),...spots].map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const coords=displayHexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const minX=Math.min(...allCoords.map(p=>p.x))-1,maxX=Math.max(...allCoords.map(p=>p.x))+1;
@@ -231,37 +219,27 @@ function renderMap(map:MapState|null){
   sharedMap=map;
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
-  mapInfo.textContent=map ? map.hexes.length+' terrenos + Maravilla para '+map.count+' jugadores · Semilla '+map.seed : 'Mapa todavía no generado.';
-  const countSelect=document.getElementById('count') as HTMLSelectElement;
-  if(map)countSelect.value=String(map.count);
-  const isHost=mySeat>=0&&lobbyPlayers.length>0&&mySeat===Math.min(...lobbyPlayers.map(p=>p.seat));
-  hostConfig.hidden=!!map?.setupConfirmed||!!map?.started;
-  gameMenu.hidden=!map?.setupConfirmed;
-  confirmSetup.disabled=!isHost||!map||!!map.setupConfirmed;
-  countSelect.disabled=!isHost||!!map;
-  generate.disabled=!isHost||!!map||socket?.readyState!==WebSocket.OPEN;
-  const chosen=map?.civs??{};
-  civSelect.disabled=!map||!!map.started || (map.centers??[]).some(p=>p.seat===mySeat);
-  if(map&&Number.isInteger(chosen[mySeat]))civSelect.value=String(chosen[mySeat]);
-  Array.from(civSelect.options).forEach(o=>{if(o.value!=='')o.disabled=Object.entries(chosen).some(([s,v])=>Number(s)!==mySeat&&String(v)===o.value)});
-  chooseCiv.disabled=!map||!map.setupConfirmed||!!map.started||mySeat<0||mySeat>=map.count||civSelect.value===''||civSelect.disabled;
-  const complete=!!map&&lobbyPlayers.length===map.count&&Array.from({length:map.count},(_,i)=>i).every(seat=>Number.isInteger(chosen[seat])&&(map.centers??[]).some(p=>p.seat===seat))&&new Set(Object.values(chosen)).size===map.count;
-  startGame.disabled=!isHost||!complete||!!map?.started;
-  confirmCu.disabled=!map?.setupConfirmed||map.draft?.seat!==mySeat;
-  confirmCu.hidden=!map?.draft||map.draft.seat!==mySeat;
-  setupStatus.textContent=!map?'Paso 1: elegí la cantidad de jugadores y generá el mapa.':map.started?'Partida iniciada.':'Paso 2: elegí tu civilización. Jugadores '+lobbyPlayers.length+'/'+map.count+' · Civilizaciones '+Object.keys(chosen).length+'/'+map.count+' · CU '+(map.centers?.length??0)+'/'+map.count;
-  const placed=map?.centers??[];
-  redrawOrder();
-  const order=map?.order??Array.from({length:map?.count??0},(_,i)=>i);
-  const next=order[placed.length];
-  const nextName=lobbyPlayers.find(p=>p.seat===next)?.name??('Jugador '+(next+1));
-  cuInfo.textContent=!map?'Generá el mapa para colocar los CU.':!map.setupConfirmed?'El anfitrión debe confirmar la configuración.':map.draft?.seat===mySeat?'Podés tocar otro hexágono para mover tu CU provisional o confirmar la posición.':mySeat<0?'Conectate para colocar tu CU.':mySeat>=map.count?'Estás como espectador: no hay puesto disponible.':placed.length>=map.count?'Todos los CU están colocados.':placed.some(p=>p.seat===mySeat)?'Tu CU está colocado. Ahora le toca a '+nextName+'.':mySeat!==next?'Turno de '+nextName+' para colocar su CU.': 'Es tu turno. Elegí una casilla exterior resaltada sin CU vecinos ('+placed.length+'/'+map.count+' colocados).';
+  mapInfo.textContent=map?map.hexes.length+' terrenos + Maravilla · '+map.count+' jugadores':'Mapa todavía no generado.';
+  const placed=map?.centers??[],inPlacement=!!map?.started&&placed.length<map.count;
+  hostConfig.hidden=!!map||mySeat!==0;
+  lobbyPanel.hidden=!map||!!map.started;
+  cuPanel.hidden=!inPlacement;
+  playingPanel.hidden=!map?.started||inPlacement;
+  phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
+  const count=document.getElementById('count') as HTMLSelectElement;
+  count.disabled=!!map||mySeat!==0;if(map)count.value=String(map.count);
+  generate.disabled=!!map||mySeat!==0||socket?.readyState!==WebSocket.OPEN;
+  const ready=map?.ready??{},civs=map?.civs??{};
+  const allReady=!!map&&lobbyPlayers.length===map.count&&Array.from({length:map.count},(_,seat)=>seat).every(seat=>lobbyPlayers.some(p=>p.seat===seat)&&ready[seat]===true&&Number.isInteger(civs[seat]))&&new Set(Object.values(civs)).size===map.count;
+  startGame.disabled=mySeat!==0||!allReady;
+  setupStatus.textContent=map?'Jugadores '+lobbyPlayers.length+'/'+map.count+' · Ready '+Object.values(ready).filter(Boolean).length+'/'+map.count:'';
+  renderLobby();
+  const order=map?.order??[],next=order[placed.length],nextName=lobbyPlayers.find(p=>p.seat===next)?.name??'Jugador '+(next+1);
+  cuInfo.textContent=!inPlacement?'':map?.draft?.seat===mySeat?'Tocá otra casilla para mover tu CU o confirmá la posición.':next===mySeat?'Es tu turno para colocar el CU.':'Turno de '+nextName+'.';
+  confirmCu.hidden=map?.draft?.seat!==mySeat;confirmCu.disabled=map?.draft?.seat!==mySeat;
 }
-confirmSetup.addEventListener('click',()=>{if(sharedMap&&!sharedMap.setupConfirmed&&window.confirm('¿Confirmás la configuración de '+sharedMap.count+' jugadores y el mapa generado?'))socket?.send(JSON.stringify({type:'confirm_setup'}))});
 confirmCu.addEventListener('click',()=>socket?.send(JSON.stringify({type:'confirm_cu'})));
 generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value)})));
-civSelect.addEventListener('change',()=>{if(sharedMap)renderMap(sharedMap)});
-chooseCiv.addEventListener('click',()=>{if(civSelect.value!=='')socket?.send(JSON.stringify({type:'choose_civ',civ:Number(civSelect.value)}))});
 startGame.addEventListener('click',()=>socket?.send(JSON.stringify({type:'start_game'})));
 document.getElementById('fullscreen')!.addEventListener('click', async () => {
   if (!document.fullscreenElement) await document.body.requestFullscreen();
