@@ -53,7 +53,7 @@ export class GameRoom extends DurableObject<Env> {
     ctx.blockConcurrencyWhile(async()=>{
       this.map = (await ctx.storage.get<MapState>('map')) ?? null;
       // Mapas creados antes de reservar el centro se regeneran con la misma semilla.
-      if(this.map && (this.map.hexes.some(h=>h.q===0&&h.r===0) || !isCompact(this.map))){
+      if(this.map && (this.map.hexes.some(h=>h.q===0&&h.r===0) || !isCompact(this.map) || this.map.hexes.some(h=>h.type==='Agua'))){
         this.map=generateMap(this.map.count,this.map.seed);
         await ctx.storage.put('map',this.map);
       }
