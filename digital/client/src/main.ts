@@ -5,7 +5,7 @@ const container = document.getElementById('app')!;
 container.innerHTML = `
 <header><div><strong>AoE BoardGame <span class="tag">Digital · Hito 2</span></strong><br/><small>Cliente web + servidor multijugador</small></div>
 <div class="controls"><input id="name" aria-label="Nombre del jugador" maxlength="24" placeholder="Nombre del jugador" value="Jugador"/><button id="join">Entrar a sala</button><button id="fullscreen" class="secondary">⛶ Pantalla completa</button></div><span id="status">Sin conectar</span></header>
-<main><section class="stage"><div id="game"></div></section><aside><h2>Sala multijugador</h2><p id="room">Todavía no hay una sala conectada.</p><h2>Jugadores conectados</h2><ol id="players"></ol><hr/><div class="controls"><select id="count" aria-label="Jugadores del mapa"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div><p id="map-info">Mapa todavía no generado.</p><p id="cu-info">Generá el mapa para colocar los Centros Urbanos.</p><small>Para colocar tu CU, hacé clic en una casilla resaltada del perímetro exterior. Cada jugador dispone de un CU; sus colores corresponden a Britones, Francos, Vikingos y Persas.</small><p>Hito 2: preparación del mapa. Sin turnos ni combate todavía.</p></aside></main>`;
+<main><section class="stage"><div id="game"></div></section><aside><h2>Sala multijugador</h2><p id="room">Todavía no hay una sala conectada.</p><h2>Jugadores conectados</h2><ol id="players"></ol><hr/><div class="controls"><select id="count" aria-label="Jugadores del mapa"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div><p id="map-info">Mapa todavía no generado.</p><div id="order-panel"><h2>Orden de colocación</h2><div id="order-controls"></div><button id="save-order" disabled>Guardar orden</button></div><p id="cu-info">Generá el mapa para colocar los Centros Urbanos.</p><small>Para colocar tu CU, hacé clic en una casilla resaltada del perímetro exterior. Cada jugador dispone de un CU; sus colores corresponden a Britones, Francos, Vikingos y Persas.</small><p>Hito 2: preparación del mapa. Sin turnos ni combate todavía.</p></aside></main>`;
 
 const status = document.getElementById('status')!;
 const roomLabel = document.getElementById('room')!;
@@ -19,10 +19,37 @@ const generate = document.getElementById('generate') as HTMLButtonElement;
 const mapInfo = document.getElementById('map-info')!;
 type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
-type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[] };
+type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[] };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
 let mySeat = -1;
+let lobbyPlayers: {id:string;name:string;seat:number}[]=[];
+const orderControls=document.getElementById('order-controls')!;
+const saveOrder=document.getElementById('save-order') as HTMLButtonElement;
+function redrawOrder(){
+  orderControls.replaceChildren();
+  const map=sharedMap;
+  if(!map){saveOrder.disabled=true;return}
+  const locked=!!map.centers?.length;
+  const host=mySeat>=0&&mySeat===Math.min(...lobbyPlayers.map(p=>p.seat));
+  const order=map.order??Array.from({length:map.count},(_,i)=>i);
+  for(let i=0;i<map.count;i++){
+    const row=document.createElement('label');row.textContent=(i+1)+'º ';row.className='order-row';
+    const select=document.createElement('select');select.dataset.position=String(i);
+    for(let s=0;s<map.count;s++){
+      const option=document.createElement('option');option.value=String(s);
+      option.textContent=lobbyPlayers.find(p=>p.seat===s)?.name??('Jugador '+(s+1));
+      select.append(option);
+    }
+    select.value=String(order[i]);select.disabled=locked||!host;row.append(select);orderControls.append(row);
+  }
+  saveOrder.disabled=locked||!host;
+}
+saveOrder.addEventListener('click',()=>{
+  const order=[...orderControls.querySelectorAll('select')].map(s=>Number(s.value));
+  if(new Set(order).size!==order.length){cuInfo.textContent='Cada jugador debe ocupar una posición distinta.';return}
+  socket?.send(JSON.stringify({type:'set_order',order}));
+});
 const cuInfo = document.getElementById('cu-info')!;
 let sharedMap:MapState|null = null;
 const roomCodeInput = document.createElement('input');
@@ -72,8 +99,9 @@ class BootScene extends Phaser.Scene {
     const candidates=new Map<string,{q:number;r:number}>();
     const neighborDirs=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
     for(const h of hexes)for(const [dq,dr] of neighborDirs){const q=h.q+dq,r=h.r+dr,key=q+','+r;if(!occupied.has(key))candidates.set(key,{q,r})}
-    const spots=[...candidates.values()].filter(p=>!centers.some(center=>center.q===p.q&&center.r===p.r));
-    const canPlace=this.seat>=0&&this.seat<this.currentMap.count&&!centers.some(p=>p.seat===this.seat);
+    const spots=[...candidates.values()].filter(p=>!centers.some(center=>Math.max(Math.abs(center.q-p.q),Math.abs(center.r-p.r),Math.abs(center.q+center.r-p.q-p.r))<=1));
+    const order=this.currentMap.order??Array.from({length:this.currentMap.count},(_,i)=>i);
+    const canPlace=this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
     const allCoords=[...displayHexes,...centers.map(p=>({q:p.q,r:p.r})),...spots].map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const coords=displayHexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const minX=Math.min(...allCoords.map(p=>p.x))-1,maxX=Math.max(...allCoords.map(p=>p.x))+1;
@@ -149,7 +177,11 @@ function renderMap(map:MapState|null){
   if(scene.scene.isActive())scene.updateMap(map);
   mapInfo.textContent=map ? map.hexes.length+' terrenos + Maravilla para '+map.count+' jugadores · Semilla '+map.seed : 'Mapa todavía no generado.';
   const placed=map?.centers??[];
-  cuInfo.textContent=!map?'Generá el mapa para colocar los CU.':mySeat<0?'Conectate para colocar tu CU.':mySeat>=map.count?'Estás como espectador: no hay puesto disponible.':placed.some(p=>p.seat===mySeat)?'Tu CU está colocado. '+placed.length+'/'+map.count+' CU listos.': 'Tu civilización: '+civNames[mySeat]+'. Seleccioná un hexágono exterior resaltado ('+placed.length+'/'+map.count+' CU colocados).';
+  redrawOrder();
+  const order=map?.order??Array.from({length:map?.count??0},(_,i)=>i);
+  const next=order[placed.length];
+  const nextName=lobbyPlayers.find(p=>p.seat===next)?.name??('Jugador '+(next+1));
+  cuInfo.textContent=!map?'Generá el mapa para colocar los CU.':mySeat<0?'Conectate para colocar tu CU.':mySeat>=map.count?'Estás como espectador: no hay puesto disponible.':placed.length>=map.count?'Todos los CU están colocados.':placed.some(p=>p.seat===mySeat)?'Tu CU está colocado. Ahora le toca a '+nextName+'.':mySeat!==next?'Turno de '+nextName+' para colocar su CU.': 'Es tu turno. Elegí una casilla exterior resaltada sin CU vecinos ('+placed.length+'/'+map.count+' colocados).';
 }
 generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value)})));
 document.getElementById('fullscreen')!.addEventListener('click', async () => {
@@ -185,6 +217,8 @@ join.addEventListener('click', () => {
       if (packet.type === 'map') renderMap(packet.map);
       if (packet.type === 'error') mapInfo.textContent = packet.message;
       if (packet.type === 'lobby') {
+        lobbyPlayers=packet.players;
+        renderMap(sharedMap);
         players.replaceChildren(...packet.players.map((p: { id: string; name: string }) => {
           const li = document.createElement('li');
           li.textContent = p.name + (p.id === playerId ? ' (vos)' : '');
@@ -210,6 +244,7 @@ join.addEventListener('click', () => {
     generate.disabled = true;
     status.textContent = wasOpen ? 'Desconectado' : 'No se pudo conectar';
     roomLabel.textContent = wasOpen ? 'Conexión cerrada: ' + (event.reason || event.code) : (errorText || 'La conexión se cerró antes de abrir (código ' + event.code + ').');
+    lobbyPlayers=[];
     players.replaceChildren();
     renderMap(sharedMap);
   };
