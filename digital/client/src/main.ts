@@ -111,12 +111,29 @@ class BootScene extends Phaser.Scene {
   preload(){for(const name of Object.values(textures))this.load.image(name,'/terrenos/'+name+'.webp');}
   private currentMap: MapState|null = null;
   private seat=-1;
+  private selectable: {q:number;r:number;polygon:Phaser.Geom.Polygon}[]=[];
+  private touchStart: {x:number;y:number}|null=null;
   setSeat(seat:number){this.seat=seat;this.draw()}
   constructor(){super('BootScene')}
-  create(){this.scale.on('resize',()=>this.draw());this.draw()}
+  create(){
+    this.input.on('pointerdown',(pointer:Phaser.Input.Pointer)=>{
+      this.touchStart={x:pointer.x,y:pointer.y};
+    });
+    this.input.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
+      if(!this.touchStart)return;
+      const moved=Math.hypot(pointer.x-this.touchStart.x,pointer.y-this.touchStart.y);
+      this.touchStart=null;
+      if(moved>15||socket?.readyState!==WebSocket.OPEN)return;
+      const spot=this.selectable.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
+      if(spot)socket.send(JSON.stringify({type:'place_cu',q:spot.q,r:spot.r}));
+    });
+    this.scale.on('resize',()=>this.draw());
+    this.draw();
+  }
   updateMap(map:MapState|null){this.currentMap=map;this.draw()}
   private draw(){
     this.children.removeAll();
+    this.selectable=[];
     const width=this.scale.width,height=this.scale.height;
     this.cameras.main.setBackgroundColor('#172635');
     if(!this.currentMap){
@@ -170,8 +187,9 @@ class BootScene extends Phaser.Scene {
       for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;polygon.push(new Phaser.Geom.Point(x+size*.97*Math.cos(a),y+size*.97*Math.sin(a)))}
       const myColor=colors[this.currentMap.civs?.[this.seat]??this.seat];
       const outline=this.add.graphics();outline.fillStyle(myColor,.13);outline.fillPoints(polygon,true);outline.lineStyle(2,myColor,.7);outline.strokePoints(polygon,true);
-      const target=this.add.zone(x,y,size*1.7,size*1.8).setInteractive({useHandCursor:true});
-      target.on('pointerdown',()=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'place_cu',q:p.q,r:p.r}))});
+      // Hit-test único para mouse y touch. No usamos zonas rectangulares
+      // superpuestas entre hexágonos, que resultaban difíciles de tocar.
+      this.selectable.push({q:p.q,r:p.r,polygon:new Phaser.Geom.Polygon(polygon)});
     }
     for(const p of centers){
       const x=cx+size*Math.sqrt(3)*(p.q+p.r/2),y=cy+size*1.5*p.r;
