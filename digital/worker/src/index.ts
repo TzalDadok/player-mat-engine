@@ -96,7 +96,6 @@ export class GameRoom extends DurableObject<Env> {
     if(packet.type==='choose_civ'){
       const seat=this.seat(ws), civ=packet.civ;
       if(!this.map||this.map.started){ws.send(JSON.stringify({type:'error',message:'No se puede elegir civilización ahora.'}));return}
-      if(seat===0){ws.send(JSON.stringify({type:'error',message:'El anfitrión ya fijó su civilización al generar el mapa.'}));return}
       if(seat<0||seat>=this.map.count||!Number.isInteger(civ)||civ!<0||civ!>3){ws.send(JSON.stringify({type:'error',message:'Civilización inválida.'}));return}
       if((this.map.centers??[]).some(p=>p.seat===seat)){ws.send(JSON.stringify({type:'error',message:'No podés cambiar civilización después de colocar el CU.'}));return}
       if(Object.entries(this.map.civs??{}).some(([s,v])=>Number(s)!==seat&&v===civ)){ws.send(JSON.stringify({type:'error',message:'Esa civilización ya está elegida.'}));return}
@@ -153,12 +152,10 @@ export class GameRoom extends DurableObject<Env> {
       const count=Number(packet.count);
       if(!Number.isInteger(count)||count<2||count>4){ws.send(JSON.stringify({type:'error',message:'Seleccioná entre 2 y 4 jugadores.'}));return}
       if(this.map){ws.send(JSON.stringify({type:'error',message:'El mapa ya está generado y bloqueado.'}));return}
-      const civ=packet.civ;
-      if(!Number.isInteger(civ)||civ!<0||civ!>3){ws.send(JSON.stringify({type:'error',message:'El anfitrión debe elegir su civilización.'}));return}
       const seed=crypto.getRandomValues(new Uint32Array(1))[0];
       if(this.ctx.getWebSockets().length>count){ws.send(JSON.stringify({type:'error',message:'Hay más jugadores conectados que puestos en el mapa.'}));return}
       this.map=generateMap(count,seed);
-      this.map.civs={[this.seat(ws)]:civ!};
+      this.map.civs={};
       await this.ctx.storage.put('map',this.map);
       this.broadcast({type:'map',map:this.map});
     }
