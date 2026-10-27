@@ -44,6 +44,20 @@ function redrawOrder(){
     select.value=String(order[i]);select.disabled=locked||!host;row.append(select);orderControls.append(row);
   }
   saveOrder.disabled=locked||!host;
+  // El anfitrión aplica el orden al modificar un selector; los demás lo reciben
+  // como nuevo estado del servidor, sin necesidad de recargar sus ventanas.
+  orderControls.querySelectorAll('select').forEach(select=>select.addEventListener('change',()=>{
+    const selects=[...orderControls.querySelectorAll('select')];
+    const changed=Number((select as HTMLSelectElement).dataset.position);
+    const chosen=Number((select as HTMLSelectElement).value);
+    const oldOrder=sharedMap?.order??Array.from({length:map.count},(_,i)=>i);
+    const previous=oldOrder[changed];
+    const other=selects.findIndex((item,i)=>i!==changed&&Number((item as HTMLSelectElement).value)===chosen);
+    if(other>=0)(selects[other] as HTMLSelectElement).value=String(previous);
+    const updated=selects.map(item=>Number((item as HTMLSelectElement).value));
+    if(new Set(updated).size===map.count&&socket?.readyState===WebSocket.OPEN)
+      socket.send(JSON.stringify({type:'set_order',order:updated}));
+  }));
 }
 saveOrder.addEventListener('click',()=>{
   const order=[...orderControls.querySelectorAll('select')].map(s=>Number(s.value));
@@ -176,6 +190,11 @@ function renderMap(map:MapState|null){
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
   mapInfo.textContent=map ? map.hexes.length+' terrenos + Maravilla para '+map.count+' jugadores · Semilla '+map.seed : 'Mapa todavía no generado.';
+  const countSelect=document.getElementById('count') as HTMLSelectElement;
+  if(map)countSelect.value=String(map.count);
+  const isHost=mySeat>=0&&lobbyPlayers.length>0&&mySeat===Math.min(...lobbyPlayers.map(p=>p.seat));
+  countSelect.disabled=!isHost;
+  generate.disabled=!isHost || socket?.readyState!==WebSocket.OPEN;
   const placed=map?.centers??[];
   redrawOrder();
   const order=map?.order??Array.from({length:map?.count??0},(_,i)=>i);
@@ -205,7 +224,7 @@ join.addEventListener('click', () => {
   ws.onopen = () => {
     connectionOpened = true;
     status.textContent = 'Conectado';
-    generate.disabled = false;
+    renderMap(sharedMap);
     roomLabel.textContent = 'Sala: ' + code;
     history.replaceState(null, '', '?sala=' + encodeURIComponent(code));
   };
@@ -242,6 +261,7 @@ join.addEventListener('click', () => {
     (game.scene.getScene('BootScene') as BootScene).setSeat(-1);
     join.disabled = false;
     generate.disabled = true;
+    (document.getElementById('count') as HTMLSelectElement).disabled=true;
     status.textContent = wasOpen ? 'Desconectado' : 'No se pudo conectar';
     roomLabel.textContent = wasOpen ? 'Conexión cerrada: ' + (event.reason || event.code) : (errorText || 'La conexión se cerró antes de abrir (código ' + event.code + ').');
     lobbyPlayers=[];
