@@ -30,10 +30,18 @@ function generateMap(count: number, seed: number): MapState {
     const remaining = count*18+1-coords.length;
     if (remaining >= ring.length) coords.push(...ring);
     else {
-      // Repartimos los hexágonos restantes de forma contigua y simétrica
-      // en un sector de la grada exterior, evitando huecos interiores.
-      const startIndex = Math.floor(random()*ring.length);
-      for(let i=0;i<remaining;i++) coords.push(ring[(startIndex+i)%ring.length]);
+      // Distribución equilibrada: misma cantidad de hexágonos en cada
+      // uno de los seis lados. Para 3 jugadores: 3 por lado (radio 4);
+      // para 4 jugadores: 2 por lado (radio 5).
+      // No hay un hexágono perfecto con 55 o 73 casillas, pero sí
+      // una distribución con simetría rotacional de 60 grados.
+      const perSide = remaining / 6;
+      if(!Number.isInteger(perSide))throw new Error('Anillo exterior no divisible entre seis lados');
+      const sideLength = radius;
+      const offset = Math.floor((sideLength - perSide) / 2);
+      for(let side=0;side<6;side++){
+        for(let i=offset;i<offset+perSide;i++)coords.push(ring[side*sideLength+i]);
+      }
     }
   }
   return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]})),centers:[],order:Array.from({length:count},(_,i)=>i)};
