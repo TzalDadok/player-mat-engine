@@ -144,12 +144,18 @@ class BootScene extends Phaser.Scene {
     const spots=[...candidates.values()].filter(p=>!centers.some(center=>Math.max(Math.abs(center.q-p.q),Math.abs(center.r-p.r),Math.abs(center.q+center.r-p.q-p.r))<=1));
     const order=this.currentMap.order??Array.from({length:this.currentMap.count},(_,i)=>i);
     const canPlace=!!this.currentMap.started&&Number.isInteger(this.currentMap.civs?.[this.seat])&&this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
-    const allCoords=[...displayHexes,...centers.map(p=>({q:p.q,r:p.r})),...spots].map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
+    // Centrar todo lo visible y aprovechar al máximo el tamaño del canvas.
+    // Los candidatos exteriores solo cuentan cuando están visibles para este jugador.
+    const shown=[...displayHexes,...centers,...(draft?[draft]:[]),...(canPlace?spots:[])];
+    const allCoords=shown.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const coords=displayHexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
-    const minX=Math.min(...allCoords.map(p=>p.x))-1,maxX=Math.max(...allCoords.map(p=>p.x))+1;
-    const minY=Math.min(...allCoords.map(p=>p.y))-1,maxY=Math.max(...allCoords.map(p=>p.y))+1;
-    const size=Math.min((width-60)/(maxX-minX),(height-110)/(maxY-minY),55);
-    const cx=width/2-size*(minX+maxX)/2,cy=height/2-size*(minY+maxY)/2+20;
+    const minX=Math.min(...allCoords.map(p=>p.x)),maxX=Math.max(...allCoords.map(p=>p.x));
+    const minY=Math.min(...allCoords.map(p=>p.y)),maxY=Math.max(...allCoords.map(p=>p.y));
+    const margin=Math.min(22,Math.max(8,Math.min(width,height)*.035));
+    const topReserve=38;
+    const size=Math.max(1,Math.min((width-2*margin)/(maxX-minX+2),(height-topReserve-2*margin)/(maxY-minY+2)));
+    const cx=width/2-size*(minX+maxX)/2;
+    const cy=(height+topReserve)/2-size*(minY+maxY)/2;
     const g=this.add.graphics();
     for(let i=0;i<displayHexes.length;i++){
       const {q,r,type}=displayHexes[i];
