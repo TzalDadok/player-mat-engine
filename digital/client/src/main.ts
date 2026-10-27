@@ -201,7 +201,7 @@ class BootScene extends Phaser.Scene {
       const color=colors[this.currentMap.civs?.[p.seat]??p.seat]??0xffffff;
       const hex:Phaser.Geom.Point[]=[];
       for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;hex.push(new Phaser.Geom.Point(x+size*Math.cos(a),y+size*Math.sin(a)))}
-      const border=this.add.graphics();border.fillStyle(color,draft===p?.65:.4);border.fillPoints(hex,true);border.lineStyle(draft===p?4:3,color,1);border.strokePoints(hex,true);
+      const border=this.add.graphics();border.fillStyle(color, draft === p ? 0.65 : 0.4);border.fillPoints(hex,true);border.lineStyle(draft===p?4:3,color,1);border.strokePoints(hex,true);
       if(this.textures.exists('centroUrbano'))this.add.image(x,y,'centroUrbano').setDisplaySize(size*1.75,size*1.75);
       this.add.circle(x,y-size*.63,Math.max(8,size*.24),color,1).setStrokeStyle(2,0xffffff);
       this.add.text(x,y-size*.63,String(p.seat+1),{fontSize:Math.max(10,size*.29)+'px',color:'#ffffff',fontStyle:'bold'}).setOrigin(.5);
