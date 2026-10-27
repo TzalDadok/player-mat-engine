@@ -3,3 +3,5 @@
 select{background:#151f2a;color:#fff;border:1px solid #506174;border-radius:7px;padding:10px;max-width:220px}
 
 #cu-info{border-left:3px solid #bba16f;padding-left:10px;color:#e9d8a9} .stage canvas{display:block}
+
+#order-panel{margin:16px 0;padding:12px;border:1px solid #3b4c5d;border-radius:9px;background:#172330}#order-panel h2{margin:0 0 10px}.order-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0;color:#dfc698}.order-row select{flex:1;min-width:0;max-width:190px}#save-order{margin-top:8px;width:100%}
