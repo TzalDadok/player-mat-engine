@@ -95,11 +95,11 @@ class BootScene extends Phaser.Scene {
       const icon=resourceIcons[type];
       if(!icon)continue;
       const x=cx+size*coords[i].x,y=cy+size*coords[i].y;
-      const fontSize=Math.max(13,Math.round(size*.66));
-      const label=this.add.text(x,y,icon,{
-        fontSize:fontSize+'px',
-        backgroundColor:'#14202ac9',
-        padding:{x:Math.max(2,Math.round(size*.10)),y:Math.max(1,Math.round(size*.06))}
+      const fontSize=Math.max(10,Math.round(size*.34));
+      // El vértice inferior está en y + size. El ícono queda apenas encima,
+      // sin fondo, dejando visible la ilustración original del terreno.
+      const label=this.add.text(x,y+size*.76,icon,{
+        fontSize:fontSize+'px'
       }).setOrigin(.5);
       label.setResolution(2);
     }
