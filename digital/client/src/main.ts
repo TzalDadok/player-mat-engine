@@ -5,7 +5,7 @@ const container = document.getElementById('app')!;
 container.innerHTML = `
 <header><div><strong>AoE BoardGame <span class="tag">Digital · Hito 2</span></strong><br/><small>Cliente web + servidor multijugador</small></div>
 <div class="controls"><input id="name" aria-label="Nombre del jugador" maxlength="24" placeholder="Nombre del jugador" value="Jugador"/><button id="join">Entrar a sala</button><button id="fullscreen" class="secondary">⛶ Pantalla completa</button></div><span id="status">Sin conectar</span></header>
-<main><section class="stage"><div id="game"></div></section><aside><h2>Sala multijugador</h2><p id="room">Todavía no hay una sala conectada.</p><h2>Jugadores conectados</h2><ol id="players"></ol><hr/><div class="controls"><select id="count" aria-label="Jugadores del mapa"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div><p id="map-info">Mapa todavía no generado.</p><p>Hito 2: mapa procedural compartido. Sin bots ni reglas de combate todavía.</p><small>Los CU se colocarán después de generar el mapa, en nuevos hexágonos exteriores.</small></aside></main>`;
+<main><section class="stage"><div id="game"></div></section><aside><h2>Sala multijugador</h2><p id="room">Todavía no hay una sala conectada.</p><h2>Jugadores conectados</h2><ol id="players"></ol><hr/><div class="controls"><select id="count" aria-label="Jugadores del mapa"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div><p id="map-info">Mapa todavía no generado.</p><p id="cu-info">Generá el mapa para colocar los Centros Urbanos.</p><small>Para colocar tu CU, hacé clic en una casilla resaltada del perímetro exterior. Cada jugador dispone de un CU; sus colores corresponden a Britones, Francos, Vikingos y Persas.</small><p>Hito 2: preparación del mapa. Sin turnos ni combate todavía.</p></aside></main>`;
 
 const status = document.getElementById('status')!;
 const roomLabel = document.getElementById('room')!;
@@ -18,7 +18,12 @@ let connectionError = '';
 const generate = document.getElementById('generate') as HTMLButtonElement;
 const mapInfo = document.getElementById('map-info')!;
 type Hex = { q:number; r:number; type:string };
-type MapState = { seed:number; count:number; hexes:Hex[] };
+type Placement = {seat:number;q:number;r:number};
+type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[] };
+const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
+const civNames = ['Britones','Francos','Vikingos','Persas'];
+let mySeat = -1;
+const cuInfo = document.getElementById('cu-info')!;
 let sharedMap:MapState|null = null;
 const roomCodeInput = document.createElement('input');
 roomCodeInput.id = 'room-code';
@@ -46,6 +51,8 @@ const textures:Record<string,string> = {'Frutos silvestres':'comidaFrutos','Anim
 class BootScene extends Phaser.Scene {
   preload(){for(const name of Object.values(textures))this.load.image(name,'/terrenos/'+name+'.webp');}
   private currentMap: MapState|null = null;
+  private seat=-1;
+  setSeat(seat:number){this.seat=seat;this.draw()}
   constructor(){super('BootScene')}
   create(){this.scale.on('resize',()=>this.draw());this.draw()}
   updateMap(map:MapState|null){this.currentMap=map;this.draw()}
@@ -60,9 +67,17 @@ class BootScene extends Phaser.Scene {
     const hexes=this.currentMap.hexes;
     // Compatibilidad con mapas viejos: la Maravilla debe ser la única ficha en (0,0).
     const displayHexes=[...hexes.filter(h=>h.q!==0||h.r!==0),{q:0,r:0,type:'Maravilla'}];
+    const occupied=new Set(displayHexes.map(h=>h.q+','+h.r));
+    const centers=this.currentMap.centers??[];
+    const candidates=new Map<string,{q:number;r:number}>();
+    const neighborDirs=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
+    for(const h of hexes)for(const [dq,dr] of neighborDirs){const q=h.q+dq,r=h.r+dr,key=q+','+r;if(!occupied.has(key))candidates.set(key,{q,r})}
+    const spots=[...candidates.values()].filter(p=>!centers.some(center=>center.q===p.q&&center.r===p.r));
+    const canPlace=this.seat>=0&&this.seat<this.currentMap.count&&!centers.some(p=>p.seat===this.seat);
+    const allCoords=[...displayHexes,...centers.map(p=>({q:p.q,r:p.r})),...spots].map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const coords=displayHexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
-    const minX=Math.min(...coords.map(p=>p.x))-1,maxX=Math.max(...coords.map(p=>p.x))+1;
-    const minY=Math.min(...coords.map(p=>p.y))-1,maxY=Math.max(...coords.map(p=>p.y))+1;
+    const minX=Math.min(...allCoords.map(p=>p.x))-1,maxX=Math.max(...allCoords.map(p=>p.x))+1;
+    const minY=Math.min(...allCoords.map(p=>p.y))-1,maxY=Math.max(...allCoords.map(p=>p.y))+1;
     const size=Math.min((width-60)/(maxX-minX),(height-110)/(maxY-minY),55);
     const cx=width/2-size*(minX+maxX)/2,cy=height/2-size*(minY+maxY)/2+20;
     const g=this.add.graphics();
@@ -87,6 +102,25 @@ class BootScene extends Phaser.Scene {
         g.lineStyle(Math.max(1,size*.035),0x162533);g.strokePoints(points,true);
         this.add.text(x,y,terrain[type]?.label||'?',{fontSize:Math.max(13,Math.round(size*.57))+'px'}).setOrigin(.5);
       }
+    }
+    // Casillas nuevas permitidas, seleccionables solamente por el jugador sin CU.
+    if(canPlace)for(const p of spots){
+      const x=cx+size*Math.sqrt(3)*(p.q+p.r/2),y=cy+size*1.5*p.r;
+      const polygon:Phaser.Geom.Point[]=[];
+      for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;polygon.push(new Phaser.Geom.Point(x+size*.97*Math.cos(a),y+size*.97*Math.sin(a)))}
+      const outline=this.add.graphics();outline.fillStyle(colors[this.seat],.13);outline.fillPoints(polygon,true);outline.lineStyle(2,colors[this.seat],.7);outline.strokePoints(polygon,true);
+      const target=this.add.zone(x,y,size*1.7,size*1.8).setInteractive({useHandCursor:true});
+      target.on('pointerdown',()=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'place_cu',q:p.q,r:p.r}))});
+    }
+    for(const p of centers){
+      const x=cx+size*Math.sqrt(3)*(p.q+p.r/2),y=cy+size*1.5*p.r;
+      const color=colors[p.seat]??0xffffff;
+      const hex:Phaser.Geom.Point[]=[];
+      for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;hex.push(new Phaser.Geom.Point(x+size*Math.cos(a),y+size*Math.sin(a)))}
+      const border=this.add.graphics();border.fillStyle(color,.4);border.fillPoints(hex,true);border.lineStyle(3,color,1);border.strokePoints(hex,true);
+      if(this.textures.exists('centroUrbano'))this.add.image(x,y,'centroUrbano').setDisplaySize(size*1.75,size*1.75);
+      this.add.circle(x,y-size*.63,Math.max(8,size*.24),color,1).setStrokeStyle(2,0xffffff);
+      this.add.text(x,y-size*.63,String(p.seat+1),{fontSize:Math.max(10,size*.29)+'px',color:'#ffffff',fontStyle:'bold'}).setOrigin(.5);
     }
     // Superponer el recurso en el centro de cada hexágono primario.
     // Se hace después de las texturas para que siempre quede visible.
@@ -114,6 +148,8 @@ function renderMap(map:MapState|null){
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
   mapInfo.textContent=map ? map.hexes.length+' terrenos + Maravilla para '+map.count+' jugadores · Semilla '+map.seed : 'Mapa todavía no generado.';
+  const placed=map?.centers??[];
+  cuInfo.textContent=!map?'Generá el mapa para colocar los CU.':mySeat<0?'Conectate para colocar tu CU.':mySeat>=map.count?'Estás como espectador: no hay puesto disponible.':placed.some(p=>p.seat===mySeat)?'Tu CU está colocado. '+placed.length+'/'+map.count+' CU listos.': 'Tu civilización: '+civNames[mySeat]+'. Seleccioná un hexágono exterior resaltado ('+placed.length+'/'+map.count+' CU colocados).';
 }
 generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value)})));
 document.getElementById('fullscreen')!.addEventListener('click', async () => {
@@ -144,7 +180,8 @@ join.addEventListener('click', () => {
   ws.onmessage = event => {
     try {
       const packet = JSON.parse(String(event.data));
-      if (packet.type === 'welcome') playerId = packet.id;
+      if (packet.type === 'welcome') { playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
+      if (packet.type === 'seat') {mySeat=packet.seat;(game.scene.getScene('BootScene') as BootScene).setSeat(mySeat);renderMap(sharedMap)}
       if (packet.type === 'map') renderMap(packet.map);
       if (packet.type === 'error') mapInfo.textContent = packet.message;
       if (packet.type === 'lobby') {
@@ -167,11 +204,14 @@ join.addEventListener('click', () => {
     connectionOpened = false;
     socket = undefined;
     playerId = '';
+    mySeat=-1;
+    (game.scene.getScene('BootScene') as BootScene).setSeat(-1);
     join.disabled = false;
     generate.disabled = true;
     status.textContent = wasOpen ? 'Desconectado' : 'No se pudo conectar';
     roomLabel.textContent = wasOpen ? 'Conexión cerrada: ' + (event.reason || event.code) : (errorText || 'La conexión se cerró antes de abrir (código ' + event.code + ').');
     players.replaceChildren();
+    renderMap(sharedMap);
   };
 });
 window.addEventListener('beforeunload', () => socket?.close());
