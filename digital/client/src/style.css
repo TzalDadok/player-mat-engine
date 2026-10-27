@@ -28,3 +28,5 @@ button,select,input {min-height:44px}
   header strong{font-size:17px}
   header .controls button{padding:9px 10px}
 }
+
+#host-config[hidden],#game-menu[hidden],#confirm-cu[hidden]{display:none!important}#host-config{display:grid;gap:10px}#confirm-setup,#confirm-cu{width:100%;margin:8px 0}#game-menu{padding:12px;border-radius:8px;background:#243545;border:1px solid #536578}#game-menu h2{margin:0 0 6px}
