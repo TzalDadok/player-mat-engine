@@ -5,7 +5,7 @@ const container = document.getElementById('app')!;
 container.innerHTML = `
 <header><div><strong>AoE BoardGame <span class="tag">Digital · Hito 2</span></strong><br/><small>Cliente web + servidor multijugador</small></div>
 <div class="controls"><input id="name" aria-label="Nombre del jugador" maxlength="24" placeholder="Nombre del jugador" value="Jugador"/><button id="join">Entrar a sala</button><button id="fullscreen" class="secondary">⛶ Pantalla completa</button></div><span id="status">Sin conectar</span></header>
-<main><section class="stage"><div id="game"></div></section><aside><h2>Sala multijugador</h2><p id="room">Todavía no hay una sala conectada.</p><h2>Jugadores conectados</h2><ol id="players"></ol><hr/><div class="controls"><select id="count" aria-label="Jugadores del mapa"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div><p id="map-info">Mapa todavía no generado.</p><div id="order-panel"><h2>Orden de colocación</h2><div id="order-controls"></div><button id="save-order" disabled>Guardar orden</button></div><p id="cu-info">Generá el mapa para colocar los Centros Urbanos.</p><small>Para colocar tu CU, hacé clic en una casilla resaltada del perímetro exterior. Cada jugador dispone de un CU; sus colores corresponden a Britones, Francos, Vikingos y Persas.</small><p>Hito 2: preparación del mapa. Sin turnos ni combate todavía.</p></aside></main>`;
+<main><section class="stage"><div id="game"></div></section><aside><h2>Sala multijugador</h2><p id="room">Todavía no hay una sala conectada.</p><h2>Jugadores conectados</h2><ol id="players"></ol><hr/><div class="controls"><select id="count" aria-label="Jugadores del mapa"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div><div class="controls"><label for="civ">Civilización</label><select id="civ"><option value="">Elegí una civilización</option><option value="0">Britones</option><option value="1">Francos</option><option value="2">Vikingos</option><option value="3">Persas</option></select><button id="choose-civ" disabled>Confirmar civilización</button></div><p id="setup-status"></p><button id="start-game" disabled>Iniciar partida</button><p id="map-info">Mapa todavía no generado.</p><div id="order-panel"><h2>Orden de colocación</h2><div id="order-controls"></div><button id="save-order" disabled>Guardar orden</button></div><p id="cu-info">Generá el mapa para colocar los Centros Urbanos.</p><small>Para colocar tu CU, hacé clic en una casilla resaltada del perímetro exterior. Cada jugador dispone de un CU; sus colores corresponden a Britones, Francos, Vikingos y Persas.</small><p>Hito 2: preparación del mapa. Sin turnos ni combate todavía.</p></aside></main>`;
 
 const status = document.getElementById('status')!;
 const roomLabel = document.getElementById('room')!;
@@ -19,9 +19,13 @@ const generate = document.getElementById('generate') as HTMLButtonElement;
 const mapInfo = document.getElementById('map-info')!;
 type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
-type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[] };
+type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
+const civSelect=document.getElementById('civ') as HTMLSelectElement;
+const chooseCiv=document.getElementById('choose-civ') as HTMLButtonElement;
+const startGame=document.getElementById('start-game') as HTMLButtonElement;
+const setupStatus=document.getElementById('setup-status')!;
 let mySeat = -1;
 let lobbyPlayers: {id:string;name:string;seat:number}[]=[];
 const orderControls=document.getElementById('order-controls')!;
@@ -30,7 +34,7 @@ function redrawOrder(){
   orderControls.replaceChildren();
   const map=sharedMap;
   if(!map){saveOrder.disabled=true;return}
-  const locked=!!map.centers?.length;
+  const locked=!!map.centers?.length||!!map.started;
   const host=mySeat>=0&&mySeat===Math.min(...lobbyPlayers.map(p=>p.seat));
   const order=map.order??Array.from({length:map.count},(_,i)=>i);
   for(let i=0;i<map.count;i++){
@@ -115,7 +119,7 @@ class BootScene extends Phaser.Scene {
     for(const h of hexes)for(const [dq,dr] of neighborDirs){const q=h.q+dq,r=h.r+dr,key=q+','+r;if(!occupied.has(key))candidates.set(key,{q,r})}
     const spots=[...candidates.values()].filter(p=>!centers.some(center=>Math.max(Math.abs(center.q-p.q),Math.abs(center.r-p.r),Math.abs(center.q+center.r-p.q-p.r))<=1));
     const order=this.currentMap.order??Array.from({length:this.currentMap.count},(_,i)=>i);
-    const canPlace=this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
+    const canPlace=!this.currentMap.started&&Number.isInteger(this.currentMap.civs?.[this.seat])&&this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
     const allCoords=[...displayHexes,...centers.map(p=>({q:p.q,r:p.r})),...spots].map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const coords=displayHexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const minX=Math.min(...allCoords.map(p=>p.x))-1,maxX=Math.max(...allCoords.map(p=>p.x))+1;
@@ -150,13 +154,14 @@ class BootScene extends Phaser.Scene {
       const x=cx+size*Math.sqrt(3)*(p.q+p.r/2),y=cy+size*1.5*p.r;
       const polygon:Phaser.Geom.Point[]=[];
       for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;polygon.push(new Phaser.Geom.Point(x+size*.97*Math.cos(a),y+size*.97*Math.sin(a)))}
-      const outline=this.add.graphics();outline.fillStyle(colors[this.seat],.13);outline.fillPoints(polygon,true);outline.lineStyle(2,colors[this.seat],.7);outline.strokePoints(polygon,true);
+      const myColor=colors[this.currentMap.civs?.[this.seat]??this.seat];
+      const outline=this.add.graphics();outline.fillStyle(myColor,.13);outline.fillPoints(polygon,true);outline.lineStyle(2,myColor,.7);outline.strokePoints(polygon,true);
       const target=this.add.zone(x,y,size*1.7,size*1.8).setInteractive({useHandCursor:true});
       target.on('pointerdown',()=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'place_cu',q:p.q,r:p.r}))});
     }
     for(const p of centers){
       const x=cx+size*Math.sqrt(3)*(p.q+p.r/2),y=cy+size*1.5*p.r;
-      const color=colors[p.seat]??0xffffff;
+      const color=colors[this.currentMap.civs?.[p.seat]??p.seat]??0xffffff;
       const hex:Phaser.Geom.Point[]=[];
       for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;hex.push(new Phaser.Geom.Point(x+size*Math.cos(a),y+size*Math.sin(a)))}
       const border=this.add.graphics();border.fillStyle(color,.4);border.fillPoints(hex,true);border.lineStyle(3,color,1);border.strokePoints(hex,true);
@@ -193,8 +198,16 @@ function renderMap(map:MapState|null){
   const countSelect=document.getElementById('count') as HTMLSelectElement;
   if(map)countSelect.value=String(map.count);
   const isHost=mySeat>=0&&lobbyPlayers.length>0&&mySeat===Math.min(...lobbyPlayers.map(p=>p.seat));
-  countSelect.disabled=!isHost;
-  generate.disabled=!isHost || socket?.readyState!==WebSocket.OPEN;
+  countSelect.disabled=!isHost||!!map;
+  generate.disabled=!isHost||!!map||civSelect.value===''||socket?.readyState!==WebSocket.OPEN;
+  const chosen=map?.civs??{};
+  civSelect.disabled=!!map?.started || (!!map&& (map.centers??[]).some(p=>p.seat===mySeat));
+  if(map&&Number.isInteger(chosen[mySeat]))civSelect.value=String(chosen[mySeat]);
+  Array.from(civSelect.options).forEach(o=>{if(o.value!=='')o.disabled=Object.entries(chosen).some(([s,v])=>Number(s)!==mySeat&&String(v)===o.value)});
+  chooseCiv.disabled=!map||!!map.started||mySeat<0||mySeat>=map.count||civSelect.value===''||civSelect.disabled;
+  const complete=!!map&&lobbyPlayers.length===map.count&&Array.from({length:map.count},(_,i)=>i).every(seat=>Number.isInteger(chosen[seat])&&(map.centers??[]).some(p=>p.seat===seat))&&new Set(Object.values(chosen)).size===map.count;
+  startGame.disabled=!isHost||!complete||!!map?.started;
+  setupStatus.textContent=!map?'1. El anfitrión elige civilización, cantidad de jugadores y genera el mapa.':map.started?'Partida iniciada.':'2. Jugadores '+lobbyPlayers.length+'/'+map.count+' · Civilizaciones '+Object.keys(chosen).length+'/'+map.count+' · CU '+(map.centers?.length??0)+'/'+map.count;
   const placed=map?.centers??[];
   redrawOrder();
   const order=map?.order??Array.from({length:map?.count??0},(_,i)=>i);
@@ -202,7 +215,10 @@ function renderMap(map:MapState|null){
   const nextName=lobbyPlayers.find(p=>p.seat===next)?.name??('Jugador '+(next+1));
   cuInfo.textContent=!map?'Generá el mapa para colocar los CU.':mySeat<0?'Conectate para colocar tu CU.':mySeat>=map.count?'Estás como espectador: no hay puesto disponible.':placed.length>=map.count?'Todos los CU están colocados.':placed.some(p=>p.seat===mySeat)?'Tu CU está colocado. Ahora le toca a '+nextName+'.':mySeat!==next?'Turno de '+nextName+' para colocar su CU.': 'Es tu turno. Elegí una casilla exterior resaltada sin CU vecinos ('+placed.length+'/'+map.count+' colocados).';
 }
-generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value)})));
+generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value),civ:Number(civSelect.value)})));
+civSelect.addEventListener('change',()=>{if(sharedMap)renderMap(sharedMap);else generate.disabled=civSelect.value===''||socket?.readyState!==WebSocket.OPEN||mySeat!==0});
+chooseCiv.addEventListener('click',()=>{if(civSelect.value!=='')socket?.send(JSON.stringify({type:'choose_civ',civ:Number(civSelect.value)}))});
+startGame.addEventListener('click',()=>socket?.send(JSON.stringify({type:'start_game'})));
 document.getElementById('fullscreen')!.addEventListener('click', async () => {
   if (!document.fullscreenElement) await document.body.requestFullscreen();
   else await document.exitFullscreen();
