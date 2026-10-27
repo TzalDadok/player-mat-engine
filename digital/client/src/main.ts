@@ -34,6 +34,14 @@ const terrain: Record<string,{fill:number;label:string}> = {
   'Desierto':{fill:0xc9a26c,label:'🏜️'},'Llanura':{fill:0x85a86a,label:'🌱'},
   'Montaña':{fill:0x6b737c,label:'⛰️'}
 };
+// Íconos idénticos a los recursos del Player Mat (app.js: R).
+const resourceIcons: Record<string,string> = {
+  'Frutos silvestres':'🥩',
+  'Animales':'🥩',
+  'Cantera de Oro':'🪙',
+  'Cantera de Piedra':'🪨',
+  'Bosque':'🪵'
+};
 const textures:Record<string,string> = {'Frutos silvestres':'comidaFrutos','Animales':'comidaAnimales','Cantera de Oro':'oro','Cantera de Piedra':'piedra','Bosque':'madera','Desierto':'nadaArena','Llanura':'nadaPasto','Montaña':'montana','Agua A':'aguaA','Agua B':'aguaB','Maravilla':'maravilla','Centro Urbano':'centroUrbano'};
 class BootScene extends Phaser.Scene {
   preload(){for(const name of Object.values(textures))this.load.image(name,'/terrenos/'+name+'.webp');}
@@ -79,6 +87,21 @@ class BootScene extends Phaser.Scene {
         g.lineStyle(Math.max(1,size*.035),0x162533);g.strokePoints(points,true);
         this.add.text(x,y,terrain[type]?.label||'?',{fontSize:Math.max(13,Math.round(size*.57))+'px'}).setOrigin(.5);
       }
+    }
+    // Superponer el recurso en el centro de cada hexágono primario.
+    // Se hace después de las texturas para que siempre quede visible.
+    for(let i=0;i<displayHexes.length;i++){
+      const {type}=displayHexes[i];
+      const icon=resourceIcons[type];
+      if(!icon)continue;
+      const x=cx+size*coords[i].x,y=cy+size*coords[i].y;
+      const fontSize=Math.max(13,Math.round(size*.66));
+      const label=this.add.text(x,y,icon,{
+        fontSize:fontSize+'px',
+        backgroundColor:'#14202ac9',
+        padding:{x:Math.max(2,Math.round(size*.10)),y:Math.max(1,Math.round(size*.06))}
+      }).setOrigin(.5);
+      label.setResolution(2);
     }
     this.add.text(width/2,20,hexes.length+' terrenos + Maravilla · Semilla '+this.currentMap.seed,{fontSize:'15px',color:'#f3e5be'}).setOrigin(.5,0);
   }
