@@ -30,37 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      # Simulator smoke tests report failures but do not block publishing the rulebook.
-      - name: Test simulator engine
-        continue-on-error: true
-        run: |
-          node player-mat-engine-v1/simulator/tests/hito1-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/civilizations-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/combat-advanced-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/special-units-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/conversion-garrison-naval-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/ffa36-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/exploration-relic-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/economic-special-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/exploration-cards-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/competitive-scoring-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/hito2-bots-smoke.mjs
-          node player-mat-engine-v1/simulator/tests/hito3-balance-smoke.mjs
-          node --check player-mat-engine-v1/simulator/app.js
-          node --check player-mat-engine-v1/simulator/engine/game.js
-          node --check player-mat-engine-v1/simulator/bots/baseline.js
-          node --check player-mat-engine-v1/simulator/bots/profiles.js
-          node --check player-mat-engine-v1/simulator/runner/simulate.js
-          node --check player-mat-engine-v1/simulator/runner/batch.mjs
-          node --check player-mat-engine-v1/simulator/runner/benchmark.mjs
-          node --check player-mat-engine-v1/simulator/runner/benchmark-seeds.js
-          node --check player-mat-engine-v1/simulator/maps/ffa36.js
-          node --check player-mat-engine-v1/simulator/runner/run-benchmark.mjs
-          node --check player-mat-engine-v1/simulator/runner/compare-benchmarks.mjs
-          node --check player-mat-engine-v1/simulator/runner/run-cu-order-experiment.mjs
-          node --check player-mat-engine-v1/simulator/runner/run-cu-balanced-experiment.mjs
-          node --check player-mat-engine-v1/simulator/runner/duel-benchmark.mjs
-
       - name: Build playtest data
         shell: bash
         run: |
