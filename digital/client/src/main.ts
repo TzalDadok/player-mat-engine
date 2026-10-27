@@ -73,8 +73,22 @@ let sharedMap:MapState|null = null;
 const roomCodeInput = document.createElement('input');
 roomCodeInput.id = 'room-code';
 roomCodeInput.placeholder = 'Código de sala';
-roomCodeInput.value = new URLSearchParams(location.search).get('sala') || 'PRUEBA1';
+// Las salas son persistentes: nunca reutilizar un código fijo como predeterminado.
+// El parámetro ?sala= permite que los invitados accedan a la misma sala.
+const suppliedRoom = new URLSearchParams(location.search).get('sala');
+const newRoomCode = () => 'AOE-' + crypto.randomUUID().replace(/-/g,'').slice(0,8).toUpperCase();
+roomCodeInput.value = suppliedRoom || newRoomCode();
 document.querySelector('header .controls')!.insertBefore(roomCodeInput, join);
+const newRoomButton=document.createElement('button');
+newRoomButton.className='secondary';
+newRoomButton.textContent='Nueva sala';
+newRoomButton.title='Crear un código de sala nuevo sin reutilizar partidas anteriores';
+document.querySelector('header .controls')!.insertBefore(newRoomButton, join);
+newRoomButton.addEventListener('click',()=>{
+  // Nunca borrar el estado de una partida compartida: crear un identificador nuevo.
+  const code=newRoomCode();
+  location.assign(location.pathname+'?sala='+encodeURIComponent(code));
+});
 
 const terrain: Record<string,{fill:number;label:string}> = {
   'Maravilla':{fill:0xc4a45a,label:'🏛️'},
