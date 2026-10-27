@@ -253,7 +253,11 @@ join.addEventListener('click', () => {
   }
   const name = (document.getElementById('name') as HTMLInputElement).value.trim() || 'Jugador';
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const ws = new WebSocket(`${protocol}//${location.host}/ws/${encodeURIComponent(code)}?name=${encodeURIComponent(name)}`);
+  // Identidad estable por sala para recuperar civilización, orden y CU.
+  const tokenKey='aoe-player-'+code;
+  let token=localStorage.getItem(tokenKey);
+  if(!token){token=crypto.randomUUID();localStorage.setItem(tokenKey,token)}
+  const ws = new WebSocket(`${protocol}//${location.host}/ws/${encodeURIComponent(code)}?name=${encodeURIComponent(name)}&token=${encodeURIComponent(token)}`);
   socket = ws;
   connectionOpened = false;
   connectionError = '';
