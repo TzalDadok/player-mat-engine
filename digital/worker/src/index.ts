@@ -49,7 +49,7 @@ function isCompact(map:MapState):boolean {
 }
 export class GameRoom extends DurableObject<Env> {
   private map: MapState | null = null;
-  private seat(ws:WebSocket): number { return this.ctx.getWebSockets().indexOf(ws); }
+  private seat(ws:WebSocket): number { return (ws.deserializeAttachment() as (Member & {seat:number})|null)?.seat ?? -1; }
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx,env);
     ctx.blockConcurrencyWhile(async()=>{
@@ -64,10 +64,13 @@ export class GameRoom extends DurableObject<Env> {
   async fetch(request: Request): Promise<Response> {
     if(request.headers.get('Upgrade')?.toLowerCase()!=='websocket') return new Response('WebSocket required',{status:426});
     if(this.ctx.getWebSockets().length>=4)return new Response('Sala llena (4 jugadores)',{status:409});
+    const used=new Set(this.ctx.getWebSockets().map(ws=>this.seat(ws)));
+    const seat=[0,1,2,3].find(s=>!used.has(s));
+    if(seat===undefined)return new Response('Sala llena',{status:409});
     const pair=new WebSocketPair();const [client,server]=Object.values(pair);
     const name=(new URL(request.url).searchParams.get('name')||'Jugador').trim().slice(0,24)||'Jugador';
     const id=crypto.randomUUID();
-    this.ctx.acceptWebSocket(server);server.serializeAttachment({id,name});
+    this.ctx.acceptWebSocket(server);server.serializeAttachment({id,name,seat});
     server.send(JSON.stringify({type:'welcome',id,room:new URL(request.url).pathname.slice(4),seat:this.seat(server)}));
     server.send(JSON.stringify({type:'map',map:this.map}));
     this.broadcastLobby();
@@ -75,9 +78,10 @@ export class GameRoom extends DurableObject<Env> {
   }
   private broadcast(packet:unknown){const message=JSON.stringify(packet);for(const ws of this.ctx.getWebSockets()){try{ws.send(message)}catch{}}}
   private broadcastLobby(){
-    const players:Member[]=this.ctx.getWebSockets().map(ws=>ws.deserializeAttachment() as Member).filter(Boolean);
+    const players:(Member & {seat:number})[]=this.ctx.getWebSockets().map(ws=>ws.deserializeAttachment() as Member & {seat:number}).filter(Boolean);
+    players.sort((a,b)=>a.seat-b.seat);
     this.broadcast({type:'lobby',players});
-    this.ctx.getWebSockets().forEach((ws,seat)=>{ try{ws.send(JSON.stringify({type:'seat',seat}))}catch{} });
+    this.ctx.getWebSockets().forEach(ws=>{ try{ws.send(JSON.stringify({type:'seat',seat:this.seat(ws)}))}catch{} });
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
@@ -103,7 +107,7 @@ export class GameRoom extends DurableObject<Env> {
     }
     if(packet.type==='generate'){
       const sockets=this.ctx.getWebSockets();
-      if(sockets[0]!==ws){ws.send(JSON.stringify({type:'error',message:'Solo quien creó la sala puede generar el mapa.'}));return}
+      if(this.seat(ws)!==Math.min(...sockets.map(s=>this.seat(s)))){ws.send(JSON.stringify({type:'error',message:'Solo quien creó la sala puede generar el mapa.'}));return}
       const count=Number(packet.count);
       if(!Number.isInteger(count)||count<2||count>4){ws.send(JSON.stringify({type:'error',message:'Seleccioná entre 2 y 4 jugadores.'}));return}
       const seed=crypto.getRandomValues(new Uint32Array(1))[0];
