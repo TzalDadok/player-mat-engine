@@ -35,11 +35,27 @@ function generateMap(count: number, seed: number): MapState {
   }
   return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]}))};
 }
+function isCompact(map:MapState):boolean {
+  if(map.hexes.length!==map.count*18)return false;
+  const occupied=new Set(map.hexes.map(h=>h.q+','+h.r));
+  const required=map.count===2 ? 3 : map.count===3 ? 3 : 4;
+  for(let q=-required;q<=required;q++)for(let r=-required;r<=required;r++)
+    if(Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r))<=required &&
+       (q!==0||r!==0) && !occupied.has(q+','+r))return false;
+  return true;
+}
 export class GameRoom extends DurableObject<Env> {
   private map: MapState | null = null;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx,env);
-    ctx.blockConcurrencyWhile(async()=>{this.map = (await ctx.storage.get<MapState>('map')) ?? null;});
+    ctx.blockConcurrencyWhile(async()=>{
+      this.map = (await ctx.storage.get<MapState>('map')) ?? null;
+      // Mapas creados antes de reservar el centro se regeneran con la misma semilla.
+      if(this.map && (this.map.hexes.some(h=>h.q===0&&h.r===0) || !isCompact(this.map))){
+        this.map=generateMap(this.map.count,this.map.seed);
+        await ctx.storage.put('map',this.map);
+      }
+    });
   }
   async fetch(request: Request): Promise<Response> {
     if(request.headers.get('Upgrade')?.toLowerCase()!=='websocket') return new Response('WebSocket required',{status:426});
