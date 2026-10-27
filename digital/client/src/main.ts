@@ -69,7 +69,11 @@ class BootScene extends Phaser.Scene {
       const imageName=textures[type];
       if(imageName && this.textures.exists(imageName)){
         // Ligero solapamiento para compensar el margen transparente y antialiasing del WebP.
-        this.add.image(x,y,imageName).setDisplaySize(size*2.055,size*2.055);
+        // Bosque y Montaña fueron exportados con el hexágono más angosto
+        // (aprox. 380 px vs 444 px de los demás en una textura 512).
+        // Compensamos solo el ancho, sin modificar la posición del hexágono.
+        const widthCorrection = type === 'Bosque' || type === 'Montaña' ? 1.17 : 1;
+        this.add.image(x,y,imageName).setDisplaySize(size*2.055*widthCorrection,size*2.055);
       } else {
         g.fillStyle(terrain[type]?.fill||0x555555);g.fillPoints(points,true);
         g.lineStyle(Math.max(1,size*.035),0x162533);g.strokePoints(points,true);
