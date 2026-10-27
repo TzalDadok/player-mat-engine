@@ -30,3 +30,13 @@ button,select,input {min-height:44px}
 }
 
 #host-config[hidden],#game-menu[hidden],#confirm-cu[hidden]{display:none!important}#host-config{display:grid;gap:10px}#confirm-setup,#confirm-cu{width:100%;margin:8px 0}#game-menu{padding:12px;border-radius:8px;background:#243545;border:1px solid #536578}#game-menu h2{margin:0 0 6px}
+
+#host-config[hidden],#lobby-panel[hidden],#cu-panel[hidden],#playing-panel[hidden]{display:none!important}
+.lobby-scroll{overflow-x:auto;width:100%;margin:12px 0}
+.lobby-table{width:100%;border-collapse:collapse;font-size:13px;min-width:265px}
+.lobby-table th,.lobby-table td{padding:8px 4px;border-bottom:1px solid #3b4c5d;text-align:left}
+.lobby-table th{font-size:10px;letter-spacing:.035em;color:#dfc698}
+.lobby-table select{width:100%;min-width:54px;max-width:none;padding:8px 2px;font-size:12px}
+.lobby-table input[type=checkbox]{width:22px;height:22px;min-height:22px;accent-color:#bba16f}
+#start-game,#confirm-cu{width:100%;margin:10px 0}
+@media(max-width:800px){.lobby-table{font-size:14px}.lobby-table select{font-size:14px}}
