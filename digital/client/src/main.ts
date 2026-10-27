@@ -34,7 +34,7 @@ const terrain: Record<string,{fill:number;label:string}> = {
   'Desierto':{fill:0xc9a26c,label:'🏜️'},'Llanura':{fill:0x85a86a,label:'🌱'},
   'Montaña':{fill:0x6b737c,label:'⛰️'}
 };
-const textures:Record<string,string> = {'Frutos silvestres':'comidaFrutos','Animales':'comidaAnimales','Cantera de Oro':'oro','Cantera de Piedra':'piedra','Bosque':'madera','Desierto':'nadaArena','Llanura':'nadaPasto','Montaña':'montana','Centro Urbano':'centroUrbano'};
+const textures:Record<string,string> = {'Frutos silvestres':'comidaFrutos','Animales':'comidaAnimales','Cantera de Oro':'oro','Cantera de Piedra':'piedra','Bosque':'madera','Desierto':'nadaArena','Llanura':'nadaPasto','Montaña':'montana','Agua':'agua','Maravilla':'maravilla','Centro Urbano':'centroUrbano'};
 class BootScene extends Phaser.Scene {
   preload(){for(const name of Object.values(textures))this.load.image(name,'/terrenos/'+name+'.webp');}
   private currentMap: MapState|null = null;
