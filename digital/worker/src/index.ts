@@ -7,25 +7,31 @@ type MapState = { seed: number; count: number; hexes: Hex[] };
 
 const types = ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque','Agua','Desierto','Llanura','Montaña'];
 const neighbors = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
-const key = (q: number, r: number) => q + ',' + r;
 function generateMap(count: number, seed: number): MapState {
   let rng = seed >>> 0;
   const random = () => { rng = (Math.imul(rng, 1664525) + 1013904223) >>> 0; return rng / 4294967296; };
   const terrains = types.flatMap(t => Array.from({ length: count * 2 }, () => t));
   for(let i = terrains.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [terrains[i],terrains[j]] = [terrains[j],terrains[i]]; }
-  const coords = [{q:0,r:0}];
-  const used = new Set([key(0,0)]);
-  while(coords.length < count * 18 + 1) {
-    const candidates = new Map<string,{q:number;r:number}>();
-    for (const p of coords) for(const [dq,dr] of neighbors) {
-      const q=p.q+dq,r=p.r+dr,k=key(q,r);
-      if(!used.has(k)) candidates.set(k,{q,r});
+  // Anillos completos desde la Maravilla: el mapa de 2 jugadores forma
+  // un hexágono perfecto de radio 3 (36 terrenos + centro).
+  // Para 3/4 jugadores, distribuir la grada exterior en forma equilibrada.
+  const coords: {q:number;r:number}[] = [{q:0,r:0}];
+  for (let radius = 1; coords.length < count*18+1; radius++) {
+    const ring: {q:number;r:number}[] = [];
+    let q = -radius, r = radius;
+    for(const [dq,dr] of neighbors) {
+      for(let step=0;step<radius;step++) {
+        ring.push({q,r}); q+=dq; r+=dr;
+      }
     }
-    const pool = [...candidates.values()].map(p => ({
-      ...p, score: Math.max(Math.abs(p.q),Math.abs(p.r),Math.abs(p.q+p.r)) + random()*2.3
-    })).sort((a,b)=>a.score-b.score);
-    const next=pool[0];
-    coords.push({q:next.q,r:next.r});used.add(key(next.q,next.r));
+    const remaining = count*18+1-coords.length;
+    if (remaining >= ring.length) coords.push(...ring);
+    else {
+      // Repartimos los hexágonos restantes de forma contigua y simétrica
+      // en un sector de la grada exterior, evitando huecos interiores.
+      const startIndex = Math.floor(random()*ring.length);
+      for(let i=0;i<remaining;i++) coords.push(ring[(startIndex+i)%ring.length]);
+    }
   }
   return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]}))};
 }
