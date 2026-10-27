@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { Client, type Room } from '@colyseus/sdk';
 import './style.css';
 
 const container = document.getElementById('app')!;
@@ -12,7 +11,13 @@ const status = document.getElementById('status')!;
 const roomLabel = document.getElementById('room')!;
 const players = document.getElementById('players')!;
 const join = document.getElementById('join') as HTMLButtonElement;
-let room: Room | undefined;
+let socket: WebSocket | undefined;
+let playerId = '';
+const roomCodeInput = document.createElement('input');
+roomCodeInput.id = 'room-code';
+roomCodeInput.placeholder = 'Código de sala';
+roomCodeInput.value = new URLSearchParams(location.search).get('sala') || 'PRUEBA1';
+document.querySelector('header .controls')!.insertBefore(roomCodeInput, join);
 
 class BootScene extends Phaser.Scene {
   constructor() { super('BootScene'); }
@@ -43,35 +48,43 @@ document.getElementById('fullscreen')!.addEventListener('click', async () => {
   if (!document.fullscreenElement) await document.body.requestFullscreen();
   else await document.exitFullscreen();
 });
-join.addEventListener('click', async () => {
-  if (room) return;
+join.addEventListener('click', () => {
+  if (socket) return;
+  const code = roomCodeInput.value.trim().toUpperCase();
+  if (!/^[A-Z0-9_-]{3,30}$/.test(code)) {
+    status.textContent = 'Código de sala inválido'; return;
+  }
+  const name = (document.getElementById('name') as HTMLInputElement).value.trim() || 'Jugador';
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const ws = new WebSocket(`${protocol}//${location.host}/ws/${encodeURIComponent(code)}?name=${encodeURIComponent(name)}`);
+  socket = ws;
   join.disabled = true;
   status.textContent = 'Conectando…';
-  try {
-    const origin = import.meta.env.VITE_GAME_SERVER || 'ws://localhost:2567';
-    const client = new Client(origin);
-    const name = (document.getElementById('name') as HTMLInputElement).value.trim() || 'Jugador';
-    room = await client.joinOrCreate('aoe_lobby', { name });
+  ws.onopen = () => {
     status.textContent = 'Conectado';
-    roomLabel.textContent = 'Sala: ' + room.roomId;
-    room.onMessage('lobby', (payload: { players: { id: string; name: string }[] }) => {
-      players.replaceChildren(...payload.players.map(p => {
-        const li = document.createElement('li');
-        li.textContent = p.name + (p.id === room?.sessionId ? ' (vos)' : '');
-        return li;
-      }));
-    });
-    room.onLeave(() => {
-      room = undefined;
-      join.disabled = false;
-      status.textContent = 'Desconectado';
-      roomLabel.textContent = 'Sala cerrada o conexión perdida';
-      players.replaceChildren();
-    });
-  } catch (error) {
+    roomLabel.textContent = 'Sala: ' + code;
+    history.replaceState(null, '', '?sala=' + encodeURIComponent(code));
+  };
+  ws.onmessage = event => {
+    try {
+      const packet = JSON.parse(String(event.data));
+      if (packet.type === 'welcome') playerId = packet.id;
+      if (packet.type === 'lobby') {
+        players.replaceChildren(...packet.players.map((p: { id: string; name: string }) => {
+          const li = document.createElement('li');
+          li.textContent = p.name + (p.id === playerId ? ' (vos)' : '');
+          return li;
+        }));
+      }
+    } catch { /* ignore malformed payload */ }
+  };
+  ws.onerror = () => { status.textContent = 'Error de conexión'; };
+  ws.onclose = () => {
+    socket = undefined;
+    playerId = '';
     join.disabled = false;
-    status.textContent = 'Error de conexión';
-    roomLabel.textContent = error instanceof Error ? error.message : String(error);
-  }
+    status.textContent = 'Desconectado';
+    players.replaceChildren();
+  };
 });
-window.addEventListener('beforeunload', () => { room?.leave(); });
+window.addEventListener('beforeunload', () => socket?.close());
