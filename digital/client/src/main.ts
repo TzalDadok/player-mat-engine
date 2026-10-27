@@ -27,6 +27,7 @@ roomCodeInput.value = new URLSearchParams(location.search).get('sala') || 'PRUEB
 document.querySelector('header .controls')!.insertBefore(roomCodeInput, join);
 
 const terrain: Record<string,{fill:number;label:string}> = {
+  'Maravilla':{fill:0xc4a45a,label:'🏛️'},
   'Frutos silvestres':{fill:0x668447,label:'🫐'},'Animales':{fill:0x94a35b,label:'🐑'},
   'Cantera de Oro':{fill:0xb39b47,label:'🪙'},'Cantera de Piedra':{fill:0x828993,label:'🪨'},
   'Bosque':{fill:0x386b48,label:'🌲'},'Agua':{fill:0x36759f,label:'🌊'},
@@ -47,14 +48,15 @@ class BootScene extends Phaser.Scene {
       return;
     }
     const hexes=this.currentMap.hexes;
-    const coords=hexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
+    const displayHexes=[{q:0,r:0,type:'Maravilla'},...hexes];
+    const coords=displayHexes.map(({q,r})=>({x:Math.sqrt(3)*(q+r/2),y:1.5*r}));
     const minX=Math.min(...coords.map(p=>p.x))-1,maxX=Math.max(...coords.map(p=>p.x))+1;
     const minY=Math.min(...coords.map(p=>p.y))-1,maxY=Math.max(...coords.map(p=>p.y))+1;
     const size=Math.min((width-60)/(maxX-minX),(height-110)/(maxY-minY),55);
     const cx=width/2-size*(minX+maxX)/2,cy=height/2-size*(minY+maxY)/2+20;
     const g=this.add.graphics();
-    for(let i=0;i<hexes.length;i++){
-      const {q,r,type}=hexes[i];
+    for(let i=0;i<displayHexes.length;i++){
+      const {q,r,type}=displayHexes[i];
       const x=cx+size*coords[i].x,y=cy+size*coords[i].y;
       const points:Phaser.Math.Vector2[]=[];
       for(let k=0;k<6;k++){
@@ -65,7 +67,7 @@ class BootScene extends Phaser.Scene {
       g.lineStyle(Math.max(1,size*.035),0x162533);g.strokePoints(points,true);
       this.add.text(x,y,terrain[type]?.label||'?',{fontSize:Math.max(13,Math.round(size*.57))+'px'}).setOrigin(.5);
     }
-    this.add.text(width/2,20,hexes.length+' terrenos · Semilla '+this.currentMap.seed,{fontSize:'15px',color:'#f3e5be'}).setOrigin(.5,0);
+    this.add.text(width/2,20,hexes.length+' terrenos + Maravilla · Semilla '+this.currentMap.seed,{fontSize:'15px',color:'#f3e5be'}).setOrigin(.5,0);
   }
 }
 const game = new Phaser.Game({type: Phaser.AUTO, parent:'game', backgroundColor:'#172635', scale:{mode:Phaser.Scale.RESIZE, width:'100%', height:'100%'}, scene:[BootScene]});
@@ -73,7 +75,7 @@ function renderMap(map:MapState|null){
   sharedMap=map;
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
-  mapInfo.textContent=map ? map.hexes.length+' terrenos para '+map.count+' jugadores · Semilla '+map.seed : 'Mapa todavía no generado.';
+  mapInfo.textContent=map ? map.hexes.length+' terrenos + Maravilla para '+map.count+' jugadores · Semilla '+map.seed : 'Mapa todavía no generado.';
 }
 generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value)})));
 document.getElementById('fullscreen')!.addEventListener('click', async () => {
