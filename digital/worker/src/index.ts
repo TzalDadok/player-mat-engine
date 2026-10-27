@@ -3,7 +3,8 @@ import { DurableObject } from 'cloudflare:workers';
 interface Env { GAME_ROOMS: DurableObjectNamespace; ASSETS: Fetcher }
 type Member = { id: string; name: string };
 type Hex = { q: number; r: number; type: string };
-type MapState = { seed: number; count: number; hexes: Hex[] };
+type Placement = { seat: number; q: number; r: number };
+type MapState = { seed: number; count: number; hexes: Hex[]; centers?: Placement[] };
 
 const types = ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque','Agua','Desierto','Llanura','Montaña'];
 const neighbors = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
@@ -35,7 +36,7 @@ function generateMap(count: number, seed: number): MapState {
       for(let i=0;i<remaining;i++) coords.push(ring[(startIndex+i)%ring.length]);
     }
   }
-  return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]}))};
+  return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]})),centers:[]};
 }
 function isCompact(map:MapState):boolean {
   if(map.hexes.length!==map.count*18)return false;
@@ -48,6 +49,7 @@ function isCompact(map:MapState):boolean {
 }
 export class GameRoom extends DurableObject<Env> {
   private map: MapState | null = null;
+  private seat(ws:WebSocket): number { return this.ctx.getWebSockets().indexOf(ws); }
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx,env);
     ctx.blockConcurrencyWhile(async()=>{
@@ -66,7 +68,7 @@ export class GameRoom extends DurableObject<Env> {
     const name=(new URL(request.url).searchParams.get('name')||'Jugador').trim().slice(0,24)||'Jugador';
     const id=crypto.randomUUID();
     this.ctx.acceptWebSocket(server);server.serializeAttachment({id,name});
-    server.send(JSON.stringify({type:'welcome',id,room:new URL(request.url).pathname.slice(4)}));
+    server.send(JSON.stringify({type:'welcome',id,room:new URL(request.url).pathname.slice(4),seat:this.seat(server)}));
     server.send(JSON.stringify({type:'map',map:this.map}));
     this.broadcastLobby();
     return new Response(null,{status:101,webSocket:client});
@@ -75,18 +77,37 @@ export class GameRoom extends DurableObject<Env> {
   private broadcastLobby(){
     const players:Member[]=this.ctx.getWebSockets().map(ws=>ws.deserializeAttachment() as Member).filter(Boolean);
     this.broadcast({type:'lobby',players});
+    this.ctx.getWebSockets().forEach((ws,seat)=>{ try{ws.send(JSON.stringify({type:'seat',seat}))}catch{} });
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number};
+    let packet:{type:string;count?:number;q?:number;r?:number};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
+    if(packet.type==='place_cu'){
+      if(!this.map){ws.send(JSON.stringify({type:'error',message:'Primero generá el mapa.'}));return}
+      const seat=this.seat(ws), q=packet.q, r=packet.r;
+      if(seat<0||seat>=this.map.count){ws.send(JSON.stringify({type:'error',message:'No tenés un puesto en este mapa.'}));return}
+      if(!Number.isInteger(q)||!Number.isInteger(r)||Math.abs(q!)>12||Math.abs(r!)>12){ws.send(JSON.stringify({type:'error',message:'Posición inválida.'}));return}
+      const placed=this.map.centers??[];
+      if(placed.some(p=>p.seat===seat)){ws.send(JSON.stringify({type:'error',message:'Ya colocaste tu Centro Urbano.'}));return}
+      if(placed.some(p=>p.q===q&&p.r===r)||this.map.hexes.some(h=>h.q===q&&h.r===r)||(q===0&&r===0)){
+        ws.send(JSON.stringify({type:'error',message:'Esa casilla ya está ocupada.'}));return;
+      }
+      const valid=this.map.hexes.some(h=>neighbors.some(([dq,dr])=>h.q+dq===q&&h.r+dr===r));
+      if(!valid){ws.send(JSON.stringify({type:'error',message:'Elegí una casilla exterior adyacente al mapa.'}));return}
+      this.map.centers=[...placed,{seat,q:q!,r:r!}];
+      await this.ctx.storage.put('map',this.map);
+      this.broadcast({type:'map',map:this.map});
+      return;
+    }
     if(packet.type==='generate'){
       const sockets=this.ctx.getWebSockets();
       if(sockets[0]!==ws){ws.send(JSON.stringify({type:'error',message:'Solo quien creó la sala puede generar el mapa.'}));return}
       const count=Number(packet.count);
       if(!Number.isInteger(count)||count<2||count>4){ws.send(JSON.stringify({type:'error',message:'Seleccioná entre 2 y 4 jugadores.'}));return}
       const seed=crypto.getRandomValues(new Uint32Array(1))[0];
+      if(this.ctx.getWebSockets().length>count){ws.send(JSON.stringify({type:'error',message:'Hay más jugadores conectados que puestos en el mapa.'}));return}
       this.map=generateMap(count,seed);
       await this.ctx.storage.put('map',this.map);
       this.broadcast({type:'map',map:this.map});
