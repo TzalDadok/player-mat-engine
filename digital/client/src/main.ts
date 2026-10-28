@@ -111,6 +111,7 @@ const cuPanel=document.getElementById('cu-panel')!;
 const playingPanel=document.getElementById('playing-panel')!;
 const actionDock=document.createElement('nav');actionDock.id='action-dock';actionDock.setAttribute('aria-label','Acciones del turno');actionDock.hidden=true;
 const actionsRow=playingPanel.querySelector('.controls')!;actionDock.append(actionsRow);container.append(actionDock);
+const buildTray=document.createElement('div');buildTray.id='build-tray';buildTray.hidden=true;container.append(buildTray);
 const phaseTitle=document.getElementById('phase-title')!;
 const lobbyRows=document.getElementById('lobby-rows')!;
 const confirmCu=document.getElementById('confirm-cu') as HTMLButtonElement;
@@ -138,12 +139,13 @@ let selectedHexes:{q:number;r:number}[]=[];
 let selectedUnits:string[]=[];
 type MovePlan={unit:string;q:number;r:number;cargo:Record<string,number>};
 let movePlans:MovePlan[]=[];
+let draggedBuilding:string|null=null;
 const resourceTypes=['food','wood','stone','gold'] as const;
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap);setPanelVisible(false)});
 document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];selectedUnits=[];movePlans=[];renderMap(sharedMap);setPanelVisible(false)});
 for(const [id,action] of [['action-build','build'],['action-trade','trade'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
-  document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap);setPanelVisible(true)});
+  document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap);setPanelVisible(action!=='build')});
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
 submitAction.addEventListener('click',()=>{
   if(actionMode==='produce')sendAction({action:'produce',hexes:selectedHexes});
@@ -171,9 +173,9 @@ function selectBoardHex(q:number,r:number){
       selectedUnits=[];
     }
   }
-  if(actionMode==='build')selectedHexes=[{q,r}];
+  if(actionMode==='build'&&draggedBuilding)selectedHexes=[{q,r}];
   renderMap(sharedMap);
-  if(panelDismissed)quickConfirm.hidden=submitAction.hidden;
+  if(panelDismissed)quickConfirm.hidden=submitAction.hidden||!['produce','move','build'].includes(actionMode??'');
 }
 
 let mySeat=-1;
@@ -282,7 +284,7 @@ class BootScene extends Phaser.Scene {
         const unit=this.dragUnit;
         const distance=Math.max(Math.abs(unit.q-tile.q),Math.abs(unit.r-tile.r),Math.abs(unit.q+unit.r-tile.q-tile.r));
         const terrain=this.currentMap?.hexes.find(h=>h.q===tile.q&&h.r===tile.r);
-        const allowed=distance===1&&!!terrain&&!terrain.type.startsWith('Agua')&&!this.currentMap?.match?.units.some(u=>u.seat!==this.seat&&u.q===tile.q&&u.r===tile.r);
+        const allowed=distance===1&&(!!terrain||tile.q===0&&tile.r===0)&&!terrain?.type.startsWith('Agua')&&!this.currentMap?.match?.units.some(u=>u.seat!==this.seat&&u.q===tile.q&&u.r===tile.r);
         this.dragTarget?.lineStyle(4,allowed?0x6aefbb:0xf07878,.95);
         this.dragTarget?.strokePoints(tile.polygon.points.map(p=>new Phaser.Geom.Point(p.x,p.y)),true);
       }
@@ -304,7 +306,7 @@ class BootScene extends Phaser.Scene {
         if(unit&&dest){
           selectedUnits=[unit.id];
           selectBoardHex(dest.q,dest.r);
-          setPanelVisible(true);
+          setPanelVisible(false);
         }
         return;
       }
@@ -552,11 +554,11 @@ function renderMap(map:MapState|null){
     }
     for(const id of ['action-produce','action-move','action-build','action-trade','action-train','action-tech','action-age','action-pass']){
       const btn=document.getElementById(id) as HTMLButtonElement;
-      const required=id==='action-tech'?1:id==='action-age'?2:0;
+      const required=id==='action-tech'||id==='action-age'?1:0;
       btn.disabled=!active||(id!=='action-pass'&&m.phase!==required);
       btn.hidden=id!=='action-pass'&&m.phase!==required;
     }
-    optionsPanel.hidden=!active||!['build','research','trade'].includes(actionMode??'');
+    optionsPanel.hidden=!active||!['research','trade'].includes(actionMode??'');
     carryPanel.hidden=true;
     trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
@@ -646,7 +648,29 @@ function renderMap(map:MapState|null){
     submitAction.textContent=actionMode==='move'?'Confirmar '+movePlans.length+' movimiento'+(movePlans.length===1?'':'s'):'Confirmar acción';
     submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
     quickConfirm.textContent='✓ '+submitAction.textContent;
-    quickConfirm.hidden=submitAction.hidden||!['produce','move'].includes(actionMode??'');
+    quickConfirm.hidden=submitAction.hidden||!['produce','move','build'].includes(actionMode??'');
+    const selectedAction={produce:'action-produce',move:'action-move',build:'action-build',trade:'action-trade',train:'action-train',research:'action-tech',age:'action-age'}[actionMode??''];
+    actionDock.querySelectorAll('button').forEach(button=>button.classList.toggle('chosen-action',button.id===selectedAction));
+    quickConfirm.classList.toggle('beside-produce',actionMode==='produce');
+    buildTray.hidden=!active||actionMode!=='build';
+    if(!buildTray.hidden){
+      const images:Record<string,string>={
+        'Campamento Productivo':'campamento-recursos.png','Granja':'molino.png','Cuartel':'cuartel.png','Torre':'torre.png','Puerto':'puerto.png'
+      };
+      buildTray.replaceChildren();
+      for(const kind of opts){
+        const building=mat.buildings.find(b=>b.name===kind);
+        const cost=building?.cost??(kind==='Granja'?mat.nodes.find(n=>n.title==='Granja'&&n.type==='building')?.cost:undefined);
+        const affordable=!!cost&&Object.entries(cost).every(([resource,amount])=>(me?.resources[resource as keyof typeof me.resources]??0)>=amount);
+        const card=document.createElement('button');card.className='building-choice'+(affordable?'':' unavailable');card.disabled=!affordable;
+        const img=document.createElement('img');img.src='/mat-assets/buildings/'+images[kind];img.alt='';
+        const label=document.createElement('span');label.textContent=kind;
+        card.append(img,label);
+        card.addEventListener('click',()=>{draggedBuilding=kind;optionSelect.value=kind;card.classList.add('selected-building')});
+        card.addEventListener('pointerdown',()=>{if(affordable){draggedBuilding=kind;optionSelect.value=kind}});
+        buildTray.append(card);
+      }
+    }
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
   if(!map?.match)phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
