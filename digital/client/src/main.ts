@@ -17,7 +17,7 @@ container.innerHTML = `
 <p id="power-status"></p>
 <div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-build">Construir</button><button id="action-trade">Comerciar</button><button id="action-train">Entrenar aldeano</button><button id="action-tech">Investigar</button><button id="action-age">Avanzar Edad</button><button id="action-pass" class="secondary">Pasar fase</button></div>
 <p id="action-help">Seleccioná una acción para comenzar.</p><div id="unit-list"></div>
-<div id="selected-hexes"></div>
+<div id="selected-hexes"></div><p id="hex-info">Tocá un hexágono para ver sus detalles.</p>
 <div id="train-panel" hidden><label for="train-amount">Cantidad de aldeanos</label><input id="train-amount" type="number" min="1" step="1" value="1"/></div>
 <div id="carry-panel" hidden><label>Carretilla: transportar fichas de recursos</label>
 <select id="carry-resource"><option value="food">Comida</option><option value="wood">Madera</option><option value="stone">Piedra</option><option value="gold">Oro</option></select>
@@ -66,6 +66,8 @@ const powerStatus=document.getElementById('power-status')!;
 const actionHelp=document.getElementById('action-help')!;
 const unitList=document.getElementById('unit-list')!;
 const selectedDisplay=document.getElementById('selected-hexes')!;
+const hexInfo=document.getElementById('hex-info')!;
+let inspectedHex:{q:number;r:number}|null=null;
 const submitAction=document.getElementById('submit-action') as HTMLButtonElement;
 const logDisplay=document.getElementById('game-log')!;
 let actionMode:'produce'|'move'|'build'|'train'|'research'|'age'|'trade'|null=null;
@@ -98,7 +100,8 @@ submitAction.addEventListener('click',()=>{
   if(actionMode==='trade')sendAction({action:'trade',kind:optionSelect.value,side:(document.getElementById('trade-side') as HTMLSelectElement).value,amount:Number((document.getElementById('trade-amount') as HTMLSelectElement).value)});
 });
 function selectBoardHex(q:number,r:number){
-  if(!sharedMap?.match||mySeat!==(sharedMap.order??[])[sharedMap.match.turn])return;
+  inspectedHex={q,r};
+  if(!sharedMap?.match||mySeat!==(sharedMap.order??[])[sharedMap.match.turn]||!actionMode){renderMap(sharedMap);return}
   if(actionMode==='produce'){
     const idx=selectedHexes.findIndex(p=>p.q===q&&p.r===r);
     if(idx>=0)selectedHexes.splice(idx,1);
@@ -278,6 +281,7 @@ class BootScene extends Phaser.Scene {
       const color=colors[this.currentMap.civs?.[p.seat]??p.seat]??0xffffff;
       const hex:Phaser.Geom.Point[]=[];
       for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;hex.push(new Phaser.Geom.Point(x+size*Math.cos(a),y+size*Math.sin(a)))}
+      this.boardTiles.push({q:p.q,r:p.r,polygon:new Phaser.Geom.Polygon(hex)});
       const border=this.add.graphics();border.fillStyle(color, draft === p ? 0.65 : 0.4);border.fillPoints(hex,true);border.lineStyle(draft===p?4:3,color,1);border.strokePoints(hex,true);
       // Usar la misma escala que los hexágonos del terreno. Antes el CU
       // se dibujaba a 1.75 radios frente a 2.055, dejando una separación visible.
@@ -291,11 +295,19 @@ class BootScene extends Phaser.Scene {
         const marker=building.kind==='Granja'?'🌾':building.kind==='Cuartel'?'⚔️':building.kind==='Torre'?'🏰':building.kind==='Puerto'?'⚓':'⛏️';
         this.add.text(x+size*.38,y-size*.38,marker,{fontSize:Math.max(12,size*.38)+'px'}).setOrigin(.5);
       }
+      const groups=new Map<string,{unit:Unit;count:number}>();
       for(const unit of this.currentMap.match.units){
-        const x=cx+size*Math.sqrt(3)*(unit.q+unit.r/2),y=cy+size*1.5*unit.r;
+        const id=unit.seat+','+unit.q+','+unit.r;
+        const existing=groups.get(id);
+        if(existing)existing.count++;
+        else groups.set(id,{unit,count:1});
+      }
+      for(const {unit,count} of groups.values()){
+        const x=cx+size*Math.sqrt(3)*(unit.q+unit.r/2)+(unit.seat-1.5)*size*.1;
+        const y=cy+size*1.5*unit.r;
         const color=colors[this.currentMap.civs?.[unit.seat]??unit.seat]??0xffffff;
-        this.add.circle(x,y,Math.max(8,size*.28),color,.95).setStrokeStyle(2,0xffffff);
-        this.add.text(x,y,'A',{fontSize:Math.max(11,size*.32)+'px',fontStyle:'bold',color:'#ffffff'}).setOrigin(.5);
+        this.add.circle(x,y,Math.max(9,size*.31),color,.95).setStrokeStyle(2,0xffffff);
+        this.add.text(x,y,count>1?'A'+count:'A',{fontSize:Math.max(11,size*(count>1?.25:.32))+'px',fontStyle:'bold',color:'#ffffff'}).setOrigin(.5);
       }
       for(const tile of selectedHexes){
         const x=cx+size*Math.sqrt(3)*(tile.q+tile.r/2),y=cy+size*1.5*tile.r;
@@ -377,6 +389,18 @@ function renderMap(map:MapState|null){
       }
     }
     selectedDisplay.textContent=selectedHexes.map(p=>'('+p.q+','+p.r+')').join(' · ');
+    if(inspectedHex){
+      const pos=inspectedHex;
+      const terrain=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
+      const cu=map.centers?.find(p=>p.q===pos.q&&p.r===pos.r);
+      const at=m.units.filter(u=>u.q===pos.q&&u.r===pos.r);
+      const buildings=m.buildings.filter(b=>b.q===pos.q&&b.r===pos.r);
+      const stock=m.stock?.[pos.q+','+pos.r]??{};
+      hexInfo.textContent=(terrain?.type??(cu?'Centro Urbano':'Casilla exterior'))+
+        ' ('+pos.q+','+pos.r+') · Aldeanos: '+at.length+
+        (buildings.length?' · '+buildings.map(b=>b.kind).join(', '):'')+
+        ' · Recursos aquí: '+(['food','wood','stone','gold'] as const).map((resource,i)=>['🥩','🪵','🪨','🪙'][i]+' '+(stock[resource]??0)).join(' ');
+    }else hexInfo.textContent='Tocá un hexágono para ver sus detalles.';
     submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnits.length||!selectedHexes.length))||(actionMode==='build'&&!selectedHexes.length);
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
