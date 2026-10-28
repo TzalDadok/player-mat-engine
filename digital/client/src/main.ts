@@ -18,6 +18,7 @@ container.innerHTML = `
 <div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-build">Construir</button><button id="action-trade">Comerciar</button><button id="action-train">Entrenar aldeano</button><button id="action-tech">Investigar</button><button id="action-age">Avanzar Edad</button><button id="action-pass" class="secondary">Pasar fase</button></div>
 <p id="action-help">Seleccioná una acción para comenzar.</p><div id="unit-list"></div>
 <div id="selected-hexes"></div>
+<div id="train-panel" hidden><label for="train-amount">Cantidad de aldeanos</label><input id="train-amount" type="number" min="1" step="1" value="1"/></div>
 <div id="carry-panel" hidden><label>Carretilla: transportar fichas de recursos</label>
 <select id="carry-resource"><option value="food">Comida</option><option value="wood">Madera</option><option value="stone">Piedra</option><option value="gold">Oro</option></select>
 <input id="carry-amount" type="number" value="0" min="0" step="1" aria-label="Cantidad transportada"/>
@@ -72,6 +73,7 @@ const optionsPanel=document.getElementById('action-options')!;
 const optionSelect=document.getElementById('action-kind') as HTMLSelectElement;
 const tradeFields=document.getElementById('trade-fields')!;
 const carryPanel=document.getElementById('carry-panel')!;
+const trainPanel=document.getElementById('train-panel')!;
 const carryResource=document.getElementById('carry-resource') as HTMLSelectElement;
 const carryAmount=document.getElementById('carry-amount') as HTMLInputElement;
 let selectedHexes:{q:number;r:number}[]=[];
@@ -91,7 +93,7 @@ submitAction.addEventListener('click',()=>{
   }
   if(actionMode==='build'&&selectedHexes.length)sendAction({action:'build',kind:optionSelect.value,...selectedHexes[0]});
   if(actionMode==='research')sendAction({action:'research',kind:optionSelect.value});
-  if(actionMode==='train')sendAction({action:'train'});
+  if(actionMode==='train')sendAction({action:'train',amount:Number((document.getElementById('train-amount') as HTMLInputElement).value)});
   if(actionMode==='age')sendAction({action:'age'});
   if(actionMode==='trade')sendAction({action:'trade',kind:optionSelect.value,side:(document.getElementById('trade-side') as HTMLSelectElement).value,amount:Number((document.getElementById('trade-amount') as HTMLSelectElement).value)});
 });
@@ -350,12 +352,13 @@ function renderMap(map:MapState|null){
     }
     optionsPanel.hidden=!active||!['build','research','trade'].includes(actionMode??'');
     carryPanel.hidden=!active||actionMode!=='move'||!me?.techs.includes('Carretilla');
+    trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
     const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto']:actionMode==='trade'?['food','wood','stone']:['Telar','Carretilla','Doble Filo'];
     const previous=optionSelect.value;
     optionSelect.replaceChildren(...opts.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o}));
     if(opts.includes(previous))optionSelect.value=previous;
-    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí uno o dos aldeanos del mismo hexágono y después tocá el destino adyacente. Si tenés Carretilla podés llevar recursos desde el origen.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrená un aldeano en tu CU por 1 comida.':actionMode==='trade'?'Comprá o vendé hasta dos recursos por acción; los precios del mercado son compartidos.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
+    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí uno o dos aldeanos del mismo hexágono y después tocá el destino adyacente. Si tenés Carretilla podés llevar recursos desde el origen.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrená los aldeanos que puedas pagar en tu CU; cada uno cuesta 1 comida.':actionMode==='trade'?'Comprá o vendé hasta dos recursos por acción; los precios del mercado son compartidos.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       for(const u of m.units.filter(u=>u.seat===mySeat)){
