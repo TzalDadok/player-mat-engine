@@ -55,7 +55,7 @@ function chooseCU(map){
     const id=pos.q+','+pos.r;
     if(!occupied.has(id))candidates.set(id,pos);
   }
-  const options=[...candidates.values()].filter(p=>(map.centers||[]).every(c=>distance(p,c)>1));
+  const options=[...candidates.values()].filter(p=>(map.centers||[]).every(c=>distance(p,c)>1)&&map.hexes.some(h=>distance(p,h)===1&&!h.type.startsWith('Agua')));
   assert(options.length,'No hay posición exterior válida');
   return options[0];
 }
