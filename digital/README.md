@@ -52,10 +52,7 @@ con costes de los Player Mats y restricciones del terreno. La disponibilidad se 
 El combate completo, tropas militares, tecnologías únicas
 y condiciones de victoria corresponden a hitos posteriores.
 
-**Inicio:** para cuatro jugadores, orden 1.º/2.º/3.º/4.º
-recibe 1/1/2/2 aldeanos y Poder Militar 1/0/0/1. Para 2–3,
-la asignación provisional es un aldeano por jugador y PM 0;
-requiere confirmación de balance del reglamento.
+**Inicio según orden de elección del CU:** 1.º: 1 Aldeano en un hexágono terrestre adyacente de su elección y 0 PM; 2.º: 1 Aldeano y 1 PM; 3.º: 2 Aldeanos y 0 PM; 4.º: 2 Aldeanos y 2 PM. En partidas de 2 o 3 jugadores se aplican los primeros puestos de la misma secuencia.
 
 ## Verificación
 
