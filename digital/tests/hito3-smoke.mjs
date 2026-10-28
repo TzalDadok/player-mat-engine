@@ -178,8 +178,31 @@ async function play(count){
     for(const p of clients)if(p.ws.readyState<2)p.close();
   }
 }
+async function testSolo(){
+  const room='TEST-'+randomUUID().slice(0,8),user=player('Tester',room);
+  try{
+    await user.open;await user.wait(m=>m.type==='welcome');
+    user.send({type:'create_testing',civ:2});
+    const map=(await user.wait(m=>m.type==='map'&&m.map?.testing===true&&!!m.map?.match)).map;
+    assert.equal(map.count,1);
+    assert.equal(map.civs[0],2);
+    assert.equal(map.match.units.filter(u=>u.seat===0).length,1);
+    assert.equal(map.match.phase,0);
+    assert.equal(map.hexes.length,18);
+    user.send({type:'game_action',action:'pass'});
+    await user.wait(m=>m.type==='map'&&m.map?.match?.phase===1);
+    user.send({type:'game_action',action:'pass'});
+    await user.wait(m=>m.type==='map'&&m.map?.match?.phase===2);
+    user.send({type:'game_action',action:'pass'});
+    const next=(await user.wait(m=>m.type==='map'&&m.map?.match?.round===2)).map;
+    assert.equal(next.match.turn,0);
+    assert.equal(next.match.phase,0);
+    console.log('OK: Testing un jugador y vuelta completa sin otros jugadores');
+  }finally{user.close()}
+}
 try{
   await ready();
+  await testSolo();
   for(const count of [2,3,4])await play(count);
   console.log('Hito 3: smoke tests de servidor aprobados');
 }catch(error){
