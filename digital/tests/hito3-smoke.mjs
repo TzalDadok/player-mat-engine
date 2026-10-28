@@ -105,7 +105,7 @@ async function play(count){
     clients[1].send({type:'game_action',action:'pass'});
     await clients[1].wait(m=>m.type==='error'&&m.message.includes('No es tu turno'));
     const activeSeat=state.order[0];
-    const unit=state.match.units.find(u=>u.seat===activeSeat&&state.hexes.some(h=>h.q===u.q&&h.r===u.r&&['Bosque','Animales','Frutos silvestres','Cantera de Oro','Cantera de Piedra'].includes(h.type)));
+    const unit=state.match.units.find(u=>u.seat===activeSeat&&!state.match.units.some(other=>other.seat!==activeSeat&&other.q===u.q&&other.r===u.r)&&state.hexes.some(h=>h.q===u.q&&h.r===u.r&&['Bosque','Animales','Frutos silvestres','Cantera de Oro','Cantera de Piedra'].includes(h.type)));
     if(unit){
       clients[activeSeat].send({type:'game_action',action:'produce',hexes:[{q:unit.q,r:unit.r}]});
       state=(await host.wait(m=>m.type==='map'&&m.map?.match?.phase===1)).map;
