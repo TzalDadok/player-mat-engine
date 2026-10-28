@@ -525,13 +525,27 @@ document.getElementById('fullscreen')!.addEventListener('click', async () => {
   if (!document.fullscreenElement) await document.body.requestFullscreen();
   else await document.exitFullscreen();
 });
-join.addEventListener('click', () => {
-  if (socket) return;
-  const code = roomCodeInput.value.trim().toUpperCase();
+let reconnectTimer:ReturnType<typeof setTimeout>|undefined;
+let reconnectAttempts=0;
+let lastRoom='';
+let lastToken='';
+let lastName='';
+let manualConnection=false;
+function scheduleReconnect(){
+  if(!lastRoom||!lastToken||reconnectTimer||document.hidden||!navigator.onLine)return;
+  const delay=Math.min(12000,600*Math.pow(1.7,Math.min(reconnectAttempts++,6)));
+  status.textContent='Reconectando…';
+  reconnectTimer=setTimeout(()=>{reconnectTimer=undefined;connectToRoom(true)},delay);
+}
+function connectToRoom(reconnect=false){
+  if(socket&&(socket.readyState===WebSocket.CONNECTING||socket.readyState===WebSocket.OPEN))return;
+  if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=undefined}
+  const code=reconnect?lastRoom:roomCodeInput.value.trim().toUpperCase();
+
   if (!/^[A-Z0-9_-]{3,30}$/.test(code)) {
     status.textContent = 'Código de sala inválido'; return;
   }
-  const name = (document.getElementById('name') as HTMLInputElement).value.trim() || 'Jugador';
+  const name = reconnect?lastName:((document.getElementById('name') as HTMLInputElement).value.trim() || 'Jugador');
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   // Identidad estable por sala para recuperar civilización, orden y CU.
   const tokenKey='aoe-player-'+code;
@@ -539,7 +553,8 @@ join.addEventListener('click', () => {
   if(suppliedToken&&!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(suppliedToken)){
     status.textContent='Código de recuperación inválido';return;
   }
-  const token=suppliedToken||localStorage.getItem(tokenKey)||crypto.randomUUID();
+  const token=reconnect?lastToken:(suppliedToken||localStorage.getItem(tokenKey)||crypto.randomUUID());
+  lastRoom=code;lastToken=token;lastName=name;
   const ws = new WebSocket(`${protocol}//${location.host}/ws/${encodeURIComponent(code)}?name=${encodeURIComponent(name)}&token=${encodeURIComponent(token)}`);
   socket = ws;
   recoveryCode.value=token;
@@ -548,6 +563,8 @@ join.addEventListener('click', () => {
   join.disabled = true;
   status.textContent = 'Conectando…';
   ws.onopen = () => {
+    if(socket!==ws)return;
+    reconnectAttempts=0;
     connectionOpened = true;
     status.textContent = 'Conectado';
     renderMap(sharedMap);
@@ -555,6 +572,7 @@ join.addEventListener('click', () => {
     history.replaceState(null, '', '?sala=' + encodeURIComponent(code));
   };
   ws.onmessage = event => {
+    if(socket!==ws)return;
     try {
       const packet = JSON.parse(String(event.data));
       if (packet.type === 'welcome') { localStorage.setItem(tokenKey,token);restoreInput.value='';recoveryCode.value=token;playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
@@ -573,27 +591,42 @@ join.addEventListener('click', () => {
     } catch { /* ignore malformed payload */ }
   };
   ws.onerror = () => {
+    if(socket!==ws)return;
     connectionError = 'No fue posible establecer WebSocket con Cloudflare.';
     status.textContent = 'Error de conexión';
     roomLabel.textContent = connectionError;
   };
-  ws.onclose = (event) => {
-    const wasOpen = connectionOpened;
-    const errorText = connectionError;
-    connectionOpened = false;
-    socket = undefined;
-    playerId = '';
-    recoveryPanel.hidden=true;
-    mySeat=-1;
-    (game.scene.getScene('BootScene') as BootScene).setSeat(-1);
-    join.disabled = false;
-    generate.disabled = true;
-    (document.getElementById('count') as HTMLSelectElement).disabled=true;
-    status.textContent = wasOpen ? 'Desconectado' : 'No se pudo conectar';
-    roomLabel.textContent = wasOpen ? 'Conexión cerrada: ' + (event.reason || event.code) : (errorText || 'La conexión se cerró antes de abrir (código ' + event.code + ').');
-    lobbyPlayers=[];
-    players.replaceChildren();
+  ws.onclose = () => {
+    if(socket!==ws)return;
+    connectionOpened=false;
+    socket=undefined;
+    join.disabled=false;
+    // Conservar identidad, sala, mapa y partida mientras Android suspende Firefox.
+    // El servidor sigue siendo autoritativo y reenvía el mapa al reconectar.
+    status.textContent='Sin conexión · se recuperará la partida';
     renderMap(sharedMap);
+    scheduleReconnect();
+
   };
-});
-window.addEventListener('beforeunload', () => socket?.close());
+}
+join.addEventListener('click',()=>connectToRoom(false));
+function resumeConnection(){
+  if(document.hidden)return;
+  if(socket?.readyState===WebSocket.OPEN){
+    // Solicitar el estado más reciente, incluso si Android mantuvo un socket zombi.
+    socket.send(JSON.stringify({type:'sync'}));
+    return;
+  }
+  if(socket?.readyState===WebSocket.CONNECTING)return;
+  if(lastRoom&&lastToken){reconnectAttempts=0;connectToRoom(true)}
+}
+document.addEventListener('visibilitychange',resumeConnection);
+window.addEventListener('pageshow',resumeConnection);
+window.addEventListener('online',resumeConnection);
+window.addEventListener('focus',resumeConnection);
+window.addEventListener('beforeunload',()=>{if(reconnectTimer)clearTimeout(reconnectTimer);socket?.close()});
+// Si Firefox descarta la pestaña por falta de memoria, recuperar la sala desde la URL.
+if(suppliedRoom){
+  const saved=localStorage.getItem('aoe-player-'+suppliedRoom.toUpperCase());
+  if(saved){lastRoom=suppliedRoom.toUpperCase();lastToken=saved;lastName=(document.getElementById('name') as HTMLInputElement).value.trim()||'Jugador';connectToRoom(true)}
+}
