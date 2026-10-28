@@ -438,7 +438,7 @@ export class GameRoom extends DurableObject<Env> {
       const seat=this.seat(ws),draft=this.map.draft,placed=this.map.centers??[],order=this.map.order??Array.from({length:this.map.count},(_,i)=>i);
       if(!draft||draft.seat!==seat||order[placed.length]!==seat)return;
       if(placed.length===0){
-        const chosen={q:packet.q,r:packet.r};
+        const chosen={q:packet.q as number,r:packet.r as number};
         const hex=this.map.hexes.find(h=>h.q===chosen.q&&h.r===chosen.r);
         if(!Number.isInteger(chosen.q)||!Number.isInteger(chosen.r)||!hex||hex.type.startsWith('Agua')||range(chosen,draft)!==1){
           ws.send(JSON.stringify({type:'error',message:'Elegí un hexágono terrestre adyacente para tu primer Aldeano.'}));return;
