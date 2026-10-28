@@ -97,7 +97,7 @@ try{
   await poll(()=>host.latest()?.ready?.[0]===true&&host.latest()?.ready?.[1]===true,'ambos Ready');
   await desktop.locator('#start-game').click();
   await poll(()=>host.latest()?.started===true,'inicio de partida');
-  await desktop.locator('#close-panel').click();
+  if(await desktop.locator('#close-panel').isVisible())await desktop.locator('#close-panel').click();
   const first=candidate(host.latest()).point;
   const firstXY=await pixel(desktop,host.latest(),first,0);
   await desktop.mouse.click(firstXY.x,firstXY.y);
@@ -109,7 +109,7 @@ try{
   await desktop.mouse.click(firstWorkerXY.x,firstWorkerXY.y);
   await desktop.locator('#setup-yes').click();
   await poll(()=>guest.latest()?.centers?.length===1,'CU anfitrión confirmado');
-  await mobile.locator('#close-panel').click();
+  if(await mobile.locator('#close-panel').isVisible())await mobile.locator('#close-panel').click();
   const second=candidate(guest.latest()).point;
   const secondXY=await pixel(mobile,guest.latest(),second,1);
   await mobile.touchscreen.tap(secondXY.x,secondXY.y);
