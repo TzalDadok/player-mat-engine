@@ -121,7 +121,12 @@ function prepareMatch(map:MapState):Match{
     // Montaña es transitable y se utiliza si no hay mejores terrenos adyacentes.
     const tiles=map.hexes.filter(h=>range(h,cu)===1&&!h.type.startsWith('Agua'))
       .sort((a,b)=>Number(!!resourceFor(b.type))-Number(!!resourceFor(a.type)));
-    for(let k=0;k<Math.min(initial,tiles.length);k++)units.push({id:crypto.randomUUID(),seat,q:tiles[k].q,r:tiles[k].r,kind:'Aldeano'});
+    // Las unidades pueden compartir hexágono: siempre entregar la cantidad
+    // inicial, aunque el CU tenga un solo terreno adyacente transitable.
+    for(let k=0;k<initial;k++){
+      const p=tiles[k%tiles.length]??cu;
+      units.push({id:crypto.randomUUID(),seat,q:p.q,r:p.r,kind:'Aldeano'});
+    }
     players[seat]={age:1,pm:map.count===4&&(i===0||i===3)?1:0,resources:{food:0,wood:0,stone:0,gold:0},techs:[]};
   }
   return {round:1,turn:0,phase:0,players,units,buildings:[],log:['La partida comenzó.'],market:{food:0,wood:0,stone:0},stock:{}};
@@ -365,6 +370,7 @@ export class GameRoom extends DurableObject<Env> {
       }
       const valid=this.map.hexes.some(h=>neighbors.some(([dq,dr])=>h.q+dq===q&&h.r+dr===r));
       if(!valid){ws.send(JSON.stringify({type:'error',message:'Elegí una casilla exterior adyacente al mapa.'}));return}
+      if(!this.map.hexes.some(h=>range(h,{q:q!,r:r!})===1&&!h.type.startsWith('Agua'))){ws.send(JSON.stringify({type:'error',message:'Tu CU debe tener al menos un terreno terrestre adyacente para los aldeanos iniciales.'}));return}
       this.map.draft={seat,q:q!,r:r!};
       await this.ctx.storage.put('map',this.map);
       this.broadcast({type:'map',map:this.map});
