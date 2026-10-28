@@ -67,7 +67,7 @@ type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
 type Unit={id:string;seat:number;q:number;r:number;kind:string};
 type Match={round:number;turn:number;phase:number;players:Record<number,{age:number;pm:number;resources:Record<string,number>;techs:string[]}>;units:Unit[];buildings:{seat:number;q:number;r:number;kind:string}[];log:string[];market:Record<string,number>;stock:Record<string,Record<string,number>>};
-type MapState = {match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;awaitingVillager?:number;ready?:Record<number,boolean> };
+type MapState = {match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;awaitingVillager?:number;initialVillagers?:Record<number,{q:number;r:number}>;ready?:Record<number,boolean> };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
 const startGame=document.getElementById('start-game') as HTMLButtonElement;
@@ -334,14 +334,27 @@ class BootScene extends Phaser.Scene {
       this.add.circle(x,y-size*.63,Math.max(8,size*.24),color,1).setStrokeStyle(2,0xffffff);
       this.add.text(x,y-size*.63,String(p.seat+1),{fontSize:Math.max(10,size*.29)+'px',color:'#ffffff',fontStyle:'bold'}).setOrigin(.5);
     }
-    if(this.currentMap.match){
-      for(const building of this.currentMap.match.buildings){
-        const x=cx+size*Math.sqrt(3)*(building.q+building.r/2),y=cy+size*1.5*building.r;
-        const marker=building.kind==='Granja'?'🌾':building.kind==='Cuartel'?'⚔️':building.kind==='Torre'?'🏰':building.kind==='Puerto'?'⚓':'⛏️';
-        this.add.text(x+size*.38,y-size*.38,marker,{fontSize:Math.max(12,size*.38)+'px'}).setOrigin(.5);
+    // Mostrar las unidades iniciales en cuanto cada jugador termine su colocación.
+    // Antes de que exista Match el servidor ya conserva los CU y aldeanos elegidos.
+    const previewUnits:Unit[]=[];
+    if(!this.currentMap.match){
+      const initial=this.currentMap.initialVillagers??{};
+      for(const [index,cu] of centers.entries()){
+        if(index<2){
+          const chosen=initial[cu.seat];
+          if(chosen)previewUnits.push({id:'initial-'+cu.seat,seat:cu.seat,q:chosen.q,r:chosen.r,kind:'Aldeano'});
+        }else{
+          const candidates=hexes.filter(h=>Math.max(Math.abs(h.q-cu.q),Math.abs(h.r-cu.r),Math.abs(h.q+h.r-cu.q-cu.r))===1&&!h.type.startsWith('Agua'))
+            .filter(h=>!previewUnits.some(u=>u.seat!==cu.seat&&u.q===h.q&&u.r===h.r))
+            .sort((a,b)=>Number(!!resourceIcons[b.type])-Number(!!resourceIcons[a.type]));
+          for(let i=0;i<2;i++){const h=candidates[i%candidates.length];if(h)previewUnits.push({id:'initial-'+cu.seat+'-'+i,seat:cu.seat,q:h.q,r:h.r,kind:'Aldeano'})}
+        }
       }
+    }
+    const displayedUnits=this.currentMap.match?.units??previewUnits;
+    {
       const groups=new Map<string,{unit:Unit;count:number}>();
-      for(const unit of this.currentMap.match.units){
+      for(const unit of displayedUnits){
         const id=unit.seat+','+unit.q+','+unit.r;
         const existing=groups.get(id);
         if(existing)existing.count++;
@@ -353,6 +366,13 @@ class BootScene extends Phaser.Scene {
         const color=colors[this.currentMap.civs?.[unit.seat]??unit.seat]??0xffffff;
         this.add.circle(x,y,Math.max(9,size*.31),color,.95).setStrokeStyle(2,0xffffff);
         this.add.text(x,y,count>1?'A'+count:'A',{fontSize:Math.max(11,size*(count>1?.25:.32))+'px',fontStyle:'bold',color:'#ffffff'}).setOrigin(.5);
+      }
+    }
+    if(this.currentMap.match){
+      for(const building of this.currentMap.match.buildings){
+        const x=cx+size*Math.sqrt(3)*(building.q+building.r/2),y=cy+size*1.5*building.r;
+        const marker=building.kind==='Granja'?'🌾':building.kind==='Cuartel'?'⚔️':building.kind==='Torre'?'🏰':building.kind==='Puerto'?'⚓':'⛏️';
+        this.add.text(x+size*.38,y-size*.38,marker,{fontSize:Math.max(12,size*.38)+'px'}).setOrigin(.5);
       }
       const match=this.currentMap.match;
       if(this.seat===(this.currentMap.order??[])[match.turn]&&match.phase===0&&actionMode){
