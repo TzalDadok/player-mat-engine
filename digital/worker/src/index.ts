@@ -117,7 +117,10 @@ function prepareMatch(map:MapState):Match{
     // Para 4 jugadores se conserva la distribución acordada 1/1/2/2.
     // Para 2-3 jugadores se usa 1 aldeano inicial; balance por cerrar.
     const initial=map.count===4?(i<2?1:2):1;
-    const tiles=map.hexes.filter(h=>range(h,cu)===1&&h.type!=='Agua A'&&h.type!=='Agua B'&&h.type!=='Montaña');
+    // Preferimos que los aldeanos iniciales puedan producir desde su primera acción.
+    // Montaña es transitable y se utiliza si no hay mejores terrenos adyacentes.
+    const tiles=map.hexes.filter(h=>range(h,cu)===1&&!h.type.startsWith('Agua'))
+      .sort((a,b)=>Number(!!resourceFor(b.type))-Number(!!resourceFor(a.type)));
     for(let k=0;k<Math.min(initial,tiles.length);k++)units.push({id:crypto.randomUUID(),seat,q:tiles[k].q,r:tiles[k].r,kind:'Aldeano'});
     players[seat]={age:1,pm:map.count===4&&(i===0||i===3)?1:0,resources:{food:0,wood:0,stone:0,gold:0},techs:[]};
   }
