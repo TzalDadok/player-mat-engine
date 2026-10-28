@@ -68,7 +68,7 @@ const optionsPanel=document.getElementById('action-options')!;
 const optionSelect=document.getElementById('action-kind') as HTMLSelectElement;
 const tradeFields=document.getElementById('trade-fields')!;
 let selectedHexes:{q:number;r:number}[]=[];
-let selectedUnit='';
+let selectedUnits:string[]=[];
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap)});
 document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];renderMap(sharedMap)});
@@ -77,7 +77,7 @@ for(const [id,action] of [['action-build','build'],['action-trade','trade'],['ac
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
 submitAction.addEventListener('click',()=>{
   if(actionMode==='produce')sendAction({action:'produce',hexes:selectedHexes});
-  if(actionMode==='move'&&selectedUnit&&selectedHexes.length)sendAction({action:'move',unit:selectedUnit,...selectedHexes[0]});
+  if(actionMode==='move'&&selectedUnits.length&&selectedHexes.length)sendAction({action:'move',units:selectedUnits,...selectedHexes[0]});
   if(actionMode==='build'&&selectedHexes.length)sendAction({action:'build',kind:optionSelect.value,...selectedHexes[0]});
   if(actionMode==='research')sendAction({action:'research',kind:optionSelect.value});
   if(actionMode==='train')sendAction({action:'train'});
@@ -339,18 +339,26 @@ function renderMap(map:MapState|null){
     const previous=optionSelect.value;
     optionSelect.replaceChildren(...opts.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o}));
     if(opts.includes(previous))optionSelect.value=previous;
-    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí un aldeano abajo y después tocá el destino adyacente.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrená un aldeano en tu CU por 1 comida.':actionMode==='trade'?'Comprá o vendé hasta dos recursos por acción; los precios del mercado son compartidos.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
+    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí uno o dos aldeanos del mismo hexágono y después tocá el destino adyacente.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrená un aldeano en tu CU por 1 comida.':actionMode==='trade'?'Comprá o vendé hasta dos recursos por acción; los precios del mercado son compartidos.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       for(const u of m.units.filter(u=>u.seat===mySeat)){
         const button=document.createElement('button');button.className='secondary';
-        button.textContent='Aldeano ('+u.q+','+u.r+')'+(u.id===selectedUnit?' ✓':'');
-        button.addEventListener('click',()=>{selectedUnit=u.id;renderMap(sharedMap)});
+        button.textContent='Aldeano ('+u.q+','+u.r+')'+(selectedUnits.includes(u.id)?' ✓':'');
+        button.addEventListener('click',()=>{
+          if(selectedUnits.includes(u.id))selectedUnits=selectedUnits.filter(id=>id!==u.id);
+          else{
+            const selected=m.units.find(item=>item.id===selectedUnits[0]);
+            if(selected&&(selected.q!==u.q||selected.r!==u.r))selectedUnits=[];
+            if(selectedUnits.length<2)selectedUnits.push(u.id);
+          }
+          renderMap(sharedMap);
+        });
         unitList.append(button);
       }
     }
     selectedDisplay.textContent=selectedHexes.map(p=>'('+p.q+','+p.r+')').join(' · ');
-    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnit||!selectedHexes.length))||(actionMode==='build'&&!selectedHexes.length);
+    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnits.length||!selectedHexes.length))||(actionMode==='build'&&!selectedHexes.length);
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
   phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
@@ -407,7 +415,7 @@ join.addEventListener('click', () => {
       const packet = JSON.parse(String(event.data));
       if (packet.type === 'welcome') { localStorage.setItem(tokenKey,token);restoreInput.value='';recoveryCode.value=token;playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
       if (packet.type === 'seat') {mySeat=packet.seat;(game.scene.getScene('BootScene') as BootScene).setSeat(mySeat);renderMap(sharedMap)}
-      if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase){selectedHexes=[];selectedUnit='';actionMode=null}renderMap(packet.map)}
+      if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase){selectedHexes=[];selectedUnits=[];actionMode=null}renderMap(packet.map)}
       if (packet.type === 'error') mapInfo.textContent = packet.message;
       if (packet.type === 'lobby') {
         lobbyPlayers=packet.players;
