@@ -126,3 +126,11 @@ aside.collapsed{display:none}
  #game-log{display:none}
  #open-panel{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 }
+
+#quick-confirm{position:absolute;z-index:15;bottom:calc(70px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);min-width:190px;background:#e1bc73;box-shadow:0 7px 24px #0009}
+#quick-confirm[hidden]{display:none!important}
+#playing-panel>.controls{display:flex;flex-wrap:wrap}
+#playing-panel>.controls button{min-width:0}
+#action-produce,#action-move,#action-build,#action-trade,#action-train,#action-tech,#action-age{border:1px solid #697d81;background:#263c4d;color:#f4e4b7}
+#action-pass{background:#354458}
+@media(max-width:800px){#quick-confirm{bottom:calc(65px + env(safe-area-inset-bottom,0px))} }
