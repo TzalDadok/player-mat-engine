@@ -10,7 +10,16 @@ container.innerHTML = `
 <div id="lobby-panel" hidden><p id="setup-status"></p><div class="lobby-scroll"><table class="lobby-table"><thead><tr><th>JUGADOR</th><th>CIVILIZACIÓN</th><th>ORDEN</th><th>READY</th></tr></thead><tbody id="lobby-rows"></tbody></table></div><button id="start-game" disabled>Iniciar partida</button></div>
 <div id="cu-panel" hidden><p id="cu-info"></p><button id="confirm-cu" disabled>Confirmar posición del CU</button></div>
 <div id="recovery-panel" hidden><h3>Recuperar tu jugador</h3><p>Guardá este código privado para regresar desde otro navegador o celular.</p><div class="controls"><input id="recovery-code" aria-label="Tu código de recuperación" readonly/><button id="copy-recovery" class="secondary">Copiar</button></div><small>Compartir este código permite controlar tu jugador. Conservá también el código de sala.</small></div>
-<div id="playing-panel" hidden><p>Todos los CU colocados. El menú de partida se incorporará en el Hito 3.</p></div><p id="map-info">Mapa todavía no generado.</p>
+<div id="playing-panel" hidden>
+<h2>Partida en curso</h2>
+<p id="turn-status"></p>
+<div id="resources"></div>
+<p id="power-status"></p>
+<div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-pass" class="secondary">Pasar fase</button></div>
+<p id="action-help">Seleccioná una acción para comenzar.</p><div id="unit-list"></div>
+<div id="selected-hexes"></div><button id="submit-action" hidden>Confirmar acción</button>
+<h3>Registro de turnos</h3><ol id="game-log"></ol>
+</div><p id="map-info">Mapa todavía no generado.</p>
 </aside></main>`;
 
 const status = document.getElementById('status')!;
@@ -31,7 +40,9 @@ const generate = document.getElementById('generate') as HTMLButtonElement;
 const mapInfo = document.getElementById('map-info')!;
 type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
-type MapState = { seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;ready?:Record<number,boolean> };
+type Unit={id:string;seat:number;q:number;r:number;kind:string};
+type Match={round:number;turn:number;phase:number;players:Record<number,{age:number;pm:number;resources:Record<string,number>;techs:string[]}>;units:Unit[];buildings:{seat:number;q:number;r:number;kind:string}[];log:string[]};
+type MapState = {match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;ready?:Record<number,boolean> };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
 const startGame=document.getElementById('start-game') as HTMLButtonElement;
@@ -44,6 +55,36 @@ const phaseTitle=document.getElementById('phase-title')!;
 const lobbyRows=document.getElementById('lobby-rows')!;
 const confirmCu=document.getElementById('confirm-cu') as HTMLButtonElement;
 const cuInfo=document.getElementById('cu-info')!;
+const turnStatus=document.getElementById('turn-status')!;
+const resourcesDisplay=document.getElementById('resources')!;
+const powerStatus=document.getElementById('power-status')!;
+const actionHelp=document.getElementById('action-help')!;
+const unitList=document.getElementById('unit-list')!;
+const selectedDisplay=document.getElementById('selected-hexes')!;
+const submitAction=document.getElementById('submit-action') as HTMLButtonElement;
+const logDisplay=document.getElementById('game-log')!;
+let actionMode:'produce'|'move'|null=null;
+let selectedHexes:{q:number;r:number}[]=[];
+let selectedUnit='';
+function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
+document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap)});
+document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];renderMap(sharedMap)});
+document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
+submitAction.addEventListener('click',()=>{
+  if(actionMode==='produce')sendAction({action:'produce',hexes:selectedHexes});
+  if(actionMode==='move'&&selectedUnit&&selectedHexes.length)sendAction({action:'move',unit:selectedUnit,...selectedHexes[0]});
+});
+function selectBoardHex(q:number,r:number){
+  if(!sharedMap?.match||mySeat!==(sharedMap.order??[])[sharedMap.match.turn])return;
+  if(actionMode==='produce'){
+    const idx=selectedHexes.findIndex(p=>p.q===q&&p.r===r);
+    if(idx>=0)selectedHexes.splice(idx,1);
+    else if(selectedHexes.length<[2,3,3,4][sharedMap.match.players[mySeat].age-1])selectedHexes.push({q,r});
+  }
+  if(actionMode==='move')selectedHexes=[{q,r}];
+  renderMap(sharedMap);
+}
+
 let mySeat=-1;
 let lobbyPlayers:{id:string;name:string;seat:number}[]=[];
 let sharedMap:MapState|null=null;
@@ -116,6 +157,7 @@ class BootScene extends Phaser.Scene {
   private currentMap: MapState|null = null;
   private seat=-1;
   private selectable: {q:number;r:number;polygon:Phaser.Geom.Polygon}[]=[];
+  private boardTiles:{q:number;r:number;polygon:Phaser.Geom.Polygon}[]=[];
   private touchStart: {x:number;y:number}|null=null;
   setSeat(seat:number){this.seat=seat;this.draw()}
   constructor(){super('BootScene')}
@@ -129,7 +171,11 @@ class BootScene extends Phaser.Scene {
       this.touchStart=null;
       if(moved>15||socket?.readyState!==WebSocket.OPEN)return;
       const spot=this.selectable.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
-      if(spot)socket.send(JSON.stringify({type:'place_cu',q:spot.q,r:spot.r}));
+      if(spot){socket.send(JSON.stringify({type:'place_cu',q:spot.q,r:spot.r}));return}
+      if(this.currentMap?.match){
+        const pos=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
+        if(pos)selectBoardHex(pos.q,pos.r);
+      }
     });
     this.scale.on('resize',()=>this.draw());
     this.draw();
@@ -138,6 +184,7 @@ class BootScene extends Phaser.Scene {
   private draw(){
     this.children.removeAll();
     this.selectable=[];
+    this.boardTiles=[];
     const width=this.scale.width,height=this.scale.height;
     this.cameras.main.setBackgroundColor('#172635');
     if(!this.currentMap){
@@ -177,6 +224,7 @@ class BootScene extends Phaser.Scene {
         const a=(60*k-30)*Math.PI/180;
         points.push(new Phaser.Math.Vector2(x+size*Math.cos(a),y+size*Math.sin(a)));
       }
+      this.boardTiles.push({q,r,polygon:new Phaser.Geom.Polygon(points.map(p=>new Phaser.Geom.Point(p.x,p.y)))});
       const imageName=textures[type];
       if(imageName && this.textures.exists(imageName)){
         // Ligero solapamiento para compensar el margen transparente y antialiasing del WebP.
@@ -214,6 +262,18 @@ class BootScene extends Phaser.Scene {
       this.add.circle(x,y-size*.63,Math.max(8,size*.24),color,1).setStrokeStyle(2,0xffffff);
       this.add.text(x,y-size*.63,String(p.seat+1),{fontSize:Math.max(10,size*.29)+'px',color:'#ffffff',fontStyle:'bold'}).setOrigin(.5);
     }
+    if(this.currentMap.match){
+      for(const unit of this.currentMap.match.units){
+        const x=cx+size*Math.sqrt(3)*(unit.q+unit.r/2),y=cy+size*1.5*unit.r;
+        const color=colors[this.currentMap.civs?.[unit.seat]??unit.seat]??0xffffff;
+        this.add.circle(x,y,Math.max(8,size*.28),color,.95).setStrokeStyle(2,0xffffff);
+        this.add.text(x,y,'A',{fontSize:Math.max(11,size*.32)+'px',fontStyle:'bold',color:'#ffffff'}).setOrigin(.5);
+      }
+      for(const tile of selectedHexes){
+        const x=cx+size*Math.sqrt(3)*(tile.q+tile.r/2),y=cy+size*1.5*tile.r;
+        this.add.circle(x,y,Math.max(10,size*.4),0xffde62,.3).setStrokeStyle(3,0xffde62);
+      }
+    }
     // Superponer el recurso en el centro de cada hexágono primario.
     // Se hace después de las texturas para que siempre quede visible.
     for(let i=0;i<displayHexes.length;i++){
@@ -245,7 +305,27 @@ function renderMap(map:MapState|null){
   hostConfig.hidden=!!map||mySeat!==0;
   lobbyPanel.hidden=!map||!!map.started;
   cuPanel.hidden=!inPlacement;
-  playingPanel.hidden=!map?.started||inPlacement;
+  playingPanel.hidden=!map?.match;
+  if(map?.match){
+    const m=map.match,seat=(map.order??[])[m.turn],active=mySeat===seat,me=m.players[mySeat];
+    turnStatus.textContent='Ronda '+m.round+' · '+(lobbyPlayers.find(p=>p.seat===seat)?.name??'Jugador '+(seat+1))+' · Fase '+['Económica','Tecnológica','Militar'][m.phase]+(active?' (tu turno)':'');
+    resourcesDisplay.textContent=me?'🥩 '+me.resources.food+' · 🪵 '+me.resources.wood+' · 🪨 '+me.resources.stone+' · 🪙 '+me.resources.gold:'';
+    powerStatus.textContent=me?'Edad '+me.age+' · Poder Militar '+me.pm:'';
+    for(const id of ['action-produce','action-move','action-pass'])(document.getElementById(id) as HTMLButtonElement).disabled=!active||(id!=='action-pass'&&m.phase!==0);
+    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí un aldeano abajo y después tocá el destino adyacente.':'Elegí Producir, Mover aldeano o Pasar fase.';
+    unitList.replaceChildren();
+    if(actionMode==='move'&&active){
+      for(const u of m.units.filter(u=>u.seat===mySeat)){
+        const button=document.createElement('button');button.className='secondary';
+        button.textContent='Aldeano ('+u.q+','+u.r+')'+(u.id===selectedUnit?' ✓':'');
+        button.addEventListener('click',()=>{selectedUnit=u.id;renderMap(sharedMap)});
+        unitList.append(button);
+      }
+    }
+    selectedDisplay.textContent=selectedHexes.map(p=>'('+p.q+','+p.r+')').join(' · ');
+    submitAction.hidden=!active||m.phase!==0||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnit||!selectedHexes.length));
+    logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
+  }
   phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
   const count=document.getElementById('count') as HTMLSelectElement;
   count.disabled=!!map||mySeat!==0;if(map)count.value=String(map.count);
@@ -300,7 +380,7 @@ join.addEventListener('click', () => {
       const packet = JSON.parse(String(event.data));
       if (packet.type === 'welcome') { localStorage.setItem(tokenKey,token);restoreInput.value='';recoveryCode.value=token;playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
       if (packet.type === 'seat') {mySeat=packet.seat;(game.scene.getScene('BootScene') as BootScene).setSeat(mySeat);renderMap(sharedMap)}
-      if (packet.type === 'map') renderMap(packet.map);
+      if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase){selectedHexes=[];selectedUnit='';actionMode=null}renderMap(packet.map)}
       if (packet.type === 'error') mapInfo.textContent = packet.message;
       if (packet.type === 'lobby') {
         lobbyPlayers=packet.players;
