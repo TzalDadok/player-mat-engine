@@ -73,6 +73,7 @@ const logDisplay=document.getElementById('game-log')!;
 let actionMode:'produce'|'move'|'build'|'train'|'research'|'age'|'trade'|null=null;
 const optionsPanel=document.getElementById('action-options')!;
 const optionSelect=document.getElementById('action-kind') as HTMLSelectElement;
+optionSelect.addEventListener('change',()=>renderMap(sharedMap));
 const tradeFields=document.getElementById('trade-fields')!;
 const carryPanel=document.getElementById('carry-panel')!;
 const trainPanel=document.getElementById('train-panel')!;
@@ -308,6 +309,36 @@ class BootScene extends Phaser.Scene {
         const color=colors[this.currentMap.civs?.[unit.seat]??unit.seat]??0xffffff;
         this.add.circle(x,y,Math.max(9,size*.31),color,.95).setStrokeStyle(2,0xffffff);
         this.add.text(x,y,count>1?'A'+count:'A',{fontSize:Math.max(11,size*(count>1?.25:.32))+'px',fontStyle:'bold',color:'#ffffff'}).setOrigin(.5);
+      }
+      const match=this.currentMap.match;
+      if(this.seat===(this.currentMap.order??[])[match.turn]&&match.phase===0&&actionMode){
+        const own=match.units.filter(u=>u.seat===this.seat);
+        for(const tile of hexes){
+          const workers=own.filter(u=>u.q===tile.q&&u.r===tile.r).length;
+          const camp=match.buildings.some(b=>b.seat===this.seat&&b.q===tile.q&&b.r===tile.r&&b.kind==='Campamento Productivo');
+          const farm=match.buildings.some(b=>b.seat===this.seat&&b.q===tile.q&&b.r===tile.r&&b.kind==='Granja');
+          const coastal=neighborDirs.some(([dq,dr])=>hexes.some(h=>h.q===tile.q+dq&&h.r===tile.r+dr&&h.type.startsWith('Agua')));
+          let eligible=false;
+          if(actionMode==='produce')eligible=(workers>0||camp)&&(!!resourceIcons[tile.type]||(farm&&workers>0)||(coastal&&workers>0));
+          if(actionMode==='move'){
+            const current=own.find(u=>u.id===selectedUnits[0]);
+            eligible=!!current&&Math.max(Math.abs(current.q-tile.q),Math.abs(current.r-tile.r),Math.abs(current.q+current.r-tile.q-tile.r))===1&&!tile.type.startsWith('Agua')&&!match.units.some(u=>u.seat!==this.seat&&u.q===tile.q&&u.r===tile.r);
+          }
+          if(actionMode==='build'){
+            const kind=optionSelect.value;
+            const adjacentWorker=own.some(u=>Math.max(Math.abs(u.q-tile.q),Math.abs(u.r-tile.r),Math.abs(u.q+u.r-tile.q-tile.r))===1);
+            eligible=kind==='Puerto'?tile.type.startsWith('Agua')&&adjacentWorker&&!match.buildings.some(b=>b.q===tile.q&&b.r===tile.r):
+              workers>0&&(kind==='Campamento Productivo'?!!resourceIcons[tile.type]&&!camp:
+              kind==='Granja'?tile.type==='Llanura'&&match.buildings.filter(b=>b.q===tile.q&&b.r===tile.r&&b.kind==='Granja').length<2:
+              ['Llanura','Desierto'].includes(tile.type)&&!match.buildings.some(b=>b.q===tile.q&&b.r===tile.r));
+          }
+          if(!eligible)continue;
+          const x=cx+size*Math.sqrt(3)*(tile.q+tile.r/2),y=cy+size*1.5*tile.r;
+          const outline:Phaser.Geom.Point[]=[];
+          for(let k=0;k<6;k++){const a=(60*k-30)*Math.PI/180;outline.push(new Phaser.Geom.Point(x+size*.91*Math.cos(a),y+size*.91*Math.sin(a)))}
+          const g=this.add.graphics();
+          g.lineStyle(Math.max(2,size*.045),0x5cdbbb,.9);g.strokePoints(outline,true);
+        }
       }
       for(const tile of selectedHexes){
         const x=cx+size*Math.sqrt(3)*(tile.q+tile.r/2),y=cy+size*1.5*tile.r;
