@@ -46,10 +46,9 @@ granja +2 comida por pareja granja/aldeano (máx. 2);
 pesca desde costa y bonificación Doble Filo al bosque.
 
 **Construcción:** Campamento Productivo, Granja, Cuartel, Torre y Puerto,
-con costes de los Player Mats y restricciones del terreno.
+con costes de los Player Mats y restricciones del terreno. La disponibilidad se valida por civilización; por ejemplo, una Torre ausente del Mat no puede construirse.
 
-**Tecnología básica:** Telar, Carretilla y Doble Filo (una por acción),
-avance de Edad con costes y restricciones.
+**Tecnología económica:** Telar, Carretilla, Doble Filo y mejoras económicas adicionales de cada civilización y Edad (una por acción), con costes y edificios habilitadores del Mat; avance de Edad con costes y restricciones. Incluye efectos de Pastoreo, Recolección, Canteros, Canteros Reales, Minería Imperial, Explotación Aurífera, Rotación de Cultivos, Qanats, Administración Real y Carreta Mercante. Las habilidades militares se implementarán con el combate.
 El combate completo, tropas militares, tecnologías únicas
 y condiciones de victoria corresponden a hitos posteriores.
 
@@ -60,6 +59,8 @@ requiere confirmación de balance del reglamento.
 
 ## Verificación
 
+La tabla de datos `worker/src/mats.generated.json` se extrajo de los cuatro Mats. El test `tests/mat-sync.mjs` detecta cambios posteriores en sus costes que todavía no se hayan sincronizado.
+
 En GitHub Actions, el flujo
 [`Digital - validar Hito 3`](https://github.com/TzalDadok/player-mat-engine/actions)
 ejecuta:
@@ -67,6 +68,7 @@ ejecuta:
 ```bash
 cd digital
 npm install
+node tests/mat-sync.mjs
 npm run check
 npm run build
 node tests/hito3-smoke.mjs
