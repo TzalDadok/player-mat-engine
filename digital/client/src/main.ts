@@ -428,7 +428,7 @@ function renderMap(map:MapState|null){
     ];
     const help:Record<string,string>={
       produce:'Elegí los hexágonos controlados que querés activar para producir.',
-      move:'Elegí uno o dos aldeanos del mismo hexágono y tocá el destino adyacente. Carretilla permite llevar recursos.',
+      move:'Elegí una unidad y tocá su destino. Podés mover otra unidad diferente, cada una con su propia carga de recursos sin límite.',
       build:'Elegí edificio y tocá un hexágono válido donde pueda construir un Aldeano.',
       train:'Elegí la cantidad que puedas pagar. Cada Aldeano cuesta 1 comida y se entrena en el CU.',
       trade:'Comprá o vendé hasta dos recursos; el precio varía para toda la partida.',
