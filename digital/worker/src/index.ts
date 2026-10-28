@@ -3,7 +3,7 @@ import matData from './mats.generated.json';
 
 interface Env { GAME_ROOMS: DurableObjectNamespace; ASSETS: Fetcher }
 type Member = { id: string; name: string };
-type Hex = { q: number; r: number; type: string };
+type Hex = { q: number; r: number; type: string; fortified?:boolean };
 type Placement = { seat: number; q: number; r: number };
 type Resource='food'|'wood'|'stone'|'gold';
 type Unit={id:string;seat:number;q:number;r:number;kind:'Aldeano'};
@@ -391,6 +391,28 @@ export class GameRoom extends DurableObject<Env> {
         else deposit(match,cu.q,cu.r,'gold',gold-originalGold);
         match.market={...(match.market??{food:0,wood:0,stone:0}),[resource]:position};
         match.log.unshift('Jugador '+(seat+1)+' '+(packet.side==='buy'?'compró ':'vendió ')+packet.amount+' '+resource);
+      }else if(action==='modify_terrain'&&phase===0){
+        if(!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Elegí un terreno válido.');return}
+        const target=map.hexes.find(h=>h.q===packet.q&&h.r===packet.r);
+        if(!target){fail('Ese terreno no se puede modificar.');return}
+        const kind=packet.kind;
+        const near=match.units.some(u=>u.seat===seat&&range(u,target)<=1);
+        const here=match.units.some(u=>u.seat===seat&&u.q===target.q&&u.r===target.r);
+        if(!near){fail('Necesitás un Aldeano en el terreno o adyacente.');return}
+        if(kind==='Irrigar'){
+          if(target.type!=='Desierto'||!here){fail('Irrigar requiere un Aldeano en Desierto.');return}
+          if(!debit(map,match,seat,{wood:3,food:3,stone:3})){fail('Irrigar cuesta 3 madera, 3 comida y 3 piedra.');return}
+          target.type='Llanura';
+        }else if(kind==='Drenar'){
+          if(!target.type.startsWith('Agua')){fail('Drenar solo se aplica al Agua.');return}
+          if(!debit(map,match,seat,{wood:5,food:5,stone:5})){fail('Drenar cuesta 5 madera, 5 comida y 5 piedra.');return}
+          target.type='Llanura';
+        }else if(kind==='Fortificar'){
+          if(!here||target.fortified||target.type.startsWith('Agua')){fail('Fortificar necesita Aldeano en un terreno terrestre sin fortificar.');return}
+          if(!debit(map,match,seat,{wood:3})){fail('Fortificar cuesta 3 madera.');return}
+          target.fortified=true;
+        }else{fail('Modificación desconocida.');return}
+        match.log.unshift('Jugador '+(seat+1)+' modificó terreno: '+kind);
       }else if(action==='build'&&phase===0){
         if(!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Seleccioná una casilla válida.');return}
         const pos={q:packet.q!,r:packet.r!},kind=packet.kind as Structure['kind'];
