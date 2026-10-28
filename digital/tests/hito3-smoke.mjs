@@ -215,11 +215,23 @@ async function testSolo(){
   try{
     await user.open;await user.wait(m=>m.type==='welcome');
     user.send({type:'create_testing',civ:2});
-    const map=(await user.wait(m=>m.type==='map'&&m.map?.testing===true&&!!m.map?.match)).map;
+    const map=(await user.wait(m=>m.type==='map'&&m.map?.testing===true&&!m.map?.match)).map;
+    assert.equal(map.centers.length,0);
+    const cu=chooseCU(map);
+    user.send({type:'place_cu',q:cu.q,r:cu.r});
+    await user.wait(m=>m.type==='map'&&m.map?.draft?.seat===0);
+    user.send({type:'confirm_cu_position'});
+    await user.wait(m=>m.type==='map'&&m.map?.awaitingVillager===0);
+    const villager=map.hexes.find(h=>distance(h,cu)===1&&!h.type.startsWith('Agua'));
+    assert(villager);
+    user.send({type:'place_initial_villager',q:villager.q,r:villager.r});
+    const started=(await user.wait(m=>m.type==='map'&&!!m.map?.match)).map;
     assert.equal(map.count,1);
     assert.equal(map.civs[0],2);
-    assert.equal(map.match.units.filter(u=>u.seat===0).length,1);
-    assert.equal(map.match.phase,0);
+    assert.equal(started.match.units.filter(u=>u.seat===0).length,1);
+    assert.equal(started.match.units[0].q,villager.q);
+    assert.equal(started.match.units[0].r,villager.r);
+    assert.equal(started.match.phase,0);
     assert.equal(map.hexes.length,18);
     assertProducerClusters(map.hexes);
     user.send({type:'game_action',action:'pass'});
