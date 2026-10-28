@@ -204,6 +204,7 @@ export class GameRoom extends DurableObject<Env> {
     let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;moves?:{unit:string;q:number;r:number;cargo?:Partial<Record<Resource,number>>}[]};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
+    if(packet.type==='sync'){ws.send(JSON.stringify({type:'map',map:this.map}));this.broadcastLobby();return}
     if(packet.type==='game_action'){
       const map=this.map,match=map?.match,seat=this.seat(ws);
       if(!map||!match||!map.started||seat!==(map.order??[])[match.turn]){
