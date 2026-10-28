@@ -112,6 +112,13 @@ async function play(count){
     clients[1].send({type:'game_action',action:'pass'});
     await clients[1].wait(m=>m.type==='error'&&m.message.includes('No es tu turno'));
     const activeSeat=state.order[0];
+    const mover=state.match.units.find(u=>u.seat===activeSeat);
+    const destination=mover&&state.hexes.find(h=>distance(mover,h)===1&&!h.type.startsWith('Agua')&&!state.match.units.some(u=>u.seat!==activeSeat&&u.q===h.q&&u.r===h.r));
+    if(mover&&destination){
+      clients[activeSeat].send({type:'game_action',action:'move',moves:[{unit:mover.id,q:destination.q,r:destination.r,cargo:{food:1}}]});
+      await clients[activeSeat].wait(m=>m.type==='error'&&m.message.includes('Carretilla'));
+      assert.equal(host.history.filter(m=>m.type==='map').at(-1).map.match.phase,0,'Movimiento rechazado no debe consumir fase');
+    }
     clients[activeSeat].send({type:'game_action',action:'trade',kind:'food',side:'buy',amount:2});
     await clients[activeSeat].wait(m=>m.type==='error'&&m.message.includes('oro suficiente'));
     const unit=state.match.units.find(u=>u.seat===activeSeat&&!state.match.units.some(other=>other.seat!==activeSeat&&other.q===u.q&&other.r===u.r)&&state.hexes.some(h=>h.q===u.q&&h.r===u.r&&['Bosque','Animales','Frutos silvestres','Cantera de Oro','Cantera de Piedra'].includes(h.type)));
