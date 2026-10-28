@@ -211,8 +211,22 @@ class BootScene extends Phaser.Scene {
     this.input.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
       if(!this.touchStart)return;
       const moved=Math.hypot(pointer.x-this.touchStart.x,pointer.y-this.touchStart.y);
+      const dragOrigin=this.touchStart;
       this.touchStart=null;
-      if(moved>15||socket?.readyState!==WebSocket.OPEN)return;
+      if(socket?.readyState!==WebSocket.OPEN)return;
+      if(moved>15&&actionMode==='move'&&this.currentMap?.match&&this.seat===(this.currentMap.order??[])[this.currentMap.match.turn]&&this.currentMap.match.phase===0){
+        const from=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,dragOrigin.x,dragOrigin.y));
+        const dest=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
+        const own=this.currentMap.match.units.filter(u=>u.seat===this.seat&&u.q===from?.q&&u.r===from?.r);
+        const unit=own.find(u=>!movePlans.some(m=>m.unit===u.id))??own[0];
+        if(unit&&dest){
+          selectedUnits=[unit.id];
+          selectBoardHex(dest.q,dest.r);
+          setPanelVisible(true);
+        }
+        return;
+      }
+      if(moved>15)return;
       const spot=this.selectable.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
       if(spot){socket.send(JSON.stringify({type:'place_cu',q:spot.q,r:spot.r}));return}
       if(this.currentMap?.match){
@@ -356,6 +370,15 @@ class BootScene extends Phaser.Scene {
           g.lineStyle(Math.max(2,size*.045),0x5cdbbb,.9);g.strokePoints(outline,true);
         }
       }
+      for(const [index,plan] of movePlans.entries()){
+        const source=match.units.find(u=>u.id===plan.unit);
+        if(!source)continue;
+        const sx=cx+size*Math.sqrt(3)*(source.q+source.r/2),sy=cy+size*1.5*source.r;
+        const tx=cx+size*Math.sqrt(3)*(plan.q+plan.r/2),ty=cy+size*1.5*plan.r;
+        const arrow=this.add.graphics();arrow.lineStyle(Math.max(3,size*.065),0xffd681,.94);arrow.lineBetween(sx,sy,tx,ty);
+        this.add.circle(tx,ty,Math.max(10,size*.31),colors[this.currentMap.civs?.[this.seat]??this.seat],.75).setStrokeStyle(3,0xffdc91);
+        this.add.text(tx,ty,String(index+1),{fontSize:Math.max(13,size*.35)+'px',color:'#fff',fontStyle:'bold'}).setOrigin(.5);
+      }
       for(const tile of selectedHexes){
         const x=cx+size*Math.sqrt(3)*(tile.q+tile.r/2),y=cy+size*1.5*tile.r;
         this.add.circle(x,y,Math.max(10,size*.4),0xffde62,.3).setStrokeStyle(3,0xffde62);
@@ -443,7 +466,7 @@ function renderMap(map:MapState|null){
     ];
     const help:Record<string,string>={
       produce:'Elegí los hexágonos controlados que querés activar para producir.',
-      move:'Elegí un aldeano, tocá su destino y después elegí el SEGUNDO aldeano y su destino. Confirmá una sola vez ambos movimientos. Carretilla habilita transportar recursos.',
+      move:'Arrastrá un Aldeano directamente a un hexágono vecino. Podés arrastrar un segundo y confirmar ambos juntos. También podés tocar aldeano y destino.',
       build:'Elegí edificio y tocá un hexágono válido donde pueda construir un Aldeano.',
       train:'Elegí la cantidad que puedas pagar. Cada Aldeano cuesta 1 comida y se entrena en el CU.',
       trade:'Comprá o vendé hasta dos recursos; el precio varía para toda la partida.',
@@ -454,7 +477,7 @@ function renderMap(map:MapState|null){
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       const owned=m.units.filter(u=>u.seat===mySeat);
-      const guide=document.createElement('p');guide.textContent='Movimientos preparados: '+movePlans.length+'/2. '+(movePlans.length===0?'Elegí el primer aldeano.':movePlans.length===1?'Elegí otro aldeano y tocá su destino antes de confirmar.':'Ya podés confirmar ambos movimientos.');unitList.append(guide);
+      const guide=document.createElement('p');guide.textContent='Movimientos: '+movePlans.length+'/2. Arrastrá los aldeanos sobre el tablero. '+(movePlans.length===2?'Confirmá para ejecutar los dos.':'También podés tocar cada unidad y luego su destino.');unitList.append(guide);
       for(const [index,u] of owned.entries()){
         const assigned=movePlans.find(p=>p.unit===u.id);
         const button=document.createElement('button');button.className='secondary';
