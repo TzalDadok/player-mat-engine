@@ -217,17 +217,51 @@ class BootScene extends Phaser.Scene {
   private selectable: {q:number;r:number;polygon:Phaser.Geom.Polygon}[]=[];
   private boardTiles:{q:number;r:number;polygon:Phaser.Geom.Polygon}[]=[];
   private touchStart: {x:number;y:number}|null=null;
+  private dragUnit:Unit|null=null;
+  private dragGhost:Phaser.GameObjects.Container|null=null;
+  private dragTarget:Phaser.GameObjects.Graphics|null=null;
   setSeat(seat:number){this.seat=seat;this.draw()}
   constructor(){super('BootScene')}
   create(){
     this.input.on('pointerdown',(pointer:Phaser.Input.Pointer)=>{
       this.touchStart={x:pointer.x,y:pointer.y};
+      this.dragUnit=null;
+      if(actionMode==='move'&&this.currentMap?.match&&this.seat===(this.currentMap.order??[])[this.currentMap.match.turn]&&this.currentMap.match.phase===0){
+        const tile=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
+        if(tile){
+          const own=this.currentMap.match.units.filter(u=>u.seat===this.seat&&u.q===tile.q&&u.r===tile.r);
+          this.dragUnit=own.find(u=>!movePlans.some(m=>m.unit===u.id))??(movePlans.length<2?own[0]:undefined)??null;
+        }
+      }
+    });
+    this.input.on('pointermove',(pointer:Phaser.Input.Pointer)=>{
+      if(!this.touchStart||!this.dragUnit||Math.hypot(pointer.x-this.touchStart.x,pointer.y-this.touchStart.y)<9)return;
+      if(!this.dragGhost){
+        const circle=this.add.circle(0,0,19,colors[this.currentMap?.civs?.[this.seat]??this.seat]??0xffffff,.9).setStrokeStyle(3,0xffdf8f);
+        const label=this.add.text(0,0,'A',{fontSize:'19px',fontStyle:'bold',color:'#ffffff'}).setOrigin(.5);
+        this.dragGhost=this.add.container(pointer.x,pointer.y,[circle,label]).setDepth(100);
+        this.dragTarget=this.add.graphics().setDepth(90);
+      }
+      this.dragGhost.setPosition(pointer.x,pointer.y);
+      this.dragTarget?.clear();
+      const tile=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
+      if(tile){
+        const unit=this.dragUnit;
+        const distance=Math.max(Math.abs(unit.q-tile.q),Math.abs(unit.r-tile.r),Math.abs(unit.q+unit.r-tile.q-tile.r));
+        const terrain=this.currentMap?.hexes.find(h=>h.q===tile.q&&h.r===tile.r);
+        const allowed=distance===1&&!!terrain&&!terrain.type.startsWith('Agua')&&!this.currentMap?.match?.units.some(u=>u.seat!==this.seat&&u.q===tile.q&&u.r===tile.r);
+        this.dragTarget?.lineStyle(4,allowed?0x6aefbb:0xf07878,.95);
+        this.dragTarget?.strokePoints(tile.polygon.points.map(p=>new Phaser.Geom.Point(p.x,p.y)),true);
+      }
     });
     this.input.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
       if(!this.touchStart)return;
       const moved=Math.hypot(pointer.x-this.touchStart.x,pointer.y-this.touchStart.y);
       const dragOrigin=this.touchStart;
       this.touchStart=null;
+      this.dragGhost?.destroy();this.dragGhost=null;
+      this.dragTarget?.destroy();this.dragTarget=null;
+      this.dragUnit=null;
       if(socket?.readyState!==WebSocket.OPEN)return;
       if(moved>15&&actionMode==='move'&&this.currentMap?.match&&this.seat===(this.currentMap.order??[])[this.currentMap.match.turn]&&this.currentMap.match.phase===0){
         const from=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,dragOrigin.x,dragOrigin.y));
@@ -255,6 +289,7 @@ class BootScene extends Phaser.Scene {
   }
   updateMap(map:MapState|null){this.currentMap=map;this.draw()}
   private draw(){
+    this.dragGhost=null;this.dragTarget=null;
     this.children.removeAll();
     this.selectable=[];
     this.boardTiles=[];
