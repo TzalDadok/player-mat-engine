@@ -59,7 +59,7 @@ function isCompact(map:MapState):boolean {
 const key=(q:number,r:number)=>q+','+r;
 const range=(a:{q:number;r:number},b:{q:number;r:number})=>Math.max(Math.abs(a.q-b.q),Math.abs(a.r-b.r),Math.abs(a.q+a.r-b.q-b.r));
 type Cost=Partial<Record<Resource,number>>;
-const mats=matData as Record<string,{buildings:{name:string;cost:Cost}[];nodes:{age:string;building:string;type:string;title:string;cost:Cost}[]}>;
+const mats=matData as unknown as Record<string,{buildings:{name:string;cost:Cost}[];nodes:{age:string;building:string;type:string;title:string;cost:Cost}[]}>;
 const civName=(map:MapState,seat:number)=>['britones','francos','vikingos','persas'][map.civs?.[seat]??0];
 const civMat=(map:MapState,seat:number)=>mats[civName(map,seat)];
 const ageNames=['dark','feudal','castles','imperial'];
