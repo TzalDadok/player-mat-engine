@@ -121,12 +121,16 @@ function prepareMatch(map:MapState):Match{
     const initial=map.count===4?(i<2?1:2):1;
     // Preferimos que los aldeanos iniciales puedan producir desde su primera acción.
     // Montaña es transitable y se utiliza si no hay mejores terrenos adyacentes.
-    const tiles=map.hexes.filter(h=>range(h,cu)===1&&!h.type.startsWith('Agua'))
+    const tiles=map.hexes.filter(h=>range(h,cu)===1&&!h.type.startsWith('Agua'));
+    const uncontested=tiles.filter(h=>!units.some(u=>u.seat!==seat&&u.q===h.q&&u.r===h.r));
+    // Evitar compartir el territorio inicial con aldeanos enemigos;
+    // después, priorizar los terrenos productores.
+    const candidates=(uncontested.length?uncontested:tiles)
       .sort((a,b)=>Number(!!resourceFor(b.type))-Number(!!resourceFor(a.type)));
     // Las unidades pueden compartir hexágono: siempre entregar la cantidad
     // inicial, aunque el CU tenga un solo terreno adyacente transitable.
     for(let k=0;k<initial;k++){
-      const p=tiles[k%tiles.length]??cu;
+      const p=candidates[k%candidates.length]??cu;
       units.push({id:crypto.randomUUID(),seat,q:p.q,r:p.r,kind:'Aldeano'});
     }
     players[seat]={age:1,pm:map.count===4&&(i===0||i===3)?1:0,resources:{food:0,wood:0,stone:0,gold:0},techs:[]};
