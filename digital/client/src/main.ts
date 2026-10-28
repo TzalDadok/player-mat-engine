@@ -140,6 +140,29 @@ let selectedUnits:string[]=[];
 type MovePlan={unit:string;q:number;r:number;cargo:Record<string,number>};
 let movePlans:MovePlan[]=[];
 let draggedBuilding:string|null=null;
+let buildingDragGhost:HTMLImageElement|null=null;
+function beginBuildingDrag(event:PointerEvent,kind:string,file:string){
+  if(event.button!==0)return;
+  const startX=event.clientX,startY=event.clientY;
+  let dragging=false;
+  const move=(e:PointerEvent)=>{
+    if(!dragging&&Math.hypot(e.clientX-startX,e.clientY-startY)<7)return;
+    dragging=true;
+    if(!buildingDragGhost){buildingDragGhost=document.createElement('img');buildingDragGhost.className='building-drag-ghost';buildingDragGhost.src='https://raw.githubusercontent.com/TzalDadok/player-mat-engine/main/player-mat-engine-v1/assets/buildings/'+file;document.body.append(buildingDragGhost)}
+    buildingDragGhost.style.left=e.clientX+'px';buildingDragGhost.style.top=e.clientY+'px';
+  };
+  const up=(e:PointerEvent)=>{
+    window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);
+    buildingDragGhost?.remove();buildingDragGhost=null;
+    if(!dragging)return;
+    const scene=game.scene.getScene('BootScene') as BootScene;
+    const tile=scene.tileAtClient(e.clientX,e.clientY);
+    if(tile){draggedBuilding=kind;optionSelect.value=kind;selectBoardHex(tile.q,tile.r);setPanelVisible(false)}
+  };
+  window.addEventListener('pointermove',move);
+  window.addEventListener('pointerup',up,{once:true});
+}
+
 const resourceTypes=['food','wood','stone','gold'] as const;
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap);setPanelVisible(false)});
@@ -256,6 +279,7 @@ class BootScene extends Phaser.Scene {
   private dragGhost:Phaser.GameObjects.Container|null=null;
   private dragTarget:Phaser.GameObjects.Graphics|null=null;
   setSeat(seat:number){this.seat=seat;this.draw()}
+  tileAtClient(clientX:number,clientY:number){const rect=this.game.canvas.getBoundingClientRect();const x=(clientX-rect.left)*this.scale.width/rect.width,y=(clientY-rect.top)*this.scale.height/rect.height;const hit=this.boardTiles.find(t=>Phaser.Geom.Polygon.Contains(t.polygon,x,y));return hit?{q:hit.q,r:hit.r}:null;}
   constructor(){super('BootScene')}
   create(){
     this.input.on('pointerdown',(pointer:Phaser.Input.Pointer)=>{
@@ -663,11 +687,11 @@ function renderMap(map:MapState|null){
         const cost=building?.cost??(kind==='Granja'?mat.nodes.find(n=>n.title==='Granja'&&n.type==='building')?.cost:undefined);
         const affordable=!!cost&&Object.entries(cost).every(([resource,amount])=>(me?.resources[resource as keyof typeof me.resources]??0)>=amount);
         const card=document.createElement('button');card.className='building-choice'+(affordable?'':' unavailable');card.disabled=!affordable;
-        const img=document.createElement('img');img.src='/mat-assets/buildings/'+images[kind];img.alt='';
+        const img=document.createElement('img');img.src='https://raw.githubusercontent.com/TzalDadok/player-mat-engine/main/player-mat-engine-v1/assets/buildings/'+images[kind];img.alt='';
         const label=document.createElement('span');label.textContent=kind;
         card.append(img,label);
         card.addEventListener('click',()=>{draggedBuilding=kind;optionSelect.value=kind;card.classList.add('selected-building')});
-        card.addEventListener('pointerdown',()=>{if(affordable){draggedBuilding=kind;optionSelect.value=kind}});
+        card.addEventListener('pointerdown',(event)=>{if(affordable){draggedBuilding=kind;optionSelect.value=kind;beginBuildingDrag(event,kind,images[kind])}});
         buildTray.append(card);
       }
     }
