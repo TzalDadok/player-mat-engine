@@ -270,6 +270,9 @@ export class GameRoom extends DurableObject<Env> {
         for(let i=0;i<moves.length;i++){
           const move=moves[i],unit=selected[i]!,from=key(unit.q,unit.r);
           const cargo=move.cargo??{};
+          if(Object.values(cargo).some(value=>value!==0)&&!player.techs.includes('Carretilla')){
+            fail('Necesitás investigar Carretilla antes de transportar recursos.');return;
+          }
           const accumulated=requests.get(from)??emptyStock();
           for(const resource of Object.keys(cargo)){
             const amount=(cargo as Record<string,number>)[resource];
