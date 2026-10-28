@@ -141,12 +141,14 @@ function prepareMatch(map:MapState):Match{
 export class GameRoom extends DurableObject<Env> {
   private map: MapState | null = null;
   private seatTokens:Record<number,string>={};
+  private revokedTokens:string[]=[];
   private seat(ws:WebSocket): number { return (ws.deserializeAttachment() as (Member & {seat:number})|null)?.seat ?? -1; }
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx,env);
     ctx.blockConcurrencyWhile(async()=>{
       this.map = (await ctx.storage.get<MapState>('map')) ?? null;
       this.seatTokens=(await ctx.storage.get<Record<number,string>>('seatTokens'))??{};
+      this.revokedTokens=(await ctx.storage.get<string[]>('revokedTokens'))??[];
       // Migrar solamente salas sin CU. Nunca borrar colocaciones existentes.
       // Las salas de la versión anterior se actualizan al reconectarse.
       if(this.map && !(this.map.centers?.length) &&
@@ -164,6 +166,7 @@ export class GameRoom extends DurableObject<Env> {
     const used=new Set(connected.map(ws=>this.seat(ws)));
     const token=new URL(request.url).searchParams.get('token')??'';
     if(!/^[a-f0-9-]{36}$/i.test(token))return new Response('Identidad de jugador inválida',{status:400});
+    if(this.revokedTokens.includes(token))return new Response('Código de recuperación reemplazado',{status:403});
     const savedSeat=Object.entries(this.seatTokens).find(([,saved])=>saved===token);
     const count=this.map?.count??4;
     let seat=savedSeat?Number(savedSeat[0]):-1;
@@ -201,9 +204,27 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;civ?:number;q?:number;r?:number;order?:number[];ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;moves?:{unit:string;q:number;r:number;cargo?:Partial<Record<Resource,number>>}[]};
+    let packet:{type:string;count?:number;civ?:number;target?:number;q?:number;r?:number;order?:number[];ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;moves?:{unit:string;q:number;r:number;cargo?:Partial<Record<Resource,number>>}[]};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
+    if(packet.type==='reset_player_access'){
+      const requester=this.seat(ws),target=packet.target;
+      if(requester!==0||!this.map||!Number.isInteger(target)||target===0||target!<1||target!>=this.map.count||!this.seatTokens[target!]){
+        ws.send(JSON.stringify({type:'error',message:'No se puede renovar ese acceso.'}));return;
+      }
+      const previous=this.seatTokens[target!];
+      const replacement=crypto.randomUUID();
+      this.seatTokens[target!]=replacement;
+      this.revokedTokens.push(previous);
+      await this.ctx.storage.put('seatTokens',this.seatTokens);
+      await this.ctx.storage.put('revokedTokens',this.revokedTokens);
+      for(const other of this.ctx.getWebSockets().filter(conn=>this.seat(conn)===target)){
+        try{other.close(4001,'Acceso renovado por el anfitrión')}catch{}
+      }
+      ws.send(JSON.stringify({type:'access_reset',seat:target,code:replacement}));
+      this.broadcastLobby();
+      return;
+    }
     if(packet.type==='sync'){ws.send(JSON.stringify({type:'map',map:this.map}));this.broadcastLobby();return}
     if(packet.type==='game_action'){
       const map=this.map,match=map?.match,seat=this.seat(ws);
