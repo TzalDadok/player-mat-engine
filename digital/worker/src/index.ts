@@ -10,7 +10,7 @@ type Unit={id:string;seat:number;q:number;r:number;kind:'Aldeano'};
 type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'|'Torre'|'Puerto';builtAge?:number};
 type PlayerState={age:number;pm:number;resources:Record<Resource,number>;techs:string[]};
 type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[];market:Record<'food'|'wood'|'stone',number>;stock:Record<string,Record<Resource,number>>};
-type MapState = {match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; initialVillagers?:Record<number,{q:number;r:number}>; awaitingVillager?:number; ready?:Record<number,boolean> };
+type MapState = {testing?:boolean;match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; initialVillagers?:Record<number,{q:number;r:number}>; awaitingVillager?:number; ready?:Record<number,boolean> };
 
 const types = ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque','Agua','Desierto','Llanura','Montaña'];
 const neighbors = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
@@ -19,13 +19,13 @@ function generateMap(count: number, seed: number): MapState {
   const random = () => { rng = (Math.imul(rng, 1664525) + 1013904223) >>> 0; return rng / 4294967296; };
   // Tableros regulares: 2 jugadores = 2 anillos; 3 o 4 = 3 anillos.
   // Cada tipo terrestre aparece equilibradamente, con ambas variantes de agua.
-  const rings = count === 2 ? 2 : 3;
+  const rings = count <= 2 ? 2 : 3;
   // Cada set tiene exactamente 18 piezas: 2 de cada tipo primario
   // (Frutos, Animales, Oro, Piedra, Bosque), 2 de cada secundario
   // (Agua, Desierto, Llanura, Montaña); las dos Aguas son A y B.
   const set = types.filter(t => t !== 'Agua')
     .flatMap(t => [t,t]).concat(['Agua A','Agua B']);
-  const sets = count === 2 ? 1 : 2;
+  const sets = count <= 2 ? 1 : 2;
   const terrains = Array.from({length:sets},()=>set).flat();
   for(let i = terrains.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
@@ -44,10 +44,10 @@ function generateMap(count: number, seed: number): MapState {
   return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]})),centers:[],order:Array.from({length:count},(_,i)=>i),civs:{},started:false,setupConfirmed:false,draft:null,ready:{}};
 }
 function isCompact(map:MapState):boolean {
-  const expected = map.count===2 ? 18 : 36;
+  const expected = map.count<=2 ? 18 : 36;
   if(map.hexes.length!==expected)return false;
   const occupied=new Set(map.hexes.map(h=>h.q+','+h.r));
-  const required=map.count===2 ? 2 : 3;
+  const required=map.count<=2 ? 2 : 3;
   for(let q=-required;q<=required;q++)for(let r=-required;r<=required;r++)
     if(Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r))<=required &&
        (q!==0||r!==0) && !occupied.has(q+','+r))return false;
@@ -201,7 +201,7 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;moves?:{unit:string;q:number;r:number;cargo?:Partial<Record<Resource,number>>}[]};
+    let packet:{type:string;count?:number;civ?:number;q?:number;r?:number;order?:number[];ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;moves?:{unit:string;q:number;r:number;cargo?:Partial<Record<Resource,number>>}[]};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
     if(packet.type==='sync'){ws.send(JSON.stringify({type:'map',map:this.map}));this.broadcastLobby();return}
@@ -510,6 +510,34 @@ export class GameRoom extends DurableObject<Env> {
       this.map.order=[...order];
       await this.ctx.storage.put('map',this.map);
       this.broadcast({type:'map',map:this.map});return;
+    }
+    if(packet.type==='create_testing'){
+      if(this.map){ws.send(JSON.stringify({type:'error',message:'Esta sala ya tiene una partida. Creá una sala nueva para Testing.'}));return}
+      if(this.seat(ws)!==0||this.ctx.getWebSockets().length!==1){ws.send(JSON.stringify({type:'error',message:'Testing requiere una sala vacía con un jugador.'}));return}
+      const civ=Number(packet.civ);
+      if(!Number.isInteger(civ)||civ<0||civ>3){ws.send(JSON.stringify({type:'error',message:'Civilización inválida.'}));return}
+      const seed=crypto.getRandomValues(new Uint32Array(1))[0];
+      const map=generateMap(1,seed);
+      const occupied=new Set(map.hexes.map(h=>key(h.q,h.r)));
+      const candidates=new Map<string,{q:number;r:number}>();
+      for(const h of map.hexes)for(const [dq,dr] of neighbors){
+        const q=h.q+dq,r=h.r+dr;
+        if(!occupied.has(key(q,r))&&!(q===0&&r===0))candidates.set(key(q,r),{q,r});
+      }
+      const choices=[...candidates.values()].filter(p=>map.hexes.some(h=>range(p,h)===1&&!h.type.startsWith('Agua')));
+      choices.sort((a,b)=>map.hexes.filter(h=>range(b,h)===1&&resourceFor(h.type)).length-map.hexes.filter(h=>range(a,h)===1&&resourceFor(h.type)).length);
+      const cu=choices[0];
+      if(!cu){ws.send(JSON.stringify({type:'error',message:'No se pudo ubicar el Centro Urbano.'}));return}
+      const first=map.hexes.find(h=>range(h,cu)===1&&!!resourceFor(h.type))??map.hexes.find(h=>range(h,cu)===1&&!h.type.startsWith('Agua'));
+      if(!first)return;
+      map.testing=true;map.civs={0:civ};map.ready={0:true};map.started=true;map.setupConfirmed=true;
+      map.centers=[{seat:0,q:cu.q,r:cu.r}];
+      map.initialVillagers={0:{q:first.q,r:first.r}};
+      map.match=prepareMatch(map);
+      map.match.log.unshift('Modo Testing: partida de un jugador.');
+      this.map=map;
+      await this.ctx.storage.put('map',map);
+      this.broadcast({type:'map',map});return;
     }
     if(packet.type==='generate'){
       const sockets=this.ctx.getWebSockets();
