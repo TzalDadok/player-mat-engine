@@ -125,6 +125,8 @@ async function play(count){
       clients[activeSeat].send({type:'game_action',action:'pass'});
       state=(await host.wait(m=>m.type==='map'&&m.map?.match?.phase===1)).map;
     }
+    // Las dos unidades pueden tener orígenes y destinos diferentes.
+    // En la ronda siguiente se prueba el movimiento sin exigir mismo origen.
     clients[activeSeat].send({type:'game_action',action:'pass'});
     state=(await host.wait(m=>m.type==='map'&&m.map?.match?.phase===2)).map;
     clients[activeSeat].send({type:'game_action',action:'pass'});
