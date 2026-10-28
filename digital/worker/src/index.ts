@@ -1,4 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
+import matData from './mats.generated.json';
 
 interface Env { GAME_ROOMS: DurableObjectNamespace; ASSETS: Fetcher }
 type Member = { id: string; name: string };
@@ -58,17 +59,17 @@ function isCompact(map:MapState):boolean {
 const key=(q:number,r:number)=>q+','+r;
 const range=(a:{q:number;r:number},b:{q:number;r:number})=>Math.max(Math.abs(a.q-b.q),Math.abs(a.r-b.r),Math.abs(a.q+a.r-b.q-b.r));
 type Cost=Partial<Record<Resource,number>>;
-const costs={
-  'Campamento Productivo':{wood:3},
-  'Granja':{wood:2},
-  'Cuartel':{wood:1,stone:3,gold:1},
-  'Torre':{stone:3,wood:2},
-  'Puerto':{wood:4,stone:2},
-  'Aldeano':{food:1},
-  'Telar':{food:1,wood:1},
-  'Carretilla':{wood:1,gold:1},
-  'Doble Filo':{food:1,gold:1,stone:1}
-} satisfies Record<string,Cost>;
+const mats=matData as Record<string,{buildings:{name:string;cost:Cost}[];nodes:{age:string;building:string;type:string;title:string;cost:Cost}[]}>;
+const civName=(map:MapState,seat:number)=>['britones','francos','vikingos','persas'][map.civs?.[seat]??0];
+const civMat=(map:MapState,seat:number)=>mats[civName(map,seat)];
+const ageNames=['dark','feudal','castles','imperial'];
+function getMatNode(map:MapState,seat:number,title:string,type:string,age:number){
+  return civMat(map,seat).nodes.filter(n=>n.title===title&&n.type===type&&ageNames.indexOf(n.age)<age)
+    .sort((a,b)=>ageNames.indexOf(b.age)-ageNames.indexOf(a.age))[0];
+}
+function getMatBuild(map:MapState,seat:number,title:string){
+  return civMat(map,seat).buildings.find(b=>b.name===title);
+}
 const ages:Cost[]=[{}, {food:4,wood:2,stone:1,gold:1},{food:6,wood:4,stone:2,gold:2},{food:8,wood:6,stone:4,gold:5}];
 function afford(resources:Record<Resource,number>,cost:Cost){return (Object.entries(cost) as [Resource,number][]).every(([r,v])=>resources[r]>=v)}
 
@@ -237,7 +238,15 @@ export class GameRoom extends DurableObject<Env> {
           const coast=!!hex&&workers>0&&neighbors.some(([dq,dr])=>map.hexes.some(h=>h.q===pos.q+dq&&h.r===pos.r+dr&&h.type.startsWith('Agua')));
           if(!hex||(!natural&&!farm&&!coast)){fail('Ese terreno no produce recursos.');return}
           if(!workers&&!camp||!control(map,match,seat,pos.q,pos.r)){fail('No controlás uno de los hexágonos productores.');return}
-          const amount=natural?workers+(camp?2:0)+(natural==='wood'&&player.techs.includes('Doble Filo')?workers:0):farm?2*Math.min(farm,workers):workers;
+          let amount=natural?workers+(camp?2:0)+(natural==='wood'&&player.techs.includes('Doble Filo')?workers:0):farm?2*Math.min(farm,workers):workers;
+          if(natural==='food'&&hex?.type==='Animales'&&player.techs.includes('Pastoreo'))amount+=workers;
+          if(natural==='food'&&hex?.type==='Frutos silvestres'&&player.techs.includes('Recolección'))amount+=1;
+          if(natural==='stone'&&player.techs.includes('Canteros'))amount+=workers;
+          if(natural==='stone'&&player.techs.includes('Canteros Reales'))amount+=1;
+          if(natural==='gold'&&player.techs.includes('Minería Imperial'))amount+=workers;
+          if(natural==='gold'&&player.techs.includes('Explotac. Aurífera'))amount+=workers;
+          if(farm&&hex?.type==='Desierto'&&player.techs.includes('Qanats')&&neighbors.some(([dq,dr])=>map.hexes.some(h=>h.q===pos.q+dq&&h.r===pos.r+dr&&h.type==='Montaña')))amount+=1;
+          if(camp&&player.techs.includes('Administración Real'))amount+=1;
           const resource=natural??'food';gained[resource]+=amount;
           yields.push({q:pos.q,r:pos.r,resource,amount});
         }
@@ -336,7 +345,7 @@ export class GameRoom extends DurableObject<Env> {
         match.log.unshift('Jugador '+(seat+1)+' '+(packet.side==='buy'?'compró ':'vendió ')+packet.amount+' '+resource);
       }else if(action==='build'&&phase===0){
         if(!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Seleccioná una casilla válida.');return}
-        const pos={q:packet.q!,r:packet.r!},kind=packet.kind as keyof typeof costs;
+        const pos={q:packet.q!,r:packet.r!},kind=packet.kind as Structure['kind'];
         if(!['Campamento Productivo','Granja','Cuartel','Torre','Puerto'].includes(kind)){fail('Edificio desconocido.');return}
         const tile=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
         if(!tile){fail('Elegí una casilla del mapa.');return}
@@ -345,25 +354,31 @@ export class GameRoom extends DurableObject<Env> {
         if(kind==='Puerto'?!workersAdjacent:!workersHere||!control(map,match,seat,pos.q,pos.r)){fail(kind==='Puerto'?'El Puerto requiere un Aldeano adyacente.':'Necesitás un Aldeano y controlar el hexágono.');return}
         const count=match.buildings.filter(b=>b.q===pos.q&&b.r===pos.r&&b.kind===kind).length;
         if(kind==='Campamento Productivo'&&(!resourceFor(tile.type)||count>=1)){fail('Solo un Campamento Productivo por hexágono de recursos.');return}
-        if(kind==='Granja'&&(tile.type!=='Llanura'||count>=2)){fail('La Granja requiere Llanura y un máximo de dos por hexágono.');return}
+        if(kind==='Granja'&&(!((tile.type==='Llanura')||(tile.type==='Desierto'&&player.techs.includes('Qanats')))||count>=2)){fail('La Granja requiere Llanura y un máximo de dos por hexágono.');return}
         if(['Cuartel','Torre'].includes(kind)&&(!['Llanura','Desierto'].includes(tile.type)||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Cuartel requiere terreno disponible de Llanura o Desierto.');return}
         if(kind==='Puerto'&&(!tile.type.startsWith('Agua')||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Puerto debe construirse en Agua libre, adyacente a un Aldeano.');return}
         if(kind!=='Granja'&&match.buildings.filter(b=>b.q===pos.q&&b.r===pos.r&&b.kind==='Granja').length>=2){fail('No se permiten otros edificios si hay dos Granjas.');return}
-        const cost=costs[kind];if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
+        const matBuild=getMatBuild(map,seat,kind);
+        const cost=kind==='Granja'?(player.techs.includes('Rot. de Cultivos')?{}:getMatNode(map,seat,'Granja','building',player.age)?.cost):matBuild?.cost;
+        if(!cost){fail('La construcción no está disponible en el Mat de tu civilización.');return}
+        if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
         match.buildings.push({seat,...pos,kind:kind as Structure['kind'],builtAge:player.age});
         match.log.unshift('Jugador '+(seat+1)+' construyó '+kind);
       }else if(action==='train'&&phase===0){
         const cu=map.centers?.find(p=>p.seat===seat);
         const amount=packet.amount??1;
         if(!Number.isInteger(amount)||amount<1||amount>999){fail('Cantidad de Aldeanos inválida.');return}
-        if(!cu||!debit(map,match,seat,{food:amount})){fail('No tenés comida controlada suficiente para entrenar '+amount+' Aldeano(s).');return}
+        const villager=getMatNode(map,seat,'Aldeano','civil',player.age);
+        const cost=Object.fromEntries(Object.entries(villager?.cost??{}).map(([r,value])=>[r,value*amount])) as Cost;
+        if(!cu||!villager||!debit(map,match,seat,cost)){fail('No tenés comida controlada suficiente para entrenar '+amount+' Aldeano(s).');return}
         for(let i=0;i<amount;i++)match.units.push({id:crypto.randomUUID(),seat,q:cu.q,r:cu.r,kind:'Aldeano'});
         match.log.unshift('Jugador '+(seat+1)+' entrenó '+amount+' Aldeano(s)');
       }else if(action==='research'&&phase===1){
-        const name=packet.kind as keyof typeof costs;
-        if(!['Telar','Carretilla','Doble Filo'].includes(name)||player.techs.includes(name)){fail('Tecnología no disponible.');return}
-        if(name==='Carretilla'&&map.civs?.[seat]===2&&player.age<2){fail('Los Vikingos desbloquean Carretilla en Edad Feudal.');return}
-        const cost=costs[name];if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
+        const name=packet.kind??'';
+        const allowed=['Telar','Carretilla','Doble Filo','Pastoreo','Rot. de Cultivos','Recolección','Canteros','Minería Imperial','Qanats','Canteros Reales','Explotac. Aurífera','Administración Real','Carreta Mercante'];
+        const node=getMatNode(map,seat,name,'tech',player.age);
+        if(!allowed.includes(name)||!node||player.techs.includes(name)){fail('Tecnología no disponible en tu Mat o Edad.');return}
+        if(!debit(map,match,seat,node.cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
         player.techs.push(name);match.log.unshift('Jugador '+(seat+1)+' investigó '+name);
       }else if(action==='age'&&phase===2){
         if(player.age>=4){fail('Ya estás en Edad Imperial.');return}
