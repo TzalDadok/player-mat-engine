@@ -16,7 +16,7 @@ container.innerHTML = `
 <p id="turn-status"></p>
 <div id="resources"></div>
 <p id="power-status"></p>
-<div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-build">Construir</button><button id="action-trade">Comerciar</button><button id="action-train">Entrenar aldeano</button><button id="action-tech">Investigar</button><button id="action-age">Avanzar Edad</button><button id="action-pass" class="secondary">Pasar fase</button></div>
+<div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-build">Construir</button><button id="action-terrain">Modificar Terreno</button><button id="action-trade">Comerciar</button><button id="action-train">Entrenar aldeano</button><button id="action-tech">Investigar</button><button id="action-age">Avanzar Edad</button><button id="action-pass" class="secondary">Pasar fase</button></div>
 <p id="action-help">Seleccioná una acción para comenzar.</p><div id="unit-list"></div>
 <div id="selected-hexes"></div><p id="hex-info">Tocá un hexágono para ver sus detalles.</p>
 <div id="train-panel" hidden><label for="train-amount">Cantidad de aldeanos</label><input id="train-amount" type="number" min="1" step="1" value="1"/></div>
@@ -126,7 +126,7 @@ const hexInfo=document.getElementById('hex-info')!;
 let inspectedHex:{q:number;r:number}|null=null;
 const submitAction=document.getElementById('submit-action') as HTMLButtonElement;
 const logDisplay=document.getElementById('game-log')!;
-let actionMode:'produce'|'move'|'build'|'train'|'research'|'age'|'trade'|null=null;
+let actionMode:'produce'|'move'|'build'|'train'|'research'|'age'|'trade'|'terrain'|null=null;
 const optionsPanel=document.getElementById('action-options')!;
 const optionSelect=document.getElementById('action-kind') as HTMLSelectElement;
 optionSelect.addEventListener('change',()=>renderMap(sharedMap));
@@ -167,13 +167,14 @@ const resourceTypes=['food','wood','stone','gold'] as const;
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap);setPanelVisible(false)});
 document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];selectedUnits=[];movePlans=[];renderMap(sharedMap);setPanelVisible(false)});
-for(const [id,action] of [['action-build','build'],['action-trade','trade'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
+for(const [id,action] of [['action-build','build'],['action-terrain','terrain'],['action-trade','trade'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
   document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap);setPanelVisible(action!=='build')});
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
 submitAction.addEventListener('click',()=>{
   if(actionMode==='produce')sendAction({action:'produce',hexes:selectedHexes});
   if(actionMode==='move'&&movePlans.length)sendAction({action:'move',moves:movePlans});
   if(actionMode==='build'&&selectedHexes.length)sendAction({action:'build',kind:optionSelect.value,...selectedHexes[0]});
+  if(actionMode==='terrain'&&selectedHexes.length)sendAction({action:'modify_terrain',kind:optionSelect.value,...selectedHexes[0]});
   if(actionMode==='research')sendAction({action:'research',kind:optionSelect.value});
   if(actionMode==='train')sendAction({action:'train',amount:Number((document.getElementById('train-amount') as HTMLInputElement).value)});
   if(actionMode==='age')sendAction({action:'age'});
@@ -197,8 +198,9 @@ function selectBoardHex(q:number,r:number){
     }
   }
   if(actionMode==='build'&&draggedBuilding)selectedHexes=[{q,r}];
+  if(actionMode==='terrain')selectedHexes=[{q,r}];
   renderMap(sharedMap);
-  if(panelDismissed)quickConfirm.hidden=submitAction.hidden||!['produce','move','build'].includes(actionMode??'');
+  if(panelDismissed)quickConfirm.hidden=submitAction.hidden||!['produce','move','build','terrain'].includes(actionMode??'');
 }
 
 let mySeat=-1;
@@ -576,13 +578,13 @@ function renderMap(map:MapState|null){
       const price={food:{buy:[2,3,4,5,6],sell:[1,1,2,3,4]},wood:{buy:[3,4,5,6,7],sell:[1,2,3,4,5]},stone:{buy:[4,5,6,7,8],sell:[2,3,4,5,6]}} as const;
       resourcesDisplay.textContent+=' | Mercado (compra/venta): '+(['food','wood','stone'] as const).map((res,i)=>['🥩','🪵','🪨'][i]+' '+price[res].buy[market[res]]+'/'+price[res].sell[market[res]]).join(' · ');
     }
-    for(const id of ['action-produce','action-move','action-build','action-trade','action-train','action-tech','action-age','action-pass']){
+    for(const id of ['action-produce','action-move','action-build','action-terrain','action-trade','action-train','action-tech','action-age','action-pass']){
       const btn=document.getElementById(id) as HTMLButtonElement;
       const required=id==='action-tech'||id==='action-age'?1:0;
       btn.disabled=!active||(id!=='action-pass'&&m.phase!==required);
       btn.hidden=id!=='action-pass'&&m.phase!==required;
     }
-    optionsPanel.hidden=!active||!['research','trade'].includes(actionMode??'');
+    optionsPanel.hidden=!active||!['research','trade','terrain'].includes(actionMode??'');
     carryPanel.hidden=true;
     trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
@@ -591,7 +593,7 @@ function renderMap(map:MapState|null){
     const allowedTechs=new Set(['Telar','Carretilla','Doble Filo','Pastoreo','Rot. de Cultivos','Recolección','Canteros','Minería Imperial','Qanats','Canteros Reales','Explotac. Aurífera','Administración Real','Carreta Mercante']);
     const available=mat.nodes.filter(n=>n.type==='tech'&&allowedTechs.has(n.title)&&ageOrder.indexOf(n.age)<=(me?.age??1)-1&&!me?.techs.includes(n.title));
     const techOptions=available.map(n=>n.title);
-    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto'].filter(name=>name==='Granja'||mat.buildings.some(b=>b.name===name)):actionMode==='trade'?['food','wood','stone']:techOptions;
+    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto'].filter(name=>name==='Granja'||mat.buildings.some(b=>b.name===name)):actionMode==='terrain'?['Irrigar','Drenar','Fortificar']:actionMode==='trade'?['food','wood','stone']:techOptions;
     const previous=optionSelect.value;
     const costs:Record<string,string>={
       'Campamento Productivo':'🪵 3','Granja':'🪵 2',
@@ -616,7 +618,8 @@ function renderMap(map:MapState|null){
     const help:Record<string,string>={
       produce:'Elegí los hexágonos controlados que querés activar para producir.',
       move:'Arrastrá un Aldeano directamente a un hexágono vecino. Podés arrastrar un segundo y confirmar ambos juntos. También podés tocar aldeano y destino.',
-      build:'Elegí edificio y tocá un hexágono válido donde pueda construir un Aldeano.',
+      build:'Arrastrá una construcción disponible al hexágono válido y confirmá.',
+      terrain:'Elegí Irrigar, Drenar o Fortificar; después tocá el terreno y confirmá.',
       train:'Elegí la cantidad que puedas pagar. Cada Aldeano cuesta 1 comida y se entrena en el CU.',
       trade:'Comprá o vendé hasta dos recursos; el precio varía para toda la partida.',
       research:'Elegí una tecnología disponible, comprobá su costo y confirmá.',
@@ -670,10 +673,10 @@ function renderMap(map:MapState|null){
         ' · Recursos aquí: '+(['food','wood','stone','gold'] as const).map((resource,i)=>['🥩','🪵','🪨','🪙'][i]+' '+(stock[resource]??0)).join(' ');
     }else hexInfo.textContent='Tocá un hexágono para ver sus detalles.';
     submitAction.textContent=actionMode==='move'?'Confirmar '+movePlans.length+' movimiento'+(movePlans.length===1?'':'s'):'Confirmar acción';
-    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
+    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(['build','terrain'].includes(actionMode??'')&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
     quickConfirm.textContent='✓ '+submitAction.textContent;
     quickConfirm.hidden=submitAction.hidden||!['produce','move','build'].includes(actionMode??'');
-    const selectedAction={produce:'action-produce',move:'action-move',build:'action-build',trade:'action-trade',train:'action-train',research:'action-tech',age:'action-age'}[actionMode??''];
+    const selectedAction={produce:'action-produce',move:'action-move',build:'action-build',terrain:'action-terrain',trade:'action-trade',train:'action-train',research:'action-tech',age:'action-age'}[actionMode??''];
     actionDock.querySelectorAll('button').forEach(button=>button.classList.toggle('chosen-action',button.id===selectedAction));
     quickConfirm.classList.toggle('beside-produce',actionMode==='produce');
     buildTray.hidden=!active||actionMode!=='build';
