@@ -432,7 +432,7 @@ export class GameRoom extends DurableObject<Env> {
         }
         if(!debit(map,match,seat,node.cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
         player.techs.push(name);match.log.unshift('Jugador '+(seat+1)+' investigó '+name);
-      }else if(action==='age'&&phase===2){
+      }else if(action==='age'&&phase===1){
         if(player.age>=4){fail('Ya estás en Edad Imperial.');return}
         const cost=ages[player.age];if(!afford(wallet(map,match,seat),cost)){fail('Recursos insuficientes para avanzar de Edad.');return}
         // Requisito móvil: construcción de la Edad, cuando corresponde.
@@ -442,7 +442,8 @@ export class GameRoom extends DurableObject<Env> {
       }else{
         fail('Acción no disponible en esta fase. Las acciones sin costes definidos se habilitarán cuando estén confirmados.');return;
       }
-      if(match.phase===2){match.phase=0;match.turn++;if(match.turn>=map.count){match.turn=0;match.round++}}
+      if(action==='age'){match.phase=2}
+      else if(match.phase===2){match.phase=0;match.turn++;if(match.turn>=map.count){match.turn=0;match.round++}}
       else match.phase=(match.phase+1) as 0|1|2;
       updateWallets(map,match);
       match.log=match.log.slice(0,40);
