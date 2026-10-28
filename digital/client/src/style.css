@@ -59,3 +59,12 @@ button,select,input {min-height:44px}
   .lobby-table select{font-size:12px;padding:7px 1px}
   .lobby-table th{font-size:9px}
 }
+
+/* Código de recuperación accesible en escritorio y móvil. */
+#recovery-panel{margin-top:16px;padding:12px;background:#172330;border:1px solid #3b4c5d;border-radius:9px}
+#recovery-panel[hidden]{display:none!important}
+#recovery-panel h3{margin:0 0 8px;font-size:15px}
+#recovery-panel p{margin:5px 0}
+#recovery-panel .controls{display:flex;flex-wrap:nowrap}
+#recovery-code{min-width:0;max-width:none;flex:1;font-size:12px}
+#recovery-panel .controls button{flex:none}
