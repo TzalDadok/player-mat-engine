@@ -397,11 +397,37 @@ function renderMap(map:MapState|null){
     carryPanel.hidden=!active||actionMode!=='move'||!me?.techs.includes('Carretilla');
     trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
-    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto']:actionMode==='trade'?['food','wood','stone']:['Telar','Carretilla','Doble Filo'];
+    const techOptions=['Telar','Carretilla','Doble Filo'].filter(tech=>!me?.techs.includes(tech)&&!(tech==='Carretilla'&&map.civs?.[mySeat]===2&&(me?.age??1)<2));
+    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto']:actionMode==='trade'?['food','wood','stone']:techOptions;
     const previous=optionSelect.value;
-    optionSelect.replaceChildren(...opts.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o}));
+    const costs:Record<string,string>={
+      'Campamento Productivo':'🪵 3','Granja':'🪵 2',
+      'Cuartel':'🪵 1 · 🪨 3 · 🪙 1','Torre':'🪵 2 · 🪨 3',
+      'Puerto':'🪵 4 · 🪨 2','Telar':'🥩 1 · 🪵 1',
+      'Carretilla':'🪵 1 · 🪙 1','Doble Filo':'🥩 1 · 🪨 1 · 🪙 1'
+    };
+    optionSelect.replaceChildren(...opts.map(v=>{
+      const o=document.createElement('option');o.value=v;
+      o.textContent=({food:'Comida',wood:'Madera',stone:'Piedra'} as Record<string,string>)[v]??v;
+      if(costs[v])o.textContent+=' — '+costs[v];
+      return o;
+    }));
     if(opts.includes(previous))optionSelect.value=previous;
-    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí uno o dos aldeanos del mismo hexágono y después tocá el destino adyacente. Si tenés Carretilla podés llevar recursos desde el origen.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrená los aldeanos que puedas pagar en tu CU; cada uno cuesta 1 comida.':actionMode==='trade'?'Comprá o vendé hasta dos recursos por acción; los precios del mercado son compartidos.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
+    const phaseInstructions=[
+      'Elegí Producir, Mover, Construir, Entrenar o Comerciar; también podés pasar.',
+      'Investigá una de las tecnologías disponibles o pasá a la fase militar.',
+      'Podés avanzar de Edad si cumplís los requisitos, o finalizar tu turno.'
+    ];
+    const help:Record<string,string>={
+      produce:'Elegí los hexágonos controlados que querés activar para producir.',
+      move:'Elegí uno o dos aldeanos del mismo hexágono y tocá el destino adyacente. Carretilla permite llevar recursos.',
+      build:'Elegí edificio y tocá un hexágono válido donde pueda construir un Aldeano.',
+      train:'Elegí la cantidad que puedas pagar. Cada Aldeano cuesta 1 comida y se entrena en el CU.',
+      trade:'Comprá o vendé hasta dos recursos; el precio varía para toda la partida.',
+      research:'Elegí una tecnología disponible, comprobá su costo y confirmá.',
+      age:'Avanzá de Edad si tenés recursos y cumplís los requisitos de construcción.'
+    };
+    actionHelp.textContent=!active?'Esperando al jugador activo.':actionMode?help[actionMode]:phaseInstructions[m.phase];
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       for(const u of m.units.filter(u=>u.seat===mySeat)){
@@ -432,7 +458,7 @@ function renderMap(map:MapState|null){
         (buildings.length?' · '+buildings.map(b=>b.kind).join(', '):'')+
         ' · Recursos aquí: '+(['food','wood','stone','gold'] as const).map((resource,i)=>['🥩','🪵','🪨','🪙'][i]+' '+(stock[resource]??0)).join(' ');
     }else hexInfo.textContent='Tocá un hexágono para ver sus detalles.';
-    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnits.length||!selectedHexes.length))||(actionMode==='build'&&!selectedHexes.length);
+    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnits.length||!selectedHexes.length))||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
   phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
