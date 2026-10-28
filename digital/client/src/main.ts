@@ -500,9 +500,25 @@ function renderMap(map:MapState|null){
   renderLobby();
   const order=map?.order??[],next=order[placed.length],nextName=lobbyPlayers.find(p=>p.seat===next)?.name??'Jugador '+(next+1);
   cuInfo.textContent=!inPlacement?'':map?.draft?.seat===mySeat?'Tocá otra casilla para mover tu CU o confirmá la posición.':next===mySeat?'Es tu turno para colocar el CU.':'Turno de '+nextName+'.';
+  const chooseFirst=!!map?.draft&&placed.length===0&&map.draft.seat===mySeat;
+  firstVillagerSelect.hidden=!chooseFirst;
+  if(chooseFirst&&map){
+    const choices=map.hexes.filter(h=>!h.type.startsWith('Agua')&&Math.max(Math.abs(h.q-map.draft!.q),Math.abs(h.r-map.draft!.r),Math.abs(h.q+h.r-map.draft!.q-map.draft!.r))===1);
+    const previous=firstVillagerSelect.value;
+    firstVillagerSelect.replaceChildren(...choices.map(h=>{const opt=document.createElement('option');opt.value=h.q+','+h.r;opt.textContent='Aldeano: '+h.type+' ('+h.q+','+h.r+')';return opt}));
+    if(choices.some(h=>h.q+','+h.r===previous))firstVillagerSelect.value=previous;
+    cuInfo.textContent='Elegí dónde colocar tu Aldeano inicial (adyacente al CU) antes de confirmar.';
+  }
   confirmCu.hidden=map?.draft?.seat!==mySeat;confirmCu.disabled=map?.draft?.seat!==mySeat;
 }
-confirmCu.addEventListener('click',()=>socket?.send(JSON.stringify({type:'confirm_cu'})));
+const firstVillagerSelect=document.createElement('select');
+firstVillagerSelect.id='first-villager-hex';
+firstVillagerSelect.setAttribute('aria-label','Hexágono inicial del primer Aldeano');
+confirmCu.parentElement!.insertBefore(firstVillagerSelect,confirmCu);
+confirmCu.addEventListener('click',()=>{
+  const selected=firstVillagerSelect.value.split(',').map(Number);
+  socket?.send(JSON.stringify({type:'confirm_cu',q:selected[0],r:selected[1]}));
+});
 generate.addEventListener('click',()=>socket?.send(JSON.stringify({type:'generate',count:Number((document.getElementById('count') as HTMLSelectElement).value)})));
 startGame.addEventListener('click',()=>socket?.send(JSON.stringify({type:'start_game'})));
 document.getElementById('fullscreen')!.addEventListener('click', async () => {
