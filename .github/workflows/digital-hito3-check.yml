@@ -5,6 +5,9 @@ on:
       - 'digital/**'
       - '.github/workflows/digital-hito3-check.yml'
   workflow_dispatch:
+concurrency:
+  group: aoe-digital-hito3
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-latest
