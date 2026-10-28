@@ -435,7 +435,7 @@ function renderMap(map:MapState|null){
     ];
     const help:Record<string,string>={
       produce:'Elegí los hexágonos controlados que querés activar para producir.',
-      move:'Mové hasta dos unidades a destinos independientes. Solo después de investigar Carretilla, los aldeanos pueden transportar recursos sin límite de carga.',
+      move:'Elegí un aldeano, tocá su destino y después elegí el SEGUNDO aldeano y su destino. Confirmá una sola vez ambos movimientos. Carretilla habilita transportar recursos.',
       build:'Elegí edificio y tocá un hexágono válido donde pueda construir un Aldeano.',
       train:'Elegí la cantidad que puedas pagar. Cada Aldeano cuesta 1 comida y se entrena en el CU.',
       trade:'Comprá o vendé hasta dos recursos; el precio varía para toda la partida.',
@@ -445,10 +445,12 @@ function renderMap(map:MapState|null){
     actionHelp.textContent=!active?'Esperando al jugador activo.':actionMode?help[actionMode]:phaseInstructions[m.phase];
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
-      for(const u of m.units.filter(u=>u.seat===mySeat)){
+      const owned=m.units.filter(u=>u.seat===mySeat);
+      const guide=document.createElement('p');guide.textContent='Movimientos preparados: '+movePlans.length+'/2. '+(movePlans.length===0?'Elegí el primer aldeano.':movePlans.length===1?'Elegí otro aldeano y tocá su destino antes de confirmar.':'Ya podés confirmar ambos movimientos.');unitList.append(guide);
+      for(const [index,u] of owned.entries()){
         const assigned=movePlans.find(p=>p.unit===u.id);
         const button=document.createElement('button');button.className='secondary';
-        button.textContent='Aldeano ('+u.q+','+u.r+')'+(assigned?' → '+assigned.q+','+assigned.r:selectedUnits.includes(u.id)?' · Seleccionado':'');
+        button.textContent='Aldeano '+(index+1)+' ('+u.q+','+u.r+')'+(assigned?' → '+assigned.q+','+assigned.r:selectedUnits.includes(u.id)?' · Seleccionado':'');
         button.disabled=!assigned&&movePlans.length>=2;
         button.addEventListener('click',()=>{selectedUnits=[u.id];renderMap(sharedMap)});
         unitList.append(button);
@@ -473,7 +475,7 @@ function renderMap(map:MapState|null){
         row.append(remove);unitList.append(row);
       }
     }
-    selectedDisplay.textContent=selectedHexes.map(p=>'('+p.q+','+p.r+')').join(' · ');
+    selectedDisplay.textContent=actionMode==='move'?movePlans.map((p,i)=>(i+1)+'. ('+p.q+','+p.r+')').join(' · '):selectedHexes.map(p=>'('+p.q+','+p.r+')').join(' · ');
     if(inspectedHex){
       const pos=inspectedHex;
       const terrain=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
@@ -486,6 +488,7 @@ function renderMap(map:MapState|null){
         (buildings.length?' · '+buildings.map(b=>b.kind).join(', '):'')+
         ' · Recursos aquí: '+(['food','wood','stone','gold'] as const).map((resource,i)=>['🥩','🪵','🪨','🪙'][i]+' '+(stock[resource]??0)).join(' ');
     }else hexInfo.textContent='Tocá un hexágono para ver sus detalles.';
+    submitAction.textContent=actionMode==='move'?'Confirmar '+movePlans.length+' movimiento'+(movePlans.length===1?'':'s'):'Confirmar acción';
     submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
