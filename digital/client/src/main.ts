@@ -406,7 +406,7 @@ function renderMap(map:MapState|null){
     carryPanel.hidden=true;
     trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
-    const mat=(matData as Record<string,{buildings:{name:string;cost:Record<string,number>}[];nodes:{age:string;building:string;type:string;title:string;cost:Record<string,number>}[]}>)[['britones','francos','vikingos','persas'][map.civs?.[mySeat]??0]];
+    const mat=(matData as unknown as Record<string,{buildings:{name:string;cost:Partial<Record<string,number>>}[];nodes:{age:string;building:string;type:string;title:string;cost:Partial<Record<string,number>>}[]}>)[['britones','francos','vikingos','persas'][map.civs?.[mySeat]??0]];
     const ageOrder=['dark','feudal','castles','imperial'];
     const allowedTechs=new Set(['Telar','Carretilla','Doble Filo','Pastoreo','Rot. de Cultivos','Recolección','Canteros','Minería Imperial','Qanats','Canteros Reales','Explotac. Aurífera','Administración Real','Carreta Mercante']);
     const available=mat.nodes.filter(n=>n.type==='tech'&&allowedTechs.has(n.title)&&ageOrder.indexOf(n.age)<=(me?.age??1)-1&&!me?.techs.includes(n.title));
