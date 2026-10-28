@@ -428,7 +428,7 @@ function renderMap(map:MapState|null){
     ];
     const help:Record<string,string>={
       produce:'Elegí los hexágonos controlados que querés activar para producir.',
-      move:'Elegí una unidad y tocá su destino. Podés mover otra unidad diferente, cada una con su propia carga de recursos sin límite.',
+      move:'Mové hasta dos unidades a destinos independientes. Solo después de investigar Carretilla, los aldeanos pueden transportar recursos sin límite de carga.',
       build:'Elegí edificio y tocá un hexágono válido donde pueda construir un Aldeano.',
       train:'Elegí la cantidad que puedas pagar. Cada Aldeano cuesta 1 comida y se entrena en el CU.',
       trade:'Comprá o vendé hasta dos recursos; el precio varía para toda la partida.',
@@ -451,7 +451,10 @@ function renderMap(map:MapState|null){
         const row=document.createElement('div');row.className='move-plan';
         const label=document.createElement('strong');label.textContent='Movimiento '+(index+1)+' · ('+unit.q+','+unit.r+') → ('+plan.q+','+plan.r+')';row.append(label);
         const stock=m.stock?.[unit.q+','+unit.r]??{};
-        for(const [i,res] of resourceTypes.entries()){
+        if(!me?.techs.includes('Carretilla')){
+          const notice=document.createElement('small');notice.textContent='Investigá Carretilla para transportar recursos.';row.append(notice);
+        }
+        for(const [i,res] of (me?.techs.includes('Carretilla')?resourceTypes:[]).entries()){
           const field=document.createElement('label');field.textContent=['🥩','🪵','🪨','🪙'][i]+' (hay '+(stock[res]??0)+')';
           const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.style.width='72px';
           input.value=String(plan.cargo[res]??0);
