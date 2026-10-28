@@ -97,7 +97,7 @@ async function play(count){
       clients[seat].send({type:'place_cu',q:target.q,r:target.r});
       state=(await host.wait(m=>m.type==='map'&&m.map?.draft?.seat===seat&&m.map.draft.q===target.q&&m.map.draft.r===target.r)).map;
       const chosen=state.hexes.find(h=>distance(h,target)===1&&!h.type.startsWith('Agua'));
-      clients[seat].send({type:'confirm_cu',q:chosen?.q,r:chosen?.r});
+      clients[seat].send({type:'confirm_cu',...(i<2?{q:chosen?.q,r:chosen?.r}:{})});
       state=(await host.wait(m=>m.type==='map'&&m.map?.centers?.length===i+1)).map;
     }
     assert(state.match,'No empezó el motor de turnos tras colocar los CU');
@@ -110,6 +110,7 @@ async function play(count){
       assert.deepEqual(state.order.map(s=>state.match.players[s].pm),[0,1,0,2]);
     }
     assert.deepEqual(state.order.map(s=>state.match.units.filter(u=>u.seat===s).length),Array.from({length:count},(_,i)=>i<2?1:2));
+    for(let i=0;i<Math.min(count,2);i++){const seat=state.order[i];const chosen=state.initialVillagers[seat];assert(state.match.units.some(u=>u.seat===seat&&u.q===chosen.q&&u.r===chosen.r),'La elección del Aldeano inicial no fue respetada');}
     assert.deepEqual(state.order.map(s=>state.match.players[s].pm),Array.from({length:count},(_,i)=>i===1?1:i===3?2:0));
     // Un jugador que no tiene el turno no puede ejecutar acciones.
     clients[1].send({type:'game_action',action:'pass'});
