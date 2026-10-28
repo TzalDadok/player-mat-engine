@@ -64,6 +64,22 @@ function chooseCU(map){
   });
   return options[0];
 }
+function assertProducerClusters(hexes){
+  const res=t=>t==='Animales'||t==='Frutos silvestres'?'food':t==='Bosque'?'wood':t==='Cantera de Piedra'?'stone':t==='Cantera de Oro'?'gold':null;
+  const seen=new Set();
+  for(const start of hexes){
+    const kind=res(start.type),id=start.q+','+start.r;
+    if(!kind||seen.has(id))continue;
+    const connected=[start];seen.add(id);
+    for(let k=0;k<connected.length;k++){
+      for(const h of hexes){
+        const key=h.q+','+h.r;
+        if(!seen.has(key)&&res(h.type)===kind&&distance(connected[k],h)===1){seen.add(key);connected.push(h)}
+      }
+    }
+    assert(connected.length<=2,'Grupo de '+connected.length+' hexágonos adyacentes de '+kind);
+  }
+}
 async function play(count){
   const room='CI-'+randomUUID().slice(0,8);
   const clients=[];
@@ -76,6 +92,7 @@ async function play(count){
     host.send({type:'generate',count});
     const first=await host.wait(m=>m.type==='map'&&m.map?.count===count);
     assert.equal(first.map.hexes.length,count===2?18:36);
+    assertProducerClusters(first.map.hexes);
     for(let i=0;i<count;i++){
       clients[i].send({type:'choose_civ',civ:i});
       await host.wait(m=>m.type==='map'&&m.map?.civs?.[i]===i);
@@ -204,6 +221,7 @@ async function testSolo(){
     assert.equal(map.match.units.filter(u=>u.seat===0).length,1);
     assert.equal(map.match.phase,0);
     assert.equal(map.hexes.length,18);
+    assertProducerClusters(map.hexes);
     user.send({type:'game_action',action:'pass'});
     await user.wait(m=>m.type==='map'&&m.map?.match?.phase===1);
     user.send({type:'game_action',action:'pass'});
