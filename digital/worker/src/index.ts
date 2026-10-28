@@ -379,6 +379,10 @@ export class GameRoom extends DurableObject<Env> {
         const allowed=['Telar','Carretilla','Doble Filo','Pastoreo','Rot. de Cultivos','Recolección','Canteros','Minería Imperial','Qanats','Canteros Reales','Explotac. Aurífera','Administración Real','Carreta Mercante'];
         const node=getMatNode(map,seat,name,'tech',player.age);
         if(!allowed.includes(name)||!node||player.techs.includes(name)){fail('Tecnología no disponible en tu Mat o Edad.');return}
+        const facility=({mill:'Campamento Productivo',port:'Puerto',barracks:'Cuartel',tower:'Torre'} as Record<string,string>)[node.building];
+        if(facility&&!match.buildings.some(b=>b.seat===seat&&b.kind===facility&&control(map,match,seat,b.q,b.r))){
+          fail('Necesitás un '+facility+' controlado para investigar '+name+'.');return;
+        }
         if(!debit(map,match,seat,node.cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
         player.techs.push(name);match.log.unshift('Jugador '+(seat+1)+' investigó '+name);
       }else if(action==='age'&&phase===2){
