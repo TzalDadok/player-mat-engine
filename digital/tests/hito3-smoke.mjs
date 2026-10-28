@@ -157,6 +157,21 @@ async function play(count){
       state=(await host.wait(m=>m.type==='map'&&m.map?.match?.turn===2&&m.map.match.phase===1)).map;
       for(let i=0;i<2;i++)assert(state.match.units.some(u=>u.id===pair[i].id&&u.q===destinations[i].q&&u.r===destinations[i].r),'El servidor no aplicó ambos movimientos');
     }
+    // Solo el anfitrión puede renovar el acceso de otro puesto.
+    const oldToken=clients[1].token;
+    clients[1].send({type:'reset_player_access',target:0});
+    await clients[1].wait(m=>m.type==='error'&&m.message.includes('renovar'));
+    clients[0].send({type:'reset_player_access',target:1});
+    const reset=await clients[0].wait(m=>m.type==='access_reset'&&m.seat===1);
+    assert.match(reset.code,/^[a-f0-9-]{36}$/i);
+    assert.notEqual(reset.code,oldToken);
+    const oldAttempt=new WebSocket(base+room+'?name=ClaveAntigua&token='+oldToken);
+    const rejected=await new Promise(resolve=>{oldAttempt.addEventListener('error',()=>resolve(true));oldAttempt.addEventListener('open',()=>resolve(false));setTimeout(()=>resolve(false),5000)});
+    assert(rejected,'La clave anterior no debe permitir conexión');
+    const recovered=player('Recuperado',room,reset.code);
+    await recovered.open;
+    assert.equal((await recovered.wait(m=>m.type==='welcome')).seat,1);
+    recovered.close();
     // Recuperar el puesto usando su código privado, reemplazando socket viejo.
     const rejoined=player('Reingreso',room,clients[0].token);
     await rejoined.open;
