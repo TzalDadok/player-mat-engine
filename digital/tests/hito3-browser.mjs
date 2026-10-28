@@ -121,8 +121,8 @@ try{
   await mobile.touchscreen.tap(secondWorkerXY.x,secondWorkerXY.y);
   await mobile.locator('#setup-yes').click();
   await poll(()=>host.latest()?.match?.units?.length>0,'partida inicializada');
-  await desktop.waitForSelector('#playing-panel:not([hidden])');
-  await mobile.waitForSelector('#playing-panel:not([hidden])');
+  await desktop.waitForSelector('#action-dock:not([hidden])');
+  await mobile.waitForSelector('#action-dock:not([hidden])');
   assert((await desktop.locator('#turn-status').textContent()).includes('Ronda 1'));
   assert((await mobile.locator('#turn-status').textContent()).includes('Ronda 1'));
   await desktop.locator('#action-pass').click();
