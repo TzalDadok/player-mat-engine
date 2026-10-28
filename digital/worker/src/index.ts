@@ -501,7 +501,7 @@ export class GameRoom extends DurableObject<Env> {
       }
       this.map.initialVillagers={...(this.map.initialVillagers??{}),[seat]:chosen};
       this.map.awaitingVillager=undefined;
-      if(this.map.centers?.length===this.map.count&&!this.map.match)this.map.match=prepareMatch(this.map);
+      if(this.map.centers?.length===this.map.count&&!this.map.match){this.map.match=prepareMatch(this.map);if(this.map.testing)this.map.match.log.unshift('Modo Testing: partida de un jugador.')}
       await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map});return;
     }
     if(packet.type==='confirm_cu'){
@@ -565,23 +565,9 @@ export class GameRoom extends DurableObject<Env> {
       if(!Number.isInteger(civ)||civ<0||civ>3){ws.send(JSON.stringify({type:'error',message:'Civilización inválida.'}));return}
       const seed=crypto.getRandomValues(new Uint32Array(1))[0];
       const map=generateMap(1,seed);
-      const occupied=new Set(map.hexes.map(h=>key(h.q,h.r)));
-      const candidates=new Map<string,{q:number;r:number}>();
-      for(const h of map.hexes)for(const [dq,dr] of neighbors){
-        const q=h.q+dq,r=h.r+dr;
-        if(!occupied.has(key(q,r))&&!(q===0&&r===0))candidates.set(key(q,r),{q,r});
-      }
-      const choices=[...candidates.values()].filter(p=>map.hexes.some(h=>range(p,h)===1&&!h.type.startsWith('Agua')));
-      choices.sort((a,b)=>map.hexes.filter(h=>range(b,h)===1&&resourceFor(h.type)).length-map.hexes.filter(h=>range(a,h)===1&&resourceFor(h.type)).length);
-      const cu=choices[0];
-      if(!cu){ws.send(JSON.stringify({type:'error',message:'No se pudo ubicar el Centro Urbano.'}));return}
-      const first=map.hexes.find(h=>range(h,cu)===1&&!!resourceFor(h.type))??map.hexes.find(h=>range(h,cu)===1&&!h.type.startsWith('Agua'));
-      if(!first)return;
       map.testing=true;map.civs={0:civ};map.ready={0:true};map.started=true;map.setupConfirmed=true;
-      map.centers=[{seat:0,q:cu.q,r:cu.r}];
-      map.initialVillagers={0:{q:first.q,r:first.r}};
-      map.match=prepareMatch(map);
-      map.match.log.unshift('Modo Testing: partida de un jugador.');
+      // En Testing el jugador elige CU y aldeano mediante el flujo normal.
+      map.centers=[];map.initialVillagers={};
       this.map=map;
       await this.ctx.storage.put('map',map);
       this.broadcast({type:'map',map});return;
