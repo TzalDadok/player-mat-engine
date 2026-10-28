@@ -10,7 +10,7 @@ type Unit={id:string;seat:number;q:number;r:number;kind:'Aldeano'};
 type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'|'Torre'|'Puerto';builtAge?:number};
 type PlayerState={age:number;pm:number;resources:Record<Resource,number>;techs:string[]};
 type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[];market:Record<'food'|'wood'|'stone',number>;stock:Record<string,Record<Resource,number>>};
-type MapState = {match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; initialVillagers?:Record<number,{q:number;r:number}>; ready?:Record<number,boolean> };
+type MapState = {match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; initialVillagers?:Record<number,{q:number;r:number}>; awaitingVillager?:number; ready?:Record<number,boolean> };
 
 const types = ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque','Agua','Desierto','Llanura','Montaña'];
 const neighbors = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
@@ -433,6 +433,30 @@ export class GameRoom extends DurableObject<Env> {
       if(this.seat(ws)!==0){ws.send(JSON.stringify({type:'error',message:'Solo el anfitrión puede confirmar la configuración.'}));return}
       this.map.setupConfirmed=true;await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map});return;
     }
+    if(packet.type==='confirm_cu_position'){
+      if(!this.map||!this.map.setupConfirmed||!this.map.started)return;
+      const seat=this.seat(ws),placed=this.map.centers??[],order=this.map.order??Array.from({length:this.map.count},(_,i)=>i),draft=this.map.draft;
+      if(!draft||draft.seat!==seat||order[placed.length]!==seat)return;
+      const next=[...placed,draft];
+      this.map.centers=next;this.map.draft=null;
+      if(placed.length<2){
+        this.map.awaitingVillager=seat;
+      }else if(next.length===this.map.count&&!this.map.match)this.map.match=prepareMatch(this.map);
+      await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map});return;
+    }
+    if(packet.type==='place_initial_villager'){
+      if(!this.map||this.map.awaitingVillager!==this.seat(ws))return;
+      const seat=this.seat(ws),cu=this.map.centers?.find(c=>c.seat===seat);
+      const chosen={q:packet.q as number,r:packet.r as number};
+      const tile=this.map.hexes.find(h=>h.q===chosen.q&&h.r===chosen.r);
+      if(!cu||!Number.isInteger(chosen.q)||!Number.isInteger(chosen.r)||!tile||tile.type.startsWith('Agua')||range(cu,chosen)!==1){
+        ws.send(JSON.stringify({type:'error',message:'Elegí un hexágono terrestre adyacente a tu Centro Urbano.'}));return;
+      }
+      this.map.initialVillagers={...(this.map.initialVillagers??{}),[seat]:chosen};
+      this.map.awaitingVillager=undefined;
+      if(this.map.centers?.length===this.map.count&&!this.map.match)this.map.match=prepareMatch(this.map);
+      await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map});return;
+    }
     if(packet.type==='confirm_cu'){
       if(!this.map||!this.map.setupConfirmed||!this.map.started)return;
       const seat=this.seat(ws),draft=this.map.draft,placed=this.map.centers??[],order=this.map.order??Array.from({length:this.map.count},(_,i)=>i);
@@ -450,6 +474,7 @@ export class GameRoom extends DurableObject<Env> {
       await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map});return;
     }
     if(packet.type==='place_cu'){
+      if(this.map?.awaitingVillager!==undefined)return;
       if(!this.map){ws.send(JSON.stringify({type:'error',message:'Primero generá el mapa.'}));return}
       if(!this.map.started){ws.send(JSON.stringify({type:'error',message:'Primero iniciá la partida.'}));return}
       const seat=this.seat(ws), q=packet.q, r=packet.r;
