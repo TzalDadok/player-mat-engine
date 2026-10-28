@@ -201,7 +201,7 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;moves?:{unit:string;q:number;r:number}[]};
+    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;moves?:{unit:string;q:number;r:number;cargo?:Partial<Record<Resource,number>>}[]};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
     if(packet.type==='game_action'){
@@ -264,25 +264,43 @@ export class GameRoom extends DurableObject<Env> {
             fail('No podés entrar en un hexágono ocupado por otro jugador.');return;
           }
         }
-        // Cada Aldeano transporta todos los recursos de su hexágono de origen
-        // si está controlado; no existe límite de carga.
-        const original=new Map<string,{q:number;r:number}>();
-        for(const u of selected)original.set(u!.id,{q:u!.q,r:u!.r});
-        const shipments=new Map<string,Record<Resource,number>>();
-        for(const u of selected){
-          const pos=original.get(u!.id)!,source=key(pos.q,pos.r);
-          if(!shipments.has(source)&&control(map,match,seat,pos.q,pos.r)){
-            shipments.set(source,{...(match.stock[source]??emptyStock())});
+        // El jugador decide cuánto llevar de cada recurso, sin límite de carga.
+        // Solo se retiran fichas del origen si el jugador las controla.
+        const requests=new Map<string,Record<Resource,number>>();
+        for(let i=0;i<moves.length;i++){
+          const move=moves[i],unit=selected[i]!,from=key(unit.q,unit.r);
+          const cargo=move.cargo??{};
+          const accumulated=requests.get(from)??emptyStock();
+          for(const resource of Object.keys(cargo)){
+            const amount=(cargo as Record<string,number>)[resource];
+            if(!['food','wood','stone','gold'].includes(resource)||!Number.isInteger(amount)||amount<0){
+              fail('Cantidad o tipo de recurso inválido.');return;
+            }
+            accumulated[resource as Resource]+=amount;
+          }
+          requests.set(from,accumulated);
+        }
+        for(const [source,items] of requests){
+          const [q,r]=source.split(',').map(Number);
+          if(Object.values(items).some(v=>v>0)&&!control(map,match,seat,q,r)){
+            fail('Solo podés recoger recursos en territorios controlados.');return;
+          }
+          for(const resource of Object.keys(items) as Resource[]){
+            if(items[resource]>(match.stock[source]?.[resource]??0)){
+              fail('No hay suficientes recursos en el hexágono de origen.');return;
+            }
           }
         }
-        for(let i=0;i<moves.length;i++){selected[i]!.q=moves[i].q;selected[i]!.r=moves[i].r}
-        for(const [source,stock] of shipments){
-          // Si varios aldeanos salen del mismo origen con destinos distintos,
-          // el primero de la orden transporta las fichas.
-          const first=moves.find(p=>{const from=original.get(p.unit);return from&&key(from.q,from.r)===source})!;
-          match.stock[source]=emptyStock();
-          for(const resource of Object.keys(stock) as Resource[])
-            if(stock[resource]>0)deposit(match,first.q,first.r,resource,stock[resource]);
+        for(let i=0;i<moves.length;i++){
+          const move=moves[i],unit=selected[i]!,from=key(unit.q,unit.r);
+          for(const resource of ['food','wood','stone','gold'] as Resource[]){
+            const amount=move.cargo?.[resource]??0;
+            if(amount>0){
+              match.stock[from][resource]-=amount;
+              deposit(match,move.q,move.r,resource,amount);
+            }
+          }
+          unit.q=move.q;unit.r=move.r;
         }
         match.log.unshift('Jugador '+(seat+1)+' movió '+moves.length+' unidad(es) con sus recursos.');
       }else if(action==='trade'&&phase===0){
