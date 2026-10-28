@@ -195,7 +195,7 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number};
+    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number;carry?:{resource:Resource;amount:number}};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
     if(packet.type==='game_action'){
@@ -248,7 +248,17 @@ export class GameRoom extends DurableObject<Env> {
           fail('El destino debe ser un hexágono terrestre adyacente.');return}
         if(match.units.some(u=>u.seat!==seat&&u.q===packet.q&&u.r===packet.r)){
           fail('El territorio está ocupado por otro jugador.');return}
+        const carry=packet.carry;
+        if(carry&&carry.amount>0){
+          if(!player.techs.includes('Carretilla')){fail('Necesitás investigar Carretilla para transportar recursos.');return}
+          if(!['food','wood','stone','gold'].includes(carry.resource)||!Number.isInteger(carry.amount)||carry.amount<1){
+            fail('Carga inválida.');return}
+          const from=key(group[0]!.q,group[0]!.r);
+          if((match.stock[from]?.[carry.resource]??0)<carry.amount){fail('El hexágono de origen no tiene esa cantidad de recursos.');return}
+          match.stock[from][carry.resource]-=carry.amount;
+        }
         for(const u of group){u!.q=packet.q!;u!.r=packet.r!}
+        if(carry&&carry.amount>0)deposit(match,packet.q!,packet.r!,carry.resource,carry.amount);
         match.log.unshift('Jugador '+(seat+1)+' movió '+group.length+' aldeano(s).');
       }else if(action==='trade'&&phase===0){
         const resource=packet.kind as 'food'|'wood'|'stone';
