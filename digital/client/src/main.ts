@@ -271,6 +271,11 @@ class BootScene extends Phaser.Scene {
       this.add.text(x,y-size*.63,String(p.seat+1),{fontSize:Math.max(10,size*.29)+'px',color:'#ffffff',fontStyle:'bold'}).setOrigin(.5);
     }
     if(this.currentMap.match){
+      for(const building of this.currentMap.match.buildings){
+        const x=cx+size*Math.sqrt(3)*(building.q+building.r/2),y=cy+size*1.5*building.r;
+        const marker=building.kind==='Granja'?'🌾':building.kind==='Cuartel'?'⚔️':'⛏️';
+        this.add.text(x+size*.38,y-size*.38,marker,{fontSize:Math.max(12,size*.38)+'px'}).setOrigin(.5);
+      }
       for(const unit of this.currentMap.match.units){
         const x=cx+size*Math.sqrt(3)*(unit.q+unit.r/2),y=cy+size*1.5*unit.r;
         const color=colors[this.currentMap.civs?.[unit.seat]??unit.seat]??0xffffff;
