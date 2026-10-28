@@ -6,7 +6,7 @@ type Hex = { q: number; r: number; type: string };
 type Placement = { seat: number; q: number; r: number };
 type Resource='food'|'wood'|'stone'|'gold';
 type Unit={id:string;seat:number;q:number;r:number;kind:'Aldeano'};
-type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'|'Torre'|'Puerto'};
+type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'|'Torre'|'Puerto';builtAge?:number};
 type PlayerState={age:number;pm:number;resources:Record<Resource,number>;techs:string[]};
 type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[];market:Record<'food'|'wood'|'stone',number>;stock:Record<string,Record<Resource,number>>};
 type MapState = {match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; ready?:Record<number,boolean> };
@@ -310,7 +310,7 @@ export class GameRoom extends DurableObject<Env> {
         if(kind==='Puerto'&&(!tile.type.startsWith('Agua')||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Puerto debe construirse en Agua libre, adyacente a un Aldeano.');return}
         if(kind!=='Granja'&&match.buildings.filter(b=>b.q===pos.q&&b.r===pos.r&&b.kind==='Granja').length>=2){fail('No se permiten otros edificios si hay dos Granjas.');return}
         const cost=costs[kind];if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
-        match.buildings.push({seat,...pos,kind:kind as Structure['kind']});
+        match.buildings.push({seat,...pos,kind:kind as Structure['kind'],builtAge:player.age});
         match.log.unshift('Jugador '+(seat+1)+' construyó '+kind);
       }else if(action==='train'&&phase===0){
         const cu=map.centers?.find(p=>p.seat===seat);
@@ -329,7 +329,7 @@ export class GameRoom extends DurableObject<Env> {
         if(player.age>=4){fail('Ya estás en Edad Imperial.');return}
         const cost=ages[player.age];if(!afford(wallet(map,match,seat),cost)){fail('Recursos insuficientes para avanzar de Edad.');return}
         // Requisito móvil: construcción de la Edad, cuando corresponde.
-        if(player.age>1&&!match.buildings.some(b=>b.seat===seat)){fail('Necesitás al menos una construcción para avanzar.');return}
+        if(player.age>1&&!match.buildings.some(b=>b.seat===seat&&b.builtAge===player.age)){fail('Necesitás una construcción realizada en tu Edad actual antes de avanzar.');return}
         if(!debit(map,match,seat,cost)){fail('Recursos insuficientes bajo control.');return}
         player.age++;match.log.unshift('Jugador '+(seat+1)+' avanzó a Edad '+player.age);
       }else{
