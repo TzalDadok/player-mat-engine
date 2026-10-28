@@ -52,7 +52,7 @@ con costes de los Player Mats y restricciones del terreno. La disponibilidad se 
 El combate completo, tropas militares, tecnologías únicas
 y condiciones de victoria corresponden a hitos posteriores.
 
-**Inicio según orden de elección del CU:** 1.º: 1 Aldeano en un hexágono terrestre adyacente de su elección y 0 PM; 2.º: 1 Aldeano y 1 PM; 3.º: 2 Aldeanos y 0 PM; 4.º: 2 Aldeanos y 2 PM. En partidas de 2 o 3 jugadores se aplican los primeros puestos de la misma secuencia.
+**Inicio según orden de elección del CU:** 1.º: 1 Aldeano en un hexágono terrestre adyacente de su elección y 0 PM; 2.º: 1 Aldeano en un hexágono terrestre adyacente de su elección y 1 PM; 3.º: 2 Aldeanos automáticos en hexágonos adyacentes y 0 PM; 4.º: 2 Aldeanos automáticos en hexágonos adyacentes y 2 PM. En partidas de 2 o 3 jugadores se aplican los primeros puestos de la misma secuencia.
 
 ## Verificación
 
