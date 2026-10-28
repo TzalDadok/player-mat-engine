@@ -322,6 +322,7 @@ export class GameRoom extends DurableObject<Env> {
       }else if(action==='research'&&phase===1){
         const name=packet.kind as keyof typeof costs;
         if(!['Telar','Carretilla','Doble Filo'].includes(name)||player.techs.includes(name)){fail('Tecnología no disponible.');return}
+        if(name==='Carretilla'&&map.civs?.[seat]===2&&player.age<2){fail('Los Vikingos desbloquean Carretilla en Edad Feudal.');return}
         const cost=costs[name];if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
         player.techs.push(name);match.log.unshift('Jugador '+(seat+1)+' investigó '+name);
       }else if(action==='age'&&phase===2){
