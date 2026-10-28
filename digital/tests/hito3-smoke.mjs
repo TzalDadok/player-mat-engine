@@ -57,6 +57,11 @@ function chooseCU(map){
   }
   const options=[...candidates.values()].filter(p=>(map.centers||[]).every(c=>distance(p,c)>1)&&map.hexes.some(h=>distance(p,h)===1&&!h.type.startsWith('Agua')));
   assert(options.length,'No hay posición exterior válida');
+  // Priorizar un CU que permita producir desde el primer turno.
+  options.sort((a,b)=>{
+    const score=p=>map.hexes.filter(h=>distance(p,h)===1&&['Bosque','Animales','Frutos silvestres','Cantera de Oro','Cantera de Piedra'].includes(h.type)).length;
+    return score(b)-score(a);
+  });
   return options[0];
 }
 async function play(count){
@@ -78,6 +83,8 @@ async function play(count){
     // El servidor rechaza elegir civilización repetida.
     clients[1].send({type:'choose_civ',civ:0});
     await clients[1].wait(m=>m.type==='error'&&m.message.includes('ya está elegida'));
+    host.send({type:'start_game'});
+    await host.wait(m=>m.type==='error'&&m.message.includes('Ready'));
     for(let i=0;i<count;i++){
       clients[i].send({type:'set_ready',ready:true});
       await host.wait(m=>m.type==='map'&&m.map?.ready?.[i]===true);
@@ -105,11 +112,15 @@ async function play(count){
     clients[1].send({type:'game_action',action:'pass'});
     await clients[1].wait(m=>m.type==='error'&&m.message.includes('No es tu turno'));
     const activeSeat=state.order[0];
+    clients[activeSeat].send({type:'game_action',action:'trade',kind:'food',side:'buy',amount:2});
+    await clients[activeSeat].wait(m=>m.type==='error'&&m.message.includes('oro suficiente'));
     const unit=state.match.units.find(u=>u.seat===activeSeat&&!state.match.units.some(other=>other.seat!==activeSeat&&other.q===u.q&&other.r===u.r)&&state.hexes.some(h=>h.q===u.q&&h.r===u.r&&['Bosque','Animales','Frutos silvestres','Cantera de Oro','Cantera de Piedra'].includes(h.type)));
     if(unit){
       clients[activeSeat].send({type:'game_action',action:'produce',hexes:[{q:unit.q,r:unit.r}]});
       state=(await host.wait(m=>m.type==='map'&&m.map?.match?.phase===1)).map;
       assert(Object.values(state.match.players[activeSeat].resources).some(v=>v>0),'Producción no sumó recursos');
+      const stock=state.match.stock[unit.q+','+unit.r];
+      assert(stock&&Object.values(stock).some(value=>value>0),'Producción no quedó almacenada en su hexágono');
     }else{
       clients[activeSeat].send({type:'game_action',action:'pass'});
       state=(await host.wait(m=>m.type==='map'&&m.map?.match?.phase===1)).map;
