@@ -15,9 +15,9 @@ container.innerHTML = `
 <p id="turn-status"></p>
 <div id="resources"></div>
 <p id="power-status"></p>
-<div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-build">Construir</button><button id="action-train">Entrenar aldeano</button><button id="action-tech">Investigar</button><button id="action-age">Avanzar Edad</button><button id="action-pass" class="secondary">Pasar fase</button></div>
+<div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-build">Construir</button><button id="action-trade">Comerciar</button><button id="action-train">Entrenar aldeano</button><button id="action-tech">Investigar</button><button id="action-age">Avanzar Edad</button><button id="action-pass" class="secondary">Pasar fase</button></div>
 <p id="action-help">Seleccioná una acción para comenzar.</p><div id="unit-list"></div>
-<div id="selected-hexes"></div><div id="action-options" hidden><label for="action-kind">Elegí una opción:</label><select id="action-kind"></select></div><button id="submit-action" hidden>Confirmar acción</button>
+<div id="selected-hexes"></div><div id="action-options" hidden><label for="action-kind">Elegí una opción:</label><select id="action-kind"></select><div id="trade-fields" hidden><select id="trade-side"><option value="buy">Comprar</option><option value="sell">Vender</option></select><select id="trade-amount"><option value="1">1 recurso</option><option value="2">2 recursos</option></select></div></div><button id="submit-action" hidden>Confirmar acción</button>
 <h3>Registro de turnos</h3><ol id="game-log"></ol>
 </div><p id="map-info">Mapa todavía no generado.</p>
 </aside></main>`;
@@ -41,7 +41,7 @@ const mapInfo = document.getElementById('map-info')!;
 type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
 type Unit={id:string;seat:number;q:number;r:number;kind:string};
-type Match={round:number;turn:number;phase:number;players:Record<number,{age:number;pm:number;resources:Record<string,number>;techs:string[]}>;units:Unit[];buildings:{seat:number;q:number;r:number;kind:string}[];log:string[]};
+type Match={round:number;turn:number;phase:number;players:Record<number,{age:number;pm:number;resources:Record<string,number>;techs:string[]}>;units:Unit[];buildings:{seat:number;q:number;r:number;kind:string}[];log:string[];market:Record<string,number>};
 type MapState = {match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;ready?:Record<number,boolean> };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
@@ -63,15 +63,16 @@ const unitList=document.getElementById('unit-list')!;
 const selectedDisplay=document.getElementById('selected-hexes')!;
 const submitAction=document.getElementById('submit-action') as HTMLButtonElement;
 const logDisplay=document.getElementById('game-log')!;
-let actionMode:'produce'|'move'|'build'|'train'|'research'|'age'|null=null;
+let actionMode:'produce'|'move'|'build'|'train'|'research'|'age'|'trade'|null=null;
 const optionsPanel=document.getElementById('action-options')!;
 const optionSelect=document.getElementById('action-kind') as HTMLSelectElement;
+const tradeFields=document.getElementById('trade-fields')!;
 let selectedHexes:{q:number;r:number}[]=[];
 let selectedUnit='';
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap)});
 document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];renderMap(sharedMap)});
-for(const [id,action] of [['action-build','build'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
+for(const [id,action] of [['action-build','build'],['action-trade','trade'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
   document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap)});
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
 submitAction.addEventListener('click',()=>{
@@ -81,6 +82,7 @@ submitAction.addEventListener('click',()=>{
   if(actionMode==='research')sendAction({action:'research',kind:optionSelect.value});
   if(actionMode==='train')sendAction({action:'train'});
   if(actionMode==='age')sendAction({action:'age'});
+  if(actionMode==='trade')sendAction({action:'trade',kind:optionSelect.value,side:(document.getElementById('trade-side') as HTMLSelectElement).value,amount:Number((document.getElementById('trade-amount') as HTMLSelectElement).value)});
 });
 function selectBoardHex(q:number,r:number){
   if(!sharedMap?.match||mySeat!==(sharedMap.order??[])[sharedMap.match.turn])return;
@@ -323,18 +325,21 @@ function renderMap(map:MapState|null){
     const m=map.match,seat=(map.order??[])[m.turn],active=mySeat===seat,me=m.players[mySeat];
     turnStatus.textContent='Ronda '+m.round+' · '+(lobbyPlayers.find(p=>p.seat===seat)?.name??'Jugador '+(seat+1))+' · Fase '+['Económica','Tecnológica','Militar'][m.phase]+(active?' (tu turno)':'');
     resourcesDisplay.textContent=me?'🥩 '+me.resources.food+' · 🪵 '+me.resources.wood+' · 🪨 '+me.resources.stone+' · 🪙 '+me.resources.gold:'';
-    powerStatus.textContent=me?'Edad '+me.age+' · Poder Militar '+me.pm:'';
-    for(const id of ['action-produce','action-move','action-build','action-train','action-tech','action-age','action-pass']){
+    powerStatus.textContent=me?'Edad '+me.age+' · Poder Militar '+me.pm+' · Tecnologías: '+(me.techs.join(', ')||'ninguna'):'';
+    const market=m.market??{food:0,wood:0,stone:0};
+    if(me)resourcesDisplay.textContent+=' · Mercado 🥩 '+(market.food+1)+'/5 · 🪵 '+(market.wood+1)+'/5 · 🪨 '+(market.stone+1)+'/5';
+    for(const id of ['action-produce','action-move','action-build','action-trade','action-train','action-tech','action-age','action-pass']){
       const btn=document.getElementById(id) as HTMLButtonElement;
       const required=id==='action-tech'?1:id==='action-age'?2:0;
       btn.disabled=!active||(id!=='action-pass'&&m.phase!==required);
     }
-    optionsPanel.hidden=!active||!['build','research'].includes(actionMode??'');
-    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel']:['Telar','Carretilla','Doble Filo'];
+    optionsPanel.hidden=!active||!['build','research','trade'].includes(actionMode??'');
+    tradeFields.hidden=actionMode!=='trade';
+    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel']:actionMode==='trade'?['food','wood','stone']:['Telar','Carretilla','Doble Filo'];
     const previous=optionSelect.value;
     optionSelect.replaceChildren(...opts.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o}));
     if(opts.includes(previous))optionSelect.value=previous;
-    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí un aldeano abajo y después tocá el destino adyacente.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrena un aldeano en un terreno adyacente al CU por 1 comida.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
+    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí un aldeano abajo y después tocá el destino adyacente.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrená un aldeano en tu CU por 1 comida.':actionMode==='trade'?'Comprá o vendé hasta dos recursos por acción; los precios del mercado son compartidos.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       for(const u of m.units.filter(u=>u.seat===mySeat)){
