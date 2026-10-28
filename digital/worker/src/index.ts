@@ -8,7 +8,7 @@ type Resource='food'|'wood'|'stone'|'gold';
 type Unit={id:string;seat:number;q:number;r:number;kind:'Aldeano'};
 type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'};
 type PlayerState={age:number;pm:number;resources:Record<Resource,number>;techs:string[]};
-type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[];market:Record<'food'|'wood'|'stone',number>};
+type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[];market:Record<'food'|'wood'|'stone',number>;stock:Record<string,Record<Resource,number>>};
 type MapState = {match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; ready?:Record<number,boolean> };
 
 const types = ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque','Agua','Desierto','Llanura','Montaña'];
@@ -69,7 +69,44 @@ const costs={
 } satisfies Record<string,Cost>;
 const ages:Cost[]=[{}, {food:4,wood:2,stone:1,gold:1},{food:6,wood:4,stone:2,gold:2},{food:8,wood:6,stone:4,gold:5}];
 function afford(resources:Record<Resource,number>,cost:Cost){return (Object.entries(cost) as [Resource,number][]).every(([r,v])=>resources[r]>=v)}
-function pay(resources:Record<Resource,number>,cost:Cost){for(const [r,v] of Object.entries(cost) as [Resource,number][])resources[r]-=v}
+
+const emptyStock=():Record<Resource,number>=>({food:0,wood:0,stone:0,gold:0});
+function control(map:MapState,match:Match,seat:number,q:number,r:number){
+  const own=match.units.some(u=>u.seat===seat&&u.q===q&&u.r===r)||
+    match.buildings.some(b=>b.seat===seat&&b.q===q&&b.r===r)||
+    (map.centers??[]).some(c=>c.seat===seat&&c.q===q&&c.r===r);
+  const enemy=match.units.some(u=>u.seat!==seat&&u.q===q&&u.r===r);
+  return own&&!enemy;
+}
+function ownedStockKeys(map:MapState,match:Match,seat:number){
+  return Object.keys(match.stock).filter(k=>{
+    const [q,r]=k.split(',').map(Number);return control(map,match,seat,q,r);
+  });
+}
+function wallet(map:MapState,match:Match,seat:number){
+  const value=emptyStock();
+  for(const k of ownedStockKeys(map,match,seat))
+    for(const resource of Object.keys(value) as Resource[])value[resource]+=(match.stock[k]?.[resource]??0);
+  return value;
+}
+function updateWallets(map:MapState,match:Match){
+  for(const seat of Object.keys(match.players).map(Number))match.players[seat].resources=wallet(map,match,seat);
+}
+function deposit(match:Match,q:number,r:number,resource:Resource,amount:number){
+  const k=key(q,r);match.stock[k]??=emptyStock();match.stock[k][resource]+=amount;
+}
+function debit(map:MapState,match:Match,seat:number,cost:Cost){
+  if(!afford(wallet(map,match,seat),cost))return false;
+  const controlled=ownedStockKeys(map,match,seat);
+  for(const [resource,total] of Object.entries(cost) as [Resource,number][]){
+    let remaining=total;
+    for(const k of controlled){
+      const take=Math.min(remaining,match.stock[k][resource]??0);
+      match.stock[k][resource]-=take;remaining-=take;if(!remaining)break;
+    }
+  }
+  return true;
+}
 const resourceFor=(t:string):Resource|null=>t==='Bosque'?'wood':t==='Cantera de Oro'?'gold':t==='Cantera de Piedra'?'stone':t==='Animales'||t==='Frutos silvestres'?'food':null;
 function prepareMatch(map:MapState):Match{
   const order=map.order??Array.from({length:map.count},(_,i)=>i);
@@ -84,7 +121,7 @@ function prepareMatch(map:MapState):Match{
     for(let k=0;k<Math.min(initial,tiles.length);k++)units.push({id:crypto.randomUUID(),seat,q:tiles[k].q,r:tiles[k].r,kind:'Aldeano'});
     players[seat]={age:1,pm:map.count===4&&(i===0||i===3)?1:0,resources:{food:0,wood:0,stone:0,gold:0},techs:[]};
   }
-  return {round:1,turn:0,phase:0,players,units,buildings:[],log:['La partida comenzó.'],market:{food:0,wood:0,stone:0}};
+  return {round:1,turn:0,phase:0,players,units,buildings:[],log:['La partida comenzó.'],market:{food:0,wood:0,stone:0},stock:{}};
 }
 
 export class GameRoom extends DurableObject<Env> {
@@ -158,6 +195,12 @@ export class GameRoom extends DurableObject<Env> {
       if(!map||!match||!map.started||seat!==(map.order??[])[match.turn]){
         ws.send(JSON.stringify({type:'error',message:'No es tu turno o la partida todavía no está preparada.'}));return;
       }
+      // Compatibilidad con partidas iniciadas antes del inventario territorial.
+      if(!match.stock){match.stock={};for(const [s,p] of Object.entries(match.players)){
+        const cu=map.centers?.find(c=>c.seat===Number(s));
+        if(cu)match.stock[key(cu.q,cu.r)]={...p.resources};
+      }}
+      updateWallets(map,match);
       const action=packet.action;
       const fail=(message:string)=>ws.send(JSON.stringify({type:'error',message}));
       const player=match.players[seat];
@@ -169,6 +212,7 @@ export class GameRoom extends DurableObject<Env> {
         const max=[2,3,3,4][player.age-1];
         if(!Array.isArray(list)||list.length===0||list.length>max||new Set(list.map(p=>key(p.q,p.r))).size!==list.length){fail('Elegí de 1 a '+max+' hexágonos distintos.');return}
         const gained:Record<Resource,number>={food:0,wood:0,stone:0,gold:0};
+        const yields:{q:number;r:number;resource:Resource;amount:number}[]=[];
         for(const pos of list){
           if(!Number.isInteger(pos.q)||!Number.isInteger(pos.r)){fail('Casilla inválida.');return}
           const hex=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
@@ -179,11 +223,11 @@ export class GameRoom extends DurableObject<Env> {
           const coast=!!hex&&workers>0&&neighbors.some(([dq,dr])=>map.hexes.some(h=>h.q===pos.q+dq&&h.r===pos.r+dr&&h.type.startsWith('Agua')));
           if(!hex||(!natural&&!farm&&!coast)){fail('Ese terreno no produce recursos.');return}
           if(!workers&&!camp){fail('No tenés un productor en uno de los hexágonos.');return}
-          if(natural)gained[natural]+=workers+(camp?2:0)+(natural==='wood'&&player.techs.includes('Doble Filo')?workers:0);
-          else if(farm)gained.food+=2*Math.min(farm,workers);
-          else if(coast)gained.food+=workers;
+          const amount=natural?workers+(camp?2:0)+(natural==='wood'&&player.techs.includes('Doble Filo')?workers:0):farm?2*Math.min(farm,workers):workers;
+          const resource=natural??'food';gained[resource]+=amount;
+          yields.push({q:pos.q,r:pos.r,resource,amount});
         }
-        for(const res of Object.keys(gained) as Resource[])player.resources[res]+=gained[res];
+        for(const yieldItem of yields)deposit(match,yieldItem.q,yieldItem.r,yieldItem.resource,yieldItem.amount);
         match.log.unshift('Jugador '+(seat+1)+' produjo '+JSON.stringify(gained));
       }else if(action==='move'&&phase===0){
         const unit=match.units.find(u=>u.id===packet.unit&&u.seat===seat);
@@ -202,6 +246,7 @@ export class GameRoom extends DurableObject<Env> {
           stone:{buy:[4,5,6,7,8],sell:[2,3,4,5,6]}} as const;
         let position=match.market?.[resource]??0;
         let gold=player.resources.gold,quantity=player.resources[resource];
+        const originalGold=gold,originalQuantity=quantity;
         for(let n=0;n<packet.amount!;n++){
           const value=base[resource][packet.side==='buy'?'buy':'sell'][position];
           if(packet.side==='buy'){
@@ -212,7 +257,12 @@ export class GameRoom extends DurableObject<Env> {
             quantity--;gold+=value;position=Math.max(0,position-1);
           }
         }
-        player.resources.gold=gold;player.resources[resource]=quantity;
+        const cu=map.centers?.find(c=>c.seat===seat);
+        if(!cu){fail('No tenés un Centro Urbano.');return}
+        const spent=packet.side==='buy'?{gold:originalGold-gold}:{[resource]:originalQuantity-quantity};
+        if(!debit(map,match,seat,spent)){fail('Los recursos ya no están bajo tu control.');return}
+        if(packet.side==='buy')deposit(match,cu.q,cu.r,resource,quantity-originalQuantity);
+        else deposit(match,cu.q,cu.r,'gold',gold-originalGold);
         match.market={...(match.market??{food:0,wood:0,stone:0}),[resource]:position};
         match.log.unshift('Jugador '+(seat+1)+' '+(packet.side==='buy'?'compró ':'vendió ')+packet.amount+' '+resource);
       }else if(action==='build'&&phase===0){
@@ -225,31 +275,31 @@ export class GameRoom extends DurableObject<Env> {
         if(kind==='Campamento Productivo'&&(!resourceFor(tile.type)||count>=1)){fail('Solo un Campamento Productivo por hexágono de recursos.');return}
         if(kind==='Granja'&&(tile.type!=='Llanura'||count>=2)){fail('La Granja requiere Llanura y un máximo de dos por hexágono.');return}
         if(kind==='Cuartel'&&(!['Llanura','Desierto'].includes(tile.type)||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Cuartel requiere terreno disponible de Llanura o Desierto.');return}
-        const cost=costs[kind];if(!afford(player.resources,cost)){fail('Recursos insuficientes.');return}
-        pay(player.resources,cost);
+        const cost=costs[kind];if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
         match.buildings.push({seat,...pos,kind:kind as Structure['kind']});
         match.log.unshift('Jugador '+(seat+1)+' construyó '+kind);
       }else if(action==='train'&&phase===0){
         const cu=map.centers?.find(p=>p.seat===seat),cost=costs.Aldeano;
-        if(!cu||!afford(player.resources,cost)){fail('No tenés comida suficiente para entrenar un Aldeano.');return}
-        pay(player.resources,cost);match.units.push({id:crypto.randomUUID(),seat,q:cu.q,r:cu.r,kind:'Aldeano'});
+        if(!cu||!debit(map,match,seat,cost)){fail('No tenés comida controlada suficiente para entrenar un Aldeano.');return}match.units.push({id:crypto.randomUUID(),seat,q:cu.q,r:cu.r,kind:'Aldeano'});
         match.log.unshift('Jugador '+(seat+1)+' entrenó un Aldeano');
       }else if(action==='research'&&phase===1){
         const name=packet.kind as keyof typeof costs;
         if(!['Telar','Carretilla','Doble Filo'].includes(name)||player.techs.includes(name)){fail('Tecnología no disponible.');return}
-        const cost=costs[name];if(!afford(player.resources,cost)){fail('Recursos insuficientes.');return}
-        pay(player.resources,cost);player.techs.push(name);match.log.unshift('Jugador '+(seat+1)+' investigó '+name);
+        const cost=costs[name];if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
+        player.techs.push(name);match.log.unshift('Jugador '+(seat+1)+' investigó '+name);
       }else if(action==='age'&&phase===2){
         if(player.age>=4){fail('Ya estás en Edad Imperial.');return}
-        const cost=ages[player.age];if(!afford(player.resources,cost)){fail('Recursos insuficientes para avanzar de Edad.');return}
+        const cost=ages[player.age];if(!afford(wallet(map,match,seat),cost)){fail('Recursos insuficientes para avanzar de Edad.');return}
         // Requisito móvil: construcción de la Edad, cuando corresponde.
         if(player.age>1&&!match.buildings.some(b=>b.seat===seat)){fail('Necesitás al menos una construcción para avanzar.');return}
-        pay(player.resources,cost);player.age++;match.log.unshift('Jugador '+(seat+1)+' avanzó a Edad '+player.age);
+        if(!debit(map,match,seat,cost)){fail('Recursos insuficientes bajo control.');return}
+        player.age++;match.log.unshift('Jugador '+(seat+1)+' avanzó a Edad '+player.age);
       }else{
         fail('Acción no disponible en esta fase. Las acciones sin costes definidos se habilitarán cuando estén confirmados.');return;
       }
       if(match.phase===2){match.phase=0;match.turn++;if(match.turn>=map.count){match.turn=0;match.round++}}
       else match.phase=(match.phase+1) as 0|1|2;
+      updateWallets(map,match);
       match.log=match.log.slice(0,40);
       await this.ctx.storage.put('map',map);this.broadcast({type:'map',map});return;
     }
