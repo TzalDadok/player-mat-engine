@@ -676,7 +676,7 @@ function renderMap(map:MapState|null){
     submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(['build','terrain'].includes(actionMode??'')&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
     quickConfirm.textContent='✓ '+submitAction.textContent;
     quickConfirm.hidden=submitAction.hidden||!['produce','move','build'].includes(actionMode??'');
-    const selectedAction={produce:'action-produce',move:'action-move',build:'action-build',terrain:'action-terrain',trade:'action-trade',train:'action-train',research:'action-tech',age:'action-age'}[actionMode??''];
+    const selectedAction={produce:'action-produce',move:'action-move',build:'action-build',terrain:'action-terrain',trade:'action-trade',train:'action-train',research:'action-tech',age:'action-age'}[actionMode??'' as 'produce']
     actionDock.querySelectorAll('button').forEach(button=>button.classList.toggle('chosen-action',button.id===selectedAction));
     quickConfirm.classList.toggle('beside-produce',actionMode==='produce');
     buildTray.hidden=!active||actionMode!=='build';
@@ -688,7 +688,7 @@ function renderMap(map:MapState|null){
       for(const kind of opts){
         const building=mat.buildings.find(b=>b.name===kind);
         const cost=building?.cost??(kind==='Granja'?mat.nodes.find(n=>n.title==='Granja'&&n.type==='building')?.cost:undefined);
-        const affordable=!!cost&&Object.entries(cost).every(([resource,amount])=>(me?.resources[resource as keyof typeof me.resources]??0)>=amount);
+        const affordable=!!cost&&Object.entries(cost).every(([resource,amount])=>(me?.resources[resource as keyof typeof me.resources]??0)>=(amount??0));
         const card=document.createElement('button');card.className='building-choice'+(affordable?'':' unavailable');card.disabled=!affordable;
         const img=document.createElement('img');img.src='https://raw.githubusercontent.com/TzalDadok/player-mat-engine/main/player-mat-engine-v1/assets/buildings/'+images[kind];img.alt='';
         const label=document.createElement('span');label.textContent=kind;
