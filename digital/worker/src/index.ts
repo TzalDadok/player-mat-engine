@@ -77,7 +77,13 @@ export class GameRoom extends DurableObject<Env> {
     const count=this.map?.count??4;
     let seat=savedSeat?Number(savedSeat[0]):-1;
     if(seat>=count)return new Response('El puesto ya no pertenece a esta partida',{status:409});
-    if(seat>=0&&used.has(seat))return new Response('Tu jugador ya está conectado en otra ventana',{status:409});
+    if(seat>=0&&used.has(seat)){
+      // Un código legítimo puede sustituir una conexión anterior que quedó
+      // abierta (por ejemplo, al perder señal en el celular).
+      for(const old of connected.filter(sock=>this.seat(sock)===seat)){
+        try{old.close(1000,'Reconectado desde otra ventana')}catch{}
+      }
+    }
     if(seat<0){
       // Las partidas antiguas no tenían identidades persistentes. Permitir
       // recuperar una plaza libre, sin sobrescribir jugadores identificados.
@@ -197,7 +203,13 @@ export class GameRoom extends DurableObject<Env> {
       this.broadcast({type:'map',map:this.map});
     }
   }
-  async webSocketClose(ws:WebSocket){if(this.map&&!this.map.started){const seat=this.seat(ws);this.map.ready={...this.map.ready,[seat]:false};await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map})}this.broadcastLobby()}
+  async webSocketClose(ws:WebSocket){
+    // No invalidar Ready cuando una conexión antigua fue sustituida por otra
+    // con el mismo puesto.
+    if(this.ctx.getWebSockets().some(other=>other!==ws&&this.seat(other)===this.seat(ws))){
+      this.broadcastLobby();return;
+    }
+    if(this.map&&!this.map.started){const seat=this.seat(ws);this.map.ready={...this.map.ready,[seat]:false};await this.ctx.storage.put('map',this.map);this.broadcast({type:'map',map:this.map})}this.broadcastLobby()}
   async webSocketError(ws:WebSocket){await this.webSocketClose(ws)}
 }
 export default {
