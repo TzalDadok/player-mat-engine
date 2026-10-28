@@ -132,7 +132,14 @@ try{
   assert((await mobile.locator('#unit-list').textContent()).includes('→ '+target.q+','+target.r),'Toque no asignó el destino al Aldeano');
   await mobile.locator('#submit-action').click();
   await poll(()=>guest.latest()?.match?.turn===1&&guest.latest()?.match?.phase===1,'movimiento táctil');
-  console.log('OK: escritorio + móvil, lobby, Ready, CU táctil, HUD y movimiento');
+  // Android puede descargar la pestaña: recargar debe recuperar automáticamente
+  // el mismo asiento y el mapa sin pulsar «Entrar a sala».
+  const originalTurn=guest.latest().match.turn;
+  await mobile.reload();
+  await mobile.waitForSelector('#playing-panel:not([hidden])',{timeout:20000});
+  await poll(()=>guest.latest()?.match?.turn===originalTurn,'reconexión automática en móvil');
+  assert((await mobile.locator('#status').textContent()).includes('Conectado'),'No se recuperó la conexión móvil');
+  console.log('OK: escritorio + móvil, lobby, CU, movimiento y recuperación automática de pestaña');
 }catch(error){
   console.error(error);
   console.error(log);
