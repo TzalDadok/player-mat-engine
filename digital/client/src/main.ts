@@ -210,7 +210,7 @@ class BootScene extends Phaser.Scene {
     const candidates=new Map<string,{q:number;r:number}>();
     const neighborDirs=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
     for(const h of hexes)for(const [dq,dr] of neighborDirs){const q=h.q+dq,r=h.r+dr,key=q+','+r;if(!occupied.has(key))candidates.set(key,{q,r})}
-    const spots=[...candidates.values()].filter(p=>!centers.some(center=>Math.max(Math.abs(center.q-p.q),Math.abs(center.r-p.r),Math.abs(center.q+center.r-p.q-p.r))<=1));
+    const spots=[...candidates.values()].filter(p=>!centers.some(center=>Math.max(Math.abs(center.q-p.q),Math.abs(center.r-p.r),Math.abs(center.q+center.r-p.q-p.r))<=1)&&hexes.some(h=>Math.max(Math.abs(h.q-p.q),Math.abs(h.r-p.r),Math.abs(h.q+h.r-p.q-p.r))===1&&!h.type.startsWith('Agua')));
     const order=this.currentMap.order??Array.from({length:this.currentMap.count},(_,i)=>i);
     const canPlace=!!this.currentMap.started&&Number.isInteger(this.currentMap.civs?.[this.seat])&&this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
     // Centrar todo lo visible y aprovechar al máximo el tamaño del canvas.
