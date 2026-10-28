@@ -134,3 +134,11 @@ aside.collapsed{display:none}
 #action-produce,#action-move,#action-build,#action-trade,#action-train,#action-tech,#action-age{border:1px solid #697d81;background:#263c4d;color:#f4e4b7}
 #action-pass{background:#354458}
 @media(max-width:800px){#quick-confirm{bottom:calc(65px + env(safe-area-inset-bottom,0px))} }
+
+#recovery-toggle{position:fixed;top:70px;right:12px;z-index:30}
+#recovery-toggle[hidden],#setup-prompt[hidden],#setup-dialog[hidden]{display:none!important}
+#recovery-panel.floating-recovery{position:fixed;z-index:31;top:120px;right:12px;width:min(350px,calc(100vw - 24px));max-height:65dvh;overflow:auto;margin:0;padding:14px;border:1px solid #cba76a;border-radius:12px;background:#192b3d;box-shadow:0 12px 38px #0009}
+#setup-prompt{position:fixed;z-index:18;top:120px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 24px);padding:10px 18px;border-radius:12px;background:#172b3eea;color:#f7dca6;text-align:center;font-weight:700;pointer-events:none}
+#setup-dialog{position:fixed;z-index:35;top:50%;left:50%;transform:translate(-50%,-50%);width:min(360px,calc(100vw - 30px));padding:20px;border-radius:15px;border:1px solid #d8b879;background:#172b3ef7;box-shadow:0 15px 45px #000b;text-align:center}
+#setup-dialog .controls{justify-content:center}
+@media(max-width:800px){#recovery-toggle{top:85px;right:8px}#setup-prompt{top:135px;font-size:14px}}
