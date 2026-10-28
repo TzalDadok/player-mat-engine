@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import matData from '../../worker/src/mats.generated.json';
 import './style.css';
 
 const container = document.getElementById('app')!;
@@ -405,15 +406,12 @@ function renderMap(map:MapState|null){
     carryPanel.hidden=true;
     trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
-    const civTechs:Record<number,[string,number,string][]> = {
-      0:[['Telar',1,'🥩1 🪵1'],['Carretilla',1,'🪵1 🪙1'],['Doble Filo',1,'🥩1 🪨1 🪙1'],['Pastoreo',2,'🥩1 🪵1'],['Carreta Mercante',2,'🪵3 🪙2'],['Explotac. Aurífera',4,'🥩3 🪵1 🪨2'],['Administración Real',4,'🥩4 🪙3']],
-      1:[['Telar',1,'🥩1 🪵1'],['Carretilla',1,'🪵1 🪙1'],['Doble Filo',1,'🥩1 🪨1 🪙1'],['Rot. de Cultivos',2,'🥩2 🪵1'],['Canteros',2,'🥩2 🪵1'],['Administración Real',4,'🥩4 🪙3']],
-      2:[['Telar',1,'🥩1 🪵1'],['Doble Filo',1,'🥩1 🪨1 🪙1'],['Recolección',1,'🥩1 🪵2'],['Carretilla',2,'🪵1 🪙1'],['Carreta Mercante',3,'🪵3 🪙2'],['Administración Real',4,'🥩4 🪙3']],
-      3:[['Telar',1,'🥩1 🪵1'],['Carretilla',1,'🪵1 🪙1'],['Qanats',2,'🪵2 🪨2'],['Minería Imperial',2,'🥩3 🪵1 🪨2'],['Canteros Reales',3,'🥩2 🪵2 🪙2']]
-    };
-    const available=civTechs[map.civs?.[mySeat]??0]??[];
-    const techOptions=available.filter(([name,age])=>(me?.age??1)>=age&&!me?.techs.includes(name)).map(([name])=>name);
-    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto']:actionMode==='trade'?['food','wood','stone']:techOptions;
+    const mat=(matData as Record<string,{buildings:{name:string;cost:Record<string,number>}[];nodes:{age:string;building:string;type:string;title:string;cost:Record<string,number>}[]}>)[['britones','francos','vikingos','persas'][map.civs?.[mySeat]??0]];
+    const ageOrder=['dark','feudal','castles','imperial'];
+    const allowedTechs=new Set(['Telar','Carretilla','Doble Filo','Pastoreo','Rot. de Cultivos','Recolección','Canteros','Minería Imperial','Qanats','Canteros Reales','Explotac. Aurífera','Administración Real','Carreta Mercante']);
+    const available=mat.nodes.filter(n=>n.type==='tech'&&allowedTechs.has(n.title)&&ageOrder.indexOf(n.age)<=(me?.age??1)-1&&!me?.techs.includes(n.title));
+    const techOptions=available.map(n=>n.title);
+    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto'].filter(name=>name==='Granja'||mat.buildings.some(b=>b.name===name)):actionMode==='trade'?['food','wood','stone']:techOptions;
     const previous=optionSelect.value;
     const costs:Record<string,string>={
       'Campamento Productivo':'🪵 3','Granja':'🪵 2',
@@ -424,8 +422,9 @@ function renderMap(map:MapState|null){
     optionSelect.replaceChildren(...opts.map(v=>{
       const o=document.createElement('option');o.value=v;
       o.textContent=({food:'Comida',wood:'Madera',stone:'Piedra'} as Record<string,string>)[v]??v;
-      const matLabel=available.find(([name])=>name===v)?.[2];
-      if(matLabel||costs[v])o.textContent+=' — '+(matLabel??costs[v]);
+      const sourceCost=available.find(n=>n.title===v)?.cost??mat.buildings.find(n=>n.name===v)?.cost??(v==='Granja'?mat.nodes.find(n=>n.title==='Granja'&&n.type==='building')?.cost:undefined);
+      const label=sourceCost?Object.entries(sourceCost).map(([k,n])=>({food:'🥩',wood:'🪵',stone:'🪨',gold:'🪙'} as Record<string,string>)[k]+n).join(' · '):costs[v];
+      if(label)o.textContent+=' — '+label;
       return o;
     }));
     if(opts.includes(previous))optionSelect.value=previous;
