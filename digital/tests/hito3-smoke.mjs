@@ -142,6 +142,21 @@ async function play(count){
     state=(await host.wait(m=>m.type==='map'&&m.map?.match?.phase===2)).map;
     clients[activeSeat].send({type:'game_action',action:'pass'});
     state=(await host.wait(m=>m.type==='map'&&m.map?.match?.turn===1)).map;
+    if(count>=3){
+      // Avanzar el turno del segundo jugador sin gastar acciones.
+      const second=state.order[1],third=state.order[2];
+      for(const phase of [0,1,2]){
+        clients[second].send({type:'game_action',action:'pass'});
+        state=(await host.wait(m=>m.type==='map'&&m.map?.match?.turn===(phase===2?2:1)&&m.map.match.phase===(phase===2?0:phase+1))).map;
+      }
+      const pair=state.match.units.filter(u=>u.seat===third).slice(0,2);
+      assert.equal(pair.length,2,'El tercer jugador debe iniciar con dos aldeanos');
+      const destinations=pair.map(u=>state.hexes.find(h=>distance(u,h)===1&&!h.type.startsWith('Agua')&&!state.match.units.some(enemy=>enemy.seat!==third&&enemy.q===h.q&&enemy.r===h.r)));
+      assert(destinations.every(Boolean),'Faltan destinos para probar dos movimientos');
+      clients[third].send({type:'game_action',action:'move',moves:pair.map((u,i)=>({unit:u.id,q:destinations[i].q,r:destinations[i].r}))});
+      state=(await host.wait(m=>m.type==='map'&&m.map?.match?.turn===2&&m.map.match.phase===1)).map;
+      for(let i=0;i<2;i++)assert(state.match.units.some(u=>u.id===pair[i].id&&u.q===destinations[i].q&&u.r===destinations[i].r),'El servidor no aplicó ambos movimientos');
+    }
     // Recuperar el puesto usando su código privado, reemplazando socket viejo.
     const rejoined=player('Reingreso',room,clients[0].token);
     await rejoined.open;
