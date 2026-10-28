@@ -15,9 +15,9 @@ container.innerHTML = `
 <p id="turn-status"></p>
 <div id="resources"></div>
 <p id="power-status"></p>
-<div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-pass" class="secondary">Pasar fase</button></div>
+<div class="controls"><button id="action-produce">Producir</button><button id="action-move">Mover aldeano</button><button id="action-build">Construir</button><button id="action-train">Entrenar aldeano</button><button id="action-tech">Investigar</button><button id="action-age">Avanzar Edad</button><button id="action-pass" class="secondary">Pasar fase</button></div>
 <p id="action-help">Seleccioná una acción para comenzar.</p><div id="unit-list"></div>
-<div id="selected-hexes"></div><button id="submit-action" hidden>Confirmar acción</button>
+<div id="selected-hexes"></div><div id="action-options" hidden><label for="action-kind">Elegí una opción:</label><select id="action-kind"></select></div><button id="submit-action" hidden>Confirmar acción</button>
 <h3>Registro de turnos</h3><ol id="game-log"></ol>
 </div><p id="map-info">Mapa todavía no generado.</p>
 </aside></main>`;
@@ -63,16 +63,24 @@ const unitList=document.getElementById('unit-list')!;
 const selectedDisplay=document.getElementById('selected-hexes')!;
 const submitAction=document.getElementById('submit-action') as HTMLButtonElement;
 const logDisplay=document.getElementById('game-log')!;
-let actionMode:'produce'|'move'|null=null;
+let actionMode:'produce'|'move'|'build'|'train'|'research'|'age'|null=null;
+const optionsPanel=document.getElementById('action-options')!;
+const optionSelect=document.getElementById('action-kind') as HTMLSelectElement;
 let selectedHexes:{q:number;r:number}[]=[];
 let selectedUnit='';
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap)});
 document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];renderMap(sharedMap)});
+for(const [id,action] of [['action-build','build'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
+  document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap)});
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
 submitAction.addEventListener('click',()=>{
   if(actionMode==='produce')sendAction({action:'produce',hexes:selectedHexes});
   if(actionMode==='move'&&selectedUnit&&selectedHexes.length)sendAction({action:'move',unit:selectedUnit,...selectedHexes[0]});
+  if(actionMode==='build'&&selectedHexes.length)sendAction({action:'build',kind:optionSelect.value,...selectedHexes[0]});
+  if(actionMode==='research')sendAction({action:'research',kind:optionSelect.value});
+  if(actionMode==='train')sendAction({action:'train'});
+  if(actionMode==='age')sendAction({action:'age'});
 });
 function selectBoardHex(q:number,r:number){
   if(!sharedMap?.match||mySeat!==(sharedMap.order??[])[sharedMap.match.turn])return;
@@ -81,7 +89,7 @@ function selectBoardHex(q:number,r:number){
     if(idx>=0)selectedHexes.splice(idx,1);
     else if(selectedHexes.length<[2,3,3,4][sharedMap.match.players[mySeat].age-1])selectedHexes.push({q,r});
   }
-  if(actionMode==='move')selectedHexes=[{q,r}];
+  if(actionMode==='move'||actionMode==='build')selectedHexes=[{q,r}];
   renderMap(sharedMap);
 }
 
@@ -311,8 +319,17 @@ function renderMap(map:MapState|null){
     turnStatus.textContent='Ronda '+m.round+' · '+(lobbyPlayers.find(p=>p.seat===seat)?.name??'Jugador '+(seat+1))+' · Fase '+['Económica','Tecnológica','Militar'][m.phase]+(active?' (tu turno)':'');
     resourcesDisplay.textContent=me?'🥩 '+me.resources.food+' · 🪵 '+me.resources.wood+' · 🪨 '+me.resources.stone+' · 🪙 '+me.resources.gold:'';
     powerStatus.textContent=me?'Edad '+me.age+' · Poder Militar '+me.pm:'';
-    for(const id of ['action-produce','action-move','action-pass'])(document.getElementById(id) as HTMLButtonElement).disabled=!active||(id!=='action-pass'&&m.phase!==0);
-    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí un aldeano abajo y después tocá el destino adyacente.':'Elegí Producir, Mover aldeano o Pasar fase.';
+    for(const id of ['action-produce','action-move','action-build','action-train','action-tech','action-age','action-pass']){
+      const btn=document.getElementById(id) as HTMLButtonElement;
+      const required=id==='action-tech'?1:id==='action-age'?2:0;
+      btn.disabled=!active||(id!=='action-pass'&&m.phase!==required);
+    }
+    optionsPanel.hidden=!active||!['build','research'].includes(actionMode??'');
+    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel']:['Telar','Carretilla','Doble Filo'];
+    const previous=optionSelect.value;
+    optionSelect.replaceChildren(...opts.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o}));
+    if(opts.includes(previous))optionSelect.value=previous;
+    actionHelp.textContent=!active?'Esperando al jugador activo.':m.phase!==0?'Esta fase todavía no tiene acciones configuradas; podés pasarla.':actionMode==='produce'?'Tocá los hexágonos controlados para producir.':actionMode==='move'?'Elegí un aldeano abajo y después tocá el destino adyacente.':actionMode==='build'?'Elegí edificio y tocá un hexágono donde tengas aldeano.':actionMode==='research'?'Elegí tecnología y confirmá.':actionMode==='train'?'Entrena un aldeano en un terreno adyacente al CU por 1 comida.':actionMode==='age'?'Avanzá de edad si reunís los requisitos.':'Elegí una acción o Pasar fase.';
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       for(const u of m.units.filter(u=>u.seat===mySeat)){
@@ -323,7 +340,7 @@ function renderMap(map:MapState|null){
       }
     }
     selectedDisplay.textContent=selectedHexes.map(p=>'('+p.q+','+p.r+')').join(' · ');
-    submitAction.hidden=!active||m.phase!==0||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnit||!selectedHexes.length));
+    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnit||!selectedHexes.length))||(actionMode==='build'&&!selectedHexes.length);
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
   phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
