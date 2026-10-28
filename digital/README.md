@@ -37,9 +37,9 @@ colocación de Centros Urbanos y primeras acciones jugables por turnos.
 mover hasta dos unidades diferentes (cada una a su alcance), construir, entrenar varios aldeanos
 y comerciar hasta dos recursos con un Mercado de precios compartidos.
 Los recursos se almacenan en el hexágono productor y solo son gastables
-si se controla ese hexágono, sin red logística. Los Aldeanos pueden
-transportar cualquier cantidad de recursos del origen al destino durante MOVER,
-sin límite de carga ni requisito de Carretilla.
+si se controla ese hexágono, sin red logística. Los Aldeanos solo pueden transportar recursos al investigar Carretilla.
+Después pueden llevar cualquier cantidad disponible del origen al destino durante MOVER,
+sin límite de carga. Los recursos únicamente pueden gastarse mientras permanezcan en territorios controlados.
 
 **Producción:** Aldeano +1, Campamento Productivo +2, ambos +3;
 granja +2 comida por pareja granja/aldeano (máx. 2);
