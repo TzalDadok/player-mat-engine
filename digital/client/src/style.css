@@ -166,3 +166,5 @@ aside{left:160px;bottom:12px;transform:none;width:min(470px,calc(100vw - 175px))
  #quick-confirm{left:126px;bottom:calc(13px + env(safe-area-inset-bottom,0px))}
  aside{left:124px;bottom:calc(8px + env(safe-area-inset-bottom,0px));transform:none;width:calc(100vw - 132px);max-height:58dvh}
 }
+
+#host-recovery[hidden]{display:none!important}.host-recovery-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:9px 0}.host-recovery-row button{font-size:12px;padding:7px}.host-recovery-row span{overflow-wrap:anywhere}#host-recovery-result input{width:100%;max-width:none;font-size:12px;margin-bottom:8px}
