@@ -97,15 +97,19 @@ try{
   await poll(()=>host.latest()?.ready?.[0]===true&&host.latest()?.ready?.[1]===true,'ambos Ready');
   await desktop.locator('#start-game').click();
   await poll(()=>host.latest()?.started===true,'inicio de partida');
+  await desktop.locator('#close-panel').click();
   const first=candidate(host.latest()).point;
   const firstXY=await pixel(desktop,host.latest(),first,0);
   await desktop.mouse.click(firstXY.x,firstXY.y);
+  await desktop.locator('#open-panel').click();
   await desktop.waitForSelector('#confirm-cu:not([hidden])');
   await desktop.locator('#confirm-cu').click();
   await poll(()=>guest.latest()?.centers?.length===1,'CU anfitrión confirmado');
+  await mobile.locator('#close-panel').click();
   const second=candidate(guest.latest()).point;
   const secondXY=await pixel(mobile,guest.latest(),second,1);
   await mobile.touchscreen.tap(secondXY.x,secondXY.y);
+  await mobile.locator('#open-panel').click();
   await mobile.waitForSelector('#confirm-cu:not([hidden])');
   await mobile.locator('#confirm-cu').click();
   await poll(()=>host.latest()?.match?.units?.length>0,'partida inicializada');
@@ -120,7 +124,9 @@ try{
   await desktop.locator('#action-pass').click();
   await poll(()=>guest.latest()?.match?.turn===1,'turno móvil');
   await mobile.locator('#action-move').click();
+  await mobile.locator('#open-panel').click();
   await mobile.locator('#unit-list button').first().click();
+  await mobile.locator('#close-panel').click();
   const units=guest.latest().match.units.filter(u=>u.seat===1);
   assert(units.length,'El invitado no recibió aldeanos');
   const from=units[0];
@@ -130,7 +136,7 @@ try{
   const walk=await pixel(mobile,guest.latest(),target,1);
   await mobile.touchscreen.tap(walk.x,walk.y);
   assert((await mobile.locator('#unit-list').textContent()).includes('→ '+target.q+','+target.r),'Toque no asignó el destino al Aldeano');
-  await mobile.locator('#submit-action').click();
+  await mobile.locator('#quick-confirm').click();
   await poll(()=>guest.latest()?.match?.turn===1&&guest.latest()?.match?.phase===1,'movimiento táctil');
   // Android puede descargar la pestaña: recargar debe recuperar automáticamente
   // el mismo asiento y el mapa sin pulsar «Entrar a sala».
