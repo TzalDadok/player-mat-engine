@@ -68,3 +68,25 @@ button,select,input {min-height:44px}
 #recovery-panel .controls{display:flex;flex-wrap:nowrap}
 #recovery-code{min-width:0;max-width:none;flex:1;font-size:12px}
 #recovery-panel .controls button{flex:none}
+
+/* Hito 3: panel de partida compacto, claro y táctil. */
+#playing-panel{display:grid;gap:10px;align-content:start}
+#playing-panel[hidden],#train-panel[hidden],#carry-panel[hidden],#trade-fields[hidden],#action-options[hidden],#submit-action[hidden]{display:none!important}
+#playing-panel h2,#playing-panel h3{margin:4px 0}
+#turn-status{background:#243749;border-left:4px solid #d7b978;padding:10px 12px;border-radius:6px;font-weight:700}
+#resources{padding:12px;border:1px solid #3b4c5d;border-radius:8px;background:#172330;line-height:1.7}
+#power-status{margin:0;padding:8px 0;color:#e5c993;font-weight:600}
+#playing-panel .controls{gap:7px}
+#playing-panel .controls button{flex:1 1 44%;padding:10px 8px}
+#playing-panel .controls button[hidden]{display:none!important}
+#action-options,#train-panel,#carry-panel{padding:9px;border:1px solid #3b4c5d;border-radius:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#action-options select,#train-panel input,#carry-panel select,#carry-panel input{min-width:75px;flex:1}
+#unit-list{display:flex;gap:6px;flex-wrap:wrap}
+#unit-list button{padding:8px 10px}
+#selected-hexes{font-size:13px;color:#e9d8a9}
+#submit-action{width:100%;background:#e0ba71}
+#game-log{max-height:160px;overflow-y:auto;font-size:12px;color:#becbd6;padding-left:22px;margin:0}
+@media(max-width:800px){
+  #playing-panel .controls button{flex-basis:44%}
+  #game-log{max-height:130px}
+}
