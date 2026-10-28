@@ -76,6 +76,8 @@ const hostConfig=document.getElementById('host-config')!;
 const lobbyPanel=document.getElementById('lobby-panel')!;
 const cuPanel=document.getElementById('cu-panel')!;
 const playingPanel=document.getElementById('playing-panel')!;
+const actionDock=document.createElement('nav');actionDock.id='action-dock';actionDock.setAttribute('aria-label','Acciones del turno');actionDock.hidden=true;
+const actionsRow=playingPanel.querySelector('.controls')!;actionDock.append(actionsRow);container.append(actionDock);
 const phaseTitle=document.getElementById('phase-title')!;
 const lobbyRows=document.getElementById('lobby-rows')!;
 const confirmCu=document.getElementById('confirm-cu') as HTMLButtonElement;
@@ -418,6 +420,14 @@ class BootScene extends Phaser.Scene {
         this.add.circle(x,y,Math.max(10,size*.4),0xffde62,.3).setStrokeStyle(3,0xffde62);
       }
     }
+    // Fichas acumuladas físicamente en el territorio, visibles para todos los jugadores.
+    if(this.currentMap.match?.stock){for(const [position,stock] of Object.entries(this.currentMap.match.stock)){
+      const [q,r]=position.split(',').map(Number),x=cx+size*Math.sqrt(3)*(q+r/2),y=cy+size*1.5*r;
+      const parts=(['food','wood','stone','gold'] as const).filter(k=>(stock[k]??0)>0).map(k=>({food:'🥩',wood:'🪵',stone:'🪨',gold:'🪙'}[k])+(stock[k]??0));
+      if(!parts.length)continue;
+      const fontSize=Math.max(10,Math.min(17,size*.33));
+      this.add.text(x,y-size*.54,parts.join('  '),{fontSize:fontSize+'px',color:'#fff',backgroundColor:'#142432dd',padding:{x:4,y:3}}).setOrigin(.5);
+    }}
     // Superponer el recurso en el centro de cada hexágono primario.
     // Se hace después de las texturas para que siempre quede visible.
     for(let i=0;i<displayHexes.length;i++){
@@ -445,7 +455,7 @@ function renderMap(map:MapState|null){
   if(recoveryToggle.hidden)recoveryPanel.hidden=true;
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
-  if(map?.match&&!panelDismissed&&mySeat===(map.order??[])[map.match.turn]&&!actionMode)setPanelVisible(true);
+  if(map?.match&&(!actionMode||actionMode==='produce'||actionMode==='move'))setPanelVisible(false);
   mapInfo.textContent=map?map.hexes.length+' terrenos + Maravilla · '+map.count+' jugadores':'Mapa todavía no generado.';
   const placed=map?.centers??[],inPlacement=!!map?.started&&placed.length<map.count;
   hostConfig.hidden=!!map||mySeat!==0;
@@ -458,6 +468,7 @@ function renderMap(map:MapState|null){
   if(awaiting||inPlacement){setPanelVisible(false)}
   if(!map?.awaitingVillager&&map?.draft?.seat!==mySeat&&pendingSetup?.type==='confirm_cu_position'){pendingSetup=null;setupDialog.hidden=true}
   playingPanel.hidden=!map?.match;
+  actionDock.hidden=!map?.match||mySeat!==(map.order??[])[map.match.turn];
   if(map?.match){
     const m=map.match,seat=(map.order??[])[m.turn],active=mySeat===seat,me=m.players[mySeat];
     turnStatus.textContent='Ronda '+m.round+' · '+(lobbyPlayers.find(p=>p.seat===seat)?.name??'Jugador '+(seat+1))+' · Fase '+['Económica','Tecnológica','Militar'][m.phase]+(active?' (tu turno)':'');
@@ -564,7 +575,7 @@ function renderMap(map:MapState|null){
     submitAction.textContent=actionMode==='move'?'Confirmar '+movePlans.length+' movimiento'+(movePlans.length===1?'':'s'):'Confirmar acción';
     submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
     quickConfirm.textContent='✓ '+submitAction.textContent;
-    quickConfirm.hidden=!panelDismissed||submitAction.hidden;
+    quickConfirm.hidden=submitAction.hidden||!['produce','move'].includes(actionMode??'');
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
   if(!map?.match)phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
@@ -655,7 +666,7 @@ function connectToRoom(reconnect=false){
       const packet = JSON.parse(String(event.data));
       if (packet.type === 'welcome') { localStorage.setItem(tokenKey,token);restoreInput.value='';recoveryCode.value=token;playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
       if (packet.type === 'seat') {mySeat=packet.seat;(game.scene.getScene('BootScene') as BootScene).setSeat(mySeat);renderMap(sharedMap)}
-      if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase){selectedHexes=[];selectedUnits=[];movePlans=[];actionMode=null}renderMap(packet.map)}
+      if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase||packet.map?.match?.log?.[0]!==sharedMap?.match?.log?.[0]){selectedHexes=[];selectedUnits=[];movePlans=[];actionMode=null}renderMap(packet.map)}
       if (packet.type === 'error') mapInfo.textContent = packet.message;
       if (packet.type === 'lobby') {
         lobbyPlayers=packet.players;
