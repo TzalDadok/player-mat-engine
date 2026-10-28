@@ -6,7 +6,7 @@ const container = document.getElementById('app')!;
 container.innerHTML = `
 <header><div><strong>AoE BoardGame <span class="tag">Digital · Hito 3</span></strong><br/><small>Cliente web + servidor multijugador</small></div>
 <div class="controls"><input id="name" aria-label="Nombre del jugador" maxlength="24" placeholder="Nombre del jugador" value="Jugador"/><button id="join">Entrar a sala</button><button id="fullscreen" class="secondary">⛶ Pantalla completa</button></div><span id="status">Sin conectar</span></header>
-<main><section class="stage"><div id="game"></div></section><aside><h2 id="phase-title">Crear partida</h2><p id="room">Sin conectar</p>
+<main><section class="stage"><div id="game"></div></section><aside><button id="close-panel" class="secondary" type="button" aria-label="Cerrar panel">✕</button><h2 id="phase-title">Crear partida</h2><p id="room">Sin conectar</p>
 <div id="host-config"><div class="controls"><select id="count"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div></div>
 <div id="lobby-panel" hidden><p id="setup-status"></p><div class="lobby-scroll"><table class="lobby-table"><thead><tr><th>JUGADOR</th><th>CIVILIZACIÓN</th><th>ORDEN</th><th>READY</th></tr></thead><tbody id="lobby-rows"></tbody></table></div><button id="start-game" disabled>Iniciar partida</button></div>
 <div id="cu-panel" hidden><p id="cu-info"></p><button id="confirm-cu" disabled>Confirmar posición del CU</button></div>
@@ -26,9 +26,16 @@ container.innerHTML = `
 </div><div id="action-options" hidden><label for="action-kind">Elegí una opción:</label><select id="action-kind"></select><div id="trade-fields" hidden><select id="trade-side"><option value="buy">Comprar</option><option value="sell">Vender</option></select><select id="trade-amount"><option value="1">1 recurso</option><option value="2">2 recursos</option></select></div></div><button id="submit-action" hidden>Confirmar acción</button>
 <h3>Registro de turnos</h3><ol id="game-log"></ol>
 </div><p id="map-info">Mapa todavía no generado.</p>
-</aside></main>`;
+</aside></main><button id="open-panel" class="secondary" type="button" hidden>☰ Acciones</button>`;
 
 const status = document.getElementById('status')!;
+const panel=document.querySelector('aside') as HTMLElement;
+const openPanel=document.getElementById('open-panel') as HTMLButtonElement;
+const closePanel=document.getElementById('close-panel') as HTMLButtonElement;
+let panelDismissed=false;
+function setPanelVisible(visible:boolean){panelDismissed=!visible;panel.classList.toggle('collapsed',!visible);openPanel.hidden=visible;}
+openPanel.addEventListener('click',()=>setPanelVisible(true));
+closePanel.addEventListener('click',()=>setPanelVisible(false));
 const roomLabel = document.getElementById('room')!;
 const players = document.createElement('ol');
 const join = document.getElementById('join') as HTMLButtonElement;
@@ -380,6 +387,7 @@ function renderMap(map:MapState|null){
   recoveryPanel.hidden=!socket||socket.readyState!==WebSocket.OPEN||mySeat<0;
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
+  if(map?.match&&!panelDismissed&&mySeat===(map.order??[])[map.match.turn]&&!actionMode)setPanelVisible(true);
   mapInfo.textContent=map?map.hexes.length+' terrenos + Maravilla · '+map.count+' jugadores':'Mapa todavía no generado.';
   const placed=map?.centers??[],inPlacement=!!map?.started&&placed.length<map.count;
   hostConfig.hidden=!!map||mySeat!==0;
