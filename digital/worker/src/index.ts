@@ -313,7 +313,7 @@ export class GameRoom extends DurableObject<Env> {
         for(let i=0;i<moves.length;i++){
           const dest=moves[i],unit=selected[i]!;
           const terrain=map.hexes.find(h=>h.q===dest.q&&h.r===dest.r);
-          if(!terrain||terrain.type.startsWith('Agua')||range(unit,dest)>1||range(unit,dest)<1){
+          if((!terrain&&!(dest.q===0&&dest.r===0))||terrain?.type.startsWith('Agua')||range(unit,dest)>1||range(unit,dest)<1){
             fail('Cada Aldeano se mueve hasta 1 hexágono terrestre.');return;
           }
           if(match.units.some(u=>u.seat!==seat&&u.q===dest.q&&u.r===dest.r)){
