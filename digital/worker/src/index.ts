@@ -6,7 +6,7 @@ type Hex = { q: number; r: number; type: string };
 type Placement = { seat: number; q: number; r: number };
 type Resource='food'|'wood'|'stone'|'gold';
 type Unit={id:string;seat:number;q:number;r:number;kind:'Aldeano'};
-type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'};
+type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'|'Torre'|'Puerto'};
 type PlayerState={age:number;pm:number;resources:Record<Resource,number>;techs:string[]};
 type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[];market:Record<'food'|'wood'|'stone',number>;stock:Record<string,Record<Resource,number>>};
 type MapState = {match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; ready?:Record<number,boolean> };
@@ -62,6 +62,8 @@ const costs={
   'Campamento Productivo':{wood:3},
   'Granja':{wood:2},
   'Cuartel':{wood:1,stone:3,gold:1},
+  'Torre':{stone:3,wood:2},
+  'Puerto':{wood:4,stone:2},
   'Aldeano':{food:1},
   'Telar':{food:1,wood:1},
   'Carretilla':{wood:1,gold:1},
@@ -291,13 +293,18 @@ export class GameRoom extends DurableObject<Env> {
       }else if(action==='build'&&phase===0){
         if(!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Seleccioná una casilla válida.');return}
         const pos={q:packet.q!,r:packet.r!},kind=packet.kind as keyof typeof costs;
-        if(!['Campamento Productivo','Granja','Cuartel'].includes(kind)){fail('Edificio desconocido.');return}
+        if(!['Campamento Productivo','Granja','Cuartel','Torre','Puerto'].includes(kind)){fail('Edificio desconocido.');return}
         const tile=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
-        if(!tile||!match.units.some(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r)){fail('Necesitás un aldeano en ese hexágono.');return}
+        if(!tile){fail('Elegí una casilla del mapa.');return}
+        const workersHere=match.units.some(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r);
+        const workersAdjacent=match.units.some(u=>u.seat===seat&&range(u,pos)===1);
+        if(kind==='Puerto'?!workersAdjacent:!workersHere){fail(kind==='Puerto'?'El Puerto requiere un Aldeano adyacente.':'Necesitás un Aldeano en ese hexágono.');return}
         const count=match.buildings.filter(b=>b.q===pos.q&&b.r===pos.r&&b.kind===kind).length;
         if(kind==='Campamento Productivo'&&(!resourceFor(tile.type)||count>=1)){fail('Solo un Campamento Productivo por hexágono de recursos.');return}
         if(kind==='Granja'&&(tile.type!=='Llanura'||count>=2)){fail('La Granja requiere Llanura y un máximo de dos por hexágono.');return}
-        if(kind==='Cuartel'&&(!['Llanura','Desierto'].includes(tile.type)||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Cuartel requiere terreno disponible de Llanura o Desierto.');return}
+        if(['Cuartel','Torre'].includes(kind)&&(!['Llanura','Desierto'].includes(tile.type)||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Cuartel requiere terreno disponible de Llanura o Desierto.');return}
+        if(kind==='Puerto'&&(!tile.type.startsWith('Agua')||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Puerto debe construirse en Agua libre, adyacente a un Aldeano.');return}
+        if(kind!=='Granja'&&match.buildings.filter(b=>b.q===pos.q&&b.r===pos.r&&b.kind==='Granja').length>=2){fail('No se permiten otros edificios si hay dos Granjas.');return}
         const cost=costs[kind];if(!debit(map,match,seat,cost)){fail('Recursos insuficientes en hexágonos controlados.');return}
         match.buildings.push({seat,...pos,kind:kind as Structure['kind']});
         match.log.unshift('Jugador '+(seat+1)+' construyó '+kind);
