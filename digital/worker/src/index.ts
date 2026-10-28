@@ -445,7 +445,7 @@ export class GameRoom extends DurableObject<Env> {
 export default {
   async fetch(request:Request,env:Env):Promise<Response>{
     const url=new URL(request.url);
-    if(url.pathname==='/api/health')return Response.json({name:'AoE BoardGame Digital',milestone:2,status:'online'});
+    if(url.pathname==='/api/health')return Response.json({name:'AoE BoardGame Digital',milestone:3,status:'online'});
     if(url.pathname.startsWith('/ws/')){
       const room=url.pathname.slice(4);
       if(!/^[a-zA-Z0-9_-]{3,30}$/.test(room))return new Response('Código de sala inválido',{status:400});
