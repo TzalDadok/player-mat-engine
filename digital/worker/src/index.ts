@@ -41,7 +41,33 @@ function generateMap(count: number, seed: number): MapState {
     }
   }
   if (terrains.length !== coords.length-1) throw new Error('Cantidad de terrenos incorrecta');
-  return {seed,count,hexes:coords.slice(1).map((p,i)=>({...p,type:terrains[i]})),centers:[],order:Array.from({length:count},(_,i)=>i),civs:{},started:false,setupConfirmed:false,draft:null,ready:{}};
+  // Animales y Frutos producen comida: se consideran el mismo recurso.
+  // No puede existir un grupo conectado de tres o más hexágonos productores iguales.
+  const resource=(type:string)=>type==='Animales'||type==='Frutos silvestres'?'food':type==='Bosque'?'wood':type==='Cantera de Piedra'?'stone':type==='Cantera de Oro'?'gold':null;
+  const points=coords.slice(1);
+  const valid=()=>{
+    const visited=new Set<number>();
+    for(let i=0;i<points.length;i++){
+      const kind=resource(terrains[i]);
+      if(!kind||visited.has(i))continue;
+      const queue=[i];visited.add(i);
+      for(let k=0;k<queue.length;k++){
+        for(let j=0;j<points.length;j++){
+          if(visited.has(j)||resource(terrains[j])!==kind)continue;
+          const a=points[queue[k]],b=points[j];
+          if(Math.max(Math.abs(a.q-b.q),Math.abs(a.r-b.r),Math.abs(a.q+a.r-b.q-b.r))===1){visited.add(j);queue.push(j)}
+        }
+        if(queue.length>2)return false;
+      }
+    }
+    return true;
+  };
+  let attempts=0;
+  while(!valid()&&attempts++<10000){
+    for(let i=terrains.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[terrains[i],terrains[j]]=[terrains[j],terrains[i]]}
+  }
+  if(!valid())throw new Error('No fue posible generar un mapa con productores separados');
+  return {seed,count,hexes:points.map((p,i)=>({...p,type:terrains[i]})),centers:[],order:Array.from({length:count},(_,i)=>i),civs:{},started:false,setupConfirmed:false,draft:null,ready:{}};
 }
 function isCompact(map:MapState):boolean {
   const expected = map.count<=2 ? 18 : 36;
