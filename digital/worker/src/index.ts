@@ -172,13 +172,13 @@ export class GameRoom extends DurableObject<Env> {
         for(const pos of list){
           if(!Number.isInteger(pos.q)||!Number.isInteger(pos.r)){fail('Casilla inválida.');return}
           const hex=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
-          const resource=hex&&resourceFor(hex.type);
+          const farm=match.buildings.filter(b=>b.seat===seat&&b.q===pos.q&&b.r===pos.r&&b.kind==='Granja').length;
+          const resource=hex&&(resourceFor(hex.type)??(farm>0?'food':null));
           if(!resource){fail('Ese terreno no produce recursos.');return}
           const workers=match.units.some(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r);
           const camp=match.buildings.some(b=>b.seat===seat&&b.q===pos.q&&b.r===pos.r&&b.kind==='Campamento Productivo');
-          if(!workers&&!camp){fail('No controlás uno de los terrenos seleccionados.');return}
-          const farm=match.buildings.filter(b=>b.seat===seat&&b.q===pos.q&&b.r===pos.r&&b.kind==='Granja').length;
-          gained[resource]+=(workers?1:0)+(camp?2:0)+(resource==='food'?farm*2:0);
+          if(!workers&&!camp&&!farm){fail('No controlás uno de los terrenos seleccionados.');return}
+          gained[resource]+=(resourceFor(hex!.type)?((workers?1:0)+(camp?2:0)):0)+(resource==='food'?farm*2:0);
           if(resource==='wood'&&workers&&player.techs.includes('Doble Filo'))gained.wood+=1;
         }
         for(const res of Object.keys(gained) as Resource[])player.resources[res]+=gained[res];
