@@ -24,3 +24,7 @@ jobs:
       - run: npm run build
       - run: node tests/hito3-smoke.mjs
         timeout-minutes: 4
+      - run: npx playwright install --with-deps chromium
+        timeout-minutes: 6
+      - run: node tests/hito3-browser.mjs
+        timeout-minutes: 4
