@@ -110,7 +110,7 @@ function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSock
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap);setPanelVisible(false)});
 document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];selectedUnits=[];movePlans=[];renderMap(sharedMap);setPanelVisible(false)});
 for(const [id,action] of [['action-build','build'],['action-trade','trade'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
-  document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap)});
+  document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap);setPanelVisible(true)});
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
 submitAction.addEventListener('click',()=>{
   if(actionMode==='produce')sendAction({action:'produce',hexes:selectedHexes});
