@@ -163,7 +163,7 @@ async function play(count){
     const welcome=await rejoined.wait(m=>m.type==='welcome');
     assert.equal(welcome.seat,0);
     const restored=(await rejoined.wait(m=>m.type==='map'&&!!m.map?.match)).map;
-    assert.equal(restored.match.turn,1);
+    assert.equal(restored.match.turn,count>=3?2:1);
     rejoined.close();
     for(const p of clients)p.close();
     await delay(350);
@@ -171,7 +171,7 @@ async function play(count){
     const again=player('Después de cerrar',room,clients[0].token);
     await again.open;
     assert.equal((await again.wait(m=>m.type==='welcome')).seat,0);
-    assert.equal((await again.wait(m=>m.type==='map'&&!!m.map?.match)).map.match.turn,1);
+    assert.equal((await again.wait(m=>m.type==='map'&&!!m.map?.match)).map.match.turn,count>=3?2:1);
     again.close();
     console.log('OK: '+count+' jugadores, lobby, CU, turnos y reconexión');
   }finally{
