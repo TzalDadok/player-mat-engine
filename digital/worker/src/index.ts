@@ -326,7 +326,8 @@ export class GameRoom extends DurableObject<Env> {
         let gold=player.resources.gold,quantity=player.resources[resource];
         const originalGold=gold,originalQuantity=quantity;
         for(let n=0;n<packet.amount!;n++){
-          const value=base[resource][packet.side==='buy'?'buy':'sell'][position];
+          const listed=base[resource][packet.side==='buy'?'buy':'sell'][position];
+          const value=packet.side==='buy'&&player.techs.includes('Carreta Mercante')?Math.max(0,listed-1):listed;
           if(packet.side==='buy'){
             if(gold<value){fail('No tenés oro suficiente para esa compra.');return}
             gold-=value;quantity++;position=Math.min(4,position+1);
