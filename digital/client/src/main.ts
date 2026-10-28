@@ -405,7 +405,14 @@ function renderMap(map:MapState|null){
     carryPanel.hidden=true;
     trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
-    const techOptions=['Telar','Carretilla','Doble Filo'].filter(tech=>!me?.techs.includes(tech)&&!(tech==='Carretilla'&&map.civs?.[mySeat]===2&&(me?.age??1)<2));
+    const civTechs:Record<number,[string,number,string][]> = {
+      0:[['Telar',1,'🥩1 🪵1'],['Carretilla',1,'🪵1 🪙1'],['Doble Filo',1,'🥩1 🪨1 🪙1'],['Pastoreo',2,'🥩1 🪵1'],['Carreta Mercante',2,'🪵3 🪙2'],['Explotac. Aurífera',4,'🥩3 🪵1 🪨2'],['Administración Real',4,'🥩4 🪙3']],
+      1:[['Telar',1,'🥩1 🪵1'],['Carretilla',1,'🪵1 🪙1'],['Doble Filo',1,'🥩1 🪨1 🪙1'],['Rot. de Cultivos',2,'🥩2 🪵1'],['Canteros',2,'🥩2 🪵1'],['Administración Real',4,'🥩4 🪙3']],
+      2:[['Telar',1,'🥩1 🪵1'],['Doble Filo',1,'🥩1 🪨1 🪙1'],['Recolección',1,'🥩1 🪵2'],['Carretilla',2,'🪵1 🪙1'],['Carreta Mercante',3,'🪵3 🪙2'],['Administración Real',4,'🥩4 🪙3']],
+      3:[['Telar',1,'🥩1 🪵1'],['Carretilla',1,'🪵1 🪙1'],['Qanats',2,'🪵2 🪨2'],['Minería Imperial',2,'🥩3 🪵1 🪨2'],['Canteros Reales',3,'🥩2 🪵2 🪙2']]
+    };
+    const available=civTechs[map.civs?.[mySeat]??0]??[];
+    const techOptions=available.filter(([name,age])=>(me?.age??1)>=age&&!me?.techs.includes(name)).map(([name])=>name);
     const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto']:actionMode==='trade'?['food','wood','stone']:techOptions;
     const previous=optionSelect.value;
     const costs:Record<string,string>={
@@ -417,7 +424,8 @@ function renderMap(map:MapState|null){
     optionSelect.replaceChildren(...opts.map(v=>{
       const o=document.createElement('option');o.value=v;
       o.textContent=({food:'Comida',wood:'Madera',stone:'Piedra'} as Record<string,string>)[v]??v;
-      if(costs[v])o.textContent+=' — '+costs[v];
+      const matLabel=available.find(([name])=>name===v)?.[2];
+      if(matLabel||costs[v])o.textContent+=' — '+(matLabel??costs[v]);
       return o;
     }));
     if(opts.includes(previous))optionSelect.value=previous;
