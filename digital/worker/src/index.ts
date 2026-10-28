@@ -8,7 +8,7 @@ type Resource='food'|'wood'|'stone'|'gold';
 type Unit={id:string;seat:number;q:number;r:number;kind:'Aldeano'};
 type Structure={seat:number;q:number;r:number;kind:'Campamento Productivo'|'Granja'|'Cuartel'};
 type PlayerState={age:number;pm:number;resources:Record<Resource,number>;techs:string[]};
-type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[]};
+type Match={round:number;turn:number;phase:0|1|2;players:Record<number,PlayerState>;units:Unit[];buildings:Structure[];log:string[];market:Record<'food'|'wood'|'stone',number>};
 type MapState = {match?:Match; seed: number; count: number; hexes: Hex[]; centers?: Placement[]; order?: number[]; civs?: Record<number,number>; started?: boolean; setupConfirmed?: boolean; draft?: Placement|null; ready?:Record<number,boolean> };
 
 const types = ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque','Agua','Desierto','Llanura','Montaña'];
@@ -84,7 +84,7 @@ function prepareMatch(map:MapState):Match{
     for(let k=0;k<Math.min(initial,tiles.length);k++)units.push({id:crypto.randomUUID(),seat,q:tiles[k].q,r:tiles[k].r,kind:'Aldeano'});
     players[seat]={age:1,pm:map.count===4&&(i===0||i===3)?1:0,resources:{food:0,wood:0,stone:0,gold:0},techs:[]};
   }
-  return {round:1,turn:0,phase:0,players,units,buildings:[],log:['La partida comenzó.']};
+  return {round:1,turn:0,phase:0,players,units,buildings:[],log:['La partida comenzó.'],market:{food:0,wood:0,stone:0}};
 }
 
 export class GameRoom extends DurableObject<Env> {
@@ -150,7 +150,7 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;kind?:string;hexes?:{q:number;r:number}[]};
+    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
     if(packet.type==='game_action'){
@@ -173,13 +173,15 @@ export class GameRoom extends DurableObject<Env> {
           if(!Number.isInteger(pos.q)||!Number.isInteger(pos.r)){fail('Casilla inválida.');return}
           const hex=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
           const farm=match.buildings.filter(b=>b.seat===seat&&b.q===pos.q&&b.r===pos.r&&b.kind==='Granja').length;
-          const resource=hex&&(resourceFor(hex.type)??(farm>0?'food':null));
-          if(!resource){fail('Ese terreno no produce recursos.');return}
-          const workers=match.units.some(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r);
+          const workers=match.units.filter(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r).length;
           const camp=match.buildings.some(b=>b.seat===seat&&b.q===pos.q&&b.r===pos.r&&b.kind==='Campamento Productivo');
-          if(!workers&&!camp&&!farm){fail('No controlás uno de los terrenos seleccionados.');return}
-          gained[resource]+=(resourceFor(hex!.type)?((workers?1:0)+(camp?2:0)):0)+(resource==='food'?farm*2:0);
-          if(resource==='wood'&&workers&&player.techs.includes('Doble Filo'))gained.wood+=1;
+          const natural=hex&&resourceFor(hex.type);
+          const coast=!!hex&&workers>0&&neighbors.some(([dq,dr])=>map.hexes.some(h=>h.q===pos.q+dq&&h.r===pos.r+dr&&h.type.startsWith('Agua')));
+          if(!hex||(!natural&&!farm&&!coast)){fail('Ese terreno no produce recursos.');return}
+          if(!workers&&!camp){fail('No tenés un productor en uno de los hexágonos.');return}
+          if(natural)gained[natural]+=workers+(camp?2:0)+(natural==='wood'&&player.techs.includes('Doble Filo')?workers:0);
+          else if(farm)gained.food+=2*Math.min(farm,workers);
+          else if(coast)gained.food+=workers;
         }
         for(const res of Object.keys(gained) as Resource[])player.resources[res]+=gained[res];
         match.log.unshift('Jugador '+(seat+1)+' produjo '+JSON.stringify(gained));
@@ -187,10 +189,32 @@ export class GameRoom extends DurableObject<Env> {
         const unit=match.units.find(u=>u.id===packet.unit&&u.seat===seat);
         if(!unit||!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Elegí un aldeano y destino válidos.');return}
         const target=map.hexes.find(h=>h.q===packet.q&&h.r===packet.r);
-        if(!target||range(unit,{q:packet.q!,r:packet.r!})!==1||['Agua A','Agua B','Montaña'].includes(target.type)){fail('El aldeano debe moverse un hexágono terrestre adyacente.');return}
+        if(!target||range(unit,{q:packet.q!,r:packet.r!})!==1||['Agua A','Agua B'].includes(target.type)){fail('El aldeano debe moverse un hexágono terrestre adyacente.');return}
         if(match.units.some(u=>u.seat!==seat&&u.q===packet.q&&u.r===packet.r)){fail('El territorio está ocupado por otro jugador.');return}
         unit.q=packet.q!;unit.r=packet.r!;
         match.log.unshift('Jugador '+(seat+1)+' movió un aldeano.');
+      }else if(action==='trade'&&phase===0){
+        const resource=packet.kind as 'food'|'wood'|'stone';
+        if(!['food','wood','stone'].includes(resource)||!['buy','sell'].includes(packet.side??'')||
+           !Number.isInteger(packet.amount)||packet.amount!<1||packet.amount!>2){fail('Operación de mercado inválida.');return}
+        const base={food:{buy:[2,3,4,5,6],sell:[1,1,2,3,4]},
+          wood:{buy:[3,4,5,6,7],sell:[1,2,3,4,5]},
+          stone:{buy:[4,5,6,7,8],sell:[2,3,4,5,6]}} as const;
+        let position=match.market?.[resource]??0;
+        let gold=player.resources.gold,quantity=player.resources[resource];
+        for(let n=0;n<packet.amount!;n++){
+          const value=base[resource][packet.side==='buy'?'buy':'sell'][position];
+          if(packet.side==='buy'){
+            if(gold<value){fail('No tenés oro suficiente para esa compra.');return}
+            gold-=value;quantity++;position=Math.min(4,position+1);
+          }else{
+            if(quantity<1){fail('No tenés suficientes recursos para vender.');return}
+            quantity--;gold+=value;position=Math.max(0,position-1);
+          }
+        }
+        player.resources.gold=gold;player.resources[resource]=quantity;
+        match.market={...(match.market??{food:0,wood:0,stone:0}),[resource]:position};
+        match.log.unshift('Jugador '+(seat+1)+' '+(packet.side==='buy'?'compró ':'vendió ')+packet.amount+' '+resource);
       }else if(action==='build'&&phase===0){
         if(!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Seleccioná una casilla válida.');return}
         const pos={q:packet.q!,r:packet.r!},kind=packet.kind as keyof typeof costs;
@@ -208,9 +232,7 @@ export class GameRoom extends DurableObject<Env> {
       }else if(action==='train'&&phase===0){
         const cu=map.centers?.find(p=>p.seat===seat),cost=costs.Aldeano;
         if(!cu||!afford(player.resources,cost)){fail('No tenés comida suficiente para entrenar un Aldeano.');return}
-        const free=map.hexes.find(h=>range(h,cu)===1&&h.type!=='Montaña'&&!h.type.startsWith('Agua')&&!match.units.some(u=>u.q===h.q&&u.r===h.r&&u.seat!==seat));
-        if(!free){fail('No hay espacio adyacente al CU.');return}
-        pay(player.resources,cost);match.units.push({id:crypto.randomUUID(),seat,q:free.q,r:free.r,kind:'Aldeano'});
+        pay(player.resources,cost);match.units.push({id:crypto.randomUUID(),seat,q:cu.q,r:cu.r,kind:'Aldeano'});
         match.log.unshift('Jugador '+(seat+1)+' entrenó un Aldeano');
       }else if(action==='research'&&phase===1){
         const name=packet.kind as keyof typeof costs;
