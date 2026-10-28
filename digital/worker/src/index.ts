@@ -309,9 +309,12 @@ export class GameRoom extends DurableObject<Env> {
         match.buildings.push({seat,...pos,kind:kind as Structure['kind']});
         match.log.unshift('Jugador '+(seat+1)+' construyó '+kind);
       }else if(action==='train'&&phase===0){
-        const cu=map.centers?.find(p=>p.seat===seat),cost=costs.Aldeano;
-        if(!cu||!debit(map,match,seat,cost)){fail('No tenés comida controlada suficiente para entrenar un Aldeano.');return}match.units.push({id:crypto.randomUUID(),seat,q:cu.q,r:cu.r,kind:'Aldeano'});
-        match.log.unshift('Jugador '+(seat+1)+' entrenó un Aldeano');
+        const cu=map.centers?.find(p=>p.seat===seat);
+        const amount=packet.amount??1;
+        if(!Number.isInteger(amount)||amount<1||amount>999){fail('Cantidad de Aldeanos inválida.');return}
+        if(!cu||!debit(map,match,seat,{food:amount})){fail('No tenés comida controlada suficiente para entrenar '+amount+' Aldeano(s).');return}
+        for(let i=0;i<amount;i++)match.units.push({id:crypto.randomUUID(),seat,q:cu.q,r:cu.r,kind:'Aldeano'});
+        match.log.unshift('Jugador '+(seat+1)+' entrenó '+amount+' Aldeano(s)');
       }else if(action==='research'&&phase===1){
         const name=packet.kind as keyof typeof costs;
         if(!['Telar','Carretilla','Doble Filo'].includes(name)||player.techs.includes(name)){fail('Tecnología no disponible.');return}
