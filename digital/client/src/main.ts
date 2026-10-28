@@ -139,6 +139,20 @@ let selectedHexes:{q:number;r:number}[]=[];
 let selectedUnits:string[]=[];
 type MovePlan={unit:string;q:number;r:number;cargo:Record<string,number>};
 let movePlans:MovePlan[]=[];
+function buildLocationValid(kind:string,q:number,r:number):boolean{
+  const map=sharedMap,match=map?.match;
+  if(!map||!match)return false;
+  const tile=map.hexes.find(h=>h.q===q&&h.r===r);
+  if(!tile)return false;
+  const at=match.buildings.filter(b=>b.q===q&&b.r===r);
+  const workersHere=match.units.some(u=>u.seat===mySeat&&u.q===q&&u.r===r);
+  const workersAdjacent=match.units.some(u=>u.seat===mySeat&&Math.max(Math.abs(u.q-q),Math.abs(u.r-r),Math.abs(u.q+u.r-q-r))===1);
+  if(kind==='Puerto')return tile.type.startsWith('Agua')&&workersAdjacent&&!at.length;
+  if(!workersHere||at.filter(b=>b.kind==='Granja').length>=2)return false;
+  if(kind==='Campamento Productivo')return ['Frutos silvestres','Animales','Cantera de Oro','Cantera de Piedra','Bosque'].includes(tile.type)&&!at.some(b=>b.kind===kind);
+  if(kind==='Granja')return (tile.type==='Llanura'||tile.type==='Desierto'&&match.players[mySeat]?.techs.includes('Qanats'))&&at.filter(b=>b.kind===kind).length<2;
+  return ['Llanura','Desierto'].includes(tile.type)&&!at.length;
+}
 let draggedBuilding:string|null=null;
 let buildingDragGhost:HTMLImageElement|null=null;
 function beginBuildingDrag(event:PointerEvent,kind:string,file:string){
@@ -157,7 +171,7 @@ function beginBuildingDrag(event:PointerEvent,kind:string,file:string){
     if(!dragging)return;
     const scene=game.scene.getScene('BootScene') as BootScene;
     const tile=scene.tileAtClient(e.clientX,e.clientY);
-    if(tile){draggedBuilding=kind;optionSelect.value=kind;selectBoardHex(tile.q,tile.r);setPanelVisible(false)}
+    if(tile&&buildLocationValid(kind,tile.q,tile.r)){draggedBuilding=kind;optionSelect.value=kind;selectBoardHex(tile.q,tile.r);setPanelVisible(false)}
   };
   window.addEventListener('pointermove',move);
   window.addEventListener('pointerup',up,{once:true});
@@ -197,7 +211,7 @@ function selectBoardHex(q:number,r:number){
       selectedUnits=[];
     }
   }
-  if(actionMode==='build'&&draggedBuilding)selectedHexes=[{q,r}];
+  if(actionMode==='build'&&draggedBuilding&&buildLocationValid(draggedBuilding,q,r))selectedHexes=[{q,r}];
   if(actionMode==='terrain')selectedHexes=[{q,r}];
   renderMap(sharedMap);
   if(panelDismissed)quickConfirm.hidden=submitAction.hidden||!['produce','move','build','terrain'].includes(actionMode??'');
@@ -679,6 +693,7 @@ function renderMap(map:MapState|null){
     const selectedAction={produce:'action-produce',move:'action-move',build:'action-build',terrain:'action-terrain',trade:'action-trade',train:'action-train',research:'action-tech',age:'action-age'}[actionMode??'' as 'produce']
     actionDock.querySelectorAll('button').forEach(button=>button.classList.toggle('chosen-action',button.id===selectedAction));
     quickConfirm.classList.toggle('beside-produce',actionMode==='produce');
+    if(actionMode==='produce'){const rect=document.getElementById('action-produce')!.getBoundingClientRect();quickConfirm.style.top=Math.round(rect.top+rect.height/2-20)+'px';quickConfirm.style.left=Math.round(rect.right+8)+'px'}else{quickConfirm.style.top='';quickConfirm.style.left=''}
     buildTray.hidden=!active||actionMode!=='build';
     if(!buildTray.hidden){
       const images:Record<string,string>={
