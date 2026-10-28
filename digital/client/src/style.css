@@ -156,3 +156,13 @@ aside.collapsed{display:none}
  #action-dock button{font-size:11px;padding:7px 3px;min-height:36px}
  #quick-confirm{left:124px;bottom:calc(16px + env(safe-area-inset-bottom,0px));min-width:140px;padding:10px 8px;font-size:12px}
 }
+
+/* Menú de acciones anclado abajo a la izquierda, sin desplazar el tablero. */
+#action-dock{top:auto;bottom:12px;left:12px;transform:none;max-height:70dvh}
+#quick-confirm{left:165px;bottom:18px}
+aside{left:160px;bottom:12px;transform:none;width:min(470px,calc(100vw - 175px))}
+@media(max-width:800px){
+ #action-dock{top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px));left:6px;transform:none;max-height:66dvh}
+ #quick-confirm{left:126px;bottom:calc(13px + env(safe-area-inset-bottom,0px))}
+ aside{left:124px;bottom:calc(8px + env(safe-area-inset-bottom,0px));transform:none;width:calc(100vw - 132px);max-height:58dvh}
+}
