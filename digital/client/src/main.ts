@@ -3,7 +3,7 @@ import './style.css';
 
 const container = document.getElementById('app')!;
 container.innerHTML = `
-<header><div><strong>AoE BoardGame <span class="tag">Digital · Hito 2</span></strong><br/><small>Cliente web + servidor multijugador</small></div>
+<header><div><strong>AoE BoardGame <span class="tag">Digital · Hito 3</span></strong><br/><small>Cliente web + servidor multijugador</small></div>
 <div class="controls"><input id="name" aria-label="Nombre del jugador" maxlength="24" placeholder="Nombre del jugador" value="Jugador"/><button id="join">Entrar a sala</button><button id="fullscreen" class="secondary">⛶ Pantalla completa</button></div><span id="status">Sin conectar</span></header>
 <main><section class="stage"><div id="game"></div></section><aside><h2 id="phase-title">Crear partida</h2><p id="room">Sin conectar</p>
 <div id="host-config"><div class="controls"><select id="count"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div></div>
