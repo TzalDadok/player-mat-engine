@@ -180,3 +180,20 @@ aside{left:160px;bottom:12px;transform:none;width:min(470px,calc(100vw - 175px))
 /* Botón amarillo «☰ Acciones»: esquina inferior izquierda, no centro. */
 #open-panel{left:12px;right:auto;bottom:14px;transform:none}
 @media(max-width:800px){#open-panel{left:6px;right:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:none}}
+
+/* Acciones contextuales: resaltar la elegida y confirmar inmediatamente a su lado. */
+#action-dock button.chosen-action{background:#d1a75c!important;color:#17202c!important;border:2px solid #fff1b2!important;box-shadow:0 0 0 2px #ffd57555,0 0 16px #eec86c99;font-weight:800}
+#quick-confirm.beside-produce{position:fixed;left:164px;top:calc(50% - 100px);bottom:auto;transform:none;min-width:128px}
+#build-tray{position:fixed;z-index:22;left:162px;top:50%;transform:translateY(-50%);display:flex;flex-wrap:wrap;gap:7px;max-width:min(400px,calc(100vw - 180px));padding:9px;border:1px solid #9e865c;border-radius:13px;background:#16283de8;box-shadow:0 12px 24px #0008}
+#build-tray[hidden]{display:none!important}
+.building-choice{width:82px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px;background:#344960;border-radius:9px;border:1px solid #bba270;color:#fff;font-size:11px;touch-action:none}
+.building-choice img{width:53px;height:53px;object-fit:contain;pointer-events:none}
+.building-choice.unavailable{opacity:.28;filter:grayscale(1);cursor:not-allowed}
+.building-choice.selected-building{outline:3px solid #ffd677}
+.building-drag-ghost{position:fixed;width:66px;height:66px;object-fit:contain;z-index:1000;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 4px 8px #000)}
+@media(max-width:800px){
+ #quick-confirm.beside-produce{left:124px;top:calc(50% - 105px);bottom:auto;min-width:110px;font-size:11px}
+ #build-tray{left:122px;max-width:calc(100vw - 130px);padding:5px;gap:4px}
+ .building-choice{width:67px;min-height:76px;font-size:10px;padding:3px}
+ .building-choice img{width:43px;height:43px}
+}
