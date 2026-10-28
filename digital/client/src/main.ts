@@ -9,6 +9,7 @@ container.innerHTML = `
 <div id="host-config"><div class="controls"><select id="count"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option></select><button id="generate" disabled>Generar mapa</button></div></div>
 <div id="lobby-panel" hidden><p id="setup-status"></p><div class="lobby-scroll"><table class="lobby-table"><thead><tr><th>JUGADOR</th><th>CIVILIZACIÓN</th><th>ORDEN</th><th>READY</th></tr></thead><tbody id="lobby-rows"></tbody></table></div><button id="start-game" disabled>Iniciar partida</button></div>
 <div id="cu-panel" hidden><p id="cu-info"></p><button id="confirm-cu" disabled>Confirmar posición del CU</button></div>
+<div id="recovery-panel" hidden><h3>Recuperar tu jugador</h3><p>Guardá este código privado para regresar desde otro navegador o celular.</p><div class="controls"><input id="recovery-code" aria-label="Tu código de recuperación" readonly/><button id="copy-recovery" class="secondary">Copiar</button></div><small>Compartir este código permite controlar tu jugador. Conservá también el código de sala.</small></div>
 <div id="playing-panel" hidden><p>Todos los CU colocados. El menú de partida se incorporará en el Hito 3.</p></div><p id="map-info">Mapa todavía no generado.</p>
 </aside></main>`;
 
@@ -16,6 +17,12 @@ const status = document.getElementById('status')!;
 const roomLabel = document.getElementById('room')!;
 const players = document.createElement('ol');
 const join = document.getElementById('join') as HTMLButtonElement;
+const recoveryPanel=document.getElementById('recovery-panel')!;
+const recoveryCode=document.getElementById('recovery-code') as HTMLInputElement;
+const copyRecovery=document.getElementById('copy-recovery') as HTMLButtonElement;
+copyRecovery.addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(recoveryCode.value);copyRecovery.textContent='Copiado'}catch{recoveryCode.select();copyRecovery.textContent='Seleccioná y copiá'}
+});
 let socket: WebSocket | undefined;
 let playerId = '';
 let connectionOpened = false;
@@ -71,6 +78,11 @@ const suppliedRoom = new URLSearchParams(location.search).get('sala');
 const newRoomCode = () => 'AOE-' + crypto.randomUUID().replace(/-/g,'').slice(0,8).toUpperCase();
 roomCodeInput.value = suppliedRoom || newRoomCode();
 document.querySelector('header .controls')!.insertBefore(roomCodeInput, join);
+const restoreInput=document.createElement('input');
+restoreInput.placeholder='Código de recuperación (opcional)';
+restoreInput.title='Para recuperar tu jugador desde otro dispositivo';
+restoreInput.autocomplete='off';
+document.querySelector('header .controls')!.insertBefore(restoreInput,join);
 const newRoomButton=document.createElement('button');
 newRoomButton.className='secondary';
 newRoomButton.textContent='Nueva sala';
@@ -225,6 +237,7 @@ class BootScene extends Phaser.Scene {
 const game = new Phaser.Game({type: Phaser.AUTO, parent:'game', backgroundColor:'#172635', scale:{mode:Phaser.Scale.RESIZE, width:'100%', height:'100%'}, scene:[BootScene]});
 function renderMap(map:MapState|null){
   sharedMap=map;
+  recoveryPanel.hidden=!socket||socket.readyState!==WebSocket.OPEN||mySeat<0;
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
   mapInfo.textContent=map?map.hexes.length+' terrenos + Maravilla · '+map.count+' jugadores':'Mapa todavía no generado.';
@@ -263,10 +276,14 @@ join.addEventListener('click', () => {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   // Identidad estable por sala para recuperar civilización, orden y CU.
   const tokenKey='aoe-player-'+code;
-  let token=localStorage.getItem(tokenKey);
-  if(!token){token=crypto.randomUUID();localStorage.setItem(tokenKey,token)}
+  const suppliedToken=restoreInput.value.trim();
+  if(suppliedToken&&!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(suppliedToken)){
+    status.textContent='Código de recuperación inválido';return;
+  }
+  const token=suppliedToken||localStorage.getItem(tokenKey)||crypto.randomUUID();
   const ws = new WebSocket(`${protocol}//${location.host}/ws/${encodeURIComponent(code)}?name=${encodeURIComponent(name)}&token=${encodeURIComponent(token)}`);
   socket = ws;
+  recoveryCode.value=token;
   connectionOpened = false;
   connectionError = '';
   join.disabled = true;
@@ -281,7 +298,7 @@ join.addEventListener('click', () => {
   ws.onmessage = event => {
     try {
       const packet = JSON.parse(String(event.data));
-      if (packet.type === 'welcome') { playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
+      if (packet.type === 'welcome') { localStorage.setItem(tokenKey,token);restoreInput.value='';recoveryCode.value=token;playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
       if (packet.type === 'seat') {mySeat=packet.seat;(game.scene.getScene('BootScene') as BootScene).setSeat(mySeat);renderMap(sharedMap)}
       if (packet.type === 'map') renderMap(packet.map);
       if (packet.type === 'error') mapInfo.textContent = packet.message;
@@ -307,6 +324,7 @@ join.addEventListener('click', () => {
     connectionOpened = false;
     socket = undefined;
     playerId = '';
+    recoveryPanel.hidden=true;
     mySeat=-1;
     (game.scene.getScene('BootScene') as BootScene).setSeat(-1);
     join.disabled = false;
