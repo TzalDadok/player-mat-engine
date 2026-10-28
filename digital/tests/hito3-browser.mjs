@@ -129,7 +129,7 @@ try{
   assert(target,'No hay destino caminable para la prueba táctil');
   const walk=await pixel(mobile,guest.latest(),target,1);
   await mobile.touchscreen.tap(walk.x,walk.y);
-  assert((await mobile.locator('#selected-hexes').textContent()).includes('('+target.q+','+target.r+')'),'Toque no seleccionó destino');
+  assert((await mobile.locator('#unit-list').textContent()).includes('→ '+target.q+','+target.r),'Toque no asignó el destino al Aldeano');
   await mobile.locator('#submit-action').click();
   await poll(()=>guest.latest()?.match?.turn===1&&guest.latest()?.match?.phase===1,'movimiento táctil');
   console.log('OK: escritorio + móvil, lobby, Ready, CU táctil, HUD y movimiento');
