@@ -232,7 +232,7 @@ export class GameRoom extends DurableObject<Env> {
           const natural=hex&&resourceFor(hex.type);
           const coast=!!hex&&workers>0&&neighbors.some(([dq,dr])=>map.hexes.some(h=>h.q===pos.q+dq&&h.r===pos.r+dr&&h.type.startsWith('Agua')));
           if(!hex||(!natural&&!farm&&!coast)){fail('Ese terreno no produce recursos.');return}
-          if(!workers&&!camp){fail('No tenés un productor en uno de los hexágonos.');return}
+          if(!workers&&!camp||!control(map,match,seat,pos.q,pos.r)){fail('No controlás uno de los hexágonos productores.');return}
           const amount=natural?workers+(camp?2:0)+(natural==='wood'&&player.techs.includes('Doble Filo')?workers:0):farm?2*Math.min(farm,workers):workers;
           const resource=natural??'food';gained[resource]+=amount;
           yields.push({q:pos.q,r:pos.r,resource,amount});
@@ -298,7 +298,7 @@ export class GameRoom extends DurableObject<Env> {
         if(!tile){fail('Elegí una casilla del mapa.');return}
         const workersHere=match.units.some(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r);
         const workersAdjacent=match.units.some(u=>u.seat===seat&&range(u,pos)===1);
-        if(kind==='Puerto'?!workersAdjacent:!workersHere){fail(kind==='Puerto'?'El Puerto requiere un Aldeano adyacente.':'Necesitás un Aldeano en ese hexágono.');return}
+        if(kind==='Puerto'?!workersAdjacent:!workersHere||!control(map,match,seat,pos.q,pos.r)){fail(kind==='Puerto'?'El Puerto requiere un Aldeano adyacente.':'Necesitás un Aldeano y controlar el hexágono.');return}
         const count=match.buildings.filter(b=>b.q===pos.q&&b.r===pos.r&&b.kind===kind).length;
         if(kind==='Campamento Productivo'&&(!resourceFor(tile.type)||count>=1)){fail('Solo un Campamento Productivo por hexágono de recursos.');return}
         if(kind==='Granja'&&(tile.type!=='Llanura'||count>=2)){fail('La Granja requiere Llanura y un máximo de dos por hexágono.');return}
