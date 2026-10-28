@@ -57,6 +57,27 @@ const recoveryPanel=document.getElementById('recovery-panel')!;
 container.append(recoveryPanel);
 const recoveryToggle=document.getElementById('recovery-toggle') as HTMLButtonElement;
 recoveryToggle.addEventListener('click',()=>{recoveryPanel.hidden=!recoveryPanel.hidden;recoveryPanel.classList.toggle('floating-recovery',!recoveryPanel.hidden)});
+const hostRecovery=document.createElement('section');hostRecovery.id='host-recovery';hostRecovery.hidden=true;
+hostRecovery.innerHTML='<h3>Recuperación de jugadores</h3><p>Generá una clave nueva para otro jugador. Su clave anterior dejará de funcionar y tendrá que volver a entrar.</p><div id="host-recovery-list"></div><p id="host-recovery-result" role="status"></p>';
+recoveryPanel.append(hostRecovery);
+let lastAccessCode='';
+function renderHostRecovery(){
+  hostRecovery.hidden=mySeat!==0||!sharedMap||sharedMap.count<2;
+  const list=document.getElementById('host-recovery-list')!;
+  list.replaceChildren();
+  if(hostRecovery.hidden)return;
+  for(let seat=1;seat<sharedMap!.count;seat++){
+    const row=document.createElement('div');row.className='host-recovery-row';
+    const name=document.createElement('span');name.textContent=lobbyPlayers.find(p=>p.seat===seat)?.name??'Jugador '+(seat+1);
+    const button=document.createElement('button');button.className='secondary';button.textContent='Renovar clave';
+    button.addEventListener('click',()=>{
+      if(!window.confirm('¿Renovar acceso de '+name.textContent+'? La clave anterior dejará de funcionar.'))return;
+      document.getElementById('host-recovery-result')!.textContent='Solicitando una clave nueva…';
+      socket?.send(JSON.stringify({type:'reset_player_access',target:seat}));
+    });
+    row.append(name,button);list.append(row);
+  }
+}
 const setupPrompt=document.getElementById('setup-prompt')!;
 const setupDialog=document.getElementById('setup-dialog')!;
 const setupQuestion=document.getElementById('setup-question')!;
@@ -500,6 +521,7 @@ function renderMap(map:MapState|null){
   sharedMap=map;
   recoveryToggle.hidden=!socket||socket.readyState!==WebSocket.OPEN||mySeat<0;
   if(recoveryToggle.hidden)recoveryPanel.hidden=true;
+  renderHostRecovery();
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
   if(map?.match&&(!actionMode||actionMode==='produce'||actionMode==='move'))setPanelVisible(false);
@@ -717,9 +739,19 @@ function connectToRoom(reconnect=false){
       if (packet.type === 'welcome') { localStorage.setItem(tokenKey,token);restoreInput.value='';recoveryCode.value=token;playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
       if (packet.type === 'seat') {mySeat=packet.seat;(game.scene.getScene('BootScene') as BootScene).setSeat(mySeat);renderMap(sharedMap)}
       if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase||packet.map?.match?.log?.[0]!==sharedMap?.match?.log?.[0]){selectedHexes=[];selectedUnits=[];movePlans=[];actionMode=null}renderMap(packet.map)}
-      if (packet.type === 'error') mapInfo.textContent = packet.message;
+      if (packet.type === 'error') {mapInfo.textContent = packet.message; if(mySeat===0)document.getElementById('host-recovery-result')!.textContent=packet.message;}
+      if(packet.type==='access_reset'&&mySeat===0){
+        lastAccessCode=packet.code;
+        const result=document.getElementById('host-recovery-result')!;result.replaceChildren();
+        const label=document.createElement('p');label.textContent='Clave nueva del jugador '+(packet.seat+1)+':';
+        const field=document.createElement('input');field.readOnly=true;field.value=lastAccessCode;field.setAttribute('aria-label','Nueva clave del jugador');
+        const copy=document.createElement('button');copy.textContent='Copiar clave';copy.addEventListener('click',()=>navigator.clipboard.writeText(field.value));
+        result.append(label,field,copy);
+        recoveryPanel.hidden=false;recoveryPanel.classList.add('floating-recovery');
+      }
       if (packet.type === 'lobby') {
         lobbyPlayers=packet.players;
+        renderHostRecovery();
         renderMap(sharedMap);
         players.replaceChildren(...packet.players.map((p: { id: string; name: string }) => {
           const li = document.createElement('li');
