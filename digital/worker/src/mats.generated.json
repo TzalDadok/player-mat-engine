@@ -4,28 +4,29 @@
       {
         "name": "Campamento Productivo",
         "cost": {
-          "o": null
+          "wood": 3
         }
       },
       {
         "name": "Puerto",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 4,
+          "stone": 2
         }
       },
       {
         "name": "Cuartel",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 1,
+          "stone": 3,
+          "gold": 1
         }
       },
       {
         "name": "Torre",
         "cost": {
-          "t": null,
-          "o": null
+          "stone": 3,
+          "wood": 2
         }
       }
     ],
@@ -366,28 +367,29 @@
       {
         "name": "Campamento Productivo",
         "cost": {
-          "o": null
+          "wood": 3
         }
       },
       {
         "name": "Puerto",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 4,
+          "stone": 2
         }
       },
       {
         "name": "Cuartel",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 1,
+          "stone": 3,
+          "gold": 1
         }
       },
       {
         "name": "Torre",
         "cost": {
-          "t": null,
-          "o": null
+          "stone": 3,
+          "wood": 2
         }
       }
     ],
@@ -748,21 +750,22 @@
       {
         "name": "Campamento Productivo",
         "cost": {
-          "o": null
+          "wood": 3
         }
       },
       {
         "name": "Puerto",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 4,
+          "stone": 2
         }
       },
       {
         "name": "Cuartel",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 1,
+          "stone": 3,
+          "gold": 1
         }
       }
     ],
@@ -1094,28 +1097,29 @@
       {
         "name": "Campamento Productivo",
         "cost": {
-          "o": null
+          "wood": 3
         }
       },
       {
         "name": "Puerto",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 4,
+          "stone": 2
         }
       },
       {
         "name": "Cuartel",
         "cost": {
-          "o": null,
-          "t": null
+          "wood": 1,
+          "stone": 3,
+          "gold": 1
         }
       },
       {
         "name": "Torre",
         "cost": {
-          "t": null,
-          "o": null
+          "stone": 3,
+          "wood": 2
         }
       }
     ],
