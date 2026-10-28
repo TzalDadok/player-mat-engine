@@ -90,3 +90,39 @@ button,select,input {min-height:44px}
   #playing-panel .controls button{flex-basis:44%}
   #game-log{max-height:130px}
 }
+
+
+/* Interfaz de tablero completo: menú y acciones como capas sobre el mapa. */
+html,body,#app{width:100%;height:100%;overflow:hidden}
+#app{position:relative}
+header{position:absolute;z-index:12;top:8px;left:8px;right:8px;min-height:0;width:auto;max-width:calc(100% - 16px);padding:7px 12px;border-radius:12px;background:rgba(18,29,41,.85);backdrop-filter:blur(12px)}
+header .controls{gap:5px}
+header .controls input{max-width:120px}
+header strong{font-size:15px}
+header small{display:none}
+main,body:fullscreen main,body:-webkit-full-screen main{position:absolute;inset:0;width:100%;height:100dvh!important;min-height:0;display:block!important}
+.stage,.stage canvas{position:absolute;inset:0;width:100%;height:100%!important;min-height:0!important;display:block}
+aside{position:absolute;z-index:11;bottom:12px;left:50%;transform:translateX(-50%);width:min(560px,calc(100vw - 20px));max-height:min(57dvh,580px);overflow:auto;border:1px solid #526278;border-radius:18px;padding:16px;background:rgba(18,30,43,.94);backdrop-filter:blur(18px);box-shadow:0 16px 60px #0008}
+aside.collapsed{display:none}
+#open-panel{position:absolute;z-index:14;bottom:16px;left:50%;transform:translateX(-50%);background:#dcb979;border:1px solid #f2d6a2;color:#1b2226;box-shadow:0 6px 25px #0009}
+#open-panel[hidden]{display:none!important}
+#close-panel{position:sticky;top:0;float:right;z-index:2;min-width:42px;min-height:42px;padding:5px}
+#playing-panel{gap:8px}
+#playing-panel .controls button{flex:1 1 30%}
+#turn-status{margin:0}
+#resources{padding:7px}
+#game-log{max-height:70px}
+#unit-list p{width:100%;margin:4px}
+#action-help{font-size:13px;margin:2px 0}
+@media(max-width:800px){
+ header{top:env(safe-area-inset-top,4px);left:6px;right:6px;padding:5px 8px;gap:3px}
+ header strong{font-size:13px}
+ header .controls{width:auto;gap:4px}
+ header .controls input{max-width:95px;min-height:36px;padding:6px;font-size:12px}
+ header .controls button{min-height:36px;padding:5px 8px;font-size:12px;flex:initial}
+ header #status{font-size:11px}
+ aside{width:calc(100vw - 14px);bottom:calc(6px + env(safe-area-inset-bottom,0px));max-height:52dvh;padding:11px;border-radius:15px}
+ #playing-panel .controls button{flex:1 1 30%;font-size:13px;padding:9px 6px}
+ #game-log{display:none}
+ #open-panel{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+}
