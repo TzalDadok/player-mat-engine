@@ -42,6 +42,7 @@ const roomLabel = document.getElementById('room')!;
 const players = document.createElement('ol');
 const join = document.getElementById('join') as HTMLButtonElement;
 const recoveryPanel=document.getElementById('recovery-panel')!;
+container.append(recoveryPanel);
 const recoveryToggle=document.getElementById('recovery-toggle') as HTMLButtonElement;
 recoveryToggle.addEventListener('click',()=>{recoveryPanel.hidden=!recoveryPanel.hidden;recoveryPanel.classList.toggle('floating-recovery',!recoveryPanel.hidden)});
 const setupPrompt=document.getElementById('setup-prompt')!;
