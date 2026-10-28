@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 const port=8794;
 const origin='http://127.0.0.1:'+port;
 const base='ws://127.0.0.1:'+port+'/ws/';
-const runner=spawn('npx',['wrangler','dev','--local','--port',String(port),'--ip','127.0.0.1'],{
+const runner=spawn(process.execPath,['./node_modules/wrangler/bin/wrangler.js','dev','--local','--port',String(port),'--ip','127.0.0.1'],{
   cwd:process.cwd(),env:{...process.env,NO_COLOR:'1',CI:'1'},stdio:['ignore','pipe','pipe']
 });
 let output='';
@@ -149,4 +149,6 @@ try{
   process.exitCode=1;
 }finally{
   runner.kill('SIGTERM');
+  // No dejar al ejecutor CI retenido por sockets abiertos del proceso local.
+  setTimeout(()=>process.exit(process.exitCode??0),1500).unref();
 }
