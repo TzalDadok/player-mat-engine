@@ -26,14 +26,16 @@ container.innerHTML = `
 </div><div id="action-options" hidden><label for="action-kind">Elegí una opción:</label><select id="action-kind"></select><div id="trade-fields" hidden><select id="trade-side"><option value="buy">Comprar</option><option value="sell">Vender</option></select><select id="trade-amount"><option value="1">1 recurso</option><option value="2">2 recursos</option></select></div></div><button id="submit-action" hidden>Confirmar acción</button>
 <h3>Registro de turnos</h3><ol id="game-log"></ol>
 </div><p id="map-info">Mapa todavía no generado.</p>
-</aside></main><button id="open-panel" class="secondary" type="button" hidden>☰ Acciones</button>`;
+</aside></main><button id="quick-confirm" type="button" hidden>✓ Confirmar</button><button id="open-panel" class="secondary" type="button" hidden>☰ Acciones</button>`;
 
 const status = document.getElementById('status')!;
 const panel=document.querySelector('aside') as HTMLElement;
+const quickConfirm=document.getElementById('quick-confirm') as HTMLButtonElement;
+quickConfirm.addEventListener('click',()=>document.getElementById('submit-action')?.click());
 const openPanel=document.getElementById('open-panel') as HTMLButtonElement;
 const closePanel=document.getElementById('close-panel') as HTMLButtonElement;
 let panelDismissed=false;
-function setPanelVisible(visible:boolean){panelDismissed=!visible;panel.classList.toggle('collapsed',!visible);openPanel.hidden=visible;}
+function setPanelVisible(visible:boolean){panelDismissed=!visible;panel.classList.toggle('collapsed',!visible);openPanel.hidden=visible;quickConfirm.hidden=visible||!sharedMap?.match||!actionMode||submitAction.hidden;}
 openPanel.addEventListener('click',()=>setPanelVisible(true));
 closePanel.addEventListener('click',()=>setPanelVisible(false));
 const roomLabel = document.getElementById('room')!;
@@ -93,8 +95,8 @@ type MovePlan={unit:string;q:number;r:number;cargo:Record<string,number>};
 let movePlans:MovePlan[]=[];
 const resourceTypes=['food','wood','stone','gold'] as const;
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
-document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap)});
-document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];selectedUnits=[];movePlans=[];renderMap(sharedMap)});
+document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap);setPanelVisible(false)});
+document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];selectedUnits=[];movePlans=[];renderMap(sharedMap);setPanelVisible(false)});
 for(const [id,action] of [['action-build','build'],['action-trade','trade'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
   document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap)});
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
@@ -126,6 +128,7 @@ function selectBoardHex(q:number,r:number){
   }
   if(actionMode==='build')selectedHexes=[{q,r}];
   renderMap(sharedMap);
+  if(panelDismissed)quickConfirm.hidden=submitAction.hidden;
 }
 
 let mySeat=-1;
@@ -474,6 +477,7 @@ function renderMap(map:MapState|null){
       age:'Avanzá de Edad si tenés recursos y cumplís los requisitos de construcción.'
     };
     actionHelp.textContent=!active?'Esperando al jugador activo.':actionMode?help[actionMode]:phaseInstructions[m.phase];
+    phaseTitle.textContent=['① Acción económica','② Acción tecnológica','③ Acción militar'][m.phase];
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       const owned=m.units.filter(u=>u.seat===mySeat);
@@ -521,9 +525,11 @@ function renderMap(map:MapState|null){
     }else hexInfo.textContent='Tocá un hexágono para ver sus detalles.';
     submitAction.textContent=actionMode==='move'?'Confirmar '+movePlans.length+' movimiento'+(movePlans.length===1?'':'s'):'Confirmar acción';
     submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
+    quickConfirm.textContent='✓ '+submitAction.textContent;
+    quickConfirm.hidden=!panelDismissed||submitAction.hidden;
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
-  phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
+  if(!map?.match)phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
   const count=document.getElementById('count') as HTMLSelectElement;
   count.disabled=!!map||mySeat!==0;if(map)count.value=String(map.count);
   generate.disabled=!!map||mySeat!==0||socket?.readyState!==WebSocket.OPEN;
