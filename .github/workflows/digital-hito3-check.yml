@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'digital/**'
+      - 'player-mat-engine-v1/civs/**'
       - '.github/workflows/digital-hito3-check.yml'
   workflow_dispatch:
 concurrency:
@@ -20,6 +21,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-audit --no-fund
+      - run: node tests/mat-sync.mjs
       - run: npm run check
       - run: npm run build
       - run: node tests/hito3-smoke.mjs
