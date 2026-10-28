@@ -34,11 +34,12 @@ colocación de Centros Urbanos y primeras acciones jugables por turnos.
 ## Reglas implementadas
 
 **Economía:** Producir (2/3/3/4 hexágonos según la Edad),
-mover hasta dos aldeanos agrupados, construir, entrenar varios aldeanos
+mover hasta dos unidades diferentes (cada una a su alcance), construir, entrenar varios aldeanos
 y comerciar hasta dos recursos con un Mercado de precios compartidos.
 Los recursos se almacenan en el hexágono productor y solo son gastables
-si se controla ese hexágono, sin red logística. Carretilla habilita
-transportar recursos durante un movimiento.
+si se controla ese hexágono, sin red logística. Los Aldeanos pueden
+transportar cualquier cantidad de recursos del origen al destino durante MOVER,
+sin límite de carga ni requisito de Carretilla.
 
 **Producción:** Aldeano +1, Campamento Productivo +2, ambos +3;
 granja +2 comida por pareja granja/aldeano (máx. 2);
