@@ -57,6 +57,19 @@ function isCompact(map:MapState):boolean {
 // se mantienen deshabilitados hasta su definición, nunca se inventan.
 const key=(q:number,r:number)=>q+','+r;
 const range=(a:{q:number;r:number},b:{q:number;r:number})=>Math.max(Math.abs(a.q-b.q),Math.abs(a.r-b.r),Math.abs(a.q+a.r-b.q-b.r));
+type Cost=Partial<Record<Resource,number>>;
+const costs={
+  'Campamento Productivo':{wood:3},
+  'Granja':{wood:2},
+  'Cuartel':{wood:1,stone:3,gold:1},
+  'Aldeano':{food:1},
+  'Telar':{food:1,wood:1},
+  'Carretilla':{wood:1,gold:1},
+  'Doble Filo':{food:1,gold:1,stone:1}
+} satisfies Record<string,Cost>;
+const ages:Cost[]=[{}, {food:4,wood:2,stone:1,gold:1},{food:6,wood:4,stone:2,gold:2},{food:8,wood:6,stone:4,gold:5}];
+function afford(resources:Record<Resource,number>,cost:Cost){return (Object.entries(cost) as [Resource,number][]).every(([r,v])=>resources[r]>=v)}
+function pay(resources:Record<Resource,number>,cost:Cost){for(const [r,v] of Object.entries(cost) as [Resource,number][])resources[r]-=v}
 const resourceFor=(t:string):Resource|null=>t==='Bosque'?'wood':t==='Cantera de Oro'?'gold':t==='Cantera de Piedra'?'stone':t==='Animales'||t==='Frutos silvestres'?'food':null;
 function prepareMatch(map:MapState):Match{
   const order=map.order??Array.from({length:map.count},(_,i)=>i);
@@ -137,7 +150,7 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;hexes?:{q:number;r:number}[]};
+    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;kind?:string;hexes?:{q:number;r:number}[]};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
     if(packet.type==='game_action'){
@@ -164,7 +177,9 @@ export class GameRoom extends DurableObject<Env> {
           const workers=match.units.some(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r);
           const camp=match.buildings.some(b=>b.seat===seat&&b.q===pos.q&&b.r===pos.r&&b.kind==='Campamento Productivo');
           if(!workers&&!camp){fail('No controlás uno de los terrenos seleccionados.');return}
-          gained[resource]+=(workers?1:0)+(camp?2:0);
+          const farm=match.buildings.filter(b=>b.seat===seat&&b.q===pos.q&&b.r===pos.r&&b.kind==='Granja').length;
+          gained[resource]+=(workers?1:0)+(camp?2:0)+(resource==='food'?farm*2:0);
+          if(resource==='wood'&&workers&&player.techs.includes('Doble Filo'))gained.wood+=1;
         }
         for(const res of Object.keys(gained) as Resource[])player.resources[res]+=gained[res];
         match.log.unshift('Jugador '+(seat+1)+' produjo '+JSON.stringify(gained));
@@ -176,6 +191,38 @@ export class GameRoom extends DurableObject<Env> {
         if(match.units.some(u=>u.seat!==seat&&u.q===packet.q&&u.r===packet.r)){fail('El territorio está ocupado por otro jugador.');return}
         unit.q=packet.q!;unit.r=packet.r!;
         match.log.unshift('Jugador '+(seat+1)+' movió un aldeano.');
+      }else if(action==='build'&&phase===0){
+        if(!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Seleccioná una casilla válida.');return}
+        const pos={q:packet.q!,r:packet.r!},kind=packet.kind as keyof typeof costs;
+        if(!['Campamento Productivo','Granja','Cuartel'].includes(kind)){fail('Edificio desconocido.');return}
+        const tile=map.hexes.find(h=>h.q===pos.q&&h.r===pos.r);
+        if(!tile||!match.units.some(u=>u.seat===seat&&u.q===pos.q&&u.r===pos.r)){fail('Necesitás un aldeano en ese hexágono.');return}
+        const count=match.buildings.filter(b=>b.q===pos.q&&b.r===pos.r&&b.kind===kind).length;
+        if(kind==='Campamento Productivo'&&(!resourceFor(tile.type)||count>=1)){fail('Solo un Campamento Productivo por hexágono de recursos.');return}
+        if(kind==='Granja'&&(tile.type!=='Llanura'||count>=2)){fail('La Granja requiere Llanura y un máximo de dos por hexágono.');return}
+        if(kind==='Cuartel'&&(!['Llanura','Desierto'].includes(tile.type)||match.buildings.some(b=>b.q===pos.q&&b.r===pos.r))){fail('El Cuartel requiere terreno disponible de Llanura o Desierto.');return}
+        const cost=costs[kind];if(!afford(player.resources,cost)){fail('Recursos insuficientes.');return}
+        pay(player.resources,cost);
+        match.buildings.push({seat,...pos,kind:kind as Structure['kind']});
+        match.log.unshift('Jugador '+(seat+1)+' construyó '+kind);
+      }else if(action==='train'&&phase===0){
+        const cu=map.centers?.find(p=>p.seat===seat),cost=costs.Aldeano;
+        if(!cu||!afford(player.resources,cost)){fail('No tenés comida suficiente para entrenar un Aldeano.');return}
+        const free=map.hexes.find(h=>range(h,cu)===1&&h.type!=='Montaña'&&!h.type.startsWith('Agua')&&!match.units.some(u=>u.q===h.q&&u.r===h.r&&u.seat!==seat));
+        if(!free){fail('No hay espacio adyacente al CU.');return}
+        pay(player.resources,cost);match.units.push({id:crypto.randomUUID(),seat,q:free.q,r:free.r,kind:'Aldeano'});
+        match.log.unshift('Jugador '+(seat+1)+' entrenó un Aldeano');
+      }else if(action==='research'&&phase===1){
+        const name=packet.kind as keyof typeof costs;
+        if(!['Telar','Carretilla','Doble Filo'].includes(name)||player.techs.includes(name)){fail('Tecnología no disponible.');return}
+        const cost=costs[name];if(!afford(player.resources,cost)){fail('Recursos insuficientes.');return}
+        pay(player.resources,cost);player.techs.push(name);match.log.unshift('Jugador '+(seat+1)+' investigó '+name);
+      }else if(action==='age'&&phase===2){
+        if(player.age>=4){fail('Ya estás en Edad Imperial.');return}
+        const cost=ages[player.age];if(!afford(player.resources,cost)){fail('Recursos insuficientes para avanzar de Edad.');return}
+        // Requisito móvil: construcción de la Edad, cuando corresponde.
+        if(player.age>1&&!match.buildings.some(b=>b.seat===seat)){fail('Necesitás al menos una construcción para avanzar.');return}
+        pay(player.resources,cost);player.age++;match.log.unshift('Jugador '+(seat+1)+' avanzó a Edad '+player.age);
       }else{
         fail('Acción no disponible en esta fase. Las acciones sin costes definidos se habilitarán cuando estén confirmados.');return;
       }
