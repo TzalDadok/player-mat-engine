@@ -41,6 +41,18 @@ closePanel.addEventListener('click',()=>setPanelVisible(false));
 const roomLabel = document.getElementById('room')!;
 const players = document.createElement('ol');
 const join = document.getElementById('join') as HTMLButtonElement;
+const testingButton=document.createElement('button');testingButton.id='testing-start';testingButton.className='secondary';testingButton.textContent='🧪 Testing 1 jugador';
+const testingCiv=document.createElement('select');testingCiv.id='testing-civ';testingCiv.setAttribute('aria-label','Civilización para Testing');
+for(const [index,name] of ['Britones','Francos','Vikingos','Persas'].entries()){const option=document.createElement('option');option.value=String(index);option.textContent=name;testingCiv.append(option)}
+join.parentElement!.append(testingCiv,testingButton);
+let pendingTestingCiv:number|null=null;
+testingButton.addEventListener('click',()=>{
+  if(socket)return;
+  const code='TEST-'+crypto.randomUUID().replace(/-/g,'').slice(0,8).toUpperCase();
+  roomCodeInput.value=code;
+  pendingTestingCiv=Number(testingCiv.value);
+  connectToRoom(false);
+});
 const recoveryPanel=document.getElementById('recovery-panel')!;
 container.append(recoveryPanel);
 const recoveryToggle=document.getElementById('recovery-toggle') as HTMLButtonElement;
@@ -67,7 +79,7 @@ type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
 type Unit={id:string;seat:number;q:number;r:number;kind:string};
 type Match={round:number;turn:number;phase:number;players:Record<number,{age:number;pm:number;resources:Record<string,number>;techs:string[]}>;units:Unit[];buildings:{seat:number;q:number;r:number;kind:string}[];log:string[];market:Record<string,number>;stock:Record<string,Record<string,number>>};
-type MapState = {match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;awaitingVillager?:number;initialVillagers?:Record<number,{q:number;r:number}>;ready?:Record<number,boolean> };
+type MapState = {testing?:boolean;match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;awaitingVillager?:number;initialVillagers?:Record<number,{q:number;r:number}>;ready?:Record<number,boolean> };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
 const startGame=document.getElementById('start-game') as HTMLButtonElement;
@@ -503,6 +515,8 @@ function renderMap(map:MapState|null){
   if(awaiting||inPlacement){setPanelVisible(false)}
   if(!map?.awaitingVillager&&map?.draft?.seat!==mySeat&&pendingSetup?.type==='confirm_cu_position'){pendingSetup=null;setupDialog.hidden=true}
   playingPanel.hidden=!map?.match;
+  testingButton.hidden=!!map;
+  testingCiv.hidden=!!map;
   actionDock.hidden=!map?.match||mySeat!==(map.order??[])[map.match.turn];
   if(map?.match){
     const m=map.match,seat=(map.order??[])[m.turn],active=mySeat===seat,me=m.players[mySeat];
@@ -690,6 +704,7 @@ function connectToRoom(reconnect=false){
     if(socket!==ws)return;
     reconnectAttempts=0;
     connectionOpened = true;
+    if(pendingTestingCiv!==null){ws.send(JSON.stringify({type:'create_testing',civ:pendingTestingCiv}));pendingTestingCiv=null}
     status.textContent = 'Conectado';
     renderMap(sharedMap);
     roomLabel.textContent = 'Sala: ' + code;
