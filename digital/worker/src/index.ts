@@ -195,7 +195,7 @@ export class GameRoom extends DurableObject<Env> {
   }
   async webSocketMessage(ws:WebSocket,message:string|ArrayBuffer){
     if(typeof message!=='string'||message.length>1024)return;
-    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number};
+    let packet:{type:string;count?:number;q?:number;r?:number;order?:number[];civ?:number;ready?:boolean;action?:string;unit?:string;units?:string[];kind?:string;hexes?:{q:number;r:number}[];side?:'buy'|'sell';amount?:number};
     try{packet=JSON.parse(message)}catch{return}
     if(packet.type==='ping'){ws.send(JSON.stringify({type:'pong',time:Date.now()}));return}
     if(packet.type==='game_action'){
@@ -238,13 +238,18 @@ export class GameRoom extends DurableObject<Env> {
         for(const yieldItem of yields)deposit(match,yieldItem.q,yieldItem.r,yieldItem.resource,yieldItem.amount);
         match.log.unshift('Jugador '+(seat+1)+' produjo '+JSON.stringify(gained));
       }else if(action==='move'&&phase===0){
-        const unit=match.units.find(u=>u.id===packet.unit&&u.seat===seat);
-        if(!unit||!Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Elegí un aldeano y destino válidos.');return}
+        const ids=packet.units??(packet.unit?[packet.unit]:[]);
+        if(!Array.isArray(ids)||ids.length<1||ids.length>2||new Set(ids).size!==ids.length||
+          !Number.isInteger(packet.q)||!Number.isInteger(packet.r)){fail('Elegí hasta dos aldeanos y un destino válido.');return}
+        const group=ids.map(id=>match.units.find(u=>u.id===id&&u.seat===seat));
+        if(group.some(u=>!u)||group.some(u=>u!.q!==group[0]!.q||u!.r!==group[0]!.r)){fail('Los aldeanos deben comenzar en el mismo hexágono.');return}
         const target=map.hexes.find(h=>h.q===packet.q&&h.r===packet.r);
-        if(!target||range(unit,{q:packet.q!,r:packet.r!})!==1||['Agua A','Agua B'].includes(target.type)){fail('El aldeano debe moverse un hexágono terrestre adyacente.');return}
-        if(match.units.some(u=>u.seat!==seat&&u.q===packet.q&&u.r===packet.r)){fail('El territorio está ocupado por otro jugador.');return}
-        unit.q=packet.q!;unit.r=packet.r!;
-        match.log.unshift('Jugador '+(seat+1)+' movió un aldeano.');
+        if(!target||range(group[0]!,{q:packet.q!,r:packet.r!})!==1||target.type.startsWith('Agua')){
+          fail('El destino debe ser un hexágono terrestre adyacente.');return}
+        if(match.units.some(u=>u.seat!==seat&&u.q===packet.q&&u.r===packet.r)){
+          fail('El territorio está ocupado por otro jugador.');return}
+        for(const u of group){u!.q=packet.q!;u!.r=packet.r!}
+        match.log.unshift('Jugador '+(seat+1)+' movió '+group.length+' aldeano(s).');
       }else if(action==='trade'&&phase===0){
         const resource=packet.kind as 'food'|'wood'|'stone';
         if(!['food','wood','stone'].includes(resource)||!['buy','sell'].includes(packet.side??'')||
