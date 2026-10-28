@@ -26,7 +26,7 @@ container.innerHTML = `
 </div><div id="action-options" hidden><label for="action-kind">Elegí una opción:</label><select id="action-kind"></select><div id="trade-fields" hidden><select id="trade-side"><option value="buy">Comprar</option><option value="sell">Vender</option></select><select id="trade-amount"><option value="1">1 recurso</option><option value="2">2 recursos</option></select></div></div><button id="submit-action" hidden>Confirmar acción</button>
 <h3>Registro de turnos</h3><ol id="game-log"></ol>
 </div><p id="map-info">Mapa todavía no generado.</p>
-</aside></main><button id="quick-confirm" type="button" hidden>✓ Confirmar</button><button id="open-panel" class="secondary" type="button" hidden>☰ Acciones</button>`;
+</aside></main><button id="recovery-toggle" class="secondary" type="button" hidden>🔑 Recuperar jugador</button><div id="setup-prompt" hidden></div><div id="setup-dialog" hidden><p id="setup-question"></p><div class="controls"><button id="setup-yes">Confirmar</button><button id="setup-no" class="secondary">Cancelar</button></div></div><button id="quick-confirm" type="button" hidden>✓ Confirmar</button><button id="open-panel" class="secondary" type="button" hidden>☰ Acciones</button>`;
 
 const status = document.getElementById('status')!;
 const panel=document.querySelector('aside') as HTMLElement;
@@ -42,6 +42,15 @@ const roomLabel = document.getElementById('room')!;
 const players = document.createElement('ol');
 const join = document.getElementById('join') as HTMLButtonElement;
 const recoveryPanel=document.getElementById('recovery-panel')!;
+const recoveryToggle=document.getElementById('recovery-toggle') as HTMLButtonElement;
+recoveryToggle.addEventListener('click',()=>{recoveryPanel.hidden=!recoveryPanel.hidden;recoveryPanel.classList.toggle('floating-recovery',!recoveryPanel.hidden)});
+const setupPrompt=document.getElementById('setup-prompt')!;
+const setupDialog=document.getElementById('setup-dialog')!;
+const setupQuestion=document.getElementById('setup-question')!;
+let pendingSetup:{type:string;q:number;r:number}|null=null;
+function proposeSetup(type:string,q:number,r:number){pendingSetup={type,q,r};setupQuestion.textContent=type==='confirm_cu_position'?'¿Confirmar Centro Urbano en este lugar?':'¿Colocar tu Aldeano en este hexágono?';setupDialog.hidden=false;}
+document.getElementById('setup-no')!.addEventListener('click',()=>{pendingSetup=null;setupDialog.hidden=true});
+document.getElementById('setup-yes')!.addEventListener('click',()=>{if(pendingSetup&&socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(pendingSetup));pendingSetup=null;setupDialog.hidden=true});
 const recoveryCode=document.getElementById('recovery-code') as HTMLInputElement;
 const copyRecovery=document.getElementById('copy-recovery') as HTMLButtonElement;
 copyRecovery.addEventListener('click',async()=>{
@@ -57,7 +66,7 @@ type Hex = { q:number; r:number; type:string };
 type Placement = {seat:number;q:number;r:number};
 type Unit={id:string;seat:number;q:number;r:number;kind:string};
 type Match={round:number;turn:number;phase:number;players:Record<number,{age:number;pm:number;resources:Record<string,number>;techs:string[]}>;units:Unit[];buildings:{seat:number;q:number;r:number;kind:string}[];log:string[];market:Record<string,number>;stock:Record<string,Record<string,number>>};
-type MapState = {match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;ready?:Record<number,boolean> };
+type MapState = {match?:Match; seed:number; count:number; hexes:Hex[]; centers?:Placement[];order?:number[];civs?:Record<number,number>;started?:boolean;setupConfirmed?:boolean;draft?:Placement|null;awaitingVillager?:number;ready?:Record<number,boolean> };
 const colors = [0xcc4141,0x3983e4,0x222222,0x42a66a];
 const civNames = ['Britones','Francos','Vikingos','Persas'];
 const startGame=document.getElementById('start-game') as HTMLButtonElement;
@@ -231,7 +240,8 @@ class BootScene extends Phaser.Scene {
       }
       if(moved>15)return;
       const spot=this.selectable.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
-      if(spot){socket.send(JSON.stringify({type:'place_cu',q:spot.q,r:spot.r}));return}
+      if(spot){socket.send(JSON.stringify({type:'place_cu',q:spot.q,r:spot.r}));proposeSetup('confirm_cu_position',spot.q,spot.r);return}
+      if(this.currentMap?.awaitingVillager===this.seat){const pos=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));if(pos)proposeSetup('place_initial_villager',pos.q,pos.r);return;}
       if(this.currentMap?.match){
         const pos=this.boardTiles.find(p=>Phaser.Geom.Polygon.Contains(p.polygon,pointer.x,pointer.y));
         if(pos)selectBoardHex(pos.q,pos.r);
@@ -262,7 +272,7 @@ class BootScene extends Phaser.Scene {
     for(const h of hexes)for(const [dq,dr] of neighborDirs){const q=h.q+dq,r=h.r+dr,key=q+','+r;if(!occupied.has(key))candidates.set(key,{q,r})}
     const spots=[...candidates.values()].filter(p=>!centers.some(center=>Math.max(Math.abs(center.q-p.q),Math.abs(center.r-p.r),Math.abs(center.q+center.r-p.q-p.r))<=1)&&hexes.some(h=>Math.max(Math.abs(h.q-p.q),Math.abs(h.r-p.r),Math.abs(h.q+h.r-p.q-p.r))===1&&!h.type.startsWith('Agua')));
     const order=this.currentMap.order??Array.from({length:this.currentMap.count},(_,i)=>i);
-    const canPlace=!!this.currentMap.started&&Number.isInteger(this.currentMap.civs?.[this.seat])&&this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
+    const canPlace=this.currentMap.awaitingVillager===undefined&&!!this.currentMap.started&&Number.isInteger(this.currentMap.civs?.[this.seat])&&this.seat>=0&&this.seat===order[centers.length]&&!centers.some(p=>p.seat===this.seat);
     // Centrar todo lo visible y aprovechar al máximo el tamaño del canvas.
     // Los candidatos exteriores solo cuentan cuando están visibles para este jugador.
     const shown=[...displayHexes,...centers,...(draft?[draft]:[]),...(canPlace?spots:[])];
@@ -410,7 +420,8 @@ class BootScene extends Phaser.Scene {
 const game = new Phaser.Game({type: Phaser.AUTO, parent:'game', backgroundColor:'#172635', scale:{mode:Phaser.Scale.RESIZE, width:'100%', height:'100%'}, scene:[BootScene]});
 function renderMap(map:MapState|null){
   sharedMap=map;
-  recoveryPanel.hidden=!socket||socket.readyState!==WebSocket.OPEN||mySeat<0;
+  recoveryToggle.hidden=!socket||socket.readyState!==WebSocket.OPEN||mySeat<0;
+  if(recoveryToggle.hidden)recoveryPanel.hidden=true;
   const scene=game.scene.getScene('BootScene') as BootScene;
   if(scene.scene.isActive())scene.updateMap(map);
   if(map?.match&&!panelDismissed&&mySeat===(map.order??[])[map.match.turn]&&!actionMode)setPanelVisible(true);
@@ -418,7 +429,13 @@ function renderMap(map:MapState|null){
   const placed=map?.centers??[],inPlacement=!!map?.started&&placed.length<map.count;
   hostConfig.hidden=!!map||mySeat!==0;
   lobbyPanel.hidden=!map||!!map.started;
-  cuPanel.hidden=!inPlacement;
+  cuPanel.hidden=true;
+  const awaiting=map?.awaitingVillager===mySeat;
+  const isChooser=inPlacement&&map?.order?.[placed.length]===mySeat;
+  setupPrompt.hidden=!(awaiting||isChooser);
+  setupPrompt.textContent=awaiting?'Ahora elige donde quieres colocar a tu aldeano':isChooser?'Elige el lugar para tu Centro Urbano':'';
+  if(awaiting||inPlacement){setPanelVisible(false)}
+  if(!map?.awaitingVillager&&map?.draft?.seat!==mySeat&&pendingSetup?.type==='confirm_cu_position'){pendingSetup=null;setupDialog.hidden=true}
   playingPanel.hidden=!map?.match;
   if(map?.match){
     const m=map.match,seat=(map.order??[])[m.turn],active=mySeat===seat,me=m.players[mySeat];
