@@ -169,9 +169,10 @@
             <div class="mini-card military"><b>Maravilla</b><p>Territorio central que puede otorgar una estrella, 10 puntos y un beneficio de INSTRUIR. No agrega puntos territoriales extra.</p></div>
           </div>
           <h4>A. Control de un territorio</h4>
-          <div class="rule"><b>Regla de control</b>Un hexágono es tuyo cuando tiene al menos una unidad económica o militar tuya; o cuando tiene un edificio tuyo sin unidades enemigas presentes. Tener varias unidades no multiplica la cantidad de territorios controlados.</div>
-          <p>Si un edificio propio comparte hexágono con unidades enemigas y no hay unidades propias que definan el control, el hexágono <strong>no cuenta para ninguno</strong>. Cuando existe una disputa militar, se resuelve mediante combate al final del turno correspondiente.</p>
-          <p>Los recursos sobre el hexágono <strong>no definen su propietario</strong>: el control lo determinan las unidades y edificios.</p>
+          <div class="rule"><b>Regla de control</b>Un hexágono está controlado cuando solo un jugador mantiene presencia en él, mediante al menos una unidad o una construcción propia (incluido su Centro Urbano). Tener varias unidades no multiplica la cantidad de territorios controlados. Al retirar toda presencia propia, se pierde el control.</div>
+          <p><strong>Territorio disputado:</strong> si hay presencia de dos jugadores en un mismo hexágono y no se libra combate, <strong>ninguno lo controla</strong>. Sus unidades y construcciones permanecen allí, pero ninguno puede <strong>producir, gastar los recursos almacenados ni utilizar las funciones de sus construcciones</strong> en ese hexágono.</p>
+          <p>Si uno de los jugadores retira toda su presencia, el otro <strong>recupera el control inmediatamente</strong> siempre que conserve unidades o construcciones allí. No hace falta reconquistar el territorio ni realizar una acción adicional.</p>
+          <p>Los recursos permanecen físicamente en el hexágono y <strong>solo pueden gastarse mientras ese territorio esté controlado</strong> por el jugador. La ubicación de los recursos no determina por sí sola el control.</p>
 
           <h4>B. Territorios primarios</h4>
           <div class="terrain-grid">
@@ -407,7 +408,8 @@
           <div class="action-title"><h4>A. MOVER</h4><span class="type">Ejército</span></div>
           <p>La acción militar <strong>MOVER</strong> puede utilizarse para mover un grupo de <strong>unidades militares o económicas</strong> que parten de un mismo hexágono. Pueden hacerlo juntas, respetando su Movimiento y las restricciones del terreno. Todas las unidades a pie recorren 1 hexágono y todas las unidades montadas recorren 2. Si varias unidades salen juntas del mismo hexágono, se mueven en grupo con una sola acción y recorren como máximo la distancia de la más lenta.</p>
           <div class="rule"><b>Movimiento asimétrico</b>Las unidades económicas pueden moverse tanto con la acción MOVER de Economía como con la acción MOVER Militar. Las unidades militares solo pueden moverse con la acción MOVER Militar.</div>
-          <p>Al ingresar en un hexágono enemigo, el atacante decide si inicia el combate cuando hay defensa militar. Los combates se resuelven al finalizar el turno.</p>
+          <p>Solo las unidades con <strong>Fuerza mayor que 0</strong> pueden entrar en hexágonos controlados por otro jugador. Un Aldeano sin Telar (Fuerza 0) no puede hacerlo; al investigar Telar y ganar Fuerza, sí puede. <strong>Fuerza 0 no impide defenderse ni recibir ataques</strong>: esta restricción se aplica únicamente a la entrada en territorio enemigo.</p>
+          <p>Al entrar en un hexágono enemigo que no sea un Centro Urbano, el atacante puede <strong>elegir no combatir</strong> y dejar el territorio disputado. Si decide iniciar combate, se resuelve al final de su turno. <strong>En un Centro Urbano enemigo el combate es obligatorio.</strong></p>
 
           <div class="action-title"><h4>B. ENTRENAR</h4><span class="type">Unidades militares</span></div>
           <p>Elegí una o más unidades militares habilitadas por tu civilización. Durante una misma acción ENTRENAR podés entrenar <strong>tantas unidades como puedas pagar</strong>, siempre que estén habilitadas por el edificio correspondiente y pagues los costos desde hexágonos que controles. Todas las unidades entrenadas aparecen allí, salvo excepciones expresas del Player Mat.</p>
@@ -427,9 +429,10 @@
 
         <section class="section">
           <h3>5.1. Inicio y defensa</h3>
-          <p>Una unidad militar puede entrar a un hexágono enemigo. Si encuentra unidades militares defensoras, el atacante puede iniciar combate. La resolución ocurre <strong>al final del turno del atacante</strong>.</p>
-          <div class="rule"><b>Ocupación sin defensa militar</b>Si un ejército entra en un hexágono con <strong>solo unidades económicas, religiosas y/o edificios enemigos</strong>, no hace falta una batalla: las unidades económicas y religiosas vuelven al Centro Urbano, los edificios se destruyen y el atacante pasa a controlar el territorio. Si una unidad religiosa desplazada estaba transportando una <strong>Reliquia</strong>, la ficha queda en ese hexágono.</div>
-          <p>El <strong>Centro Urbano</strong> es una excepción especial: si un ejército enemigo entra en él y su dueño no puede defenderlo, o pierde el combate defensivo, su civilización queda eliminada.</p>
+          <p>Una unidad con <strong>Fuerza mayor que 0</strong> puede entrar en un hexágono controlado por un enemigo, incluso si es un Aldeano que ha investigado Telar. En un territorio normal, <strong>el atacante decide si inicia combate o mantiene una ocupación sin combatir</strong>. Los combates iniciados se resuelven <strong>al finalizar el turno del atacante</strong>.</p>
+          <div class="rule"><b>Ocupación sin combate</b>Si el atacante elige no combatir, los jugadores conservan sus unidades y construcciones en el hexágono, pero el territorio queda <strong>disputado</strong>: nadie lo controla, nadie puede producir ni gastar sus recursos y todas las construcciones allí quedan inutilizables hasta que se recupere el control. Unidades con Fuerza 0 pueden seguir presentes, defenderse y recibir ataques; lo que no pueden es entrar en un territorio enemigo controlado.</div>
+          <p>Si se resuelve una conquista contra un territorio defendido únicamente por unidades económicas, religiosas y/o edificios, se aplican las consecuencias de conquista: las unidades económicas y religiosas defensoras regresan a su Centro Urbano y las construcciones enemigas se destruyen. Si una unidad religiosa desplazada transportaba una <strong>Reliquia</strong>, esta permanece en el hexágono.</p>
+          <div class="rule"><b>Centro Urbano: combate obligatorio</b>No puede quedar simplemente disputado mediante una ocupación sin combate. Cuando una unidad enemiga con Fuerza mayor que 0 entra en el Centro Urbano, debe resolverse el enfrentamiento. Si el propietario no tiene unidades capaces de defenderlo, <strong>queda eliminado inmediatamente</strong>; si combate y pierde, su civilización también es eliminada.</div>
 
           <h3>5.2. Fuerza de los participantes</h3>
           <p>Cada jugador suma sus fuerzas participantes y todas las bonificaciones aplicables:</p>
