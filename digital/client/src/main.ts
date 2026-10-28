@@ -286,7 +286,7 @@ class BootScene extends Phaser.Scene {
     if(this.currentMap.match){
       for(const building of this.currentMap.match.buildings){
         const x=cx+size*Math.sqrt(3)*(building.q+building.r/2),y=cy+size*1.5*building.r;
-        const marker=building.kind==='Granja'?'🌾':building.kind==='Cuartel'?'⚔️':'⛏️';
+        const marker=building.kind==='Granja'?'🌾':building.kind==='Cuartel'?'⚔️':building.kind==='Torre'?'🏰':building.kind==='Puerto'?'⚓':'⛏️';
         this.add.text(x+size*.38,y-size*.38,marker,{fontSize:Math.max(12,size*.38)+'px'}).setOrigin(.5);
       }
       for(const unit of this.currentMap.match.units){
@@ -351,7 +351,7 @@ function renderMap(map:MapState|null){
     optionsPanel.hidden=!active||!['build','research','trade'].includes(actionMode??'');
     carryPanel.hidden=!active||actionMode!=='move'||!me?.techs.includes('Carretilla');
     tradeFields.hidden=actionMode!=='trade';
-    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel']:actionMode==='trade'?['food','wood','stone']:['Telar','Carretilla','Doble Filo'];
+    const opts=actionMode==='build'?['Campamento Productivo','Granja','Cuartel','Torre','Puerto']:actionMode==='trade'?['food','wood','stone']:['Telar','Carretilla','Doble Filo'];
     const previous=optionSelect.value;
     optionSelect.replaceChildren(...opts.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o}));
     if(opts.includes(previous))optionSelect.value=previous;
