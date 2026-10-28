@@ -81,19 +81,18 @@ const carryResource=document.getElementById('carry-resource') as HTMLSelectEleme
 const carryAmount=document.getElementById('carry-amount') as HTMLInputElement;
 let selectedHexes:{q:number;r:number}[]=[];
 let selectedUnits:string[]=[];
+type MovePlan={unit:string;q:number;r:number;cargo:Record<string,number>};
+let movePlans:MovePlan[]=[];
+const resourceTypes=['food','wood','stone','gold'] as const;
 function sendAction(data:Record<string,unknown>){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'game_action',...data}))}
 document.getElementById('action-produce')!.addEventListener('click',()=>{actionMode='produce';selectedHexes=[];renderMap(sharedMap)});
-document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];renderMap(sharedMap)});
+document.getElementById('action-move')!.addEventListener('click',()=>{actionMode='move';selectedHexes=[];selectedUnits=[];movePlans=[];renderMap(sharedMap)});
 for(const [id,action] of [['action-build','build'],['action-trade','trade'],['action-train','train'],['action-tech','research'],['action-age','age']] as const)
   document.getElementById(id)!.addEventListener('click',()=>{actionMode=action;selectedHexes=[];renderMap(sharedMap)});
 document.getElementById('action-pass')!.addEventListener('click',()=>sendAction({action:'pass'}));
 submitAction.addEventListener('click',()=>{
   if(actionMode==='produce')sendAction({action:'produce',hexes:selectedHexes});
-  if(actionMode==='move'&&selectedUnits.length&&selectedHexes.length){
-    const quantity=Number(carryAmount.value);
-    const carry=quantity>0?{resource:carryResource.value,amount:quantity}:undefined;
-    sendAction({action:'move',units:selectedUnits,...selectedHexes[0],...(carry?{carry}:{})});
-  }
+  if(actionMode==='move'&&movePlans.length)sendAction({action:'move',moves:movePlans});
   if(actionMode==='build'&&selectedHexes.length)sendAction({action:'build',kind:optionSelect.value,...selectedHexes[0]});
   if(actionMode==='research')sendAction({action:'research',kind:optionSelect.value});
   if(actionMode==='train')sendAction({action:'train',amount:Number((document.getElementById('train-amount') as HTMLInputElement).value)});
@@ -108,7 +107,16 @@ function selectBoardHex(q:number,r:number){
     if(idx>=0)selectedHexes.splice(idx,1);
     else if(selectedHexes.length<[2,3,3,4][sharedMap.match.players[mySeat].age-1])selectedHexes.push({q,r});
   }
-  if(actionMode==='move'||actionMode==='build')selectedHexes=[{q,r}];
+  if(actionMode==='move'&&selectedUnits[0]){
+    const unit=sharedMap.match.units.find(u=>u.id===selectedUnits[0]);
+    if(unit&&Math.max(Math.abs(unit.q-q),Math.abs(unit.r-r),Math.abs(unit.q+unit.r-q-r))===1){
+      const prior=movePlans.findIndex(p=>p.unit===unit.id);
+      const planned:MovePlan={unit:unit.id,q,r,cargo:prior>=0?movePlans[prior].cargo:{food:0,wood:0,stone:0,gold:0}};
+      if(prior>=0)movePlans[prior]=planned;else if(movePlans.length<2)movePlans.push(planned);
+      selectedUnits=[];
+    }
+  }
+  if(actionMode==='build')selectedHexes=[{q,r}];
   renderMap(sharedMap);
 }
 
@@ -394,7 +402,7 @@ function renderMap(map:MapState|null){
       btn.hidden=id!=='action-pass'&&m.phase!==required;
     }
     optionsPanel.hidden=!active||!['build','research','trade'].includes(actionMode??'');
-    carryPanel.hidden=!active||actionMode!=='move'||!me?.techs.includes('Carretilla');
+    carryPanel.hidden=true;
     trainPanel.hidden=!active||actionMode!=='train';
     tradeFields.hidden=actionMode!=='trade';
     const techOptions=['Telar','Carretilla','Doble Filo'].filter(tech=>!me?.techs.includes(tech)&&!(tech==='Carretilla'&&map.civs?.[mySeat]===2&&(me?.age??1)<2));
@@ -431,18 +439,28 @@ function renderMap(map:MapState|null){
     unitList.replaceChildren();
     if(actionMode==='move'&&active){
       for(const u of m.units.filter(u=>u.seat===mySeat)){
+        const assigned=movePlans.find(p=>p.unit===u.id);
         const button=document.createElement('button');button.className='secondary';
-        button.textContent='Aldeano ('+u.q+','+u.r+')'+(selectedUnits.includes(u.id)?' ✓':'');
-        button.addEventListener('click',()=>{
-          if(selectedUnits.includes(u.id))selectedUnits=selectedUnits.filter(id=>id!==u.id);
-          else{
-            const selected=m.units.find(item=>item.id===selectedUnits[0]);
-            if(selected&&(selected.q!==u.q||selected.r!==u.r))selectedUnits=[];
-            if(selectedUnits.length<2)selectedUnits.push(u.id);
-          }
-          renderMap(sharedMap);
-        });
+        button.textContent='Aldeano ('+u.q+','+u.r+')'+(assigned?' → '+assigned.q+','+assigned.r:selectedUnits.includes(u.id)?' · Seleccionado':'');
+        button.disabled=!assigned&&movePlans.length>=2;
+        button.addEventListener('click',()=>{selectedUnits=[u.id];renderMap(sharedMap)});
         unitList.append(button);
+      }
+      for(const [index,plan] of movePlans.entries()){
+        const unit=m.units.find(u=>u.id===plan.unit)!;
+        const row=document.createElement('div');row.className='move-plan';
+        const label=document.createElement('strong');label.textContent='Movimiento '+(index+1)+' · ('+unit.q+','+unit.r+') → ('+plan.q+','+plan.r+')';row.append(label);
+        const stock=m.stock?.[unit.q+','+unit.r]??{};
+        for(const [i,res] of resourceTypes.entries()){
+          const field=document.createElement('label');field.textContent=['🥩','🪵','🪨','🪙'][i]+' (hay '+(stock[res]??0)+')';
+          const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.style.width='72px';
+          input.value=String(plan.cargo[res]??0);
+          input.addEventListener('change',()=>{plan.cargo[res]=Math.max(0,Math.floor(Number(input.value)||0))});
+          field.append(input);row.append(field);
+        }
+        const remove=document.createElement('button');remove.className='secondary';remove.textContent='Quitar';
+        remove.addEventListener('click',()=>{movePlans=movePlans.filter(p=>p.unit!==plan.unit);renderMap(sharedMap)});
+        row.append(remove);unitList.append(row);
       }
     }
     selectedDisplay.textContent=selectedHexes.map(p=>'('+p.q+','+p.r+')').join(' · ');
@@ -458,7 +476,7 @@ function renderMap(map:MapState|null){
         (buildings.length?' · '+buildings.map(b=>b.kind).join(', '):'')+
         ' · Recursos aquí: '+(['food','wood','stone','gold'] as const).map((resource,i)=>['🥩','🪵','🪨','🪙'][i]+' '+(stock[resource]??0)).join(' ');
     }else hexInfo.textContent='Tocá un hexágono para ver sus detalles.';
-    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&(!selectedUnits.length||!selectedHexes.length))||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
+    submitAction.hidden=!active||!actionMode||(actionMode==='produce'&&!selectedHexes.length)||(actionMode==='move'&&!movePlans.length)||(actionMode==='build'&&!selectedHexes.length)||(actionMode==='research'&&!opts.length);
     logDisplay.replaceChildren(...m.log.slice(0,12).map(line=>{const li=document.createElement('li');li.textContent=line;return li}));
   }
   phaseTitle.textContent=!map?'Crear partida':!map.started?'Sala de espera':inPlacement?'Colocación de CU':'Partida';
@@ -515,7 +533,7 @@ join.addEventListener('click', () => {
       const packet = JSON.parse(String(event.data));
       if (packet.type === 'welcome') { localStorage.setItem(tokenKey,token);restoreInput.value='';recoveryCode.value=token;playerId = packet.id; mySeat=packet.seat; (game.scene.getScene('BootScene') as BootScene).setSeat(mySeat); renderMap(sharedMap); }
       if (packet.type === 'seat') {mySeat=packet.seat;(game.scene.getScene('BootScene') as BootScene).setSeat(mySeat);renderMap(sharedMap)}
-      if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase){selectedHexes=[];selectedUnits=[];actionMode=null}renderMap(packet.map)}
+      if (packet.type === 'map'){if(packet.map?.match?.turn!==sharedMap?.match?.turn||packet.map?.match?.phase!==sharedMap?.match?.phase){selectedHexes=[];selectedUnits=[];movePlans=[];actionMode=null}renderMap(packet.map)}
       if (packet.type === 'error') mapInfo.textContent = packet.message;
       if (packet.type === 'lobby') {
         lobbyPlayers=packet.players;
