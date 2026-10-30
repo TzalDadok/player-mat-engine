@@ -1835,3 +1835,8 @@ html,body{margin:0;min-height:100%;background:#202020;color:var(--ink);font-fami
 }
 .mat[data-civ="britanicos"] .unit-table-cost .cost-item{white-space:nowrap}
 .mat[data-civ="britanicos"] .unit-table-cost .ri{font-size:9px;margin-right:0}
+
+
+/* Movimientos disponibles por edad: mismo icono de botita usado en las unidades. */
+.age-movement-count{position:absolute;z-index:5;right:5px;top:19px;display:flex;align-items:center;gap:1px;pointer-events:none}
+.age-boot{display:block;font-size:11px;line-height:1;filter:grayscale(1) brightness(0) invert(1) drop-shadow(0 1px 1px #000)}
