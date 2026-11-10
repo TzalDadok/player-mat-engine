@@ -33,7 +33,6 @@ window.PLAYER_MAT_CIVS.persas = {
       }
     ],
     military: [
-      ["Mover","Mueve hasta 2 unidades según su movilidad."],
       ["Entrenar","Entrena tantas unidades militares disponibles como puedas pagar."],
       {name:"Instruir",cost:{gold:1},text:"Obtén +1 poder de pelea."}
     ]
