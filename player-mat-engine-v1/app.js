@@ -33,7 +33,7 @@
   function renderSidebar(c){
     const action = (num, cls, title, rows, hint='Elegí 1 acción') => `<section class="action ${cls}"><div class="action-head"><span class="action-num">${num}</span><span>${title}</span><small>${hint}</small></div><div class="action-body">${rows.map(renderActionRow).join('')}</div></section>`;
     sidebar.innerHTML = `<div class="sidebar-title"><b>TU TURNO</b><small>Elegí 1 acción por categoría, en el orden que quieras.</small></div>
-      ${action('↗','move','MOVER',[['Mover','Opcional. Al inicio o al final; no se anuncia. Hasta 2 movimientos en I–II o 3 en III–IV.']],'1 vez por turno')}
+      ${action('↗','move','MOVER',[['Mover','Mueve tus unidades.']],'1 vez por turno')}
       ${action('⚙','econ','ECONOMÍA',c.turn.economy)}
       ${action('▤','tech','TECNOLOGÍA',c.turn.technology)}
       ${action('⚔','mil','MILITAR',c.turn.military)}`;
@@ -60,7 +60,7 @@
     });
     c.ages.forEach((a,ai)=>{
       const ac=document.createElement('div'); ac.className='cell age-cell'; ac.style.gridColumn='1'; ac.style.gridRow=String(ai+2);
-      ac.innerHTML=`${a.image?`<img src="${esc(a.image)}" alt="">`:``}<span class="age-roman">${esc(a.roman)}</span><div class="age-hex-count" aria-label="${[2,3,3,4][ai]} hexágonos por acción Producir">${Array.from({length:[2,3,3,4][ai]},()=>`<span class="age-hex" aria-hidden="true"></span>`).join("")}</div><div class="age-movement-count" aria-label="Movimientos por turno: ${[2,2,3,3][ai]}">${Array.from({length:[2,2,3,3][ai]},()=>`<span class="age-boot" aria-hidden="true">👢</span>`).join("")}</div><div class="age-info"><span class="age-text">${esc(a.name)}</span>${a.cost?costHTML(a.cost):``}</div>`; tree.appendChild(ac);
+      ac.innerHTML=`${a.image?`<img src="${esc(a.image)}" alt="">`:``}<span class="age-roman">${esc(a.roman)}</span><div class="age-hex-count" aria-label="${[2,3,3,4][ai]} hexágonos por acción Producir">${Array.from({length:[2,3,3,4][ai]},()=>`<span class="age-hex" aria-hidden="true"></span>`).join("")}</div><div class="age-movement-count" aria-label="Movimientos por turno: ${[2,3,3,4][ai]}">${Array.from({length:[2,2,3,3][ai]},()=>`<span class="age-boot" aria-hidden="true">👣</span>`).join("")}</div><div class="age-info"><span class="age-text">${esc(a.name)}</span>${a.cost?costHTML(a.cost):``}</div>`; tree.appendChild(ac);
       c.buildings.forEach((b,bi)=>{
         const slot=document.createElement('div'); slot.className='cell slot'; slot.dataset.age=a.id; slot.dataset.building=b.id; slot.style.gridColumn=String(bi+2); slot.style.gridRow=String(ai+2);
         const nodes=c.nodes.filter(n=>n.age===a.id&&n.building===b.id); slot.innerHTML=nodes.length?nodes.map(nodeHTML).join(''):'<div class="empty"></div>';
