@@ -15,7 +15,6 @@ window.PLAYER_MAT_CIVS.francos = {
   turn: {
     economy: [
       ["Producir","Elegí hexagonos para producir."],
-      ["Mover","Mueve hasta 2 unidades según su movilidad."],
       ["Construir","Utiliza un aldeano para construir estructuras disponibles."],
       ["Entrenar","Entrena tantas unidades económicas disponibles como puedas pagar."],
       ["Comerciar","Intercambia hasta 2 recursos utilizando el mercado."]
