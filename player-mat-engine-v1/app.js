@@ -31,8 +31,9 @@
   }
 
   function renderSidebar(c){
-    const action = (num, cls, title, rows) => `<section class="action ${cls}"><div class="action-head"><span class="action-num">${num}</span><span>${title}</span><small>Elegí 1 acción</small></div><div class="action-body">${rows.map(renderActionRow).join('')}</div></section>`;
-    sidebar.innerHTML = `<div class="sidebar-title"><b>TU TURNO</b><small>Realizá 1 acción de cada tipo, en orden.</small></div>
+    const action = (num, cls, title, rows, hint='Elegí 1 acción') => `<section class="action ${cls}"><div class="action-head"><span class="action-num">${num}</span><span>${title}</span><small>${hint}</small></div><div class="action-body">${rows.map(renderActionRow).join('')}</div></section>`;
+    sidebar.innerHTML = `<div class="sidebar-title"><b>TU TURNO</b><small>MOVER es independiente; luego 1 acción por categoría.</small></div>
+      ${action('↗','move','MOVER',[['Mover','Opcional · 1 vez por turno, al inicio o al final. No se anuncia. Hasta 2 movimientos en Alta/Feudal o 3 en Castillos/Imperial.']],'Acción independiente')}
       ${action(1,'econ','ECONOMÍA',c.turn.economy)}
       ${action(2,'tech','TECNOLOGÍA',c.turn.technology)}
       ${action(3,'mil','MILITAR',c.turn.military)}`;
