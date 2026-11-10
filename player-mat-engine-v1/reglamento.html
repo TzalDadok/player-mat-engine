@@ -276,7 +276,7 @@
           <h4>Conocer el Player Mat</h4>
           <div class="placeholder tall"><b>[IMAGEN · PLAYER MAT ANOTADO]</b><span>Flechas para identificar turnos, Edades, árbol de desarrollo, edificios, unidades, costos y bonificaciones</span></div>
           <div class="cards">
-            <div class="mini-card special"><b>Turnos</b><p>Las tres acciones posibles: Económica → Tecnológica → Militar.</p></div>
+            <div class="mini-card special"><b>Turnos</b><p>Las tres categorías: Económica → Tecnológica → Militar. MOVER es independiente.</p></div>
             <div class="mini-card tech"><b>Edades</b><p>Cuatro etapas: Alta Edad Media, Feudal, Castillos e Imperial.</p></div>
             <div class="mini-card economy"><b>Desarrollo</b><p>Casillas de unidades, edificios y tecnologías disponibles en cada Edad.</p></div>
             <div class="mini-card military"><b>Unidades</b><p>Fuerza, Alcance, Movimiento, mejoras, habilidades y bonificaciones.</p></div>
@@ -329,16 +329,17 @@
           <h3>3.1. Orden de juego</h3>
           <p>El grupo decide quién juega primero. Después, los turnos avanzan en <strong>sentido horario</strong>.</p>
           <h3>3.2. El turno</h3>
-          <p>Cada jugador puede realizar <strong>hasta una acción de cada categoría</strong>, siempre en este orden:</p>
+          <p>En cada turno hay <strong>tres categorías de acción</strong>, que se realizan como máximo una vez cada una y en este orden:</p>
           <div class="timeline">
-            <div class="phase econ"><b>Economía</b><span>Producir, mover, construir, entrenar o comerciar.</span></div>
+            <div class="phase econ"><b>Economía</b><span>Producir, construir, entrenar o comerciar.</span></div>
             <div class="phase tec"><b>Tecnología</b><span>Investigar, avanzar de Edad o modificar terreno.</span></div>
-            <div class="phase mil"><b>Militar</b><span>Mover, entrenar, construir o instruir.</span></div>
+            <div class="phase mil"><b>Militar</b><span>Entrenar o instruir.</span></div>
           </div>
-          <p>Elegir una acción en una fase impide realizar las demás de esa misma fase. El jugador puede omitir cualquier fase y pasar a la siguiente.</p>
+          <p>Elegir una acción en una categoría impide realizar las demás de esa misma categoría. El jugador puede omitir cualquier categoría y pasar a la siguiente.</p>
+          <div class="rule"><b>MOVER es una acción independiente</b>Además de las tres categorías, cada jugador puede realizar <strong>MOVER una vez por turno</strong>, de forma opcional. Puede hacerlo <strong>al comienzo o al final de su turno</strong>; no necesita anunciarlo previamente y no reemplaza ni consume una acción de Economía, Tecnología o Militar.</div>
           <h3>3.3. Cierre del turno</h3>
-          <p>Una vez realizadas u omitidas las tres acciones, se resuelven los combates pendientes para determinar el control de los territorios. <strong>Solo entonces</strong> empieza el turno del siguiente jugador.</p>
-          <div class="example"><strong>Ejemplo:</strong> Elegís PRODUCIR, después INVESTIGAR y por último MOVER tus tropas. Si provocaste una batalla, se resuelve antes de que juegue el siguiente participante.</div>
+          <p>Una vez realizadas u omitidas las acciones, se resuelven los combates pendientes para determinar el control de los territorios. <strong>Solo entonces</strong> empieza el turno del siguiente jugador.</p>
+          <div class="example"><strong>Ejemplo:</strong> Podés mover al comienzo, realizar PRODUCIR, INVESTIGAR y ENTRENAR, y no volver a mover: MOVER se realiza como máximo una vez en el turno. Si provocaste una batalla, se resuelve antes de que juegue el siguiente participante.</div>
         </section>
       </section>
 
@@ -346,8 +347,18 @@
         <div class="chapter-head"><div class="ch-num">4</div><div><small>Qué podés hacer</small><h2>Acciones</h2></div></div>
         <p class="lead-section">Cada categoría reúne opciones distintas. Los Player Mats determinan qué unidades, edificios o tecnologías están habilitados en cada momento.</p>
 
+        <section class="section action-section special" id="mover">
+          <h3>4.1. MOVER · Acción independiente</h3>
+          <p>MOVER puede realizarse <strong>una sola vez por turno</strong>, de forma opcional, <strong>al comienzo o al final del turno</strong>. No hace falta anunciarlo y no consume una acción de Economía, Tecnología ni Militar.</p>
+          <p>La cantidad de movimientos disponibles depende de la Edad: <strong>2 movimientos en Alta Edad Media y Feudal; 3 movimientos en Castillos e Imperial</strong>. Cada movimiento permite desplazar una unidad o un grupo que parte del mismo hexágono. Las unidades de un grupo se mueven juntas y cuentan como un solo movimiento.</p>
+          <p>Las unidades a pie recorren <strong>1 hexágono</strong> y las montadas <strong>2 hexágonos</strong>. Si un grupo combina unidades con distinta movilidad, avanza hasta la distancia permitida por la unidad más lenta. Se respetan las restricciones de terreno, control y movimiento indicadas en este reglamento.</p>
+          <div class="rule"><b>Unidades económicas y militares</b>MOVER permite desplazar tanto unidades económicas como militares. Todas utilizan esta misma acción independiente.</div>
+          <p>Las máquinas de asedio tienen Movimiento 0: para desplazarlas deben ir acompañadas por una unidad a pie; para operarlas necesitan un Aldeano. La tecnología <strong>Carretilla</strong> permite a los Aldeanos transportar recursos durante MOVER; sin ella, no pueden llevarlos. La carga y descarga forman parte del movimiento.</p>
+          <p>Solo las unidades con <strong>Fuerza mayor que 0</strong> pueden entrar en hexágonos controlados por otro jugador. La Fuerza 0 no impide defenderse ni recibir ataques. Al entrar en un territorio enemigo normal, el atacante puede iniciar combate o dejarlo disputado; en un Centro Urbano enemigo, el combate es obligatorio. Los combates pendientes se resuelven al final del turno.</p>
+        </section>
+
         <section class="section action-section econ" id="economicas">
-          <h3>4.1. Acciones económicas</h3><div class="note"><b>Versión de juego: economía simplificada</b>La producción requiere una acción PRODUCIR (no es automática). Un Aldeano produce 1 recurso y el Campamento Productivo produce 2 por sí solo. En un mismo hexágono, el Campamento y un Aldeano producen 3 recursos base. Mantené el límite de hexágonos productivos 2/3/3/4 según la Edad. No se alteran los costos de Edad, tecnologías y unidades.</div>
+          <h3>4.2. Acciones económicas</h3><div class="note"><b>Versión de juego: economía simplificada</b>La producción requiere una acción PRODUCIR (no es automática). Un Aldeano produce 1 recurso y el Campamento Productivo produce 2 por sí solo. En un mismo hexágono, el Campamento y un Aldeano producen 3 recursos base. Mantené el límite de hexágonos productivos 2/3/3/4 según la Edad. No se alteran los costos de Edad, tecnologías y unidades.</div>
           <div class="action-title"><h4>A. PRODUCIR</h4><span class="type">Recursos</span></div>
           <p>Al realizar esta acción, elegí hasta la cantidad de <strong>hexágonos productivos</strong> permitidos por tu Edad. Todos los Aldeanos y edificios productivos elegibles ubicados en esos hexágonos pueden producir una vez, respetando los requisitos de terreno y sus habilidades. Los recursos se toman del suministro general y se colocan <strong>en el mismo hexágono donde se produjeron</strong>.</p>
           <table><thead><tr><th>Edad</th><th>Hexágonos que pueden producir</th></tr></thead><tbody><tr><td>I · Alta Edad Media</td><td>2</td></tr><tr><td>II · Feudal</td><td>3</td></tr><tr><td>III · Castillos</td><td>3</td></tr><tr><td>IV · Imperial</td><td>4</td></tr></tbody></table>
@@ -356,18 +367,16 @@
           <div class="rule"><b>Pesca costera</b>Un Aldeano situado en un <strong>hexágono terrestre adyacente a Agua</strong> puede producir 1 Comida pescando desde la costa. Cada Aldeano de ese hexágono puede hacerlo: 2 Aldeanos producen 2 Comidas, 3 producen 3, etc. Todo el territorio terrestre cuenta como <strong>un solo hexágono productivo</strong>.</div>
           
 
-          <div class="action-title"><h4>B. MOVER</h4><span class="type">Unidades económicas</span></div>
-          <p>Permite mover juntas las unidades económicas que parten del mismo hexágono, contando como un solo movimiento. Las unidades a pie recorren 1 hexágono y las montadas 2; los grupos siempre se mueven al ritmo de la unidad más lenta.</p>
-          <p><strong>Por defecto los Aldeanos no pueden transportar recursos.</strong> La tecnología <strong>Carretilla</strong> habilita a los Aldeanos a llevar recursos al MOVER; la carga y descarga se realizan como parte del movimiento. Esta capacidad solo permite desplazar físicamente las fichas: para gastar recursos sigue siendo suficiente controlar el hexágono donde se encuentran, sin exigir transporte ni conexión entre territorios.</p>
 
-          <div class="action-title"><h4>C. CONSTRUIR</h4><span class="type">Edificio económico</span></div>
+
+          <div class="action-title"><h4>B. CONSTRUIR</h4><span class="type">Edificio económico</span></div>
           <p>Elegí una construcción económica o militar disponible. Debe haber un <strong>Aldeano en el hexágono elegido</strong>. Pagá el costo desde hexágonos que controles y colocá el edificio.</p>
 
-          <div class="action-title"><h4>D. ENTRENAR</h4><span class="type">Unidad económica</span></div>
+          <div class="action-title"><h4>C. ENTRENAR</h4><span class="type">Unidad económica</span></div>
           <p><strong>Aldeanos:</strong> el Centro Urbano, aunque es un hexágono y no un edificio, <strong>oficia como edificio de entrenamiento</strong>. El costo se paga con recursos de hexágonos que controles y el nuevo Aldeano aparece en el CU. Si una civilización permite entrenar Aldeanos desde otro edificio, el jugador puede elegir entrenarlo allí y colocarlo en el hexágono de ese edificio.</p>
           <p><strong>Unidades económicas navales:</strong> Pesqueros y transportes se entrenan normalmente en el <strong>Puerto</strong> y aparecen en el mismo hexágono de Agua donde está construido, salvo que el Player Mat indique una excepción.</p>
 
-          <div class="action-title"><h4>E. COMERCIAR</h4><span class="type">Mercado global desde Alta Edad Media</span></div>
+          <div class="action-title"><h4>D. COMERCIAR</h4><span class="type">Mercado global desde Alta Edad Media</span></div>
           <p>Desde el comienzo de la partida, sin construir un Mercado, podés usar la acción económica <strong>COMERCIAR</strong> para comprar o vender hasta <strong>2 recursos</strong> (Comida, Madera o Piedra) a cambio de Oro. El Mercado tiene <strong>precios compartidos</strong> entre los cuatro jugadores y una ficha por recurso. Después de cada compra, mové su ficha un espacio a la derecha; después de cada venta, un espacio a la izquierda. Pagá o cobrá el precio de la casilla <strong>antes de mover</strong> la ficha. En los extremos podés seguir comerciando sin moverla.</p>
           <div class="table-wrap"><table><thead><tr><th>Recurso</th><th>Casilla 1 · Inicio</th><th>Casilla 2</th><th>Casilla 3</th><th>Casilla 4</th><th>Casilla 5</th></tr></thead><tbody>
             <tr><td><strong>🥩 Comida</strong></td><td>Compra 2 / Venta 1</td><td>3 / 1</td><td>4 / 2</td><td>5 / 3</td><td>6 / 4</td></tr>
@@ -379,7 +388,7 @@
         </section>
 
         <section class="section action-section tech" id="tecnologicas">
-          <h3>4.2. Acciones tecnológicas</h3>
+          <h3>4.3. Acciones tecnológicas</h3>
           <div class="action-title"><h4>A. INVESTIGAR</h4><span class="type">Progreso</span></div>
           <p>Elegí una tecnología disponible en tu Player Mat y pagá su costo utilizando recursos de tus <strong>hexágonos controlados</strong>. Los efectos se aplican según el texto de la tecnología. Algunas mejoras afectan a toda una clase de unidades o edificios.</p>
           <p>Las tecnologías investigadas cuentan para el objetivo de 15 tecnologías. <strong>Avanzar de Edad no cuenta</strong> como tecnología investigada.</p>
@@ -404,20 +413,14 @@
         </section>
 
         <section class="section action-section mil" id="militares">
-          <h3>4.3. Acciones militares</h3>
-          <div class="action-title"><h4>A. MOVER</h4><span class="type">Ejército</span></div>
-          <p>La acción militar <strong>MOVER</strong> puede utilizarse para mover un grupo de <strong>unidades militares o económicas</strong> que parten de un mismo hexágono. Pueden hacerlo juntas, respetando su Movimiento y las restricciones del terreno. Todas las unidades a pie recorren 1 hexágono y todas las unidades montadas recorren 2. Si varias unidades salen juntas del mismo hexágono, se mueven en grupo con una sola acción y recorren como máximo la distancia de la más lenta.</p>
-          <div class="rule"><b>Movimiento asimétrico</b>Las unidades económicas pueden moverse tanto con la acción MOVER de Economía como con la acción MOVER Militar. Las unidades militares solo pueden moverse con la acción MOVER Militar.</div>
-          <p>Solo las unidades con <strong>Fuerza mayor que 0</strong> pueden entrar en hexágonos controlados por otro jugador. Un Aldeano sin Telar (Fuerza 0) no puede hacerlo; al investigar Telar y ganar Fuerza, sí puede. <strong>Fuerza 0 no impide defenderse ni recibir ataques</strong>: esta restricción se aplica únicamente a la entrada en territorio enemigo.</p>
-          <p>Al entrar en un hexágono enemigo que no sea un Centro Urbano, el atacante puede <strong>elegir no combatir</strong> y dejar el territorio disputado. Si decide iniciar combate, se resuelve al final de su turno. <strong>En un Centro Urbano enemigo el combate es obligatorio.</strong></p>
-
-          <div class="action-title"><h4>B. ENTRENAR</h4><span class="type">Unidades militares</span></div>
+          <h3>4.4. Acciones militares</h3>
+          <div class="action-title"><h4>A. ENTRENAR</h4><span class="type">Unidades militares</span></div>
           <p>Elegí una o más unidades militares habilitadas por tu civilización. Durante una misma acción ENTRENAR podés entrenar <strong>tantas unidades como puedas pagar</strong>, siempre que estén habilitadas por el edificio correspondiente y pagues los costos desde hexágonos que controles. Todas las unidades entrenadas aparecen allí, salvo excepciones expresas del Player Mat.</p>
           <p>La producción militar terrestre se centraliza en el <strong>Cuartel</strong>, con excepciones como unidades habilitadas por Castillos u otras tecnologías. <strong>No existen Establos ni Galerías de Arquería como edificios independientes.</strong> Las unidades navales dependen del Puerto y de sus habilitaciones.</p>
 
           
 
-          <div class="action-title"><h4>D. INSTRUIR</h4><span class="type">Poder de Pelea</span></div>
+          <div class="action-title"><h4>B. INSTRUIR</h4><span class="type">Poder de Pelea</span></div>
           <div class="rule"><b>Costo: 🪙 1 → Ganancia: +1 Poder de Pelea</b>El Oro debe estar disponible en hexágonos que controles. Cada jugador puede acumular hasta <strong>16</strong> Poder de Pelea. En un combate puede apostar entre <strong>0 y 7</strong>, sin superar el disponible.</div>
           <p>Mientras controles la Maravilla, <strong>INSTRUIR no cuesta Oro</strong>; sigue gastando tu acción Militar del turno.</p>
         </section>
